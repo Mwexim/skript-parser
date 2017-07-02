@@ -1,4 +1,4 @@
-package io.github.bensku.skript;
+package io.github.bensku.skript.expression;
 
 import java.util.List;
 

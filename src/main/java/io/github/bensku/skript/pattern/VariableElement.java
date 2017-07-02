@@ -3,7 +3,7 @@ package io.github.bensku.skript.pattern;
 import java.util.List;
 import java.util.Set;
 
-import io.github.bensku.skript.ExpressionManager;
+import io.github.bensku.skript.expression.ExpressionManager;
 
 /**
  * Represents a variable in text.

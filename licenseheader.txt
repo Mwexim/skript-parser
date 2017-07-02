@@ -14,4 +14,4 @@
  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
 
 
-Copyright 2011-2017 Peter Güttinger and contributors
+Copyright 2017 "bensku"

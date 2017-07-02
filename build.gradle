@@ -1,8 +1,8 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
-plugins {
-    id "com.github.hierynomus.license" version "0.13.1"
-}
+//plugins {
+//    id "com.github.hierynomus.license" version "0.13.1"
+//}
 
 apply plugin: 'java'
 apply plugin: 'maven-publish'
@@ -24,9 +24,9 @@ processResources {
 	]
 }
 
-license {
-    header file('licenseheader.txt')
-}
+//license {
+//    header file('licenseheader.txt')
+//}
 
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
