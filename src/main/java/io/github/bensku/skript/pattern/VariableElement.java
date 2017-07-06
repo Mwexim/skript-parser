@@ -6,6 +6,7 @@ import java.util.Set;
 import io.github.bensku.skript.ParserState;
 import io.github.bensku.skript.expression.ExpressionManager;
 import io.github.bensku.skript.expression.PatternInfo;
+import io.github.bensku.skript.type.Type;
 
 /**
  * Represents a variable in text.
@@ -13,17 +14,17 @@ import io.github.bensku.skript.expression.PatternInfo;
  */
 public class VariableElement implements PatternElement {
     
-    private List<Class<?>> returnTypes;
+    private List<Type<?>> returnTypes;
     private ExpressionManager exprManager;
     
-    public VariableElement(List<Class<?>> returnTypes, ExpressionManager exprManager) {
-        this.returnTypes = returnTypes;
+    public VariableElement(List<Type<?>> types, ExpressionManager exprManager) {
+        this.returnTypes = types;
         this.exprManager = exprManager;
     }
     
     @Override
     public int matches(String str, int start, ParserState state) {
-        for (Class<?> type : returnTypes) {
+        for (Type<?> type : returnTypes) {
             List<PatternInfo> patterns = exprManager.getAllPatterns(type);
             for (PatternInfo info : patterns) {
                 int pos = info.getPattern().matches(str, start);

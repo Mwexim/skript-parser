@@ -3,6 +3,7 @@ package io.github.bensku.skript.expression;
 import java.util.List;
 
 import io.github.bensku.skript.pattern.PatternElement;
+import io.github.bensku.skript.type.Type;
 
 /**
  * Represents something that returns something and has patterns which
@@ -12,6 +13,12 @@ import io.github.bensku.skript.pattern.PatternElement;
 public class Expression {
     
     private List<PatternElement> patterns;
+    private Type<?> returnType;
+    
+    public Expression(List<PatternElement> patterns, Type<?> returnType) {
+        this.patterns = patterns;
+        this.returnType = returnType;
+    }
     
     /**
      * Represents some of the standard expression priority values.
