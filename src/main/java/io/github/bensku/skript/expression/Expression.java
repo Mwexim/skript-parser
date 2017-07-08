@@ -10,32 +10,21 @@ import io.github.bensku.skript.type.Type;
  * may result it being matched.
  *
  */
-public class Expression {
+public class Expression<T> {
     
     private List<PatternElement> patterns;
-    private Type<?> returnType;
+    private Type<T> returnType;
     
-    public Expression(List<PatternElement> patterns, Type<?> returnType) {
+    public Expression(List<PatternElement> patterns, Type<T> returnType) {
         this.patterns = patterns;
         this.returnType = returnType;
     }
     
-    /**
-     * Represents some of the standard expression priority values.
-     *
-     */
-    public static class Priority {
-        
-        /**
-         * Language features (function calls) are ALWAYS parsed first.
-         * Use this only when absolutely necessary.
-         */
-        public static final int LANG_FEATURE = 0;
-        
-        public static final int HIGH = 1;
-        
-        public static final int MEDIUM = 2;
-        
-        public static final int LOW = 3;
+    public List<PatternElement> getPatterns() {
+        return patterns;
+    }
+    
+    public Type<T> getReturnType() {
+        return returnType;
     }
 }

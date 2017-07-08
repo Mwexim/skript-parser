@@ -6,20 +6,22 @@ import io.github.bensku.skript.pattern.PatternElement;
  * Contains a pattern and expressions for which it belongs to.
  *
  */
-public class PatternInfo {
+public class PatternInfo implements Comparable<PatternInfo> {
     
-    private Expression expr;
+    private Expression<?> expr;
     private int patternIndex;
     
     private PatternElement pattern;
     
-    public PatternInfo(Expression expr, int index, PatternElement pattern) {
+    private int priority;
+    
+    public PatternInfo(Expression<?> expr, int index, PatternElement pattern) {
         this.expr = expr;
         this.patternIndex = index;
         this.pattern = pattern;
     }
     
-    public Expression getExpression() {
+    public Expression<?> getExpression() {
         return expr;
     }
     
@@ -29,5 +31,10 @@ public class PatternInfo {
     
     public PatternElement getPattern() {
         return pattern;
+    }
+
+    @Override
+    public int compareTo(PatternInfo o) {
+        return Integer.compare(priority, o.priority);
     }
 }
