@@ -103,5 +103,11 @@ gradle-app.setting
 # End of https://www.gitignore.io/api/java,gradle,eclipse
 
 ### IntelliJ IDEA ###
+# .idea folder
 .idea
+
+# IDEA files (.iml and .ipr)
+*.i*
+
+
 

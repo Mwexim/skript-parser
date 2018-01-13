@@ -1,7 +1,12 @@
 package fr.syst3ms.skriptparser.pattern;
 
+import fr.syst3ms.skriptparser.classes.PatternType;
+import fr.syst3ms.skriptparser.classes.Type;
+
+import java.util.List;
+
 public class ExpressionElement implements PatternElement {
-    private Class<?>[] classes;
+    private List<PatternType<?>> types;
     private boolean nullable;
     private int time;
     private Acceptance acceptance;
@@ -27,8 +32,8 @@ public class ExpressionElement implements PatternElement {
         }
     }
 
-    public ExpressionElement(Class<?>[] classes, boolean nullable, int time, Acceptance acceptance) {
-        this.classes = classes;
+    public ExpressionElement(List<PatternType<?>> types, boolean nullable, int time, Acceptance acceptance) {
+        this.types = types;
         this.nullable = nullable;
         this.time = time;
         this.acceptance = acceptance;
@@ -38,5 +43,15 @@ public class ExpressionElement implements PatternElement {
     public int match(String s, int index) {
         // TODO
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || !(obj instanceof ExpressionElement)) {
+            return false;
+        } else {
+            ExpressionElement e = (ExpressionElement) obj;
+            return types.equals(e.types) && nullable == e.nullable && time == e.time && acceptance == e.acceptance;
+        }
     }
 }

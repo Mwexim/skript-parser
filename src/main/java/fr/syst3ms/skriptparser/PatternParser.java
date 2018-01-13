@@ -1,12 +1,8 @@
 package fr.syst3ms.skriptparser;
 
-import fr.syst3ms.skriptparser.pattern.ChoiceElement;
-import fr.syst3ms.skriptparser.pattern.ChoiceGroup;
-import fr.syst3ms.skriptparser.pattern.CompoundElement;
-import fr.syst3ms.skriptparser.pattern.ExpressionElement;
-import fr.syst3ms.skriptparser.pattern.PatternElement;
-import fr.syst3ms.skriptparser.pattern.RegexGroup;
-import fr.syst3ms.skriptparser.pattern.TextElement;
+import fr.syst3ms.skriptparser.classes.PatternType;
+import fr.syst3ms.skriptparser.classes.TypeManager;
+import fr.syst3ms.skriptparser.pattern.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,11 +13,10 @@ import java.util.regex.PatternSyntaxException;
 public class PatternParser {
     private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(\\d+?)¦.*");
     private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*~])?(?<types>[\\w\\/]+)(?:@(-?1))?");
-    private static final StringBuilder EMPTY_STRING_BUILDER = new StringBuilder("");
 
     public static PatternElement parsePattern(String pattern) {
         List<PatternElement> elements = new ArrayList<>();
-        StringBuilder textBuilder = EMPTY_STRING_BUILDER;
+        StringBuilder textBuilder = new StringBuilder("");
         char[] chars = pattern.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             char c = chars[i];
@@ -33,14 +28,14 @@ public class PatternParser {
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
-                    textBuilder = EMPTY_STRING_BUILDER;
+                    textBuilder = new StringBuilder("");
                 }
                 i += s.length() + 1; // sets i to the closing bracket, for loop does the rest
                 PatternElement content = parsePattern(s);
                 if (content == null) {
                     return null;
                 }
-                elements.add(content);
+                elements.add(new OptionalGroup(content));
             } else if (c == '(') {
                 String s = getEnclosedText(pattern, '(', ')', i);
                 if (s == null) {
@@ -49,10 +44,10 @@ public class PatternParser {
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
-                    textBuilder = EMPTY_STRING_BUILDER;
+                    textBuilder = new StringBuilder("");
                 }
                 i += s.length() + 1;
-                String[] choices = pattern.split("(?<!\\\\)|");
+                String[] choices = s.split("(?<!\\\\)\\|");
                 List<ChoiceElement> choiceElements = new ArrayList<>();
                 for (String choice : choices) {
                     Matcher matcher = PARSE_MARK_PATTERN.matcher(choice);
@@ -82,7 +77,7 @@ public class PatternParser {
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
-                    textBuilder = EMPTY_STRING_BUILDER;
+                    textBuilder = new StringBuilder("");
                 }
                 i += s.length() + 1;
                 Pattern pat;
@@ -103,6 +98,11 @@ public class PatternParser {
                     error("Unclosed variable declaration at index " + i);
                     return null;
                 }
+                if (textBuilder.length() != 0) {
+                    elements.add(new TextElement(textBuilder.toString()));
+                    textBuilder = new StringBuilder("");
+                }
+                i = nextIndex;
                 String s = pattern.substring(i + 1, nextIndex);
                 Matcher m = VARIABLE_PATTERN.matcher(s);
                 if (!m.matches()) {
@@ -126,7 +126,16 @@ public class PatternParser {
                     }
                     String typeString = m.group("types");
                     String[] types = typeString.split("/");
-                    // TODO convert to classes
+                    List<PatternType<?>> patternTypes = new ArrayList<>();
+                    for (String type : types) {
+                        PatternType<?> t = TypeManager.getPatternType(type);
+                        if (t == null) {
+                            error("Unknown type : " + type);
+                            return null;
+                        }
+                        patternTypes.add(t);
+                    }
+                    elements.add(new ExpressionElement(patternTypes, nullable, time, acceptance));
                 }
             } else if (c == '\\') {
                 if (i == pattern.length() - 1) {
@@ -139,8 +148,13 @@ public class PatternParser {
                 textBuilder.append(c);
             }
         }
+        if (textBuilder.length() != 0) {
+            elements.add(new TextElement(textBuilder.toString()));
+            textBuilder = new StringBuilder("");
+        }
         if (elements.size() == 1) {
-            return elements.get(0);
+            PatternElement e = elements.get(0);
+            return e;
         } else {
             return new CompoundElement(elements);
         }
@@ -149,14 +163,15 @@ public class PatternParser {
     private static String getEnclosedText(String pattern, char opening, char closing, int start) {
         int n = 0;
         for (int i = start; i < pattern.length(); i++) {
-            if (pattern.charAt(i) == '\\') {
+            char c = pattern.charAt(i);
+            if (c == '\\') {
                 i++;
-            } else if (pattern.charAt(i) == closing) {
+            } else if (c == closing) {
+                n--;
                 if (n == 0) {
                     return pattern.substring(start + 1, i); // We don't want the beginning bracket in there
                 }
-                n--;
-            } else if (pattern.charAt(i) == opening) {
+            } else if (c == opening) {
                 n++;
             }
         }

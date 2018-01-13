@@ -12,4 +12,9 @@ public class TextElement implements PatternElement {
         // TODO
         return 0;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj != null && obj instanceof TextElement && text.equalsIgnoreCase(((TextElement) obj).text);
+    }
 }

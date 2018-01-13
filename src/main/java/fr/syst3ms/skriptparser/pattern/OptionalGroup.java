@@ -12,4 +12,9 @@ public class OptionalGroup implements PatternElement {
         // TODO
         return 0;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj != null && obj instanceof OptionalGroup && element.equals(((OptionalGroup) obj).element);
+    }
 }

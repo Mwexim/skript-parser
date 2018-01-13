@@ -14,4 +14,9 @@ public class RegexGroup implements PatternElement {
         // TODO
         return 0;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj != null && obj instanceof RegexGroup && pattern.pattern().equals(((RegexGroup) obj).pattern.pattern());
+    }
 }
