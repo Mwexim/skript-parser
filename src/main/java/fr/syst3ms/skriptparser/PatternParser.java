@@ -102,8 +102,8 @@ public class PatternParser {
                     elements.add(new TextElement(textBuilder.toString()));
                     textBuilder = new StringBuilder("");
                 }
-                i = nextIndex;
                 String s = pattern.substring(i + 1, nextIndex);
+                i = nextIndex;
                 Matcher m = VARIABLE_PATTERN.matcher(s);
                 if (!m.matches()) {
                     error("Invalid variable definition");

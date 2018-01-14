@@ -1,5 +1,7 @@
 package fr.syst3ms.skriptparser.classes;
 
+import org.intellij.lang.annotations.Language;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -8,7 +10,7 @@ import java.util.regex.Matcher;
  * Manages all different types.
  */
 public class TypeManager {
-	private static Map<String, Type<?>> nameToType;
+	private static Map<String, Type<?>> nameToType = new HashMap<>();
 
 	public static Type<?> getByExactName(String name) {
 		return nameToType.get(name);
@@ -38,7 +40,7 @@ public class TypeManager {
 		return null;
 	}
 
-	public static <T> void registerType(Class<T> c, String name, String pattern) {
+	public static <T> void registerType(Class<T> c, String name, @Language("Regexp") String pattern) {
 		nameToType.put(name, new Type<>(c, name, pattern));
 	}
 }

@@ -20,4 +20,14 @@ public class PatternType<T> {
 	public boolean isSingle() {
 		return single;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null || !(obj instanceof PatternType)) {
+			return false;
+		} else {
+			PatternType<?> o = (PatternType<?>) obj;
+			return type.equals(o.type) && single == o.single;
+		}
+	}
 }

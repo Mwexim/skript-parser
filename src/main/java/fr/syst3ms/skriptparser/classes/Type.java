@@ -43,6 +43,16 @@ public class Type<T> {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (obj == null || !(obj instanceof Type)) {
+			return false;
+		} else {
+			Type<?> o = (Type<?>) obj;
+			return c.equals(o.c) && baseName.equals(o.baseName) && syntaxPattern.pattern().equals(o.syntaxPattern.pattern());
+		}
+	}
+
+	@Override
 	public int hashCode() {
 		return syntaxPattern.pattern().hashCode();
 	}
