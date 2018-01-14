@@ -1,5 +1,8 @@
 package io.github.syst3ms.skriptparser.pattern;
 
+/**
+ * Text inside of a pattern. Is case and whitespace insensitive.
+ */
 public class TextElement implements PatternElement {
     private String text;
 

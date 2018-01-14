@@ -2,7 +2,6 @@ package io.github.syst3ms.skriptparser;
 
 import io.github.syst3ms.skriptparser.classes.PatternType;
 import io.github.syst3ms.skriptparser.classes.TypeManager;
-import fr.syst3ms.skriptparser.pattern.*;
 import io.github.syst3ms.skriptparser.pattern.*;
 
 import java.util.ArrayList;
@@ -15,6 +14,11 @@ public class PatternParser {
     private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(\\d+?)¦.*");
     private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*~])?(?<types>[\\w\\/]+)(?:@(-?1))?");
 
+    /**
+     * Parses a pattern and returns a {@link PatternElement}. This method can be called by itself, for example when parsing group constructs.
+     * @param pattern the pattern to be parsed
+     * @return the parsed PatternElement, or {@literal null} if something went wrong.
+     */
     public static PatternElement parsePattern(String pattern) {
         List<PatternElement> elements = new ArrayList<>();
         StringBuilder textBuilder = new StringBuilder("");

@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.regex.Pattern;
 
+import static io.github.syst3ms.skriptparser.PatternParser.*;
+
 public class PatternParserTest extends TestCase {
 
 	static {
@@ -18,8 +20,8 @@ public class PatternParserTest extends TestCase {
 
 	@Test
 	public void testParsePattern() throws Exception {
-		assertEquals(new TextElement("syntax"), PatternParser.parsePattern("syntax"));
-		assertEquals(new OptionalGroup(new TextElement("optional")), PatternParser.parsePattern("[optional]"));
+		assertEquals(new TextElement("syntax"), parsePattern("syntax"));
+		assertEquals(new OptionalGroup(new TextElement("optional")), parsePattern("[optional]"));
 		PatternElement expected = new OptionalGroup(
 			new CompoundElement(
 				new TextElement("something "),
@@ -27,19 +29,19 @@ public class PatternParserTest extends TestCase {
 				new TextElement(" again")
 			)
 		);
-		assertEquals(expected, PatternParser.parsePattern("[something [optional] again]"));
-		assertEquals(new ChoiceGroup(new ChoiceElement(new TextElement("single choice"), 0)), PatternParser.parsePattern("(single choice)"));
-		assertEquals(new ChoiceGroup(new ChoiceElement(new TextElement("parse mark"), 1)), PatternParser.parsePattern("(1¦parse mark)"));
+		assertEquals(expected, parsePattern("[something [optional] again]"));
+		assertEquals(new ChoiceGroup(new ChoiceElement(new TextElement("single choice"), 0)), parsePattern("(single choice)"));
+		assertEquals(new ChoiceGroup(new ChoiceElement(new TextElement("parse mark"), 1)), parsePattern("(1¦parse mark)"));
 		expected = new ChoiceGroup(
 			new ChoiceElement(new TextElement("first choice"), 0),
 			new ChoiceElement(new TextElement("second choice"), 0)
 		);
-		assertEquals(expected, PatternParser.parsePattern("(first choice|second choice)"));
+		assertEquals(expected, parsePattern("(first choice|second choice)"));
 		expected = new ChoiceGroup(
 			new ChoiceElement(new TextElement("first mark"), 0),
 			new ChoiceElement(new TextElement("second mark"), 1)
 		);
-		assertEquals(expected, PatternParser.parsePattern("(first mark|1¦second mark)"));
+		assertEquals(expected, parsePattern("(first mark|1¦second mark)"));
 		expected = new OptionalGroup(
 			new CompoundElement(
 				new TextElement("lookie, "),
@@ -50,8 +52,8 @@ public class PatternParserTest extends TestCase {
 				new TextElement(" !")
 			)
 		);
-		assertEquals(expected, PatternParser.parsePattern("[lookie, (another|1¦choice) !]"));
-		assertEquals(new RegexGroup(Pattern.compile(".+")), PatternParser.parsePattern("<.+>"));
+		assertEquals(expected, parsePattern("[lookie, (another|1¦choice) !]"));
+		assertEquals(new RegexGroup(Pattern.compile(".+")), parsePattern("<.+>"));
 		assertEquals(
 			new ExpressionElement(
 				Collections.singletonList(TypeManager.getPatternType("number")),
@@ -59,7 +61,7 @@ public class PatternParserTest extends TestCase {
 				0,
 				ExpressionElement.Acceptance.BOTH
 			),
-			PatternParser.parsePattern("%number%")
+			parsePattern("%number%")
 		);
 		assertEquals(
 			new ExpressionElement(
@@ -68,9 +70,9 @@ public class PatternParserTest extends TestCase {
 				1,
 				ExpressionElement.Acceptance.LITERALS_ONLY
 			),
-			PatternParser.parsePattern("%-*number/strings@1%")
+			parsePattern("%-*number/strings@1%")
 		);
-		assertNull(PatternParser.parsePattern("(unclosed"));
-		assertNull(PatternParser.parsePattern("%unfinished type"));
+		assertNull(parsePattern("(unclosed"));
+		assertNull(parsePattern("%unfinished type"));
 	}
 }

@@ -2,6 +2,9 @@ package io.github.syst3ms.skriptparser.pattern;
 
 import java.util.regex.Pattern;
 
+/**
+ * A group containing a regex in the form of a {@link Pattern}.
+ */
 public class RegexGroup implements PatternElement {
     private Pattern pattern;
 

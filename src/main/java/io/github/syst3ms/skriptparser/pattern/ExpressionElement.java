@@ -4,6 +4,19 @@ import io.github.syst3ms.skriptparser.classes.PatternType;
 
 import java.util.List;
 
+/**
+ * A variable/expression, declared in syntax using {@literal %type%}
+ * Has :
+ * <ul>
+ * <li>a {@link List} of {@link PatternType}</li>
+ * <li>a field representing whether expression defaults to null if not mentioned ({@literal %-type%})</li>
+ * <li>
+ *     a field representing whether this expression is supposed to be past or future ({@literal %type@1%} or {@literal %type@-1%}).<br>
+ *     In Skript, it is used in conjunction with the past/future expression
+ * </li>
+ * <li>a field determining what type of values this expression accepts : literals, expressions or both ({@literal %*type%}, {@literal %~type%} and {@literal %type%} respectively)</li>
+ * </ul>
+ */
 public class ExpressionElement implements PatternElement {
     private List<PatternType<?>> types;
     private boolean nullable;

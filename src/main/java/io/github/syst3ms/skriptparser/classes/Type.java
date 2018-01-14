@@ -7,7 +7,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * Represents a type, without any mention of single nor plural, which is handled by {@link }
+ * A basic definition of a type. This doesn't handle number (single/plural), see {@link PatternType} for that.
+ *
  */
 public class Type<T> {
 	public static final Predicate<String> pluralGroupChecker = Pattern.compile("(?<!\\\\)\\(\\?<plural>[a-zA-Z]+\\)").asPredicate();
@@ -16,11 +17,13 @@ public class Type<T> {
 	private Pattern syntaxPattern;
 
 	/**
-	 *  @param c the class this type represents
+	 * Constructs a new Type. This consructor doesn't handle any exceptions inherent to the regex pattern.
+	 *
+	 * @param c the class this type represents
+	 * @param baseName the basic name to represent this type with. It should be more or less a lowercase version of the Java class.
 	 * @param pattern the regex pattern this type should match.
 	 *                Plural form should be contained in a group named {@literal plural}.
-	 *                If the name has an irregular plural (i.e party -> parties), then use the following contruct : {@literal part(y|(?<plural>ies))}
-	 * @exception PatternSyntaxException if the regex is invalid
+	 *                If the name has an irregular plural (i.e "party" becomes "parties"), then use the following contruct : {@literal part(y|(?<plural>ies))}
 	 */
 	public Type(Class<T> c, String baseName, @Language("Regexp") String pattern) {
 		this.c = c;

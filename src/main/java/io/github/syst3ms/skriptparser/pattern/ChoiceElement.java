@@ -1,5 +1,9 @@
 package io.github.syst3ms.skriptparser.pattern;
 
+/**
+ * An element of a choice group.
+ * Consists of a {@link PatternElement} and a parse mark (defaults to 0)
+ */
 public class ChoiceElement {
     private PatternElement element;
     private int parseMark;

@@ -3,6 +3,9 @@ package io.github.syst3ms.skriptparser.pattern;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Multiple {@link PatternElement}s put together in order.
+ */
 public class CompoundElement implements PatternElement {
     private List<PatternElement> elements;
 

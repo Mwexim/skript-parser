@@ -3,6 +3,9 @@ package io.github.syst3ms.skriptparser.pattern;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * A group of multiple choices, consisting of multiple {@link ChoiceElement}
+ */
 public class ChoiceGroup implements PatternElement {
     private List<ChoiceElement> choices;
 
