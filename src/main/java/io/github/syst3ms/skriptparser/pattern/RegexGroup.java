@@ -1,5 +1,8 @@
 package io.github.syst3ms.skriptparser.pattern;
 
+import io.github.syst3ms.skriptparser.classes.SkriptParser;
+
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -12,14 +15,21 @@ public class RegexGroup implements PatternElement {
         this.pattern = pattern;
     }
 
-    @Override
-    public int match(String s, int index) {
-        // TODO
-        return 0;
-    }
 
     @Override
     public boolean equals(Object obj) {
         return obj != null && obj instanceof RegexGroup && pattern.pattern().equals(((RegexGroup) obj).pattern.pattern());
     }
+
+	@Override
+	public int match(String s, int index, SkriptParser parser) {
+		Matcher m = pattern.matcher(s);
+		m.region(index + 1, s.length());
+		if (!m.lookingAt()) {
+			return -1;
+		}
+		String match = m.group();
+		parser.addRegexMatch(match);
+		return index + match.length();
+	}
 }

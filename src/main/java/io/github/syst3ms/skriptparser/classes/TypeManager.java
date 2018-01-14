@@ -10,14 +10,21 @@ import java.util.regex.Matcher;
  * Manages all different types.
  */
 public class TypeManager {
-	private static Map<String, Type<?>> nameToType = new HashMap<>();
+	private static final TypeManager instance = new TypeManager();
+	private Map<String, Type<?>> nameToType = new HashMap<>();
+	private Map<Class<?>, Type<?>> classToType = new HashMap<>();
+	private TypeManager(){}
+
+	public static TypeManager getInstance() {
+		return instance;
+	}
 
 	/**
 	 * Gets a {@link Type} by its exact name (the baseName parameter used in {@link Type#Type(Class, String, String)})
 	 * @param name the name to get the Type from
 	 * @return the corresponding Type, or {@literal null} if nothing matched
 	 */
-	public static Type<?> getByExactName(String name) {
+	public Type<?> getByExactName(String name) {
 		return nameToType.get(name);
 	}
 
@@ -26,7 +33,7 @@ public class TypeManager {
 	 * @param name the name to get a Type from
 	 * @return the matching Type, or {@literal null} if nothing matched
 	 */
-	public static Type<?> getByName(String name) {
+	public Type<?> getByName(String name) {
 		for (Type<?> t : nameToType.values()) {
 			Matcher m = t.getSyntaxPattern().matcher(name);
 			if (m.matches()) {
@@ -37,12 +44,23 @@ public class TypeManager {
 	}
 
 	/**
+	 * Gets a {@link Type} from its associated {@link Class}.
+	 * @param c the Class to get the Type from
+	 * @param <T> the underlying type of the Class and the returned Type
+	 * @return the associated Type, or {@literal null}
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> Type<T> getByClass(Class<T> c) {
+		return (Type<T>) classToType.get(c);
+	}
+
+	/**
 	 * Gets a {@link PatternType} from a name. This determines the number (single/plural) from the input.
 	 * If the input happens to be the base name of a type, then a single PatternType (as in "not plural") of the corresponding type is returned.
 	 * @param name the name input
 	 * @return a corresponding PatternType, or {@literal null} if nothing matched
 	 */
-	public static PatternType<?> getPatternType(String name) {
+	public PatternType<?> getPatternType(String name) {
 		if (nameToType.containsKey(name)) { // Might as well avoid the for loop in this case
 			return new PatternType<>(nameToType.get(name), false);
 		}
@@ -56,7 +74,10 @@ public class TypeManager {
 		return null;
 	}
 
-	public static <T> void registerType(Class<T> c, String name, @Language("Regexp") String pattern) {
-		nameToType.put(name, new Type<>(c, name, pattern));
+	void register(SkriptRegistration reg) {
+		for (Type<?> type : reg.getTypes()) {
+			nameToType.put(type.getBaseName(), type);
+			classToType.put(type.getC(), type);
+		}
 	}
 }

@@ -19,7 +19,7 @@ public class PatternParser {
      * @param pattern the pattern to be parsed
      * @return the parsed PatternElement, or {@literal null} if something went wrong.
      */
-    public static PatternElement parsePattern(String pattern) {
+    public PatternElement parsePattern(String pattern) {
         List<PatternElement> elements = new ArrayList<>();
         StringBuilder textBuilder = new StringBuilder("");
         char[] chars = pattern.toCharArray();
@@ -133,7 +133,7 @@ public class PatternParser {
                     String[] types = typeString.split("/");
                     List<PatternType<?>> patternTypes = new ArrayList<>();
                     for (String type : types) {
-                        PatternType<?> t = TypeManager.getPatternType(type);
+                        PatternType<?> t = TypeManager.getInstance().getPatternType(type);
                         if (t == null) {
                             error("Unknown type : " + type);
                             return null;

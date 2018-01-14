@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.pattern;
 
 import io.github.syst3ms.skriptparser.classes.PatternType;
+import io.github.syst3ms.skriptparser.classes.SkriptParser;
 
 import java.util.List;
 
@@ -22,6 +23,12 @@ public class ExpressionElement implements PatternElement {
     private boolean nullable;
     private int time;
     private Acceptance acceptance;
+
+    @Override
+    public int match(String s, int index, SkriptParser parser) {
+        // TODO
+        return 0;
+    }
 
     public enum Acceptance {
         BOTH(0),
@@ -51,11 +58,6 @@ public class ExpressionElement implements PatternElement {
         this.acceptance = acceptance;
     }
 
-    @Override
-    public int match(String s, int index) {
-        // TODO
-        return 0;
-    }
 
     @Override
     public boolean equals(Object obj) {

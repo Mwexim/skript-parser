@@ -13,6 +13,14 @@ public class ChoiceElement {
         this.parseMark = parseMark;
     }
 
+    public int getParseMark() {
+        return parseMark;
+    }
+
+    public PatternElement getElement() {
+        return element;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof ChoiceElement)) {
