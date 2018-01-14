@@ -1,4 +1,4 @@
-package fr.syst3ms.skriptparser.classes;
+package io.github.syst3ms.skriptparser.classes;
 
 /**
  * A type used in a pattern.

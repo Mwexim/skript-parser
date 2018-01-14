@@ -1,6 +1,6 @@
-package fr.syst3ms.skriptparser.classes;
+package io.github.syst3ms.skriptparser.classes;
 
-import fr.syst3ms.skriptparser.pattern.PatternElement;
+import io.github.syst3ms.skriptparser.pattern.PatternElement;
 
 import java.util.List;
 

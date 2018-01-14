@@ -1,4 +1,4 @@
-package fr.syst3ms.skriptparser.pattern;
+package io.github.syst3ms.skriptparser.pattern;
 
 import java.util.Arrays;
 import java.util.List;

@@ -1,4 +1,4 @@
-package fr.syst3ms.skriptparser.pattern;
+package io.github.syst3ms.skriptparser.pattern;
 
 public class TextElement implements PatternElement {
     private String text;

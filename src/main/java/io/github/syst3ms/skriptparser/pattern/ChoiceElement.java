@@ -1,6 +1,4 @@
-package fr.syst3ms.skriptparser.pattern;
-
-import java.util.List;
+package io.github.syst3ms.skriptparser.pattern;
 
 public class ChoiceElement {
     private PatternElement element;

@@ -1,4 +1,4 @@
-package fr.syst3ms.skriptparser.pattern;
+package io.github.syst3ms.skriptparser.pattern;
 
 public class OptionalGroup implements PatternElement {
     private PatternElement element;
