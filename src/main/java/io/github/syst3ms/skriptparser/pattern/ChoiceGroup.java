@@ -35,7 +35,7 @@ public class ChoiceGroup implements PatternElement {
     @Override
     public int match(String s, int index, SkriptParser parser) {
         for (ChoiceElement choice : choices) {
-            int m = choice.getElement().match(s, index + 1, parser);
+            int m = choice.getElement().match(s, index, parser);
             if (m != -1) {
                 parser.addMark(choice.getParseMark());
                 return m;

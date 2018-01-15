@@ -1,7 +1,9 @@
 package io.github.syst3ms.skriptparser.classes;
 
 import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -15,6 +17,8 @@ public class Type<T> {
 	private Class<T> c;
 	private String baseName;
 	private Pattern syntaxPattern;
+	@Nullable
+	private Function<String, ? extends T> literalParser;
 
 	/**
 	 * Constructs a new Type. This consructor doesn't handle any exceptions inherent to the regex pattern.
@@ -26,8 +30,24 @@ public class Type<T> {
 	 *                If the name has an irregular plural (i.e "party" becomes "parties"), then use the following contruct : {@literal part(y|(?<plural>ies))}
 	 */
 	public Type(Class<T> c, String baseName, @Language("Regexp") String pattern) {
+		this(c, baseName, pattern, null);
+	}
+
+	/**
+	 * Constructs a new Type. This consructor doesn't handle any exceptions inherent to the regex pattern.
+	 *
+	 * @param c the class this type represents
+	 * @param baseName the basic name to represent this type with. It should be more or less a lowercase version of the Java class.
+	 * @param pattern the regex pattern this type should match.
+	 *                Plural form should be contained in a group named {@literal plural}.
+	 *                If the name has an irregular plural (i.e "party" becomes "parties"), then use the following contruct : {@literal part(y|(?<plural>ies))}
+	 * @param literalParser the function that would parse literals for the given type. If the parser throws an exception on parsing, it will be
+	 *                      catched and the type will be ignored.
+	 */
+	public Type(Class<T> c, String baseName, @Language("Regexp") String pattern, @Nullable Function<String, ? extends T> literalParser) {
 		this.c = c;
 		this.baseName = baseName;
+		this.literalParser = literalParser;
 		pattern = pattern.trim();
 		// Not handling exceptions here, developer responsability
 		if (!pluralGroupChecker.test(pattern)) {
@@ -35,6 +55,11 @@ public class Type<T> {
 		} else {
 			syntaxPattern = Pattern.compile(pattern);
 		}
+	}
+
+	@Nullable
+	public Function<String, ? extends T> getLiteralParser() {
+		return literalParser;
 	}
 
 	public Pattern getSyntaxPattern() {

@@ -20,7 +20,7 @@ public class OptionalGroup implements PatternElement {
 
 	@Override
 	public int match(String s, int index, SkriptParser parser) {
-		int m = element.match(s, index +  1, parser);
+		int m = element.match(s, index, parser);
 		return m != -1 ? m : index;
 	}
 }

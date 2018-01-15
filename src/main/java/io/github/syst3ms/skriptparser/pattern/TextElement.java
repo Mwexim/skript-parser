@@ -20,7 +20,14 @@ public class TextElement implements PatternElement {
 
     @Override
     public int match(String s, int index, SkriptParser parser) {
-        String compareTo = s.trim().toLowerCase();
-        return compareTo.startsWith(text.trim(), index + 1) ? index + text.length() : -1;
+        String matchTo = s.trim();
+        String trimmed = text.trim();
+        return startsWithIgnoreCaseAndWhitespace(matchTo, trimmed, index) ? index + trimmed.length() : -1;
+    }
+
+    private boolean startsWithIgnoreCaseAndWhitespace(String first, String second, int index) {
+        String f = first.substring(0, index);
+        String s = second.substring(0, index);
+        return f.equalsIgnoreCase(s);
     }
 }

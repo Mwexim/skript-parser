@@ -7,6 +7,7 @@ import org.intellij.lang.annotations.Language;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 public class SkriptRegistration {
 	private String registerer;
@@ -62,6 +63,10 @@ public class SkriptRegistration {
 
 	public <T> void addType(Class<T> c, String name, @Language("Regexp") String pattern) {
 		types.add(new Type<>(c, name, pattern));
+	}
+
+	public <T> void addType(Class<T> c, String name, @Language("Regexp") String pattern, Function<String, ? extends T> literalParser) {
+		types.add(new Type<>(c, name, pattern, literalParser));
 	}
 
 	public void register() {
