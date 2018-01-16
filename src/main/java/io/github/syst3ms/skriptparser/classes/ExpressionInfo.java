@@ -11,8 +11,8 @@ import java.util.List;
 public class ExpressionInfo<C, T> extends SyntaxInfo<C> {
 	private Type<T> returnType;
 
-	public ExpressionInfo(Class<C> c, List<PatternElement> patterns, Type<T> returnType) {
-		super(c, patterns);
+	public ExpressionInfo(Class<C> c, String[] originalPattern, List<PatternElement> patterns, Type<T> returnType) {
+		super(c, originalPattern, patterns);
 		this.returnType = returnType;
 	}
 

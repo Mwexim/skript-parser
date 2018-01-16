@@ -47,7 +47,7 @@ public class SkriptRegistration {
 			//TODO error
 			return;
 		}
-		ExpressionInfo<C, T> info = new ExpressionInfo<>(c, elements, t);
+		ExpressionInfo<C, T> info = new ExpressionInfo<>(c, patterns, elements, t);
 		effects.add(info);
 		expressions.putOne(returnType, info);
 	}
@@ -57,7 +57,7 @@ public class SkriptRegistration {
 		for (String s : patterns) {
 			elements.add(patternParser.parsePattern(s));
 		}
-		SyntaxInfo<C> info = new SyntaxInfo<>(c, elements);
+		SyntaxInfo<C> info = new SyntaxInfo<>(c, patterns, elements);
 		effects.add(info);
 	}
 

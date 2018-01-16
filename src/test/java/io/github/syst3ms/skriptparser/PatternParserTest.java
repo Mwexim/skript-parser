@@ -4,7 +4,6 @@ import io.github.syst3ms.skriptparser.classes.SkriptParser;
 import io.github.syst3ms.skriptparser.classes.SkriptRegistration;
 import io.github.syst3ms.skriptparser.classes.TypeManager;
 import io.github.syst3ms.skriptparser.pattern.*;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -73,11 +72,24 @@ public class PatternParserTest {
 	@Test
 	public void testMatch() throws Exception {
 		PatternParser patternParser = new PatternParser();
-		SkriptParser parser = new SkriptParser();
+		SkriptParser parser = new SkriptParser("pattern");
 		PatternElement pattern = patternParser.parsePattern("pattern");
 		assertEquals(7, pattern.match("pattern", 0, parser));
+		parser = new SkriptParser("pattern [with optional]");
 		pattern = patternParser.parsePattern("pattern [with optional]");
-		assertEquals(7, pattern.match("pattern", 0, parser));
+		assertEquals(8, pattern.match("pattern", 0, parser));
 		assertEquals(21, pattern.match("pattern with optional", 0, parser));
+		parser = new SkriptParser("pattern [with [another] optional]");
+		pattern = patternParser.parsePattern("pattern [with [another] optional]");
+		assertEquals(22, pattern.match("pattern with optional", 0, parser));
+		assertEquals(30, pattern.match("pattern with another optional", 0, parser));
+		parser = new SkriptParser("you must (choose|this|or this)");
+		pattern = patternParser.parsePattern("you must (choose|this|or this)");
+		assertEquals(15, pattern.match("you must choose", 0, parser));
+		assertEquals(13, pattern.match("you must this", 0, parser));
+		assertEquals(16, pattern.match("you must or this", 0, parser));
+		parser = new SkriptParser("I choose (1¦this|2¦that)");
+		pattern = patternParser.parsePattern("I choose (1¦this|2¦that)");
+		assertTrue(pattern.match("I choose this", 0, parser) == 13 && parser.getParseMark() == 1);
 	}
 }
