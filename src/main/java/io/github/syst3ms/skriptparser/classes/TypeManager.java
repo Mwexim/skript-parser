@@ -1,7 +1,5 @@
 package io.github.syst3ms.skriptparser.classes;
 
-import org.intellij.lang.annotations.Language;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;

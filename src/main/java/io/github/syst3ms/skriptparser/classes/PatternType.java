@@ -30,4 +30,16 @@ public class PatternType<T> {
 			return type.equals(o.type) && single == o.single;
 		}
 	}
+
+    @Override
+    public String toString() { // Not perfect, but good enough for toString()
+        String baseName = type.getBaseName();
+        if (baseName.endsWith("child")) { // This exception seems likely enough
+            return baseName.replace("child", "children");
+        } else if (baseName.matches(".*(s|ch|sh|x|z)")) {
+            return baseName + "es";
+        } else {
+            return baseName + "s";
+        }
+    }
 }

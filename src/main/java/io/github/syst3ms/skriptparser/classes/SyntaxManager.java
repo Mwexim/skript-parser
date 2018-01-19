@@ -2,7 +2,10 @@ package io.github.syst3ms.skriptparser.classes;
 
 import io.github.syst3ms.skriptparser.util.MultiMap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class SyntaxManager {
 	private static SyntaxManager instance = new SyntaxManager();

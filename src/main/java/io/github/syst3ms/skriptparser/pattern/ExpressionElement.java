@@ -1,60 +1,80 @@
 package io.github.syst3ms.skriptparser.pattern;
 
+import io.github.syst3ms.skriptparser.classes.Expression;
 import io.github.syst3ms.skriptparser.classes.PatternType;
 import io.github.syst3ms.skriptparser.classes.SkriptParser;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A variable/expression, declared in syntax using {@literal %type%}
  * Has :
  * <ul>
  * <li>a {@link List} of {@link PatternType}</li>
- * <li>a field representing whether expression defaults to null if not mentioned ({@literal %-type%})</li>
- * <li>
- *     a field representing whether this expression is supposed to be past or future ({@literal %type@1%} or {@literal %type@-1%}).<br>
- *     In Skript, it is used in conjunction with the past/future expression
- * </li>
  * <li>a field determining what type of values this expression accepts : literals, expressions or both ({@literal %*type%}, {@literal %~type%} and {@literal %type%} respectively)</li>
  * </ul>
  */
 public class ExpressionElement implements PatternElement {
     private List<PatternType<?>> types;
-    private boolean nullable;
-    private int time;
     private Acceptance acceptance;
 
     @Override
     public int match(String s, int index, SkriptParser parser) {
-        // TODO
-        return 0;
+        parser.advanceInPattern();
+        List<PatternElement> flattened = parser.flatten(parser.getElement());
+        List<PatternElement> possibleInputs = parser.getPossibleInputs(flattened.subList(parser.getPatternIndex(), flattened.size()));
+        if (possibleInputs.isEmpty()) { // End of line
+            String toParse = s.substring(index);
+            Expression<?> expression = parser.parseExpression(toParse);
+            if (expression == null) {
+                return -1;
+            }
+            parser.addExpression(expression);
+            return index + toParse.length();
+        }
+        for (PatternElement possibleInput : possibleInputs) {
+            if (possibleInput instanceof TextElement) {
+                String text = ((TextElement) possibleInput).getText();
+                int i = s.indexOf(text, index);
+                if (i == -1)
+                    continue;
+                String toParse = s.substring(index, i);
+                Expression<?> expression = parser.parseExpression(toParse);
+                if (expression == null) {
+                    continue;
+                }
+                parser.addExpression(expression);
+                return index + toParse.length();
+            } else {
+                assert possibleInput instanceof RegexGroup;
+                Matcher m = ((RegexGroup) possibleInput).getPattern().matcher(s).region(index, s.length());
+                while (m.lookingAt()) {
+                    int i = m.start();
+                    if (i == -1)
+                        continue;
+                    String toParse = s.substring(index, i);
+                    Expression<?> expression = parser.parseExpression(toParse);
+                    if (expression == null) {
+                        continue;
+                    }
+                    parser.addExpression(expression);
+                    return index + toParse.length();
+                }
+            }
+        }
+        return -1;
     }
 
     public enum Acceptance {
-        BOTH(0),
-        EXPRESSIONS_ONLY(1),
-        LITERALS_ONLY(2);
-
-        private final int id;
-
-        Acceptance(int id) {
-            this.id = id;
-        }
-
-        public static Acceptance getAcceptance(int id) {
-            for (Acceptance a : values()) {
-                if (a.id == id) {
-                    return a;
-                }
-            }
-            return null;
-        }
+        BOTH,
+        EXPRESSIONS_ONLY,
+        LITERALS_ONLY
     }
 
-    public ExpressionElement(List<PatternType<?>> types, boolean nullable, int time, Acceptance acceptance) {
+    public ExpressionElement(List<PatternType<?>> types, Acceptance acceptance) {
         this.types = types;
-        this.nullable = nullable;
-        this.time = time;
         this.acceptance = acceptance;
     }
 
@@ -65,7 +85,24 @@ public class ExpressionElement implements PatternElement {
             return false;
         } else {
             ExpressionElement e = (ExpressionElement) obj;
-            return types.equals(e.types) && nullable == e.nullable && time == e.time && acceptance == e.acceptance;
+            return types.equals(e.types) && acceptance == e.acceptance;
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (acceptance == Acceptance.EXPRESSIONS_ONLY) {
+            sb.append('~');
+        } else if (acceptance == Acceptance.LITERALS_ONLY) {
+            sb.append('*');
+        }
+        for (int i = 0; i < types.size(); i++) {
+            if (i > 0) {
+                sb.append('/');
+            }
+            sb.append(types.get(i));
+        }
+        return sb.toString();
     }
 }

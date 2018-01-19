@@ -2,9 +2,17 @@ package io.github.syst3ms.skriptparser;
 
 import io.github.syst3ms.skriptparser.classes.PatternType;
 import io.github.syst3ms.skriptparser.classes.TypeManager;
-import io.github.syst3ms.skriptparser.pattern.*;
+import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
+import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
+import io.github.syst3ms.skriptparser.pattern.CompoundElement;
+import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
+import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
+import io.github.syst3ms.skriptparser.pattern.PatternElement;
+import io.github.syst3ms.skriptparser.pattern.RegexGroup;
+import io.github.syst3ms.skriptparser.pattern.TextElement;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,9 +44,22 @@ public class PatternParser {
                     textBuilder = new StringBuilder("");
                 }
                 i += s.length() + 1; // sets i to the closing bracket, for loop does the rest
-                PatternElement content = parsePattern(s);
-                if (content == null) {
-                    return null;
+                Matcher m = PARSE_MARK_PATTERN.matcher(s);
+                PatternElement content;
+                if (m.matches()) {
+                    String mark = m.group(1);
+                    int markNumber = Integer.parseInt(mark);
+                    String rest = s.substring(mark.length() + 1, s.length());
+                    PatternElement e = parsePattern(rest);
+                    if (e == null) {
+                        return null;
+                    }
+                    content = new ChoiceGroup(Collections.singletonList(new ChoiceElement(e, markNumber))); // I said I would keep the other constructor for unit tests
+                } else {
+                    content = parsePattern(s);
+                    if (content == null) {
+                        return null;
+                    }
                 }
                 elements.add(new OptionalGroup(content));
             } else if (c == '(') {
@@ -105,7 +126,7 @@ public class PatternParser {
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
-                    textBuilder = new StringBuilder("");
+                    textBuilder.setLength(0);
                 }
                 String s = pattern.substring(i + 1, nextIndex);
                 i = nextIndex;
@@ -114,7 +135,6 @@ public class PatternParser {
                     error("Invalid variable definition");
                     return null;
                 } else {
-                    boolean nullable = m.group(1) != null;
                     ExpressionElement.Acceptance acceptance = ExpressionElement.Acceptance.BOTH;
                     if (m.group(2) != null) {
                         String acc = m.group(2);
@@ -123,11 +143,6 @@ public class PatternParser {
                         } else {
                             acceptance = ExpressionElement.Acceptance.LITERALS_ONLY;
                         }
-                    }
-                    int time = 0;
-                    if (m.group(4) != null) {
-                        String t = m.group(4);
-                        time = t.length() == 2 ? -1 : 1;
                     }
                     String typeString = m.group("types");
                     String[] types = typeString.split("/");
@@ -140,7 +155,7 @@ public class PatternParser {
                         }
                         patternTypes.add(t);
                     }
-                    elements.add(new ExpressionElement(patternTypes, nullable, time, acceptance));
+                    elements.add(new ExpressionElement(patternTypes, acceptance));
                 }
             } else if (c == '\\') {
                 if (i == pattern.length() - 1) {
@@ -149,17 +164,39 @@ public class PatternParser {
                 } else {
                     textBuilder.append(chars[++i]);
                 }
+            } else if (c == '|') {
+                String[] groups = pattern.split("(?<!\\\\)|");
+                List<ChoiceElement> choices = new ArrayList<>();
+                for (String choice : groups) {
+                    Matcher matcher = PARSE_MARK_PATTERN.matcher(choice);
+                    if (matcher.matches()) {
+                        String mark = matcher.group(1);
+                        int markNumber = Integer.parseInt(mark);
+                        String rest = choice.substring(mark.length() + 1, choice.length());
+                        PatternElement choiceContent = parsePattern(rest);
+                        if (choiceContent == null) {
+                            return null;
+                        }
+                        choices.add(new ChoiceElement(choiceContent, markNumber));
+                    } else {
+                        PatternElement choiceContent = parsePattern(choice);
+                        if (choiceContent == null) {
+                            return null;
+                        }
+                        choices.add(new ChoiceElement(choiceContent, 0));
+                    }
+                }
+                elements.add(new ChoiceGroup(choices));
             } else {
                 textBuilder.append(c);
             }
         }
         if (textBuilder.length() != 0) {
             elements.add(new TextElement(textBuilder.toString()));
-            textBuilder = new StringBuilder("");
+            textBuilder.setLength(0);
         }
         if (elements.size() == 1) {
-            PatternElement e = elements.get(0);
-            return e;
+            return elements.get(0);
         } else {
             return new CompoundElement(elements);
         }

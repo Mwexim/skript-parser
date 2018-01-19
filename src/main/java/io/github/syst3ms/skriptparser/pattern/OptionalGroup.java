@@ -12,6 +12,9 @@ public class OptionalGroup implements PatternElement {
         this.element = element;
     }
 
+    public PatternElement getElement() {
+        return element;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -20,7 +23,13 @@ public class OptionalGroup implements PatternElement {
 
 	@Override
 	public int match(String s, int index, SkriptParser parser) {
-		int m = element.match(s, index, parser);
+        parser.advanceInPattern();
+        int m = element.match(s, index, parser);
 		return m != -1 ? m : index;
 	}
+
+    @Override
+    public String toString() {
+        return "[" + element.toString() + "]";
+    }
 }

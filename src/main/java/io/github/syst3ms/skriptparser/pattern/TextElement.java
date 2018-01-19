@@ -12,6 +12,9 @@ public class TextElement implements PatternElement {
         this.text = text;
     }
 
+    public String getText() {
+        return text;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -20,7 +23,8 @@ public class TextElement implements PatternElement {
 
     @Override
     public int match(String s, int index, SkriptParser parser) {
-    	String trimmed = text.trim();
+        parser.advanceInPattern();
+        String trimmed = text.trim();
 		while (index < s.length() && s.charAt(index) == ' ') {// Hopefully fix some spacing issues
 			index++;
 		}
@@ -33,5 +37,10 @@ public class TextElement implements PatternElement {
         } else {
             return -1;
         }
+    }
+
+    @Override
+    public String toString() {
+        return text;
     }
 }

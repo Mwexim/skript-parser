@@ -15,6 +15,9 @@ public class RegexGroup implements PatternElement {
         this.pattern = pattern;
     }
 
+    public Pattern getPattern() {
+        return pattern;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -23,7 +26,8 @@ public class RegexGroup implements PatternElement {
 
 	@Override
 	public int match(String s, int index, SkriptParser parser) {
-		Matcher m = pattern.matcher(s);
+        parser.advanceInPattern();
+        Matcher m = pattern.matcher(s);
 		m.region(index, s.length());
 		if (!m.lookingAt()) {
 			return -1;
@@ -32,4 +36,9 @@ public class RegexGroup implements PatternElement {
 		parser.addRegexMatch(match);
 		return index + match.length();
 	}
+
+    @Override
+    public String toString() {
+        return "<" + pattern.pattern() + ">";
+    }
 }

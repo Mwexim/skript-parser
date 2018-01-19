@@ -22,6 +22,9 @@ public class CompoundElement implements PatternElement {
         this(Arrays.asList(elements));
     }
 
+    public List<PatternElement> getElements() {
+        return elements;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -37,6 +40,7 @@ public class CompoundElement implements PatternElement {
 	public int match(String s, int index, SkriptParser parser) {
         int i = index;
         for (PatternElement element : elements) {
+            parser.advanceInPattern();
             int m = element.match(s, i, parser);
             if (m == -1) {
                 return -1;
@@ -44,5 +48,14 @@ public class CompoundElement implements PatternElement {
             i = m;
         }
         return i;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (PatternElement element : elements) {
+            builder.append(element);
+        }
+        return builder.toString();
     }
 }

@@ -58,13 +58,22 @@ public class PatternParserTest {
 		);
 		assertEquals(expected, parser.parsePattern("[lookie, (another|1¦choice) !]"));
 		assertEquals(new RegexGroup(Pattern.compile(".+")), parser.parsePattern("<.+>"));
-		assertEquals(new ExpressionElement(Collections.singletonList(TypeManager.getInstance()
-																					   .getPatternType("number")), false, 0, ExpressionElement.Acceptance.BOTH), parser
-			.parsePattern("%number%"));
-		assertEquals(new ExpressionElement(Arrays.asList(TypeManager.getInstance()
-																		   .getPatternType("number"), TypeManager.getInstance()
-																												 .getPatternType("strings")), true, 1, ExpressionElement.Acceptance.LITERALS_ONLY), parser
-			.parsePattern("%-*number/strings@1%"));
+		assertEquals(
+		        new ExpressionElement(
+		                Collections.singletonList(TypeManager.getInstance().getPatternType("number")),
+                        ExpressionElement.Acceptance.BOTH),
+                parser.parsePattern("%number%")
+        );
+		assertEquals(
+		        new ExpressionElement(
+		            Arrays.asList(
+		                    TypeManager.getInstance().getPatternType("number"),
+                            TypeManager.getInstance().getPatternType("strings")
+                    ),
+                        ExpressionElement.Acceptance.LITERALS_ONLY
+                ),
+                parser.parsePattern("%-*number/strings@1%")
+        );
 		assertNull(parser.parsePattern("(unclosed"));
 		assertNull(parser.parsePattern("%unfinished type"));
 	}
@@ -72,24 +81,24 @@ public class PatternParserTest {
 	@Test
 	public void testMatch() throws Exception {
 		PatternParser patternParser = new PatternParser();
-		SkriptParser parser = new SkriptParser("pattern");
 		PatternElement pattern = patternParser.parsePattern("pattern");
-		assertEquals(7, pattern.match("pattern", 0, parser));
-		parser = new SkriptParser("pattern [with optional]");
+        SkriptParser parser = new SkriptParser(pattern);
+        assertEquals(7, pattern.match("pattern", 0, parser));
 		pattern = patternParser.parsePattern("pattern [with optional]");
-		assertEquals(8, pattern.match("pattern", 0, parser));
+        parser = new SkriptParser(pattern);
+        assertEquals(8, pattern.match("pattern", 0, parser));
 		assertEquals(21, pattern.match("pattern with optional", 0, parser));
-		parser = new SkriptParser("pattern [with [another] optional]");
 		pattern = patternParser.parsePattern("pattern [with [another] optional]");
-		assertEquals(22, pattern.match("pattern with optional", 0, parser));
+        parser = new SkriptParser(pattern);
+        assertEquals(22, pattern.match("pattern with optional", 0, parser));
 		assertEquals(30, pattern.match("pattern with another optional", 0, parser));
-		parser = new SkriptParser("you must (choose|this|or this)");
 		pattern = patternParser.parsePattern("you must (choose|this|or this)");
-		assertEquals(15, pattern.match("you must choose", 0, parser));
+        parser = new SkriptParser(pattern);
+        assertEquals(15, pattern.match("you must choose", 0, parser));
 		assertEquals(13, pattern.match("you must this", 0, parser));
 		assertEquals(16, pattern.match("you must or this", 0, parser));
-		parser = new SkriptParser("I choose (1¦this|2¦that)");
-		pattern = patternParser.parsePattern("I choose (1¦this|2¦that)");
-		assertTrue(pattern.match("I choose this", 0, parser) == 13 && parser.getParseMark() == 1);
+        pattern = patternParser.parsePattern("I choose (1¦this|2¦that)");
+        parser = new SkriptParser(pattern);
+        assertTrue(pattern.match("I choose this", 0, parser) == 13 && parser.getParseMark() == 1);
 	}
 }

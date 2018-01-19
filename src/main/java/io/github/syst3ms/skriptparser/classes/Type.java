@@ -1,12 +1,8 @@
 package io.github.syst3ms.skriptparser.classes;
 
-import org.intellij.lang.annotations.Language;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * A basic definition of a type. This doesn't handle number (single/plural), see {@link PatternType} for that.
@@ -17,7 +13,6 @@ public class Type<T> {
 	private Class<T> c;
 	private String baseName;
 	private Pattern syntaxPattern;
-	@Nullable
 	private Function<String, ? extends T> literalParser;
 
 	/**
@@ -29,7 +24,7 @@ public class Type<T> {
 	 *                Plural form should be contained in a group named {@literal plural}.
 	 *                If the name has an irregular plural (i.e "party" becomes "parties"), then use the following contruct : {@literal part(y|(?<plural>ies))}
 	 */
-	public Type(Class<T> c, String baseName, @Language("Regexp") String pattern) {
+	public Type(Class<T> c, String baseName, String pattern) {
 		this(c, baseName, pattern, null);
 	}
 
@@ -44,7 +39,7 @@ public class Type<T> {
 	 * @param literalParser the function that would parse literals for the given type. If the parser throws an exception on parsing, it will be
 	 *                      catched and the type will be ignored.
 	 */
-	public Type(Class<T> c, String baseName, @Language("Regexp") String pattern, @Nullable Function<String, ? extends T> literalParser) {
+	public Type(Class<T> c, String baseName, String pattern, Function<String, ? extends T> literalParser) {
 		this.c = c;
 		this.baseName = baseName;
 		this.literalParser = literalParser;
@@ -57,7 +52,6 @@ public class Type<T> {
 		}
 	}
 
-	@Nullable
 	public Function<String, ? extends T> getLiteralParser() {
 		return literalParser;
 	}

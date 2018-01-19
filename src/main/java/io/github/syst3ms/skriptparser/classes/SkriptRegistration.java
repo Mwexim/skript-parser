@@ -3,7 +3,6 @@ package io.github.syst3ms.skriptparser.classes;
 import io.github.syst3ms.skriptparser.PatternParser;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.util.MultiMap;
-import org.intellij.lang.annotations.Language;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +46,7 @@ public class SkriptRegistration {
 			//TODO error
 			return;
 		}
-		ExpressionInfo<C, T> info = new ExpressionInfo<>(c, patterns, elements, t);
+		ExpressionInfo<C, T> info = new ExpressionInfo<>(c, elements, t);
 		effects.add(info);
 		expressions.putOne(returnType, info);
 	}
@@ -57,15 +56,15 @@ public class SkriptRegistration {
 		for (String s : patterns) {
 			elements.add(patternParser.parsePattern(s));
 		}
-		SyntaxInfo<C> info = new SyntaxInfo<>(c, patterns, elements);
+		SyntaxInfo<C> info = new SyntaxInfo<>(c, elements);
 		effects.add(info);
 	}
 
-	public <T> void addType(Class<T> c, String name, @Language("Regexp") String pattern) {
+	public <T> void addType(Class<T> c, String name, String pattern) {
 		types.add(new Type<>(c, name, pattern));
 	}
 
-	public <T> void addType(Class<T> c, String name, @Language("Regexp") String pattern, Function<String, ? extends T> literalParser) {
+	public <T> void addType(Class<T> c, String name, String pattern, Function<String, ? extends T> literalParser) {
 		types.add(new Type<>(c, name, pattern, literalParser));
 	}
 

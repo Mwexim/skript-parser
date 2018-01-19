@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.classes.SkriptParser;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * A group of multiple choices, consisting of multiple {@link ChoiceElement}
@@ -22,6 +23,10 @@ public class ChoiceGroup implements PatternElement {
         this(Arrays.asList(choices));
     }
 
+    public List<ChoiceElement> getChoices() {
+        return choices;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof ChoiceGroup)) {
@@ -34,6 +39,7 @@ public class ChoiceGroup implements PatternElement {
 
     @Override
     public int match(String s, int index, SkriptParser parser) {
+        parser.advanceInPattern();
         for (ChoiceElement choice : choices) {
             int m = choice.getElement().match(s, index, parser);
             if (m != -1) {
@@ -42,5 +48,18 @@ public class ChoiceGroup implements PatternElement {
             }
         }
         return -1;
+    }
+
+    @Override
+    public String toString() {
+        StringJoiner joiner = new StringJoiner("|", "(", ")");
+        for (ChoiceElement choice : choices) {
+            if (choice.getParseMark() != 0) {
+                joiner.add(choice.getParseMark() + "¦" + choice.getElement().toString());
+            } else {
+                joiner.add(choice.getElement().toString());
+            }
+        }
+        return joiner.toString();
     }
 }
