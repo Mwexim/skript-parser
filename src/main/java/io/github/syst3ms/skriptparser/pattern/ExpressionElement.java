@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.classes.SkriptParser;
 
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A variable/expression, declared in syntax using {@literal %type%}
@@ -22,25 +21,26 @@ public class ExpressionElement implements PatternElement {
 
     @Override
     public int match(String s, int index, SkriptParser parser) {
-        parser.advanceInPattern();
+        if (parser.getElement().equals(this))
+            parser.advanceInPattern();
         List<PatternElement> flattened = parser.flatten(parser.getElement());
         List<PatternElement> possibleInputs = parser.getPossibleInputs(flattened.subList(parser.getPatternIndex(), flattened.size()));
-        if (possibleInputs.isEmpty()) { // End of line
-            String toParse = s.substring(index);
-            Expression<?> expression = parser.parseExpression(toParse);
-            if (expression == null) {
-                return -1;
-            }
-            parser.addExpression(expression);
-            return index + toParse.length();
-        }
         for (PatternElement possibleInput : possibleInputs) {
             if (possibleInput instanceof TextElement) {
                 String text = ((TextElement) possibleInput).getText();
+                if (text.equals("")) { // End of line
+                    String toParse = s.substring(index);
+                    Expression<?> expression = parser.parseExpression(toParse);
+                    if (expression == null) {
+                        return -1;
+                    }
+                    parser.addExpression(expression);
+                    return index + toParse.length();
+                }
                 int i = s.indexOf(text, index);
                 if (i == -1)
                     continue;
-                String toParse = s.substring(index, i);
+                String toParse = s.substring(index, i).trim();
                 Expression<?> expression = parser.parseExpression(toParse);
                 if (expression == null) {
                     continue;

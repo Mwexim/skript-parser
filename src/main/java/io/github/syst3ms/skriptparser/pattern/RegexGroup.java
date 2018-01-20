@@ -26,7 +26,8 @@ public class RegexGroup implements PatternElement {
 
 	@Override
 	public int match(String s, int index, SkriptParser parser) {
-        parser.advanceInPattern();
+        if (parser.getElement().equals(this))
+            parser.advanceInPattern();
         Matcher m = pattern.matcher(s);
 		m.region(index, s.length());
 		if (!m.lookingAt()) {

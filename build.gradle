@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
 	testCompile 'junit:junit:4.12'
-	//testCompile 'org.easymock:easymock:3.4'
+    //testCompile 'org.easymock:easymock:3.4'
 
 	//compile fileTree(dir: 'lib', include: '*.jar')
 }
@@ -52,4 +52,11 @@ publishing {
 			url "file:///itemapi_repo/"
 		}
 	}
+}
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+    }
 }

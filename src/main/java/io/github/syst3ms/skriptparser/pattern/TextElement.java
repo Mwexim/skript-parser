@@ -23,7 +23,8 @@ public class TextElement implements PatternElement {
 
     @Override
     public int match(String s, int index, SkriptParser parser) {
-        parser.advanceInPattern();
+        if (parser.getElement().equals(this))
+            parser.advanceInPattern();
         String trimmed = text.trim();
 		while (index < s.length() && s.charAt(index) == ' ') {// Hopefully fix some spacing issues
 			index++;

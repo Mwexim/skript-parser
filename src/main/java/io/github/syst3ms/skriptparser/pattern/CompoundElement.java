@@ -40,7 +40,8 @@ public class CompoundElement implements PatternElement {
 	public int match(String s, int index, SkriptParser parser) {
         int i = index;
         for (PatternElement element : elements) {
-            parser.advanceInPattern();
+            if (parser.getElement().equals(this))
+                parser.advanceInPattern();
             int m = element.match(s, i, parser);
             if (m == -1) {
                 return -1;

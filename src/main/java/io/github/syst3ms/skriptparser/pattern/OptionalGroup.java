@@ -23,7 +23,8 @@ public class OptionalGroup implements PatternElement {
 
 	@Override
 	public int match(String s, int index, SkriptParser parser) {
-        parser.advanceInPattern();
+        if (parser.getElement().equals(this))
+            parser.advanceInPattern();
         int m = element.match(s, index, parser);
 		return m != -1 ? m : index;
 	}

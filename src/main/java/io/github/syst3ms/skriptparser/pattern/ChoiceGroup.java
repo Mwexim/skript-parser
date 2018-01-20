@@ -39,7 +39,8 @@ public class ChoiceGroup implements PatternElement {
 
     @Override
     public int match(String s, int index, SkriptParser parser) {
-        parser.advanceInPattern();
+        if (parser.getElement().equals(this))
+            parser.advanceInPattern();
         for (ChoiceElement choice : choices) {
             int m = choice.getElement().match(s, index, parser);
             if (m != -1) {

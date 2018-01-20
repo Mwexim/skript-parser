@@ -3,14 +3,23 @@ package io.github.syst3ms.skriptparser;
 import io.github.syst3ms.skriptparser.classes.SkriptParser;
 import io.github.syst3ms.skriptparser.classes.SkriptRegistration;
 import io.github.syst3ms.skriptparser.classes.TypeManager;
-import io.github.syst3ms.skriptparser.pattern.*;
+import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
+import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
+import io.github.syst3ms.skriptparser.pattern.CompoundElement;
+import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
+import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
+import io.github.syst3ms.skriptparser.pattern.PatternElement;
+import io.github.syst3ms.skriptparser.pattern.RegexGroup;
+import io.github.syst3ms.skriptparser.pattern.TextElement;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class PatternParserTest {
 
@@ -97,8 +106,16 @@ public class PatternParserTest {
         assertEquals(15, pattern.match("you must choose", 0, parser));
 		assertEquals(13, pattern.match("you must this", 0, parser));
 		assertEquals(16, pattern.match("you must or this", 0, parser));
-        pattern = patternParser.parsePattern("I choose (1¦this|2¦that)");
+        pattern = patternParser.parsePattern("I choose (1\u00a6this|2\u00a6that)");
         parser = new SkriptParser(pattern);
         assertTrue(pattern.match("I choose this", 0, parser) == 13 && parser.getParseMark() == 1);
+        // The real stuff
+        pattern = patternParser.parsePattern("say %number% [!]");
+        parser = new SkriptParser(pattern);
+        pattern.match("say 2", 0, parser);
+        assertEquals(1, parser.getParsedExpressions().size());
+        parser = new SkriptParser(pattern);
+        pattern.match("say 2 !", 0, parser);
+        assertEquals(1, parser.getParsedExpressions().size());
 	}
 }

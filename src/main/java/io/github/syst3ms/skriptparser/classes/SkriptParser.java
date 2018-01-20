@@ -102,10 +102,18 @@ public class SkriptParser {
                 possibilities.addAll(getPossibleInputs(flatten(((OptionalGroup) element).getElement())));
             }
         }
-        return new ArrayList<>();
+        possibilities.add(new TextElement(""));
+        return possibilities;
     }
 
     public Expression<?> parseExpression(String s) { // empty implementation
+        if (s.equals("2"))
+            return new Expression<Number>() {
+                @Override
+                public int hashCode() {
+                    return 2;
+                }
+            };
 	    return null;
     }
 }

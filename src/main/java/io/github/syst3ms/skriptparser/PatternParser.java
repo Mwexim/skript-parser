@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 public class PatternParser {
-    private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(\\d+?)¦.*");
+    private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(\\d+?)\u00a6.*");
     private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*~])?(?<types>[\\w\\/]+)(?:@(-?1))?");
 
     /**
