@@ -84,13 +84,9 @@ local.properties
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-# Javadoc folder
-# REMIND remove this
-/javadoc/
-
 ### Gradle ###
 .gradle
-/build/
+**/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -112,6 +108,3 @@ gradle-app.setting
 
 # IDEA files (.iml and .ipr)
 *.i*
-
-
-

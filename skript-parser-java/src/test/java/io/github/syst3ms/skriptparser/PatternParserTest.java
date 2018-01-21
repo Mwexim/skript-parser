@@ -44,7 +44,7 @@ public class PatternParserTest {
 		);
 		assertEquals(expected, parser.parsePattern("[something [optional] again]"));
 		assertEquals(new ChoiceGroup(new ChoiceElement(new TextElement("single choice"), 0)), parser.parsePattern("(single choice)"));
-		assertEquals(new ChoiceGroup(new ChoiceElement(new TextElement("parse mark"), 1)), parser.parsePattern("(1¦parse mark)"));
+		assertEquals(new ChoiceGroup(new ChoiceElement(new TextElement("parse mark"), 1)), parser.parsePattern("(1\u00a6parse mark)"));
 		expected = new ChoiceGroup(
 			new ChoiceElement(new TextElement("first choice"), 0),
 			new ChoiceElement(new TextElement("second choice"), 0)
@@ -54,7 +54,7 @@ public class PatternParserTest {
 			new ChoiceElement(new TextElement("first mark"), 0),
 			new ChoiceElement(new TextElement("second mark"), 1)
 		);
-		assertEquals(expected, parser.parsePattern("(first mark|1¦second mark)"));
+		assertEquals(expected, parser.parsePattern("(first mark|1\u00a6second mark)"));
 		expected = new OptionalGroup(
 			new CompoundElement(
 				new TextElement("lookie, "),
@@ -65,7 +65,7 @@ public class PatternParserTest {
 				new TextElement(" !")
 			)
 		);
-		assertEquals(expected, parser.parsePattern("[lookie, (another|1¦choice) !]"));
+		assertEquals(expected, parser.parsePattern("[lookie, (another|1\u00a6choice) !]"));
 		assertEquals(new RegexGroup(Pattern.compile(".+")), parser.parsePattern("<.+>"));
 		assertEquals(
 		        new ExpressionElement(
