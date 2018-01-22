@@ -1,8 +1,8 @@
 package io.github.syst3ms.skriptparser
 
 import io.github.syst3ms.skriptparser.classes.SkriptParser
-import io.github.syst3ms.skriptparser.classes.SkriptRegistration
-import io.github.syst3ms.skriptparser.classes.TypeManager
+import io.github.syst3ms.skriptparser.registration.SkriptRegistration
+import io.github.syst3ms.skriptparser.registration.TypeManager
 import io.github.syst3ms.skriptparser.pattern.*
 import org.junit.Test
 import java.util.regex.Pattern

@@ -1,4 +1,4 @@
-package io.github.syst3ms.skriptparser.classes
+package io.github.syst3ms.skriptparser.registration
 
 import java.util.function.Predicate
 import java.util.regex.Pattern

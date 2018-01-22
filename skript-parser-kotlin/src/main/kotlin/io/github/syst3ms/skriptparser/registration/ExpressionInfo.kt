@@ -1,4 +1,4 @@
-package io.github.syst3ms.skriptparser.classes
+package io.github.syst3ms.skriptparser.registration
 
 import io.github.syst3ms.skriptparser.pattern.PatternElement
 

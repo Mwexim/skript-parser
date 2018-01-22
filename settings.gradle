@@ -1,4 +1,5 @@
 rootProject.name = 'skript-parser'
 include 'skript-parser-java'
 include 'skript-parser-kotlin'
+include 'skript-parser-java-impl'
 

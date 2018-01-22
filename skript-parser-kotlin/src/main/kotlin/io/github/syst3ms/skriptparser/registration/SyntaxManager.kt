@@ -1,9 +1,6 @@
-package io.github.syst3ms.skriptparser.classes
+package io.github.syst3ms.skriptparser.registration
 
 import io.github.syst3ms.skriptparser.util.MultiMap
-
-import java.util.ArrayList
-import java.util.Collections
 
 object SyntaxManager {
     private val expressions = MultiMap<Class<*>, ExpressionInfo<*, *>>()

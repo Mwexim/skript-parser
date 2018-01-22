@@ -1,5 +1,7 @@
 package io.github.syst3ms.skriptparser.classes
 
+import io.github.syst3ms.skriptparser.registration.Type
+
 /**
  * A type used in a pattern.
  * Groups a [Type] and a number together (in contrast to [Type] itself)

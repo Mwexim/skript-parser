@@ -1,6 +1,7 @@
-package io.github.syst3ms.skriptparser.classes;
+package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.PatternParser;
+import io.github.syst3ms.skriptparser.classes.Expression;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 

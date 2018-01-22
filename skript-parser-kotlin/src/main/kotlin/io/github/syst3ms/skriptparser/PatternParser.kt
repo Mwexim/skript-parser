@@ -1,9 +1,8 @@
 package io.github.syst3ms.skriptparser
 
 import io.github.syst3ms.skriptparser.classes.PatternType
-import io.github.syst3ms.skriptparser.classes.TypeManager
+import io.github.syst3ms.skriptparser.registration.TypeManager
 import io.github.syst3ms.skriptparser.pattern.*
-import java.util.*
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
 
@@ -17,15 +16,14 @@ class PatternParser {
     fun parsePattern(pattern: String): PatternElement? {
         val elements = arrayListOf<PatternElement>()
         var textBuilder = StringBuilder("")
-        val chars = pattern.toCharArray()
         var i = 0
-        while (i < chars.size) {
-            val c = chars[i]
+        while (i < pattern.length) {
+            val c = pattern[i]
             when (c) {
                 '[' -> {
-                    val s = getEnclosedText(pattern, '[', ']', i)
+                    val s = pattern.getEnclosedText('[', ']', i)
                     if (s == null) {
-                        error("Unclosed optional group at index " + i)
+                        error("Unclosed optional group at index $i")
                         return null
                     }
                     if (textBuilder.isNotEmpty()) {
@@ -34,25 +32,22 @@ class PatternParser {
                     }
                     i += s.length + 1 // sets i to the closing bracket, for loop does the rest
                     val m = PARSE_MARK_PATTERN.matcher(s)
-                    val content: PatternElement?
-                    if (m.matches()) {
+                    val content: PatternElement
+                    content = if (m.matches()) {
                         val mark = m.group(1)
-                        val markNumber = Integer.parseInt(mark)
+                        val markNumber = mark.toInt()
                         val rest = s.substring(mark.length + 1, s.length)
                         val e = parsePattern(rest) ?: return null
-                        content = ChoiceGroup(listOf(ChoiceElement(e, markNumber))) // I said I would keep the other constructor for unit tests
+                        ChoiceGroup(listOf(ChoiceElement(e, markNumber))) // I said I would keep the other constructor for unit tests
                     } else {
-                        content = parsePattern(s)
-                        if (content == null) {
-                            return null
-                        }
+                        parsePattern(s) ?: return null
                     }
                     elements.add(OptionalGroup(content))
                 }
                 '(' -> {
-                    val s = getEnclosedText(pattern, '(', ')', i)
+                    val s = pattern.getEnclosedText('(', ')', i)
                     if (s == null) {
-                        error("Unclosed choice group at index " + i)
+                        error("Unclosed choice group at index $i")
                         return null
                     }
                     if (textBuilder.isNotEmpty()) {
@@ -78,9 +73,9 @@ class PatternParser {
                     elements.add(ChoiceGroup(choiceElements))
                 }
                 '<' -> {
-                    val s = getEnclosedText(pattern, '<', '>', i)
+                    val s = pattern.getEnclosedText('<', '>', i)
                     if (s == null) {
-                        error("Unclosed regex group at index " + i)
+                        error("Unclosed regex group at index $i")
                         return null
                     }
                     if (textBuilder.isNotEmpty()) {
@@ -95,7 +90,6 @@ class PatternParser {
                         error("Invalid regex : '$s'")
                         return null
                     }
-
                     elements.add(RegexGroup(pat))
                 }
                 '%' -> {
@@ -105,7 +99,7 @@ class PatternParser {
                      */
                     val nextIndex = pattern.indexOf('%', i + 1)
                     if (nextIndex == -1) {
-                        error("Unclosed variable declaration at index " + i)
+                        error("Unclosed variable declaration at index $i")
                         return null
                     }
                     if (textBuilder.isNotEmpty()) {
@@ -116,7 +110,7 @@ class PatternParser {
                     i = nextIndex
                     val m = VARIABLE_PATTERN.matcher(s)
                     if (!m.matches()) {
-                        error("Invalid variable definition")
+                        error("Invalid variable definition : '$s'")
                         return null
                     } else {
                         var acceptance: ExpressionElement.Acceptance = ExpressionElement.Acceptance.BOTH
@@ -129,12 +123,12 @@ class PatternParser {
                             }
                         }
                         val typeString = m.group("types")
-                        val types = typeString.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                        val types = typeString.split("/".toRegex()).dropLastWhile { it.isEmpty() }
                         val patternTypes = arrayListOf<PatternType<*>>()
                         for (type in types) {
                             val t = TypeManager.getPatternType(type)
                             if (t == null) {
-                                error("Unknown type : " + type)
+                                error("Unknown type : $type")
                                 return null
                             }
                             patternTypes.add(t)
@@ -146,10 +140,10 @@ class PatternParser {
                     error("Backslash sequence at the end of the pattern")
                     return null
                 } else {
-                    textBuilder.append(chars[++i])
+                    textBuilder.append(pattern[++i])
                 }
                 '|' -> {
-                    val groups = pattern.split("(?<!\\\\)|".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                    val groups = pattern.split("(?<!\\\\)|".toRegex()).dropLastWhile { it.isEmpty() }
                     val choices = arrayListOf<ChoiceElement>()
                     for (choice in groups) {
                         val matcher = PARSE_MARK_PATTERN.matcher(choice)
@@ -181,17 +175,17 @@ class PatternParser {
         }
     }
 
-    private fun getEnclosedText(pattern: String, opening: Char, closing: Char, start: Int): String? {
+    private fun String.getEnclosedText(opening: Char, closing: Char, start: Int): String? {
         var n = 0
         var i = start
-        while (i < pattern.length) {
-            val c = pattern[i]
+        while (i < length) {
+            val c = get(i)
             if (c == '\\') {
                 i++
             } else if (c == closing) {
                 n--
                 if (n == 0) {
-                    return pattern.substring(start + 1, i) // We don't want the beginning bracket in there
+                    return substring(start + 1, i) // We don't want the beginning bracket in there
                 }
             } else if (c == opening) {
                 n++
