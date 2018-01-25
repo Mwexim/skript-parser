@@ -21,13 +21,13 @@ public class OptionalGroup implements PatternElement {
         return obj != null && obj instanceof OptionalGroup && element.equals(((OptionalGroup) obj).element);
     }
 
-	@Override
-	public int match(String s, int index, SkriptParser parser) {
+    @Override
+    public int match(String s, int index, SkriptParser parser) {
         if (parser.getElement().equals(this))
             parser.advanceInPattern();
         int m = element.match(s, index, parser);
-		return m != -1 ? m : index;
-	}
+        return m != -1 ? m : index;
+    }
 
     @Override
     public String toString() {

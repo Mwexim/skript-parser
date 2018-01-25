@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.pattern;
 
-import io.github.syst3ms.skriptparser.classes.SkriptParser;
+import io.github.syst3ms.skriptparser.parsing.SkriptParser;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,8 +36,8 @@ public class CompoundElement implements PatternElement {
         }
     }
 
-	@Override
-	public int match(String s, int index, SkriptParser parser) {
+    @Override
+    public int match(String s, int index, SkriptParser parser) {
         int i = index;
         for (PatternElement element : elements) {
             if (parser.getElement().equals(this))

@@ -1,4 +1,4 @@
-package io.github.syst3ms.skriptparser.classes;
+package io.github.syst3ms.skriptparser.parsing;
 
 /**
  * Thrown whenever something inherent to parsing goes wrong

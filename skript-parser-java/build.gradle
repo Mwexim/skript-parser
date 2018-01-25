@@ -8,16 +8,16 @@ apply plugin: 'java'
 apply plugin: 'maven-publish'
 
 dependencies {
-	testCompile 'junit:junit:4.12'
+    testCompile 'junit:junit:4.12'
     //testCompile 'org.easymock:easymock:3.4'
 
-	//compile fileTree(dir: 'lib', include: '*.jar')
+    //compile fileTree(dir: 'lib', include: '*.jar')
 }
 
 processResources {
-	filter ReplaceTokens, tokens: [
-		"version" : project.property("version")
-	]
+    filter ReplaceTokens, tokens: [
+        "version" : project.property("version")
+    ]
 }
 
 //license {
@@ -29,25 +29,25 @@ task sourceJar(type: Jar) {
 }
 
 publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			groupId "ch.njol"
-			artifactId "skript"
-			version project.property("version")
+    publications {
+        mavenJava(MavenPublication) {
+            groupId "ch.njol"
+            artifactId "skript"
+            version project.property("version")
 
-			from components.java
+            from components.java
 
-			artifact sourceJar {
-    			classifier "sources"
-			}
-		}
-	}
-	
-	repositories {
-		maven {
-			url "file:///itemapi_repo/"
-		}
-	}
+            artifact sourceJar {
+                classifier "sources"
+            }
+        }
+    }
+    
+    repositories {
+        maven {
+            url "file:///itemapi_repo/"
+        }
+    }
 }
 
 buildscript {

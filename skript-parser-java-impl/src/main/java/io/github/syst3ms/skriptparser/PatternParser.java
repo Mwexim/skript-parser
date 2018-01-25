@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser;
 
-import io.github.syst3ms.skriptparser.classes.PatternType;
+import io.github.syst3ms.skriptparser.registration.PatternType;
 import io.github.syst3ms.skriptparser.registration.TypeManager;
 import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
 import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;

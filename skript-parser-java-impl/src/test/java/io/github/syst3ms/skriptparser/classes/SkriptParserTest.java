@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.classes;
 
 import io.github.syst3ms.skriptparser.PatternParser;
+import io.github.syst3ms.skriptparser.parsing.SkriptParser;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.TextElement;
 import org.junit.Test;

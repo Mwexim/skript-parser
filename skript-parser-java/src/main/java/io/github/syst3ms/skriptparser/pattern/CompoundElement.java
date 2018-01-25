@@ -36,8 +36,8 @@ public class CompoundElement implements PatternElement {
         }
     }
 
-	@Override
-	public int match(String s, int index, SkriptParser parser) {
+    @Override
+    public int match(String s, int index, SkriptParser parser) {
         int i = index;
         for (PatternElement element : elements) {
             if (parser.getElement().equals(this))

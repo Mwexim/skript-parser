@@ -18,15 +18,15 @@ import java.util.regex.Pattern;
  * A parser instance used for matching a pattern to a syntax, stores a parse mark
  */
 public class SkriptParser {
-	private String pattern;
+    private String pattern;
     private PatternElement element;
     private int patternIndex = 0;
-	private List<Expression<?>> parsedExpressions = new ArrayList<>();
-	private List<MatchResult> regexMatches = new ArrayList<>();
-	private int parseMark = 0;
+    private List<Expression<?>> parsedExpressions = new ArrayList<>();
+    private List<MatchResult> regexMatches = new ArrayList<>();
+    private int parseMark = 0;
 
-	public SkriptParser(PatternElement e) {
-		this.pattern = e.toString();
+    public SkriptParser(PatternElement e) {
+        this.pattern = e.toString();
         element = e;
     }
 
@@ -46,49 +46,49 @@ public class SkriptParser {
         patternIndex++;
     }
 
-	public List<Expression<?>> getParsedExpressions() {
-		return parsedExpressions;
-	}
+    public List<Expression<?>> getParsedExpressions() {
+        return parsedExpressions;
+    }
 
     public void addExpression(Expression<?> expression) {
         parsedExpressions.add(expression);
     }
 
-	public List<MatchResult> getRegexMatches() {
-		return regexMatches;
-	}
+    public List<MatchResult> getRegexMatches() {
+        return regexMatches;
+    }
 
     public void addRegexMatch(MatchResult match) {
         regexMatches.add(match);
     }
 
-	public int getParseMark() {
-		return parseMark;
-	}
-
-	public void addMark(int mark) {
-		parseMark ^= mark;
-	}
-
-	public ParseResult toParseResult() {
-	    return new ParseResult(element, regexMatches, parseMark);
+    public int getParseMark() {
+        return parseMark;
     }
 
-	public List<PatternElement> flatten(PatternElement element) {
-	    List<PatternElement> flattened = new ArrayList<>();
-	    if (element instanceof CompoundElement) {
+    public void addMark(int mark) {
+        parseMark ^= mark;
+    }
+
+    public ParseResult toParseResult() {
+        return new ParseResult(element, regexMatches, parseMark);
+    }
+
+    public List<PatternElement> flatten(PatternElement element) {
+        List<PatternElement> flattened = new ArrayList<>();
+        if (element instanceof CompoundElement) {
             for (PatternElement e : ((CompoundElement) element).getElements()) {
                 flattened.addAll(flatten(e));
             }
             return flattened;
         } else {
-	        flattened.add(element);
-	        return flattened;
+            flattened.add(element);
+            return flattened;
         }
     }
 
     public List<PatternElement> getPossibleInputs(List<PatternElement> elements) {
-	    List<PatternElement> possibilities = new ArrayList<>();
+        List<PatternElement> possibilities = new ArrayList<>();
         for (PatternElement element : elements) {
             if (element instanceof TextElement || element instanceof RegexGroup) {
                 if (element instanceof TextElement && ((TextElement) element).getText().matches("\\s+"))
@@ -134,6 +134,6 @@ public class SkriptParser {
                     return 2;
                 }
             };
-	    return null;
+        return null;
     }
 }
