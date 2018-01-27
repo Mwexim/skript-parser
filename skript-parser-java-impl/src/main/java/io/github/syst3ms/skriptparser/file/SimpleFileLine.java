@@ -1,10 +1,14 @@
 package io.github.syst3ms.skriptparser.file;
 
-public class SimpleFileLine implements FileElement {
-    private String content;
+import io.github.syst3ms.skriptparser.util.StringUtils;
 
-    public SimpleFileLine(String content) {
+public class SimpleFileLine implements FileElement {
+    protected String content;
+    protected int indentation;
+
+    public SimpleFileLine(String content, int indentation) {
         this.content = content;
+        this.indentation = indentation;
     }
 
     @Override
@@ -14,6 +18,15 @@ public class SimpleFileLine implements FileElement {
 
     @Override
     public boolean equals(Object obj) {
-        return obj != null && obj instanceof SimpleFileLine && content.equalsIgnoreCase(((SimpleFileLine) obj).content);
+        return obj != null && obj instanceof SimpleFileLine && content.equalsIgnoreCase(((SimpleFileLine) obj).content)  && indentation == ((SimpleFileLine) obj).indentation;
+    }
+
+    public int getIndentation() {
+        return indentation;
+    }
+
+    @Override
+    public String toString() {
+        return StringUtils.repeat("    ", indentation) + content;
     }
 }
