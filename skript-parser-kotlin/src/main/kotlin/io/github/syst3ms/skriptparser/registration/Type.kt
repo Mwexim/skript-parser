@@ -16,8 +16,11 @@ import java.util.regex.Pattern
  * catched and the type will be ignored.
  */
 class Type<T>(val c: Class<in T>, val baseName: String, pattern: String, val literalParser: ((String) -> T)?) {
-    var syntaxPattern: Pattern
-        private set
+    val syntaxPattern = if (!pluralGroupChecker.matches(pattern.trim())) {
+        ("${pattern.trim()}(?<plural>)??").toRegex() // Lazy optional group is required in this case
+    } else {
+        pattern.trim().toRegex()
+    }
 
     /**
      * Constructs a new Type. This consructor doesn't handle any exceptions inherent to the regex pattern.
@@ -30,28 +33,17 @@ class Type<T>(val c: Class<in T>, val baseName: String, pattern: String, val lit
      */
     constructor(c: Class<in T>, baseName: String, pattern: String) : this(c, baseName, pattern, null)
 
-    init {
-        var pat = pattern
-        pat = pat.trim { it <= ' ' }
-        // Not handling exceptions here, developer responsability
-        syntaxPattern = if (!pluralGroupChecker.test(pat)) {
-            Pattern.compile(pat + "(?<plural>)??") // Lazy optional group is required in this case
-        } else {
-            Pattern.compile(pat)
-        }
-    }
-
     override fun equals(other: Any?): Boolean {
         return if (other == null || other !is Type<*>) {
             false
         } else {
-            c == other.c && baseName == other.baseName && syntaxPattern.pattern() == other.syntaxPattern.pattern()
+            c == other.c && baseName == other.baseName && syntaxPattern.pattern == other.syntaxPattern.pattern
         }
     }
 
-    override fun hashCode() = syntaxPattern.pattern().hashCode()
+    override fun hashCode() = syntaxPattern.pattern.hashCode()
 
     companion object {
-        val pluralGroupChecker : Predicate<String> = Pattern.compile("(?<!\\\\)\\(\\?<plural>[a-zA-Z]+\\)").asPredicate()
+        val pluralGroupChecker = "(?<!\\\\)\\(\\?<plural>[a-zA-Z]+\\)".toRegex()
     }
 }

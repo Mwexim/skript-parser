@@ -1,5 +1,8 @@
 package io.github.syst3ms.skriptparser.file;
 
+import io.github.syst3ms.skriptparser.lang.CodeSection;
+import io.github.syst3ms.skriptparser.lang.Effect;
+import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 
 import java.util.ArrayList;
@@ -12,7 +15,7 @@ public class FileParser {
     public static final Pattern LEADING_WHITESPACE_PATTERN = Pattern.compile("(\\s+)\\S.+");
     public static final Pattern LINE_PATTERN = Pattern.compile("^((?:[^#]|##)*)(\\s*#(?!#).*)$"); // Might as well take that from Skript
 
-    public List<FileElement> parseFileLines(List<String> lines, int expectedIndentation) {
+    public List<FileElement> parseFileLines(String fileName, List<String> lines, int expectedIndentation, int lastLine) {
 		List<FileElement> elements = new ArrayList<>();
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
@@ -35,17 +38,36 @@ public class FileParser {
             }
             if (content.endsWith(":")) {
                 if (i + 1 == lines.size()) {
-                    elements.add(new FileSection(content.substring(0, content.length() - 1), new ArrayList<>(), expectedIndentation));
+                    elements.add(new FileSection(fileName, lastLine + i, content.substring(0, content.length() - 1), new ArrayList<>(), expectedIndentation));
                 } else {
-                    List<FileElement> sectionElements = parseFileLines(lines.subList(i + 1, lines.size()), expectedIndentation + 1);
-                    elements.add(new FileSection(content.substring(0, content.length() - 1), sectionElements, expectedIndentation));
+                    List<FileElement> sectionElements = parseFileLines(fileName, lines.subList(i + 1, lines.size()), expectedIndentation + 1, lastLine + i + 1);
+                    elements.add(new FileSection(fileName, lastLine + i, content.substring(0, content.length() - 1), sectionElements, expectedIndentation));
                 }
             } else {
-                elements.add(new SimpleFileLine(content, expectedIndentation));
+                elements.add(new SimpleFileLine(fileName, lastLine + i, content, expectedIndentation));
             }
         }
         return elements;
     }
+
+    /*
+    // Remember, CodeSection extends Effect
+    public List<Effect> parseFileSyntaxes(List<FileElement> fileElements) {
+        List<Effect> effects = new ArrayList<>();
+        for (FileElement fileElement : fileElements) {
+            if (fileElement instanceof SimpleFileLine) {
+                Effect eff = Effect.parse((SimpleFileLine) fileElement);
+                if (eff == null) {
+                    error("Can't understand this effect : '" + eff);
+                }
+                effects.add(eff);
+            } else {
+                effects.add();
+            }
+        }
+        return effects;
+    }
+    */
 
     private void error(String error) {
         // TODO

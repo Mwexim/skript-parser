@@ -25,13 +25,7 @@ object TypeManager {
      * @return the matching Type, or null if nothing matched
      */
     fun getByName(name: String): Type<*>? {
-        for (t in nameToType.values) {
-            val m = t.syntaxPattern.matcher(name)
-            if (m.matches()) {
-                return t
-            }
-        }
-        return null
+        return nameToType.values.firstOrNull { it.syntaxPattern.matches(name) }
     }
 
     /**
@@ -54,10 +48,9 @@ object TypeManager {
             return PatternType((nameToType[name] as Type<Any>?)!!, false)
         }
         for (t in nameToType.values) {
-            val m = t.syntaxPattern.matcher(name)
-            if (m.matches()) {
-                val pluralGroup = m.group("plural")
-                return PatternType(t as Type<Any>, pluralGroup == null)
+            val m = t.syntaxPattern.matchEntire(name)
+            if (m != null) {
+                return PatternType(t as Type<Any>, m.groups["plural"] == null)
             }
         }
         return null
@@ -65,8 +58,8 @@ object TypeManager {
 
     internal fun register(reg: SkriptRegistration) {
         for (type in reg.types) {
-            nameToType.put(type.baseName, type)
-            classToType.put(type.c, type)
+            nameToType[type.baseName] = type
+            classToType[type.c] = type
         }
     }
 }

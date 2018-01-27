@@ -184,28 +184,22 @@ class ExpressionElement(private val types: List<PatternType<*>>, private val acc
     }
 
 
-    override fun equals(obj: Any?): Boolean {
-        if (obj == null || obj !is ExpressionElement) {
-            return false
+    override fun equals(other: Any?): Boolean {
+        return if (other == null || other !is ExpressionElement) {
+            false
         } else {
-            val e = obj as ExpressionElement?
-            return types == e!!.types && acceptance == e.acceptance
+            types == other.types && acceptance == other.acceptance
         }
     }
 
     override fun toString(): String {
         val sb = StringBuilder()
-        if (acceptance == Acceptance.EXPRESSIONS_ONLY) {
-            sb.append('~')
-        } else if (acceptance == Acceptance.LITERALS_ONLY) {
-            sb.append('*')
+        when (acceptance) {
+            Acceptance.EXPRESSIONS_ONLY -> sb.append('~')
+            Acceptance.LITERALS_ONLY -> sb.append('*')
+            else -> {}
         }
-        for (i in types.indices) {
-            if (i > 0) {
-                sb.append('/')
-            }
-            sb.append(types[i])
-        }
+        sb.append(types.joinToString(separator = "/"))
         return sb.toString()
     }
 

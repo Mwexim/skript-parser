@@ -31,10 +31,10 @@ class PatternParser {
                         textBuilder.setLength(0)
                     }
                     i += s.length + 1 // sets i to the closing bracket, for loop does the rest
-                    val m = PARSE_MARK_PATTERN.matcher(s)
                     val content: PatternElement
-                    content = if (m.matches()) {
-                        val mark = m.group(1)
+                    content = if (PARSE_MARK_PATTERN.matches(s)) {
+                        // This is all perfectly safe
+                        val mark = (PARSE_MARK_PATTERN.find(s)?.groups?.get(0)?.value)!!
                         val markNumber = mark.toInt()
                         val rest = s.substring(mark.length + 1, s.length)
                         val e = parsePattern(rest) ?: return null
@@ -55,13 +55,14 @@ class PatternParser {
                         textBuilder.setLength(0)
                     }
                     i += s.length + 1
-                    val choices = s.split("(?<!\\\\)\\|".toRegex()).dropLastWhile { it.isEmpty() }
+                    val choices = s.split("(?<!\\\\)\\|".toRegex())
                     val choiceElements = arrayListOf<ChoiceElement>()
                     for (choice in choices) {
-                        val matcher = PARSE_MARK_PATTERN.matcher(choice)
-                        if (matcher.matches()) {
-                            val mark = matcher.group(1)
-                            val markNumber = Integer.parseInt(mark)
+                        val matchResult = PARSE_MARK_PATTERN.matchEntire(s)
+                        if (matchResult != null) {
+                            // Same, perfectly safe
+                            val mark = matchResult.groups[0]?.value!!
+                            val markNumber = mark.toInt()
                             val rest = choice.substring(mark.length + 1, choice.length)
                             val choiceContent = parsePattern(rest) ?: return null
                             choiceElements.add(ChoiceElement(choiceContent, markNumber))
@@ -108,22 +109,21 @@ class PatternParser {
                     }
                     val s = pattern.substring(i + 1, nextIndex)
                     i = nextIndex
-                    val m = VARIABLE_PATTERN.matcher(s)
-                    if (!m.matches()) {
+                    if (!VARIABLE_PATTERN.matches(s)) {
                         error("Invalid variable definition : '$s'")
                         return null
                     } else {
                         var acceptance: ExpressionElement.Acceptance = ExpressionElement.Acceptance.BOTH
-                        if (m.group(1) != null) {
-                            val acc = m.group(1)
-                            acceptance = if (acc == "~") {
-                                ExpressionElement.Acceptance.EXPRESSIONS_ONLY
-                            } else {
-                                ExpressionElement.Acceptance.LITERALS_ONLY
+                        val matchResult = VARIABLE_PATTERN.matchEntire(s)!!
+                        if (matchResult.groupValues[0].isNotEmpty()) {
+                            val acc = matchResult.groupValues[0]
+                            acceptance = when (acc) {
+                                "~" -> ExpressionElement.Acceptance.EXPRESSIONS_ONLY
+                                else -> ExpressionElement.Acceptance.LITERALS_ONLY
                             }
                         }
-                        val typeString = m.group("types")
-                        val types = typeString.split("/".toRegex()).dropLastWhile { it.isEmpty() }
+                        val typeString = matchResult.groups["types"]?.value.orEmpty()
+                        val types = typeString.split("/".toRegex())
                         val patternTypes = arrayListOf<PatternType<*>>()
                         for (type in types) {
                             val t = TypeManager.getPatternType(type)
@@ -146,9 +146,9 @@ class PatternParser {
                     val groups = pattern.split("(?<!\\\\)|".toRegex()).dropLastWhile { it.isEmpty() }
                     val choices = arrayListOf<ChoiceElement>()
                     for (choice in groups) {
-                        val matcher = PARSE_MARK_PATTERN.matcher(choice)
-                        if (matcher.matches()) {
-                            val mark = matcher.group(1)
+                        val matcher = PARSE_MARK_PATTERN.matchEntire(choice)
+                        if (matcher != null) {
+                            val mark = matcher.groupValues[0]
                             val markNumber = Integer.parseInt(mark)
                             val rest = choice.substring(mark.length + 1, choice.length)
                             val choiceContent = parsePattern(rest) ?: return null
@@ -200,7 +200,7 @@ class PatternParser {
     }
 
     companion object {
-        private val PARSE_MARK_PATTERN = Pattern.compile("(\\d+?)\u00a6.*")
-        private val VARIABLE_PATTERN = Pattern.compile("([*~])?(?<types>[\\w/]+)")
+        private val PARSE_MARK_PATTERN = "(\\d+?)\u00a6.*".toRegex()
+        private val VARIABLE_PATTERN = "([*~])?(?<types>[\\w/]+)".toRegex()
     }
 }

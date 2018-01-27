@@ -1,14 +1,12 @@
 package io.github.syst3ms.skriptparser.file;
 
-import io.github.syst3ms.skriptparser.util.StringUtils;
-
 import java.util.List;
 
 public class FileSection extends SimpleFileLine {
     private List<FileElement> elements;
 
-    public FileSection(String content, List<FileElement> elements, int indentation) {
-        super(content, indentation);
+    public FileSection(String fileName, int line, String content, List<FileElement> elements, int indentation) {
+        super(fileName, line, content, indentation);
         this.elements = elements;
     }
 

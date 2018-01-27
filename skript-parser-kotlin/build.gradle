@@ -51,7 +51,7 @@ publishing {
 }
 
 buildscript {
-    ext.kotlin_version = '1.2.10'
+    ext.kotlin_version = '1.2.21'
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }

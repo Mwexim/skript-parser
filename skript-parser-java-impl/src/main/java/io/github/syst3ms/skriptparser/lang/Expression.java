@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.classes.ChangeMode;
+import io.github.syst3ms.skriptparser.file.SimpleFileLine;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 
 import java.util.Objects;
@@ -14,7 +15,7 @@ public interface Expression<T> extends SyntaxElement {
         return false;
     }
 
-    static <T> Expression<T> fromLambda(Supplier<T> supplier, Function<Boolean, String> toString) {
+    static <T> Expression<T> fromLambda(Supplier<? extends T> supplier, Function<Boolean, String> toString) {
         return new Expression<T>() {
             private final T value = supplier.get();
 
@@ -36,7 +37,11 @@ public interface Expression<T> extends SyntaxElement {
         };
     }
 
-    static <T> Expression<T> fromLambda(Supplier<T> supplier) {
+    static <T> Expression<T> fromLambda(Supplier<? extends T> supplier) {
         return fromLambda(supplier, b -> Objects.toString(supplier.get()));
+    }
+
+    static Expression<?> parse(String s) {
+        return fromLambda(() -> null);
     }
 }

@@ -13,10 +13,7 @@ class SkriptRegistration(val registerer: String) {
 
     fun <C : Expression<T>, T> addExpression(c: Class<C>, returnType: Class<T>, vararg patterns: String) {
         val elements = arrayListOf<PatternElement>()
-        for (s in patterns) {
-            val element = patternParser.parsePattern(s) ?: continue
-            elements.add(element)
-        }
+        patterns.mapNotNullTo(elements) { patternParser.parsePattern(it) }
         val t = TypeManager.getByClass(returnType) ?: //TODO error
                 return
         val info = ExpressionInfo(c, elements, t)

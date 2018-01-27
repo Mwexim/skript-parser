@@ -27,11 +27,9 @@ object SyntaxManager {
 
     fun <T> getExpressionsByReturnType(c: Class<out T>): List<ExpressionInfo<*, *>> {
         val infos = arrayListOf<ExpressionInfo<*, *>>()
-        for (returnType in expressions.keys) {
-            if (returnType.isAssignableFrom(c)) {
-                infos.addAll(expressions[returnType]!!)
-            }
-        }
+        expressions.keys
+                .filter { it.isAssignableFrom(c) }
+                .forEach { infos.addAll(expressions[it]!!) }
         return infos
     }
 }

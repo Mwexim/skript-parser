@@ -5,6 +5,6 @@ package io.github.syst3ms.skriptparser.classes
  */
 class SkriptParserException(msg: String) : RuntimeException(msg) {
     companion object {
-        private val serialVersionUID = 0L
+        private const val serialVersionUID = 0L
     }
 }

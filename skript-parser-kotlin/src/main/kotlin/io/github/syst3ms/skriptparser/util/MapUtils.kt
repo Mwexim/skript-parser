@@ -1,5 +1,7 @@
 package io.github.syst3ms.skriptparser.util
 
+fun <T> Collection<Collection<T>>.flatMap() = flatMap { it }
+
 /**
  * A simple implementation of a Multimap, emulating Guava's. This implementation allows duplicate elements in the the
  * values. (I know classes like this are out there but the ones available to me didn't work).
@@ -7,8 +9,7 @@ package io.github.syst3ms.skriptparser.util
 class MultiMap<K, V> : LinkedHashMap<K, MutableList<V>>() {
 
     val allValues: List<V>
-        get() = this.values.flatMap { it }
-
+        get() = this.values.flatMap()
     /**
      * Looks for a list that is mapped to the given key. If there is not one then a new one is created
      * mapped and has the value added to it.
@@ -29,3 +30,4 @@ class MultiMap<K, V> : LinkedHashMap<K, MutableList<V>>() {
         }
     }
 }
+

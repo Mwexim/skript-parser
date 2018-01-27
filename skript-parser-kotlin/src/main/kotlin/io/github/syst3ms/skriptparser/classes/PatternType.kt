@@ -6,7 +6,7 @@ import io.github.syst3ms.skriptparser.registration.Type
  * A type used in a pattern.
  * Groups a [Type] and a number together (in contrast to [Type] itself)
  */
-class PatternType<out T>(val type: Type<out T>, val isSingle: Boolean) {
+class PatternType<out T>(private val type: Type<out T>, private val isSingle: Boolean) {
 
     override fun equals(other: Any?): Boolean {
         return if (other == null || other !is PatternType<*>) {
@@ -21,7 +21,7 @@ class PatternType<out T>(val type: Type<out T>, val isSingle: Boolean) {
         return when {
             baseName.endsWith("child") -> // This exception seems likely enough
                 baseName.replace("child", "children")
-            baseName.matches(".*(s|ch|sh|x|z)".toRegex()) -> baseName + "es"
+            ".*(s|ch|sh|x|z)".toRegex().matches(baseName) -> baseName + "es"
             else -> baseName + "s"
         }
     }
