@@ -1,5 +1,7 @@
 package io.github.syst3ms.skriptparser.util;
 
+import java.util.StringJoiner;
+
 public class StringUtils {
     public static int count(String s, String... toFind) {
         int count = 0;
@@ -14,6 +16,14 @@ public class StringUtils {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < times; i++) {
             sb.append(str);
+        }
+        return sb.toString();
+    }
+
+    public static String join(String... strings) {
+        StringBuilder sb = new StringBuilder();
+        for (String s : strings) {
+            sb.append(s);
         }
         return sb.toString();
     }

@@ -4,7 +4,6 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -18,17 +17,17 @@ public class FileParserTest {
 		return new FileSection("unit-tests", line, content, Arrays.asList(elements), indentation);
 	}
 	
-	private List<FileElement> parseLines(FileParser parser, List<String> lines, int indentation) {
-		return parser.parseFileLines("unit-tests", lines, indentation, 1);
+	private List<FileElement> parseLines(FileParser parser, List<String> lines) {
+		return parser.parseFileLines("unit-tests", lines, 0, 1);
 	}
 	
     @Test
     public void parseFileLines() throws Exception {
         FileParser parser = new FileParser();
-        assertEquals(Collections.singletonList(simpleFileLine("test", 0, 1)), parseLines(parser, Collections.singletonList("test"), 0));
+        assertEquals(Collections.singletonList(simpleFileLine("test", 0, 1)), parseLines(parser, Collections.singletonList("test")));
         assertEquals(
                 Collections.singletonList(fileSection("test section", 0, 1)),
-                parseLines(parser, Collections.singletonList("test section:"), 0)
+                parseLines(parser, Collections.singletonList("test section:"))
         );
 		assertEquals(
             Collections.singletonList(
@@ -39,7 +38,7 @@ public class FileParserTest {
 					simpleFileLine("i am an element", 1, 2)
 				)
             ),
-            parseLines(parser, Arrays.asList("section with an element:", "    i am an element"), 0)
+            parseLines(parser, Arrays.asList("section with an element:", "    i am an element"))
         );
     	List<FileElement> expected = Arrays.asList(
     		simpleFileLine("let's see nested sections", 0, 1),
@@ -63,17 +62,59 @@ public class FileParserTest {
 					"this is a section:",
 					"\tthis is another one:",
 					"\t\twith an element inside"
-				),
-				0
+				))
+		);
+    	expected = Arrays.asList(
+    		simpleFileLine("Let's test simple elements after a section closes", 0, 1),
+			fileSection(
+				"The section",
+				0,
+				2,
+				simpleFileLine("the element inside", 1, 3)
+			),
+			simpleFileLine("the element after the section", 0, 4)
+		);
+    	assertEquals(
+    		expected,
+			parseLines(
+				parser,
+				Arrays.asList(
+					"Let's test simple elements after a section closes",
+					"The section:",
+					"\tthe element inside",
+					"the element after the section"
+				)
 			)
 		);
     	assertEquals(
     		Collections.singletonList(simpleFileLine("Hello there", 0, 1)),
-			parseLines(parser, Collections.singletonList("Hello there # ignore this !!!"), 0)
+			parseLines(parser, Collections.singletonList("Hello there # ignore this !!!"))
 		);
     	assertEquals(
     		Collections.singletonList(simpleFileLine("However # do not ignore this !!", 0, 1)),
-			parseLines(parser, Collections.singletonList("However ## do not ignore this !!"), 0)
+			parseLines(parser, Collections.singletonList("However ## do not ignore this !!"))
+		);
+    	assertEquals(
+    		Collections.singletonList(simpleFileLine("This has been joined over multiple lines !", 0, 1)),
+			parseLines(parser, Arrays.asList("This has been joined \\", "over multiple lines !"))
+		);
+    	expected = Collections.singletonList(
+    		fileSection(
+    			"Section:",
+				0,
+				1,
+				simpleFileLine("multiline indentation trimming", 1, 2))
+		);
+    	assertEquals(
+    		expected,
+			parseLines(
+				parser,
+				Arrays.asList(
+					"Section:",
+					"\tmultiline \\",
+					"\tindentation trimming"
+				)
+			)
 		);
     }
 }
