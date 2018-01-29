@@ -1,7 +1,9 @@
 package io.github.syst3ms.skriptparser.file;
 
+import io.github.syst3ms.skriptparser.util.FileUtils;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -94,27 +96,20 @@ public class FileParserTest {
     		Collections.singletonList(simpleFileLine("However # do not ignore this !!", 0, 1)),
 			parseLines(parser, Collections.singletonList("However ## do not ignore this !!"))
 		);
-    	assertEquals(
-    		Collections.singletonList(simpleFileLine("This has been joined over multiple lines !", 0, 1)),
-			parseLines(parser, Arrays.asList("This has been joined \\", "over multiple lines !"))
-		);
-    	expected = Collections.singletonList(
-    		fileSection(
-    			"Section:",
-				0,
-				1,
-				simpleFileLine("multiline indentation trimming", 1, 2))
-		);
-    	assertEquals(
-    		expected,
-			parseLines(
-				parser,
-				Arrays.asList(
-					"Section:",
-					"\tmultiline \\",
-					"\tindentation trimming"
-				)
-			)
-		);
     }
+
+    @Test
+	public void readLines() throws Exception {
+		ClassLoader classLoader = getClass().getClassLoader();
+		File file = new File(classLoader.getResource("test-file.txt").getFile());
+		assertEquals(
+			Arrays.asList(
+				"# The purpose of this file is to test multiline syntax",
+				"First with no indents",
+				"Opening a section:",
+				"    now with some indents"
+			),
+			FileUtils.readAllLines(file)
+		);
+	}
 }
