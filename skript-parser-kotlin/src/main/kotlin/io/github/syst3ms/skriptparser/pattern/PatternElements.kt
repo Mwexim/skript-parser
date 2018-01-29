@@ -76,7 +76,7 @@ class CompoundElement(val elements: List<PatternElement>) : PatternElement() {
         return i
     }
 
-    override fun toString() = elements.joinToString { it.toString() }
+    override fun toString() = elements.joinToString() { it.toString() }
 
     override fun hashCode() = elements.hashCode()
 }
@@ -89,7 +89,7 @@ class ChoiceGroup(val choices: List<ChoiceElement>) : PatternElement() {
     /**
      * Only used in unit tests
      */
-    constructor(vararg choices: ChoiceElement) : this(Arrays.asList<ChoiceElement>(*choices)) {}
+    constructor(vararg choices: ChoiceElement) : this(Arrays.asList<ChoiceElement>(*choices))
 
     override fun equals(other: Any?): Boolean {
         return if (other == null || other !is ChoiceGroup) {
@@ -161,12 +161,9 @@ class ExpressionElement(private val types: List<PatternType<*>>, private val acc
                     return index + toParse.length
                 }
                 is RegexGroup -> {
-                    val m = possibleInput.pattern.matcher(s).region(index, s.length)
-                    while (m.lookingAt()) {
-                        val i = m.start()
-                        if (i == -1)
-                            continue
-                        val toParse = s.substring(index, i)
+                    val m = possibleInput.pattern.findAll(s, index)
+                    for (result in m) {
+                        val toParse = s.substring(result.range)
                         val expression = parser.parseExpression(toParse) ?: continue@inputLoop
                         parser.addExpression(expression)
                         return index + toParse.length
@@ -232,25 +229,20 @@ class OptionalGroup(val element: PatternElement) : PatternElement() {
 /**
  * A group containing a regex in the form of a [Pattern].
  */
-class RegexGroup(val pattern: Pattern) : PatternElement() {
+class RegexGroup(val pattern: Regex) : PatternElement() {
 
     override fun equals(other: Any?) =
-            other != null && other is RegexGroup && pattern.pattern() == other.pattern.pattern()
+            other != null && other is RegexGroup && pattern.pattern == other.pattern.pattern
 
     override fun match(s: String, index: Int, parser: SkriptParser): Int {
         if (parser.element == this)
             parser.advanceInPattern()
-        val m = pattern.matcher(s)
-        m.region(index, s.length)
-        if (!m.lookingAt()) {
-            return -1
-        }
-        val match = m.group()
-        parser.addRegexMatch(m.toMatchResult())
-        return index + match.length
+        val m = pattern.find(s, index) ?: return -1
+        parser.addRegexMatch(m)
+        return index + m.value.length
     }
 
-    override fun toString(): String = "<${pattern.pattern()}>"
+    override fun toString(): String = "<${pattern.pattern}>"
 
     override fun hashCode(): Int = pattern.hashCode()
 }

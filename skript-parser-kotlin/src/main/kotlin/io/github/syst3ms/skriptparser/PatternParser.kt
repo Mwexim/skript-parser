@@ -84,9 +84,9 @@ class PatternParser {
                         textBuilder = StringBuilder("")
                     }
                     i += s.length + 1
-                    val pat: Pattern
+                    val pat: Regex
                     try {
-                        pat = Pattern.compile(s)
+                        pat = s.toRegex()
                     } catch (e: PatternSyntaxException) {
                         error("Invalid regex : '$s'")
                         return null
@@ -143,7 +143,7 @@ class PatternParser {
                     textBuilder.append(pattern[++i])
                 }
                 '|' -> {
-                    val groups = pattern.split("(?<!\\\\)|".toRegex()).dropLastWhile { it.isEmpty() }
+                    val groups = pattern.split("(?<!\\\\)|".toRegex())
                     val choices = arrayListOf<ChoiceElement>()
                     for (choice in groups) {
                         val matcher = PARSE_MARK_PATTERN.matchEntire(choice)
@@ -179,7 +179,7 @@ class PatternParser {
         var n = 0
         var i = start
         while (i < length) {
-            val c = get(i)
+            val c = this[i]
             if (c == '\\') {
                 i++
             } else if (c == closing) {

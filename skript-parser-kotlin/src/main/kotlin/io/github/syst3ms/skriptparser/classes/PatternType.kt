@@ -19,6 +19,7 @@ class PatternType<out T>(private val type: Type<out T>, private val isSingle: Bo
     override fun toString(): String { // Not perfect, but good enough for toString()
         val baseName = type.baseName
         return when {
+            !isSingle -> baseName
             baseName.endsWith("child") -> // This exception seems likely enough
                 baseName.replace("child", "children")
             ".*(s|ch|sh|x|z)".toRegex().matches(baseName) -> baseName + "es"

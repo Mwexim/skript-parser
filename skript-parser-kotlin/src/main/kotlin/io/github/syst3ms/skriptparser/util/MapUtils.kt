@@ -25,7 +25,7 @@ class MultiMap<K, V> : LinkedHashMap<K, MutableList<V>>() {
         } else {
             val values = arrayListOf<V>()
             values.add(value)
-            this.put(key, values)
+            this[key] = values
             false
         }
     }

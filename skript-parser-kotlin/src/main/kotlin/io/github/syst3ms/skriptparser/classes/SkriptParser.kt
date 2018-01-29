@@ -2,8 +2,6 @@ package io.github.syst3ms.skriptparser.classes
 
 import io.github.syst3ms.skriptparser.pattern.*
 
-typealias JavaMatchResult = java.util.regex.MatchResult
-
 /**
  * A parser instance used for matching a pattern to a syntax, stores a parse mark
  */
@@ -11,8 +9,8 @@ class SkriptParser(val element: PatternElement) {
     val pattern: String = element.toString()
     var patternIndex = 0
         private set
-    private val parsedExpressions = arrayListOf<Expression<*>>()
-    private val regexMatches = arrayListOf<JavaMatchResult>()
+    val parsedExpressions = arrayListOf<Expression<*>>()
+    val regexMatches = arrayListOf<MatchResult>()
     var parseMark = 0
         private set
 
@@ -20,15 +18,11 @@ class SkriptParser(val element: PatternElement) {
         patternIndex++
     }
 
-    fun getParsedExpressions() = parsedExpressions
-
     fun addExpression(expression: Expression<*>) {
         parsedExpressions += expression
     }
 
-    fun getRegexMatches() = regexMatches
-
-    fun addRegexMatch(match: JavaMatchResult) {
+    fun addRegexMatch(match: MatchResult) {
         regexMatches.add(match)
     }
 
