@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.pattern;
 import io.github.syst3ms.skriptparser.classes.Expression;
 import io.github.syst3ms.skriptparser.classes.PatternType;
 import io.github.syst3ms.skriptparser.classes.SkriptParser;
+import io.github.syst3ms.skriptparser.util.StringUtils;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -23,6 +24,21 @@ public class ExpressionElement implements PatternElement {
     public int match(String s, int index, SkriptParser parser) {
         if (parser.getElement().equals(this))
             parser.advanceInPattern();
+        if (s.charAt(index) == '(') {
+            String enclosed = StringUtils.getEnclosedText(s, '(', ')', index);
+            /*
+             * We don't want to return here, a single bracket could come from a syntax (albeit a stupid one)
+             * We also want to continue the code in any case
+             */
+            if (enclosed != null) {
+                Expression<?> expression = parser.parseExpression(s);
+                if (expression != null) {
+                    parser.addExpression(expression);
+                    return index + s.length();
+                }
+            }
+        }
+
         List<PatternElement> flattened = parser.flatten(parser.getElement());
         List<PatternElement> possibleInputs = parser.getPossibleInputs(flattened.subList(parser.getPatternIndex(), flattened.size()));
         for (PatternElement possibleInput : possibleInputs) {

@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser
 import io.github.syst3ms.skriptparser.classes.PatternType
 import io.github.syst3ms.skriptparser.registration.TypeManager
 import io.github.syst3ms.skriptparser.pattern.*
+import io.github.syst3ms.skriptparser.util.getEnclosedText
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
 
@@ -160,6 +161,10 @@ class PatternParser {
                     }
                     elements.add(ChoiceGroup(choices))
                 }
+                ')', ']', '>' -> { // Closing brackets are skipped over, so this marks an error
+                    error("Invalid bracket at index " + i)
+                    return null
+                }
                 else -> textBuilder.append(c)
             }
             i++
@@ -173,26 +178,6 @@ class PatternParser {
         } else {
             CompoundElement(elements)
         }
-    }
-
-    private fun String.getEnclosedText(opening: Char, closing: Char, start: Int): String? {
-        var n = 0
-        var i = start
-        while (i < length) {
-            val c = this[i]
-            if (c == '\\') {
-                i++
-            } else if (c == closing) {
-                n--
-                if (n == 0) {
-                    return substring(start + 1, i) // We don't want the beginning bracket in there
-                }
-            } else if (c == opening) {
-                n++
-            }
-            i++
-        }
-        return null
     }
 
     private fun error(error: String) {

@@ -1,7 +1,9 @@
 package io.github.syst3ms.skriptparser.pattern
 
+import io.github.syst3ms.skriptparser.classes.Expression
 import io.github.syst3ms.skriptparser.classes.PatternType
 import io.github.syst3ms.skriptparser.classes.SkriptParser
+import io.github.syst3ms.skriptparser.util.getEnclosedText
 import java.util.*
 import java.util.regex.Pattern
 
@@ -140,6 +142,16 @@ class ExpressionElement(private val types: List<PatternType<*>>, private val acc
     override fun match(s: String, index: Int, parser: SkriptParser): Int {
         if (parser.element == this)
             parser.advanceInPattern()
+        if (s[index] == '(') {
+            val enclosed = s.getEnclosedText('(', ')', index)
+            if (enclosed != null) {
+                val expression = parser.parseExpression(enclosed)
+                if (expression != null) {
+                    parser.addExpression(expression)
+                    return index + enclosed.length
+                }
+            }
+        }
         val flattened = parser.flatten(parser.element)
         val possibleInputs = parser.getPossibleInputs(flattened.subList(parser.patternIndex, flattened.size))
         inputLoop@ for (possibleInput in possibleInputs) {

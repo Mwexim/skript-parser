@@ -10,6 +10,7 @@ import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.RegexGroup;
 import io.github.syst3ms.skriptparser.pattern.TextElement;
+import io.github.syst3ms.skriptparser.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +35,7 @@ public class PatternParser {
         for (int i = 0; i < chars.length; i++) {
             char c = chars[i];
             if (c == '[') {
-                String s = getEnclosedText(pattern, '[', ']', i);
+                String s = StringUtils.getEnclosedText(pattern, '[', ']', i);
                 if (s == null) {
                     error("Unclosed optional group at index " + i);
                     return null;
@@ -63,7 +64,7 @@ public class PatternParser {
                 }
                 elements.add(new OptionalGroup(content));
             } else if (c == '(') {
-                String s = getEnclosedText(pattern, '(', ')', i);
+                String s = StringUtils.getEnclosedText(pattern, '(', ')', i);
                 if (s == null) {
                     error("Unclosed choice group at index " + i);
                     return null;
@@ -96,7 +97,7 @@ public class PatternParser {
                 }
                 elements.add(new ChoiceGroup(choiceElements));
             } else if (c == '<') {
-                String s = getEnclosedText(pattern, '<', '>', i);
+                String s = StringUtils.getEnclosedText(pattern, '<', '>', i);
                 if (s == null) {
                     error("Unclosed regex group at index " + i);
                     return null;
@@ -187,6 +188,9 @@ public class PatternParser {
                     }
                 }
                 elements.add(new ChoiceGroup(choices));
+            } else if (c == ']' || c == ')' || c == '>') { // Closing brackets are skipped over, so this marks an error
+                error("Invalid bracket at index " + i);
+                return null;
             } else {
                 textBuilder.append(c);
             }
@@ -202,23 +206,6 @@ public class PatternParser {
         }
     }
 
-    private static String getEnclosedText(String pattern, char opening, char closing, int start) {
-        int n = 0;
-        for (int i = start; i < pattern.length(); i++) {
-            char c = pattern.charAt(i);
-            if (c == '\\') {
-                i++;
-            } else if (c == closing) {
-                n--;
-                if (n == 0) {
-                    return pattern.substring(start + 1, i); // We don't want the beginning bracket in there
-                }
-            } else if (c == opening) {
-                n++;
-            }
-        }
-        return null;
-    }
     private static void error(String error) {
         // TODO
     }

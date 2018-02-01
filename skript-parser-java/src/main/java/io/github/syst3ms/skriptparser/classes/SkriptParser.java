@@ -10,6 +10,7 @@ import io.github.syst3ms.skriptparser.pattern.RegexGroup;
 import io.github.syst3ms.skriptparser.pattern.TextElement;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
@@ -75,15 +76,10 @@ public class SkriptParser {
     }
 
     public List<PatternElement> flatten(PatternElement element) {
-        List<PatternElement> flattened = new ArrayList<>();
         if (element instanceof CompoundElement) {
-            for (PatternElement e : ((CompoundElement) element).getElements()) {
-                flattened.addAll(flatten(e));
-            }
-            return flattened;
+            return ((CompoundElement) element).getElements();
         } else {
-            flattened.add(element);
-            return flattened;
+            return Collections.singletonList(element);
         }
     }
 

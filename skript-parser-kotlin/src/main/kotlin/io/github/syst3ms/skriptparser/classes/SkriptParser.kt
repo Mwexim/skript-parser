@@ -31,15 +31,10 @@ class SkriptParser(val element: PatternElement) {
     }
 
     fun flatten(element: PatternElement): List<PatternElement> {
-        val flattened = arrayListOf<PatternElement>()
-        if (element is CompoundElement) {
-            for (e in element.elements) {
-                flattened.addAll(flatten(e))
-            }
-            return flattened
+        return if (element is CompoundElement) {
+            element.elements
         } else {
-            flattened.add(element)
-            return flattened
+            listOf(element)
         }
     }
 
@@ -60,7 +55,7 @@ class SkriptParser(val element: PatternElement) {
                     return possibilities
                 }
                 is ExpressionElement -> { // Can't do much about this
-                    possibilities.add(RegexGroup(".+".toRegex().toPattern()))
+                    possibilities.add(RegexGroup(".+".toRegex()))
                     return possibilities
                 }
                 is OptionalGroup -> possibilities.addAll(getPossibleInputs(flatten(element.element)))
