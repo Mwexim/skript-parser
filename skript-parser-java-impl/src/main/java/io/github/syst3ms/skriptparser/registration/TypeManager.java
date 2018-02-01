@@ -11,10 +11,15 @@ public class TypeManager {
     private static final TypeManager instance = new TypeManager();
     private Map<String, Type<?>> nameToType = new HashMap<>();
     private Map<Class<?>, Type<?>> classToType = new HashMap<>();
+
     private TypeManager(){}
 
     public static TypeManager getInstance() {
         return instance;
+    }
+
+    public Map<Class<?>, Type<?>> getClassToTypeMap() {
+        return classToType;
     }
 
     /**
@@ -75,7 +80,7 @@ public class TypeManager {
     void register(SkriptRegistration reg) {
         for (Type<?> type : reg.getTypes()) {
             nameToType.put(type.getBaseName(), type);
-            classToType.put(type.getC(), type);
+            classToType.put(type.getTypeClass(), type);
         }
     }
 }

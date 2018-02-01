@@ -18,7 +18,7 @@ public class SyntaxInfo<C> {
         return patterns;
     }
 
-    public Class<C> getC() {
+    public Class<C> getSyntaxClass() {
         return c;
     }
 }

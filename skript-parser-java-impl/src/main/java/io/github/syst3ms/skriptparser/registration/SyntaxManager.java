@@ -2,10 +2,7 @@ package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.util.MultiMap;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SyntaxManager {
     private static SyntaxManager instance = new SyntaxManager();
@@ -40,7 +37,7 @@ public class SyntaxManager {
         return infos == null ? Collections.emptyList() : infos;
     }
 
-    public Iterable<ExpressionInfo<?, ?>> getAllExpressions() {
+    public Collection<ExpressionInfo<?, ?>> getAllExpressions() {
         return expressions.getAllValues();
     }
 

@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.pattern;
 
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.registration.PatternType;
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
 import io.github.syst3ms.skriptparser.util.StringUtils;
@@ -31,37 +32,43 @@ public class ExpressionElement implements PatternElement {
              * We also want to continue the code in any case
              */
             if (enclosed != null) {
-                Expression<?> expression = parser.parseExpression(s);
-                if (expression != null) {
-                    parser.addExpression(expression);
-                    return index + s.length();
+                for (PatternType<?> type : types) {
+                    Expression<?> expression = SyntaxParser.parseExpression(s, type);
+                    if (expression != null) {
+                        parser.addExpression(expression);
+                        return index + s.length();
+                    }
                 }
             }
         }
         List<PatternElement> flattened = parser.flatten(parser.getElement());
         List<PatternElement> possibleInputs = parser.getPossibleInputs(flattened.subList(parser.getPatternIndex(), flattened.size()));
-        for (PatternElement possibleInput : possibleInputs) {
+        inputLoop: for (PatternElement possibleInput : possibleInputs) {
             if (possibleInput instanceof TextElement) {
                 String text = ((TextElement) possibleInput).getText();
                 if (text.equals("")) { // End of line
                     String toParse = s.substring(index);
-                    Expression<?> expression = parser.parseExpression(toParse);
-                    if (expression == null) {
-                        return -1;
+                    for (PatternType<?> type : types) {
+                        Expression<?> expression = SyntaxParser.parseExpression(toParse, type);
+                        if (expression != null) {
+                            parser.addExpression(expression);
+                            return index + toParse.length();
+                        }
                     }
-                    parser.addExpression(expression);
-                    return index + toParse.length();
+                    return -1;
                 }
                 int i = s.indexOf(text, index);
                 if (i == -1)
                     continue;
                 String toParse = s.substring(index, i).trim();
-                Expression<?> expression = parser.parseExpression(toParse);
-                if (expression == null) {
-                    continue;
+                for (PatternType<?> type : types) {
+                    Expression<?> expression = SyntaxParser.parseExpression(toParse, type);
+                    if (expression != null) {
+                        parser.addExpression(expression);
+                        return index + toParse.length();
+                    }
+                    continue inputLoop;
                 }
-                parser.addExpression(expression);
-                return index + toParse.length();
             } else {
                 assert possibleInput instanceof RegexGroup;
                 Matcher m = ((RegexGroup) possibleInput).getPattern().matcher(s).region(index, s.length());
@@ -70,12 +77,14 @@ public class ExpressionElement implements PatternElement {
                     if (i == -1)
                         continue;
                     String toParse = s.substring(index, i);
-                    Expression<?> expression = parser.parseExpression(toParse);
-                    if (expression == null) {
-                        continue;
+                    for (PatternType<?> type : types) {
+                        Expression<?> expression = SyntaxParser.parseExpression(toParse, type);
+                        if (expression != null) {
+                            parser.addExpression(expression);
+                            return index + toParse.length();
+                        }
+                        continue inputLoop;
                     }
-                    parser.addExpression(expression);
-                    return index + toParse.length();
                 }
             }
         }

@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 // TODO use a Skript-like syntax for plural stuff
 public class Type<T> {
     public static final Predicate<String> pluralGroupChecker = Pattern.compile("(?<!\\\\)\\(\\?<plural>[a-zA-Z]+\\)").asPredicate();
-    private Class<T> c;
+    private Class<T> typeClass;
     private String baseName;
     private Pattern syntaxPattern;
     private Function<String, ? extends T> literalParser;
@@ -19,20 +19,20 @@ public class Type<T> {
     /**
      * Constructs a new Type. This consructor doesn't handle any exceptions inherent to the regex pattern.
      *
-     * @param c the class this type represents
+     * @param typeClass the class this type represents
      * @param baseName the basic name to represent this type with. It should be more or less a lowercase version of the Java class.
      * @param pattern the regex pattern this type should match.
      *                Plural form should be contained in a group named {@literal plural}.
      *                If the name has an irregular plural (i.e "party" becomes "parties"), then use the following contruct : {@literal part(y|(?<plural>ies))}
      */
-    public Type(Class<T> c, String baseName, String pattern) {
-        this(c, baseName, pattern, null);
+    public Type(Class<T> typeClass, String baseName, String pattern) {
+        this(typeClass, baseName, pattern, null);
     }
 
     /**
      * Constructs a new Type. This consructor doesn't handle any exceptions inherent to the regex pattern.
      *
-     * @param c the class this type represents
+     * @param typeClass the class this type represents
      * @param baseName the basic name to represent this type with. It should be more or less a lowercase version of the Java class.
      * @param pattern the regex pattern this type should match.
      *                Plural form should be contained in a group named {@literal plural}.
@@ -40,8 +40,8 @@ public class Type<T> {
      * @param literalParser the function that would parse literals for the given type. If the parser throws an exception on parsing, it will be
      *                      catched and the type will be ignored.
      */
-    public Type(Class<T> c, String baseName, String pattern, Function<String, ? extends T> literalParser) {
-        this.c = c;
+    public Type(Class<T> typeClass, String baseName, String pattern, Function<String, ? extends T> literalParser) {
+        this.typeClass = typeClass;
         this.baseName = baseName;
         this.literalParser = literalParser;
         pattern = pattern.trim();
@@ -61,8 +61,8 @@ public class Type<T> {
         return syntaxPattern;
     }
 
-    public Class<T> getC() {
-        return c;
+    public Class<T> getTypeClass() {
+        return typeClass;
     }
 
     @Override
@@ -71,7 +71,7 @@ public class Type<T> {
             return false;
         } else {
             Type<?> o = (Type<?>) obj;
-            return c.equals(o.c) && baseName.equals(o.baseName) && syntaxPattern.pattern().equals(o.syntaxPattern.pattern());
+            return typeClass.equals(o.typeClass) && baseName.equals(o.baseName) && syntaxPattern.pattern().equals(o.syntaxPattern.pattern());
         }
     }
 

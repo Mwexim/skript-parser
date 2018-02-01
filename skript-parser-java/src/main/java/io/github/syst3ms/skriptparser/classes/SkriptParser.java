@@ -16,7 +16,7 @@ import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
 /**
- * A parser instance used for matching a pattern to a syntax, stores a parse mark
+ * A parser instance used for matching a pattern to a syntax
  */
 public class SkriptParser {
     private String pattern;

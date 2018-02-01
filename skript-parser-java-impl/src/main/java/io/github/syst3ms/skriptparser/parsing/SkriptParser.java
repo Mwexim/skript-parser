@@ -17,7 +17,7 @@ import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
 /**
- * A parser instance used for matching a pattern to a syntax, stores a parse mark
+ * A parser instance used for matching a pattern to a syntax
  */
 public class SkriptParser {
     private String pattern;
@@ -108,9 +108,4 @@ public class SkriptParser {
         return possibilities;
     }
 
-    public Expression<?> parseExpression(String s) { // empty implementation
-        if (s.equals("2"))
-            return Expression.fromLambda(() -> 2);
-        return null;
-    }
 }
