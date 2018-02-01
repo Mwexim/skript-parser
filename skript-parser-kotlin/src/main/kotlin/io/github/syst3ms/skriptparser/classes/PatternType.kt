@@ -22,7 +22,7 @@ class PatternType<out T>(private val type: Type<out T>, private val isSingle: Bo
             !isSingle -> baseName
             baseName.endsWith("child") -> // This exception seems likely enough
                 baseName.replace("child", "children")
-            ".*(s|ch|sh|x|z)".toRegex().matches(baseName) -> baseName + "es"
+            ".*(s|ch|sh|x|z)".toRegex() matches baseName -> baseName + "es"
             else -> baseName + "s"
         }
     }

@@ -32,7 +32,7 @@ class PatternParser {
                     }
                     i += s.length + 1 // sets i to the closing bracket, for loop does the rest
                     val content: PatternElement
-                    content = if (PARSE_MARK_PATTERN.matches(s)) {
+                    content = if (PARSE_MARK_PATTERN matches s) {
                         // This is all perfectly safe
                         val mark = (PARSE_MARK_PATTERN.find(s)?.groups?.get(0)?.value)!!
                         val markNumber = mark.toInt()
@@ -109,7 +109,7 @@ class PatternParser {
                     }
                     val s = pattern.substring(i + 1, nextIndex)
                     i = nextIndex
-                    if (!VARIABLE_PATTERN.matches(s)) {
+                    if (!(VARIABLE_PATTERN matches s)) {
                         error("Invalid variable definition : '$s'")
                         return null
                     } else {
