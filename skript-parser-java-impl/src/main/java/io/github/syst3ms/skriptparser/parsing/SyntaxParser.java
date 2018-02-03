@@ -5,7 +5,12 @@ import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
-import io.github.syst3ms.skriptparser.registration.*;
+import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
+import io.github.syst3ms.skriptparser.registration.PatternType;
+import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
+import io.github.syst3ms.skriptparser.registration.SyntaxManager;
+import io.github.syst3ms.skriptparser.registration.Type;
+import io.github.syst3ms.skriptparser.registration.TypeManager;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -22,12 +27,13 @@ public class SyntaxParser {
 	public static <T> Expression<? extends T> parseExpression(String s, PatternType<T> expectedType) { // empty implementation
 		Map<Class<?>, Type<?>> classToTypeMap = TypeManager.getInstance().getClassToTypeMap();
 		for (Class<?> c : classToTypeMap.keySet()) {
-			if (expectedType.getType().getTypeClass().isAssignableFrom(c)) {
+            Class<T> typeClass = expectedType.getType().getTypeClass();
+            if (typeClass.isAssignableFrom(c)) {
 				Function<String, ?> literalParser = classToTypeMap.get(c).getLiteralParser();
 				if (literalParser != null) {
 					T literal = (T) literalParser.apply(s);
 					if (literal != null) {
-						return new Literal(literal.getClass(), literal);
+						return new Literal<>(typeClass, literal);
 					}
 				}
 			}
@@ -63,15 +69,13 @@ public class SyntaxParser {
 	private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType) {
 		List<PatternElement> patterns = info.getPatterns();
 		for (int i = 0; i < patterns.size(); i++) {
+            Type<?> returnType = info.getReturnType();
+            if (!returnType.getTypeClass().isAssignableFrom(expectedType.getType().getTypeClass())) {
+                continue;
+            }
 			PatternElement element = patterns.get(i);
 			SkriptParser parser = new SkriptParser(element);
 			if (element.match(s, 0, parser) != -1) {
-				Type<?> returnType = info.getReturnType();
-				if (!returnType.getTypeClass().isAssignableFrom(expectedType.getType().getTypeClass())) {
-					error("Type not matching : expected an expression of type '" + expectedType
-						.toString() + "', but found an expression of type '" + returnType.getBaseName() + "'");
-					continue;
-				}
 				try {
 					Expression<? extends T> expression = (Expression<? extends T>) info.getSyntaxClass().newInstance();
 					expression.init(
@@ -87,6 +91,7 @@ public class SyntaxParser {
 				}
 			}
 		}
+		error("Can't understand the expression : '" + s + "'");
 		return null;
 	}
 

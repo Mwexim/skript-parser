@@ -20,8 +20,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 public class PatternParser {
-    private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(\\d+?)\u00a6.*");
-    private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*~])?(?<types>[\\w\\/]+)(?:@(-?1))?");
+    private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(\\d+?)\\xa6.*");
+    private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*~])?(?<types>[\\w/]+)?");
 
     /**
      * Parses a pattern and returns a {@link PatternElement}. This method can be called by itself, for example when parsing group constructs.
@@ -31,6 +31,7 @@ public class PatternParser {
     public PatternElement parsePattern(String pattern) {
         List<PatternElement> elements = new ArrayList<>();
         StringBuilder textBuilder = new StringBuilder("");
+        pattern = pattern.replace("\u00c2\u00a6", "\u00a6"); // Converts "Â¦" to "¦" because encoding reasons
         char[] chars = pattern.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             char c = chars[i];
@@ -136,6 +137,7 @@ public class PatternParser {
                     error("Invalid variable definition");
                     return null;
                 } else {
+                    boolean nullable = m.group(1) != null;
                     ExpressionElement.Acceptance acceptance = ExpressionElement.Acceptance.BOTH;
                     if (m.group(2) != null) {
                         String acc = m.group(2);
@@ -156,7 +158,7 @@ public class PatternParser {
                         }
                         patternTypes.add(t);
                     }
-                    elements.add(new ExpressionElement(patternTypes, acceptance));
+                    elements.add(new ExpressionElement(patternTypes, acceptance, nullable));
                 }
             } else if (c == '\\') {
                 if (i == pattern.length() - 1) {

@@ -54,7 +54,7 @@ public class PatternParserTest {
             new ChoiceElement(new TextElement("first mark"), 0),
             new ChoiceElement(new TextElement("second mark"), 1)
         );
-        assertEquals(expected, parser.parsePattern("(first mark|1\u00a6second mark)"));
+        assertEquals(expected, parser.parsePattern("(first mark|1¦second mark)"));
         expected = new OptionalGroup(
             new CompoundElement(
                 new TextElement("lookie, "),
@@ -65,7 +65,7 @@ public class PatternParserTest {
                 new TextElement(" !")
             )
         );
-        assertEquals(expected, parser.parsePattern("[lookie, (another|1\u00a6choice) !]"));
+        assertEquals(expected, parser.parsePattern("[lookie, (another|1¦choice) !]"));
         assertEquals(new RegexGroup(Pattern.compile(".+")), parser.parsePattern("<.+>"));
         assertEquals(
                 new ExpressionElement(
@@ -81,7 +81,7 @@ public class PatternParserTest {
                     ),
                         ExpressionElement.Acceptance.LITERALS_ONLY
                 ),
-                parser.parsePattern("%-*number/strings@1%")
+                parser.parsePattern("%*number/strings%")
         );
         assertNull(parser.parsePattern("(unclosed"));
         assertNull(parser.parsePattern("%unfinished type"));
@@ -106,7 +106,7 @@ public class PatternParserTest {
         assertEquals(15, pattern.match("you must choose", 0, parser));
         assertEquals(13, pattern.match("you must this", 0, parser));
         assertEquals(16, pattern.match("you must or this", 0, parser));
-        pattern = patternParser.parsePattern("I choose (1\u00a6this|2\u00a6that)");
+        pattern = patternParser.parsePattern("I choose (1¦this|2¦that)");
         parser = new SkriptParser(pattern);
         assertTrue(pattern.match("I choose this", 0, parser) == 13 && parser.getParseMark() == 1);
         // The real stuff
