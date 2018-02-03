@@ -42,13 +42,12 @@ public class SkriptRegistration {
         for (String s : patterns) {
             elements.add(patternParser.parsePattern(s));
         }
-        Type<T> t = TypeManager.getInstance().getByClass(returnType);
+        Type<T> t = TypeManager.getInstance().getByClassExact(returnType);
         if (t == null) {
             //TODO error
             return;
         }
         ExpressionInfo<C, T> info = new ExpressionInfo<>(c, elements, t);
-        effects.add(info);
         expressions.putOne(returnType, info);
     }
 
@@ -67,6 +66,10 @@ public class SkriptRegistration {
 
     public <T> void addType(Class<T> c, String name, String pattern, Function<String, ? extends T> literalParser) {
         types.add(new Type<>(c, name, pattern, literalParser));
+    }
+
+    public <T> void addType(Class<T> c, String name, String pattern, Function<String, ? extends T> literalParser, Function<? super T, String> toStringFunction) {
+        types.add(new Type<>(c, name, pattern, literalParser, toStringFunction));
     }
 
     public void register() {

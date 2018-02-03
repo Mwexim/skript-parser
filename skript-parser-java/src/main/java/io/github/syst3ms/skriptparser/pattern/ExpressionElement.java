@@ -19,6 +19,13 @@ import java.util.regex.Matcher;
 public class ExpressionElement implements PatternElement {
     private List<PatternType<?>> types;
     private Acceptance acceptance;
+    private boolean nullable;
+
+    public ExpressionElement(List<PatternType<?>> types, Acceptance acceptance, boolean nullable) {
+        this.types = types;
+        this.acceptance = acceptance;
+        this.nullable = nullable;
+    }
 
     @Override
     public int match(String s, int index, SkriptParser parser) {
@@ -83,11 +90,6 @@ public class ExpressionElement implements PatternElement {
         return -1;
     }
 
-    public ExpressionElement(List<PatternType<?>> types, Acceptance acceptance) {
-        this.types = types;
-        this.acceptance = acceptance;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof ExpressionElement)) {
@@ -100,7 +102,9 @@ public class ExpressionElement implements PatternElement {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder('%');
+        StringBuilder sb = new StringBuilder("%");
+        if (nullable)
+            sb.append('-');
         if (acceptance == Acceptance.EXPRESSIONS_ONLY) {
             sb.append('~');
         } else if (acceptance == Acceptance.LITERALS_ONLY) {

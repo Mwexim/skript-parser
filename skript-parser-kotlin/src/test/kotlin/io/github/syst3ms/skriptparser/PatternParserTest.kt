@@ -49,7 +49,7 @@ class PatternParserTest {
                 )
         )
         assertEquals(expected, parser.parsePattern("[lookie, (another|1\u00a6choice) !]"))
-        assertEquals(RegexGroup(Pattern.compile(".+")), parser.parsePattern("<.+>"))
+        assertEquals(RegexGroup(".+".toRegex()), parser.parsePattern("<.+>"))
         assertEquals(
                 ExpressionElement(
                         listOf(TypeManager.getPatternType("number")!!),
@@ -97,16 +97,16 @@ class PatternParserTest {
         pattern = patternParser.parsePattern("say %number% [!]")
         parser = SkriptParser(pattern!!)
         pattern.match("say 2", 0, parser)
-        assertEquals(1, parser.getParsedExpressions().size.toLong())
+        assertEquals(1, parser.parsedExpressions.size)
         parser = SkriptParser(pattern)
         pattern.match("say 2 !", 0, parser)
-        assertEquals(1, parser.getParsedExpressions().size.toLong())
+        assertEquals(1, parser.parsedExpressions.size)
     }
 
     companion object {
         init {
             val reg = SkriptRegistration("unit-tests")
-            reg.addType(Number::class.java, "number", "number(?<plural>s)?", { it.toDouble() })
+            reg.addType(Number::class.java, "number", "number(?<plural>s)?", { it.toLongOrNull() ?: it.toDoubleOrNull() as Number? ?: it.toBigIntegerOrNull() ?: it.toBigDecimalOrNull() })
             reg.addType(String::class.java, "string", "string(?<plural>s)?")
             reg.register()
         }

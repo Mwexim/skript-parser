@@ -5,7 +5,7 @@ import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import java.util.List;
 import java.util.regex.MatchResult;
 
-public class    ParseResult {
+public class ParseResult {
     private final PatternElement element;
     private final List<MatchResult> matches;
     private final int parseMark;

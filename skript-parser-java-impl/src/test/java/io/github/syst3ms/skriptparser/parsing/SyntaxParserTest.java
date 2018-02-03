@@ -8,6 +8,8 @@ import io.github.syst3ms.skriptparser.registration.TypeManager;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.junit.Test;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Random;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -18,20 +20,52 @@ public class SyntaxParserTest {
 
     static {
         SkriptRegistration registration = new SkriptRegistration("unit-tests");
-        registration.addType(Number.class, "number", "number(?<plural>s)??", s -> {
-            Number n;
-            try {
-                n = Long.parseLong(s);
-            } catch (NumberFormatException e) {
-                try {
-                    n = Double.parseDouble(s);
-                } catch (NumberFormatException e1) {
-                    return null;
+        registration.addType(
+                Number.class,
+                "number",
+                "number(?<plural>s)??",
+                s -> {
+                    Number n;
+                    try {
+                        n = Long.parseLong(s);
+                    } catch (NumberFormatException e) {
+                        try {
+                            n = Double.parseDouble(s);
+                        } catch (NumberFormatException e1) {
+                            try {
+                                n = new BigInteger(s);
+                            } catch (NumberFormatException e2) {
+                                try {
+                                    n = new BigDecimal(s);
+                                } catch (NumberFormatException e3) {
+                                    return null;
+                                }
+                            }
+                        }
+                    }
+                    return n;
+                },
+                o -> {
+                    if (o == null)
+                        return TypeManager.NULL_REPRESENTATION;
+                    if (o instanceof Long) {
+                        return Long.toString(o.longValue());
+                    } else if (o instanceof Double) {
+                        return Double.toString(o.doubleValue());
+                    } else if (o instanceof BigInteger || o instanceof BigDecimal) {
+                        return o.toString(); // Both BigInteger and BigDecimal override toString
+                    }
+                    assert false;
+                    return null; // Can't happen, so we don't really have to worry about that
                 }
-            }
-            return n;
-        });
-        registration.addType(String.class, "string", "string(?<plural>s)??", StringUtils::parseConstantString);
+        );
+        registration.addType(
+                String.class,
+                "string",
+                "string(?<plural>s)??",
+                StringUtils::parseConstantString,
+                s -> s.replaceAll("\\\\(.)", "$1")
+        );
         registration.register();
         registration.addExpression(ExprSquared.class, Number.class, "the number %number% squared");
         registration.addExpression(ExprRandom.class, Number.class,
@@ -48,7 +82,7 @@ public class SyntaxParserTest {
 
     @Test
     public void parseExpression() {
-        PatternType<Number> numberType = new PatternType<>(TypeManager.getInstance().getByClass(Number.class), false);
+        PatternType<Number> numberType = new PatternType<>(TypeManager.getInstance().getByClassExact(Number.class), false);
         assertExpressionEquals(new Literal<>(Long.class, 2L), SyntaxParser.parseExpression("2", numberType));
         assertExpressionEquals(new Literal<>(Double.class, 4.0d),
                 SyntaxParser.parseExpression("the number 2 squared", numberType)
@@ -61,7 +95,7 @@ public class SyntaxParserTest {
                                             .getSingle()
                                             .doubleValue();
         assertTrue(9.9999 + Double.MIN_VALUE <= expectedDouble && expectedDouble <= 10 - Double.MIN_VALUE);
-        PatternType<String> stringType = new PatternType<>(TypeManager.getInstance().getByClass(String.class), false);
+        PatternType<String> stringType = new PatternType<>(TypeManager.getInstance().getByClassExact(String.class), false);
         assertExpressionEquals(
                 new Literal<>(String.class, "Hello"),
                 SyntaxParser.parseExpression("substring \"Hello\" from 0 to 5", stringType)

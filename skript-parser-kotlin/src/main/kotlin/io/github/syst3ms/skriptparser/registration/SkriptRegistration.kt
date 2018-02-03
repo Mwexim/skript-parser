@@ -15,10 +15,9 @@ class SkriptRegistration(val registerer: String) {
     fun <C : Expression<out T>, T> addExpression(c: Class<C>, returnType: Class<T>, vararg patterns: String) {
         val elements = arrayListOf<PatternElement>()
         patterns.mapNotNullTo(elements) { patternParser.parsePattern(it) }
-        val t = TypeManager.getByClass(returnType) ?: //TODO error
+        val t = TypeManager.getByClass(returnType as Class<in Any>) ?: //TODO error
                 return
         val info = ExpressionInfo(c, elements, t)
-        effects.add(info)
         expressions.putOne(returnType as Class<out Any>, info as ExpressionInfo<out Expression<out Any>, Any>)
     }
 
@@ -35,7 +34,7 @@ class SkriptRegistration(val registerer: String) {
         types.add(Type(c, name, pattern) as Type<out Any>)
     }
 
-    fun <T> addType(c: Class<T>, name: String, pattern: String, literalParser: ((String) -> T)?) {
+    fun <T> addType(c: Class<T>, name: String, pattern: String, literalParser: ((String) -> T?)?) {
         types.add(Type(c, name, pattern, literalParser) as Type<out Any>)
     }
 

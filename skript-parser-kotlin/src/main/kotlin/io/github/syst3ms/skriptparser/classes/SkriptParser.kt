@@ -66,10 +66,6 @@ class SkriptParser(val element: PatternElement) {
     }
 
     fun parseExpression(s: String): Expression<*>? { // empty implementation
-        return if (s == "2") object : Expression<Number> {
-            override fun hashCode(): Int {
-                return 2
-            }
-        } else null
+        return if (s == "2") Literal(Number::class.java, 2) else null
     }
 }

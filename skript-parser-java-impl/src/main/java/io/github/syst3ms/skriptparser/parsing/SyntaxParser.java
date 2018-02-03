@@ -24,7 +24,7 @@ public class SyntaxParser {
 	private static final LinkedList<SyntaxInfo<? extends CodeSection>> recentSections = new LinkedList<>();
 	private static final LinkedList<ExpressionInfo<?, ?>> recentExpressions = new LinkedList<>();
 
-	public static <T> Expression<? extends T> parseExpression(String s, PatternType<T> expectedType) { // empty implementation
+	public static <T> Expression<? extends T> parseExpression(String s, PatternType<T> expectedType) {
 		Map<Class<?>, Type<?>> classToTypeMap = TypeManager.getInstance().getClassToTypeMap();
 		for (Class<?> c : classToTypeMap.keySet()) {
             Class<T> typeClass = expectedType.getType().getTypeClass();

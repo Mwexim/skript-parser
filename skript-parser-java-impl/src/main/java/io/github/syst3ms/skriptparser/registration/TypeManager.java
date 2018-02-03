@@ -2,12 +2,16 @@ package io.github.syst3ms.skriptparser.registration;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 
 /**
  * Manages all different types.
  */
 public class TypeManager {
+    public static final String NULL_REPRESENTATION = "<none>";
+    public static final String EMPTY_REPRESENTATION = "<empty>";
     private static final TypeManager instance = new TypeManager();
     private Map<String, Type<?>> nameToType = new HashMap<>();
     private Map<Class<?>, Type<?>> classToType = new HashMap<>();
@@ -53,8 +57,38 @@ public class TypeManager {
      * @return the associated Type, or {@literal null}
      */
     @SuppressWarnings("unchecked")
-    public <T> Type<T> getByClass(Class<T> c) {
+    public <T> Type<T> getByClassExact(Class<T> c) {
         return (Type<T>) classToType.get(c);
+    }
+
+    public <T> Type<? super T> getByClass(Class<T> c) {
+        Type<? super T> type;
+        do {
+            Class<? super T> superclass = c.getSuperclass();
+            type = getByClassExact(superclass);
+        } while (type == null);
+        return type;
+    }
+
+    public String toString(Object... objects) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < objects.length; i++) {
+            if (i > 0) {
+                sb.append(i == objects.length - 1 ? " and " : ", ");
+            }
+            Object o = objects[i];
+            if (o == null) {
+                sb.append(NULL_REPRESENTATION);
+                continue;
+            }
+            Type<?> type = getByClass(o.getClass());
+            if (type == null) {
+                sb.append(Objects.toString(o));
+            } else {
+                sb.append(type.getToStringFunction().apply(o));
+            }
+        }
+        return sb.length() == 0 ? EMPTY_REPRESENTATION : sb.toString();
     }
 
     /**

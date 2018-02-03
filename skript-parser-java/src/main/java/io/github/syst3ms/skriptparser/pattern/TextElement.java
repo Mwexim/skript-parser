@@ -23,16 +23,17 @@ public class TextElement implements PatternElement {
 
     @Override
     public int match(String s, int index, SkriptParser parser) {
+        int i = index;
         if (parser.getElement().equals(this))
             parser.advanceInPattern();
         String trimmed = text.trim();
-        while (index < s.length() && s.charAt(index) == ' ') {// Hopefully fix some spacing issues
-            index++;
+        while (i < s.length() && s.charAt(i) == ' ') {// Hopefully fix some spacing issues
+            i++;
         }
-        if (index + trimmed.length() > s.length()) {
+        if (i + trimmed.length() > s.length()) {
             return -1;
         }
-        String substr = s.substring(index, index + trimmed.length());
+        String substr = s.substring(i, i + trimmed.length());
         if (substr.equalsIgnoreCase(trimmed)) {
             return index + text.length(); // Let's not forget the spaces we removed earlier
         } else {

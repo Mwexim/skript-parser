@@ -137,7 +137,7 @@ class ChoiceGroup(val choices: List<ChoiceElement>) : PatternElement() {
  *  * a field determining what type of values this expression accepts : literals, expressions or both (%*type%, %~type% and %type% respectively)
  *
  */
-class ExpressionElement(private val types: List<PatternType<*>>, private val acceptance: Acceptance) : PatternElement() {
+class ExpressionElement(private val types: List<PatternType<*>>, private val acceptance: Acceptance, private val nullable: Boolean = false) : PatternElement() {
 
     override fun match(s: String, index: Int, parser: SkriptParser): Int {
         if (parser.element == this)
@@ -202,14 +202,16 @@ class ExpressionElement(private val types: List<PatternType<*>>, private val acc
     }
 
     override fun toString(): String {
-        val sb = StringBuilder()
+        val sb = StringBuilder("%")
+        if (nullable)
+            sb.append('-')
         when (acceptance) {
             Acceptance.EXPRESSIONS_ONLY -> sb.append('~')
             Acceptance.LITERALS_ONLY -> sb.append('*')
             else -> {}
         }
         sb.append(types.joinToString(separator = "/"))
-        return sb.toString()
+        return sb.append("%").toString()
     }
 
     override fun hashCode(): Int {
@@ -271,7 +273,7 @@ class TextElement(val text: String) : PatternElement() {
         if (parser.element == this)
             parser.advanceInPattern()
         val trimmed = text.trim { it <= ' ' }
-        while (i < s.length && s[i] == ' ') {// Hopefully fix some spacing issues
+        while (i < s.length && s[i] == ' ') { // Hopefully fix some spacing issues
             i++
         }
         if (i + trimmed.length > s.length) {
@@ -279,7 +281,7 @@ class TextElement(val text: String) : PatternElement() {
         }
         val substr = s.substring(i, i + trimmed.length)
         return if (substr.equals(trimmed, ignoreCase = true)) {
-            i + text.length // Let's not forget the spaces we removed earlier
+            index + text.length // Let's not forget the spaces we removed earlier
         } else {
             -1
         }

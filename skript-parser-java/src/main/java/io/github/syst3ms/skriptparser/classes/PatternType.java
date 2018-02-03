@@ -36,6 +36,8 @@ public class PatternType<T> {
     @Override
     public String toString() { // Not perfect, but good enough for toString()
         String baseName = type.getBaseName();
+        if (single)
+            return baseName;
         if (baseName.endsWith("child")) { // This exception seems likely enough
             return baseName.replace("child", "children");
         } else if (baseName.matches(".*(s|ch|sh|x|z)")) {

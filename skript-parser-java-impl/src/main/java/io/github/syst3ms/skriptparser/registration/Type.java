@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -15,6 +16,7 @@ public class Type<T> {
     private String baseName;
     private Pattern syntaxPattern;
     private Function<String, ? extends T> literalParser;
+    private Function<Object, String> toStringFunction;
 
     /**
      * Constructs a new Type. This consructor doesn't handle any exceptions inherent to the regex pattern.
@@ -41,9 +43,15 @@ public class Type<T> {
      *                      catched and the type will be ignored.
      */
     public Type(Class<T> typeClass, String baseName, String pattern, Function<String, ? extends T> literalParser) {
+        this(typeClass, baseName, pattern, literalParser, Objects::toString);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Type(Class<T> typeClass, String baseName, String pattern, Function<String, ? extends T> literalParser, Function<? super T, String> toStringFunction) {
         this.typeClass = typeClass;
         this.baseName = baseName;
         this.literalParser = literalParser;
+        this.toStringFunction = (Function<Object, String>) toStringFunction;
         pattern = pattern.trim();
         // Not handling exceptions here, developer responsability
         if (!pluralGroupChecker.test(pattern)) {
@@ -82,5 +90,9 @@ public class Type<T> {
 
     public String getBaseName() {
         return baseName;
+    }
+
+    public Function<Object, String> getToStringFunction() {
+        return toStringFunction;
     }
 }

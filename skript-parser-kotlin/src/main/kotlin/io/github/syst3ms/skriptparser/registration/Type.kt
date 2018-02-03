@@ -15,7 +15,7 @@ import java.util.regex.Pattern
  * @param literalParser the function that would parse literals for the given type. If the parser throws an exception on parsing, it will be
  * catched and the type will be ignored.
  */
-class Type<T>(val c: Class<in T>, val baseName: String, pattern: String, val literalParser: ((String) -> T)?) {
+class Type<T>(val c: Class<in T>, val baseName: String, pattern: String, val literalParser: ((String) -> T?)?) {
     val syntaxPattern = if (!pluralGroupChecker.matches(pattern.trim())) {
         ("${pattern.trim()}(?<plural>)??").toRegex() // Lazy optional group is required in this case
     } else {

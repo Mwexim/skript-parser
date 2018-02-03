@@ -70,7 +70,9 @@ public class PatternParserTest {
         assertEquals(
                 new ExpressionElement(
                         Collections.singletonList(TypeManager.getInstance().getPatternType("number")),
-                        ExpressionElement.Acceptance.BOTH),
+                        ExpressionElement.Acceptance.BOTH,
+                        false
+                ),
                 parser.parsePattern("%number%")
         );
         assertEquals(
@@ -79,9 +81,10 @@ public class PatternParserTest {
                             TypeManager.getInstance().getPatternType("number"),
                             TypeManager.getInstance().getPatternType("strings")
                     ),
-                        ExpressionElement.Acceptance.LITERALS_ONLY
+                    ExpressionElement.Acceptance.LITERALS_ONLY,
+                    true
                 ),
-                parser.parsePattern("%*number/strings%")
+                parser.parsePattern("%-*number/strings%")
         );
         assertNull(parser.parsePattern("(unclosed"));
         assertNull(parser.parsePattern("%unfinished type"));

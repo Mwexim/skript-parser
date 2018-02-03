@@ -109,27 +109,7 @@ public class SkriptParser {
 
     public Expression<?> parseExpression(String s) { // empty implementation
         if (s.equals("2"))
-            return new Expression<Number>() {
-                @Override
-                public Number[] getValues() {
-                    return new Number[]{2};
-                }
-
-                @Override
-                public Class<? extends Number> getReturnType() {
-                    return Double.class;
-                }
-
-                @Override
-                public boolean isSingle() {
-                    return true;
-                }
-
-                @Override
-                public int hashCode() {
-                    return 2;
-                }
-            };
+            return new Literal<>(Number.class, 2);
         return null;
     }
 }
