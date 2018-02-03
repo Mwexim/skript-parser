@@ -24,11 +24,12 @@ public class ExpressionElement implements PatternElement {
     public int match(String s, int index, SkriptParser parser) {
         if (parser.getElement().equals(this))
             parser.advanceInPattern();
+        if (s.isEmpty())
+            return -1;
         if (s.charAt(index) == '(') {
             String enclosed = StringUtils.getEnclosedText(s, '(', ')', index);
             /*
-             * We don't want to return here, a single bracket could come from a syntax (albeit a stupid one)
-             * We also want to continue the code in any case
+             * We don't want to return here, a single bracket could come from a syntax (albeit a stupid one), and we also want to continue the code in any case
              */
             if (enclosed != null) {
                 Expression<?> expression = parser.parseExpression(s);
@@ -38,7 +39,6 @@ public class ExpressionElement implements PatternElement {
                 }
             }
         }
-
         List<PatternElement> flattened = parser.flatten(parser.getElement());
         List<PatternElement> possibleInputs = parser.getPossibleInputs(flattened.subList(parser.getPatternIndex(), flattened.size()));
         for (PatternElement possibleInput : possibleInputs) {
@@ -83,17 +83,10 @@ public class ExpressionElement implements PatternElement {
         return -1;
     }
 
-    public enum Acceptance {
-        BOTH,
-        EXPRESSIONS_ONLY,
-        LITERALS_ONLY
-    }
-
     public ExpressionElement(List<PatternType<?>> types, Acceptance acceptance) {
         this.types = types;
         this.acceptance = acceptance;
     }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -107,7 +100,7 @@ public class ExpressionElement implements PatternElement {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder('%');
         if (acceptance == Acceptance.EXPRESSIONS_ONLY) {
             sb.append('~');
         } else if (acceptance == Acceptance.LITERALS_ONLY) {
@@ -119,6 +112,12 @@ public class ExpressionElement implements PatternElement {
             }
             sb.append(types.get(i));
         }
-        return sb.toString();
+        return sb.append('%').toString();
+    }
+
+    public enum Acceptance {
+        BOTH,
+        EXPRESSIONS_ONLY,
+        LITERALS_ONLY
     }
 }

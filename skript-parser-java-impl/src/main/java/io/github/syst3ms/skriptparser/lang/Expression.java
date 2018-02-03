@@ -1,12 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.classes.ChangeMode;
-import io.github.syst3ms.skriptparser.file.SimpleFileLine;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
-
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 
 public interface Expression<T> extends SyntaxElement {
     T[] getValues();
@@ -15,33 +10,14 @@ public interface Expression<T> extends SyntaxElement {
         return false;
     }
 
-    static <T> Expression<T> fromLambda(Supplier<? extends T> supplier, Function<Boolean, String> toString) {
-        return new Expression<T>() {
-            private final T value = supplier.get();
-
-            @SuppressWarnings("unchecked")
-            @Override
-            public T[] getValues() {
-                return (T[]) new Object[]{value};
-            }
-
-            @Override
-            public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
-                return true;
-            }
-
-            @Override
-            public String toString(boolean debug) {
-                return toString.apply(debug);
-            }
-        };
-    }
-
-    static <T> Expression<T> fromLambda(Supplier<? extends T> supplier) {
-        return fromLambda(supplier, b -> Objects.toString(supplier.get()));
-    }
-
-    static Expression<?> parse(String s) {
-        return fromLambda(() -> null);
+    default T getSingle() {
+        T[] values = getValues();
+        if (values.length == 0) {
+            return null;
+        } else if (values.length > 1) {
+            throw new SkriptRuntimeException("Can't call getSingle on an expression that returns multiple values !");
+        } else {
+            return values[0];
+        }
     }
 }

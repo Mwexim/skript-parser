@@ -71,7 +71,7 @@ public class TypeManager {
             Matcher m = t.getSyntaxPattern().matcher(name);
             if (m.matches()) {
                 String pluralGroup = m.group("plural");
-                return new PatternType<>(t, pluralGroup == null);
+                return new PatternType<>(t, pluralGroup == null || pluralGroup.isEmpty());
             }
         }
         return null;

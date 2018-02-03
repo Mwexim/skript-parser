@@ -100,7 +100,7 @@ public class PatternParserTest {
         pattern = patternParser.parsePattern("pattern [with [another] optional]");
         parser = new SkriptParser(pattern);
         assertEquals(22, pattern.match("pattern with optional", 0, parser));
-        assertEquals(30, pattern.match("pattern with another optional", 0, parser));
+        assertEquals(29, pattern.match("pattern with another optional", 0, parser));
         pattern = patternParser.parsePattern("you must (choose|this|or this)");
         parser = new SkriptParser(pattern);
         assertEquals(15, pattern.match("you must choose", 0, parser));

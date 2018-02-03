@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.parsing;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.registration.*;
 
@@ -26,7 +27,7 @@ public class SyntaxParser {
 				if (literalParser != null) {
 					T literal = (T) literalParser.apply(s);
 					if (literal != null) {
-						return Expression.fromLambda(() -> literal);
+						return new Literal(literal.getClass(), literal);
 					}
 				}
 			}
