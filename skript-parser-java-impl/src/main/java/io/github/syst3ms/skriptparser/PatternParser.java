@@ -31,7 +31,6 @@ public class PatternParser {
     public PatternElement parsePattern(String pattern) {
         List<PatternElement> elements = new ArrayList<>();
         StringBuilder textBuilder = new StringBuilder("");
-        pattern = pattern.replace("\u00c2\u00a6", "\u00a6"); // Converts "Â¦" to "¦" because encoding reasons
         char[] chars = pattern.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             char c = chars[i];

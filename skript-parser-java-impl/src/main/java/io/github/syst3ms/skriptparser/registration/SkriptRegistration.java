@@ -1,10 +1,13 @@
 package io.github.syst3ms.skriptparser.registration;
 
+import com.sun.xml.internal.ws.server.ServerRtException;
 import io.github.syst3ms.skriptparser.PatternParser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -40,7 +43,7 @@ public class SkriptRegistration {
     public <C extends Expression<T>, T> void addExpression(Class<C> c, Class<T> returnType, String... patterns) {
         List<PatternElement> elements = new ArrayList<>();
         for (String s : patterns) {
-            elements.add(patternParser.parsePattern(s));
+            elements.add(patternParser.parsePattern(fixEncoding(s)));
         }
         Type<T> t = TypeManager.getInstance().getByClassExact(returnType);
         if (t == null) {
@@ -54,7 +57,7 @@ public class SkriptRegistration {
     public <C> void addEffect(Class<C> c, String... patterns) {
         List<PatternElement> elements = new ArrayList<>();
         for (String s : patterns) {
-            elements.add(patternParser.parsePattern(s));
+            elements.add(patternParser.parsePattern(fixEncoding(s)));
         }
         SyntaxInfo<C> info = new SyntaxInfo<>(c, elements);
         effects.add(info);
@@ -75,5 +78,13 @@ public class SkriptRegistration {
     public void register() {
         SyntaxManager.getInstance().register(this);
         TypeManager.getInstance().register(this);
+    }
+
+    private String fixEncoding(String s) {
+        try {
+            return new String(s.getBytes(Charset.defaultCharset()), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return s;
+        }
     }
 }
