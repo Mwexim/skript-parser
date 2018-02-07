@@ -24,7 +24,7 @@ public class TextElement implements PatternElement {
     @Override
     public int match(String s, int index, SkriptParser parser) {
         int i = index;
-        if (parser.getElement().equals(this))
+        if (parser.getOriginalElement().equals(this))
             parser.advanceInPattern();
         String trimmed = text.trim();
         while (i < s.length() && s.charAt(i) == ' ')

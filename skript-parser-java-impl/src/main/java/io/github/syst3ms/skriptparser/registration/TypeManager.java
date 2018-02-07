@@ -1,9 +1,10 @@
 package io.github.syst3ms.skriptparser.registration;
 
+import io.github.syst3ms.skriptparser.util.StringUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 
 /**
@@ -36,14 +37,14 @@ public class TypeManager {
     }
 
     /**
-     * Gets a {@link Type} using {@link Type#syntaxPattern}, which means this matches any alternate and/or plural form.
+     * Gets a {@link Type} using {@link Type#pluralPattern}, which means this matches any alternate and/or plural form.
      * @param name the name to get a Type from
      * @return the matching Type, or {@literal null} if nothing matched
      */
     public Type<?> getByName(String name) {
         for (Type<?> t : nameToType.values()) {
-            Matcher m = t.getSyntaxPattern().matcher(name);
-            if (m.matches()) {
+            String[] forms = StringUtils.getForms(t.getPluralPattern());
+            if (name.equalsIgnoreCase(forms[0]) || name.equalsIgnoreCase(forms[1])) {
                 return t;
             }
         }
@@ -98,14 +99,12 @@ public class TypeManager {
      * @return a corresponding PatternType, or {@literal null} if nothing matched
      */
     public PatternType<?> getPatternType(String name) {
-        if (nameToType.containsKey(name)) { // Might as well avoid the for loop in this case
-            return new PatternType<>(nameToType.get(name), false);
-        }
         for (Type<?> t : nameToType.values()) {
-            Matcher m = t.getSyntaxPattern().matcher(name);
-            if (m.matches()) {
-                String pluralGroup = m.group("plural");
-                return new PatternType<>(t, pluralGroup == null || pluralGroup.isEmpty());
+            String[] forms = StringUtils.getForms(t.getPluralPattern());
+            if (name.equalsIgnoreCase(forms[0])) {
+                return new PatternType<>(t, true);
+            } else if (name.equalsIgnoreCase(forms[1])) {
+                return new PatternType<>(t, false);
             }
         }
         return null;

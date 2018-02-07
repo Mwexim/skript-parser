@@ -1,7 +1,9 @@
 package io.github.syst3ms.skriptparser.lang;
 
+import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.registration.TypeManager;
+
 import java.lang.reflect.Array;
-import java.util.Arrays;
 
 public class Literal<T> implements Expression<T> {
     private T[] values;
@@ -28,7 +30,7 @@ public class Literal<T> implements Expression<T> {
         if (isSingle()) {
             return values[0].toString();
         } else {
-            return Arrays.toString(values); // For now TODO make a proper way of doing this
+            return TypeManager.getInstance().toString((Object[]) values);
         }
     }
 

@@ -20,24 +20,25 @@ import java.util.regex.Pattern;
  * A parser instance used for matching a pattern to a syntax
  */
 public class SkriptParser {
-    private String pattern;
-    private PatternElement element;
+    public static PatternElement WHETHER_PATTERN;
+    private String originalPattern;
+    private PatternElement originalElement;
     private int patternIndex = 0;
     private List<Expression<?>> parsedExpressions = new ArrayList<>();
     private List<MatchResult> regexMatches = new ArrayList<>();
     private int parseMark = 0;
 
     public SkriptParser(PatternElement e) {
-        this.pattern = e.toString();
-        element = e;
+        this.originalPattern = e.toString();
+        this.originalElement = e;
     }
 
-    public String getPattern() {
-        return pattern;
+    public String getOriginalPattern() {
+        return originalPattern;
     }
 
-    public PatternElement getElement() {
-        return element;
+    public PatternElement getOriginalElement() {
+        return originalElement;
     }
 
     public int getPatternIndex() {
@@ -73,7 +74,7 @@ public class SkriptParser {
     }
 
     public ParseResult toParseResult() {
-        return new ParseResult(element, regexMatches, parseMark);
+        return new ParseResult(originalElement, regexMatches, parseMark);
     }
 
     public List<PatternElement> flatten(PatternElement element) {
@@ -108,4 +109,9 @@ public class SkriptParser {
         return possibilities;
     }
 
+    public static void setWhetherPattern(PatternElement element) {
+        if (WHETHER_PATTERN == null) { // We don't want people changing this that easily
+            WHETHER_PATTERN = element;
+        }
+    }
 }

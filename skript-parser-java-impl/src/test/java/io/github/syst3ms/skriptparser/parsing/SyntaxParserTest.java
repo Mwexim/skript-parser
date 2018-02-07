@@ -23,7 +23,7 @@ public class SyntaxParserTest {
         registration.addType(
                 Number.class,
                 "number",
-                "number(?<plural>s)??",
+                "number\u00a6s",
                 s -> {
                     Number n;
                     try {
@@ -62,16 +62,29 @@ public class SyntaxParserTest {
         registration.addType(
                 String.class,
                 "string",
-                "string(?<plural>s)??",
+                "string\u00a6s",
                 StringUtils::parseConstantString,
                 s -> s.replaceAll("\\\\(.)", "$1")
         );
         registration.register();
-        registration.addExpression(ExprSquared.class, Number.class, "the number %number% squared");
-        registration.addExpression(ExprRandom.class, Number.class,
+        registration.addExpression(
+                ExprSquared.class,
+                Number.class,
+                true,
+                "the number %number% squared"
+        );
+        registration.addExpression(
+                ExprRandom.class,
+                Number.class,
+                true,
                 "random (0¦number|1¦integer) between %number% and %number% [2¦exclusively]"
         );
-        registration.addExpression(ExprSubstring.class, String.class, "substring %string% from %number% to %number%");
+        registration.addExpression(
+                ExprSubstring.class,
+                String.class,
+                true,
+                "substring %string% from %number% to %number%"
+        );
         registration.register();
     }
 

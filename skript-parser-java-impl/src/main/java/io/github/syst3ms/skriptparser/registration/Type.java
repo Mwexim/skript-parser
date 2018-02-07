@@ -9,64 +9,78 @@ import java.util.regex.Pattern;
  * A basic definition of a type. This doesn't handle number (single/plural), see {@link PatternType} for that.
  *
  */
-// TODO use a Skript-like syntax for plural stuff
 public class Type<T> {
-    public static final Predicate<String> pluralGroupChecker = Pattern.compile("(?<!\\\\)\\(\\?<plural>[a-zA-Z]+\\)").asPredicate();
     private Class<T> typeClass;
     private String baseName;
-    private Pattern syntaxPattern;
+    private String pluralPattern;
     private Function<String, ? extends T> literalParser;
     private Function<Object, String> toStringFunction;
 
     /**
-     * Constructs a new Type. This consructor doesn't handle any exceptions inherent to the regex pattern.
+     * Constructs a new Type.
      *
      * @param typeClass the class this type represents
      * @param baseName the basic name to represent this type with. It should be more or less a lowercase version of the Java class.
-     * @param pattern the regex pattern this type should match.
-     *                Plural form should be contained in a group named {@literal plural}.
-     *                If the name has an irregular plural (i.e "party" becomes "parties"), then use the following contruct : {@literal part(y|(?<plural>ies))}
+     * @param pattern the pattern for plural forms. It's written in Skript aliases plural format. Examples :
+     *                <ul>
+     *                  <li>{@code fish} -> {@literal fish} (invariant)</li>
+     *                  <li>{@code dog&brvbar;s} -> {@literal dog} and {@literal dogs}</li>
+     *                  <li>{@code part&brvbar;y&brvbar;ies} -> {@literal party} and {@literal parties} (irregular plural)</li>
+     *                </ul>
      */
     public Type(Class<T> typeClass, String baseName, String pattern) {
         this(typeClass, baseName, pattern, null);
     }
 
     /**
-     * Constructs a new Type. This consructor doesn't handle any exceptions inherent to the regex pattern.
+     * Constructs a new Type.
      *
      * @param typeClass the class this type represents
      * @param baseName the basic name to represent this type with. It should be more or less a lowercase version of the Java class.
-     * @param pattern the regex pattern this type should match.
-     *                Plural form should be contained in a group named {@literal plural}.
-     *                If the name has an irregular plural (i.e "party" becomes "parties"), then use the following contruct : {@literal part(y|(?<plural>ies))}
+     * @param pattern the pattern for plural forms. It's written in Skript aliases plural format. Examples :
+     *                <ul>
+     *                  <li>{@code fish} -> {@literal fish} (invariant)</li>
+     *                  <li>{@code dog&brvbar;s} -> {@literal dog} and {@literal dogs}</li>
+     *                  <li>{@code part&brvbar;y&brvbar;ies} -> {@literal party} and {@literal parties} (irregular plural)</li>
+     *                </ul>
      * @param literalParser the function that would parse literals for the given type. If the parser throws an exception on parsing, it will be
-     *                      catched and the type will be ignored.
+     *                      caught and the type will be ignored.
      */
     public Type(Class<T> typeClass, String baseName, String pattern, Function<String, ? extends T> literalParser) {
         this(typeClass, baseName, pattern, literalParser, Objects::toString);
     }
 
+    /**
+     * Constructs a new Type.
+     *
+     * @param typeClass the class this type represents
+     * @param baseName the basic name to represent this type with. It should be more or less a lowercase version of the Java class.
+     * @param pattern the pattern for plural forms. It's written in Skript aliases plural format. Examples :
+     *                <ul>
+     *                  <li>{@code fish} -> {@literal fish} (invariant)</li>
+     *                  <li>{@code dog&brvbar;s} -> {@literal dog} and {@literal dogs}</li>
+     *                  <li>{@code part&brvbar;y&brvbar;ies} -> {@literal party} and {@literal parties} (irregular plural)</li>
+     *                </ul>
+     * @param literalParser the function that would parse literals for the given type. If the parser throws an exception on parsing, it will be
+     *                      caught and the type will be ignored.
+     * @param toStringFunction the functions that converts an object of the type {@link T} to a {@link String}.Defaults to {@link Objects#toString} for
+     *                         other constructors.
+     */
     @SuppressWarnings("unchecked")
     public Type(Class<T> typeClass, String baseName, String pattern, Function<String, ? extends T> literalParser, Function<? super T, String> toStringFunction) {
         this.typeClass = typeClass;
         this.baseName = baseName;
         this.literalParser = literalParser;
         this.toStringFunction = (Function<Object, String>) toStringFunction;
-        pattern = pattern.trim();
-        // Not handling exceptions here, developer responsability
-        if (!pluralGroupChecker.test(pattern)) {
-            syntaxPattern = Pattern.compile(pattern + "(?<plural>)??"); // Lazy optional group is required in this case
-        } else {
-            syntaxPattern = Pattern.compile(pattern);
-        }
+        this.pluralPattern = pattern.trim();
     }
 
     public Function<String, ? extends T> getLiteralParser() {
         return literalParser;
     }
 
-    public Pattern getSyntaxPattern() {
-        return syntaxPattern;
+    public String getPluralPattern() {
+        return pluralPattern;
     }
 
     public Class<T> getTypeClass() {
@@ -79,13 +93,13 @@ public class Type<T> {
             return false;
         } else {
             Type<?> o = (Type<?>) obj;
-            return typeClass.equals(o.typeClass) && baseName.equals(o.baseName) && syntaxPattern.pattern().equals(o.syntaxPattern.pattern());
+            return typeClass.equals(o.typeClass) && baseName.equals(o.baseName) && pluralPattern.equals(o.pluralPattern);
         }
     }
 
     @Override
     public int hashCode() {
-        return syntaxPattern.pattern().hashCode();
+        return pluralPattern.hashCode();
     }
 
     public String getBaseName() {

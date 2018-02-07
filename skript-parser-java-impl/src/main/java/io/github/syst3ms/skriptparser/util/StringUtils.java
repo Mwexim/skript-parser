@@ -1,7 +1,14 @@
 package io.github.syst3ms.skriptparser.util;
 
+import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
+
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collector;
 
 public class StringUtils {
     public static final Pattern R_LITERAL_CONTENT_PATTERN = Pattern.compile("^(.+?)\\((.+)\\)\\1$"); // It's actually rare to be able to use '.+' raw like this
@@ -49,6 +56,47 @@ public class StringUtils {
             }
         }
         return null;
+    }
+
+    public static String fixEncoding(String s) {
+        try {
+            return new String(s.getBytes(Charset.defaultCharset()), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return s;
+        }
+    }
+
+    /**
+     * Returns an array of two elements, containing the plural and singular forms of the
+     * given pluralizable expression. Does not support escaping.
+     */
+    public static String[] getForms(String pluralizable) {
+        pluralizable = fixEncoding(pluralizable);
+        List<String[]> words = new ArrayList<>();
+        for (String s : pluralizable.split("\\s+")) {
+            int count = count(s, "\u00a6");
+            switch (count) {
+                case 0:
+                    words.add(new String[]{s, s});
+                    break;
+                case 1:
+                    String pluralEnd = s.split("\\xa6")[1];
+                    words.add(new String[]{s, s + pluralEnd});
+                    break;
+                case 2:
+                    String[] splitted = s.split("\\xa6");
+                    words.add(new String[]{s + splitted[1], s + splitted[2]});
+                    break;
+                default:
+                    throw new SkriptParserException("Invalid pluralized word : " + s);
+            }
+        }
+        String[] pluralized = new String[]{"", ""};
+        for (String[] word : words) {
+            pluralized[0] += " " + word[0];
+            pluralized[1] += " " + word[1];
+        }
+        return pluralized;
     }
 
     /**
@@ -103,9 +151,9 @@ public class StringUtils {
         return s.substring(start + 1, end).replaceAll("\\\\'", "'");
     }
 
-    /*
+    /**
      * This is not a typo. This parses C-style "R-literals".
-     * Example : R"delimiter(What are "escapes" ?)delimiter" turns into 'What are "escapes" ?'
+     * Example : {@code R"delimiter(What are "escapes" ?)delimiter"} turns into {@literal What are "escapes" ?}
      */
     private static String parseRRawLiteral(String s) {
         if (!s.startsWith("R\"") || !s.endsWith("\""))

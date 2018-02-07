@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
+import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 
 import java.util.*;
@@ -8,7 +9,7 @@ public class SyntaxManager {
     private static SyntaxManager instance = new SyntaxManager();
     private MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
     private MultiMap<String, SyntaxInfo<?>> syntaxes = new MultiMap<>();
-    private List<SyntaxInfo<?>> effects = new ArrayList<>();
+    private List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
 
     private SyntaxManager() {
     }
@@ -51,7 +52,7 @@ public class SyntaxManager {
         return infos;
     }
 
-    public Iterable<SyntaxInfo<?>> getEffects() {
+    public Collection<SyntaxInfo<? extends Effect>> getEffects() {
         return effects;
     }
 }

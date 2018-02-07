@@ -2,9 +2,11 @@ package io.github.syst3ms.skriptparser.registration;
 
 import com.sun.xml.internal.ws.server.ServerRtException;
 import io.github.syst3ms.skriptparser.PatternParser;
+import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.util.MultiMap;
+import io.github.syst3ms.skriptparser.util.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -40,24 +42,24 @@ public class SkriptRegistration {
         return registerer;
     }
 
-    public <C extends Expression<T>, T> void addExpression(Class<C> c, Class<T> returnType, String... patterns) {
+    public <C extends Expression<T>, T> void addExpression(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
         List<PatternElement> elements = new ArrayList<>();
         for (String s : patterns) {
-            elements.add(patternParser.parsePattern(fixEncoding(s)));
+            elements.add(patternParser.parsePattern(StringUtils.fixEncoding(s)));
         }
         Type<T> t = TypeManager.getInstance().getByClassExact(returnType);
         if (t == null) {
             //TODO error
             return;
         }
-        ExpressionInfo<C, T> info = new ExpressionInfo<>(c, elements, t);
+        ExpressionInfo<C, T> info = new ExpressionInfo<>(c, elements, t, isSingle);
         expressions.putOne(returnType, info);
     }
 
-    public <C> void addEffect(Class<C> c, String... patterns) {
+    public <C extends Effect> void addEffect(Class<C> c, String... patterns) {
         List<PatternElement> elements = new ArrayList<>();
         for (String s : patterns) {
-            elements.add(patternParser.parsePattern(fixEncoding(s)));
+            elements.add(patternParser.parsePattern(StringUtils.fixEncoding(s)));
         }
         SyntaxInfo<C> info = new SyntaxInfo<>(c, elements);
         effects.add(info);
@@ -80,11 +82,4 @@ public class SkriptRegistration {
         TypeManager.getInstance().register(this);
     }
 
-    private String fixEncoding(String s) {
-        try {
-            return new String(s.getBytes(Charset.defaultCharset()), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            return s;
-        }
-    }
 }

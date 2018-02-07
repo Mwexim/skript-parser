@@ -15,6 +15,7 @@ import java.util.regex.Matcher;
  * <ul>
  * <li>a {@link List} of {@link PatternType}</li>
  * <li>a field determining what type of values this expression accepts : literals, expressions or both ({@literal %*type%}, {@literal %~type%} and {@literal %type%} respectively)</li>
+ * <li>whether the expression resorts to default expressions or not, defaulting to {@literal null} instead</li>
  * </ul>
  */
 public class ExpressionElement implements PatternElement {
@@ -30,7 +31,7 @@ public class ExpressionElement implements PatternElement {
 
     @Override
     public int match(String s, int index, SkriptParser parser) {
-        if (parser.getElement().equals(this))
+        if (parser.getOriginalElement().equals(this))
             parser.advanceInPattern();
         if (s.charAt(index) == '(') {
             String enclosed = StringUtils.getEnclosedText(s, '(', ')', index);
@@ -40,7 +41,7 @@ public class ExpressionElement implements PatternElement {
              */
             if (enclosed != null) {
                 for (PatternType<?> type : types) {
-                    Expression<?> expression = SyntaxParser.parseExpression(s, type);
+                    Expression<?> expression = parse(s, type, parser.getOriginalElement());
                     if (expression != null) {
                         parser.addExpression(expression);
                         return index + s.length();
@@ -48,7 +49,7 @@ public class ExpressionElement implements PatternElement {
                 }
             }
         }
-        List<PatternElement> flattened = parser.flatten(parser.getElement());
+        List<PatternElement> flattened = parser.flatten(parser.getOriginalElement());
         List<PatternElement> possibleInputs = parser.getPossibleInputs(flattened.subList(parser.getPatternIndex(), flattened.size()));
         inputLoop: for (PatternElement possibleInput : possibleInputs) {
             if (possibleInput instanceof TextElement) {
@@ -56,7 +57,7 @@ public class ExpressionElement implements PatternElement {
                 if (text.equals("")) { // End of line
                     String toParse = s.substring(index);
                     for (PatternType<?> type : types) {
-                        Expression<?> expression = SyntaxParser.parseExpression(toParse, type);
+                        Expression<?> expression = parse(toParse, type, parser.getOriginalElement());
                         if (expression != null) {
                             parser.addExpression(expression);
                             return index + toParse.length();
@@ -69,7 +70,7 @@ public class ExpressionElement implements PatternElement {
                     continue;
                 String toParse = s.substring(index, i).trim();
                 for (PatternType<?> type : types) {
-                    Expression<?> expression = SyntaxParser.parseExpression(toParse, type);
+                    Expression<?> expression = parse(toParse, type, parser.getOriginalElement());
                     if (expression != null) {
                         parser.addExpression(expression);
                         return index + toParse.length();
@@ -85,7 +86,7 @@ public class ExpressionElement implements PatternElement {
                         continue;
                     String toParse = s.substring(index, i);
                     for (PatternType<?> type : types) {
-                        Expression<?> expression = SyntaxParser.parseExpression(toParse, type);
+                        Expression<?> expression = parse(toParse, type, parser.getOriginalElement());
                         if (expression != null) {
                             parser.addExpression(expression);
                             return index + toParse.length();
@@ -96,6 +97,16 @@ public class ExpressionElement implements PatternElement {
             }
         }
         return -1;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> Expression<? extends T> parse(String s, PatternType<T> type, PatternElement originalPattern) {
+        if (type.equals(SyntaxParser.BOOLEAN_PATTERN_TYPE)) {
+            // REMINDER : conditions call parseBooleanExpression straight away
+            return (Expression<? extends T>) SyntaxParser.parseBooleanExpression(s, originalPattern.equals(SkriptParser.WHETHER_PATTERN));
+        } else {
+            return SyntaxParser.parseExpression(s, type);
+        }
     }
 
     @Override

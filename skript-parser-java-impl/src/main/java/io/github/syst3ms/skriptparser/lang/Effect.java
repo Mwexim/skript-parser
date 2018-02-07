@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.lang;
 
-@FunctionalInterface
-public interface Effect {
+public interface Effect extends SyntaxElement {
     void execute();
 }

@@ -25,8 +25,8 @@ public class PatternParserTest {
 
     static {
         SkriptRegistration reg = new SkriptRegistration("unit-tests");
-        reg.addType(Number.class, "number", "number(?<plural>s)?", Double::parseDouble);
-        reg.addType(String.class, "string", "string(?<plural>s)?");
+        reg.addType(Number.class, "number", "number\u00a6s", Double::parseDouble);
+        reg.addType(String.class, "string", "string\u00a6s");
         reg.register();
     }
 
