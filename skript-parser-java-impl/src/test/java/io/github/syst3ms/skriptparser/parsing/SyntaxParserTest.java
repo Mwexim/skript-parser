@@ -23,7 +23,7 @@ public class SyntaxParserTest {
         registration.addType(
                 Number.class,
                 "number",
-                "number\u00a6s",
+                "number¦s",
                 s -> {
                     Number n;
                     try {
@@ -49,7 +49,7 @@ public class SyntaxParserTest {
                     if (o == null)
                         return TypeManager.NULL_REPRESENTATION;
                     if (o instanceof Long) {
-                        return Long.toString(o.longValue());
+                        return o.toString();
                     } else if (o instanceof Double) {
                         return Double.toString(o.doubleValue());
                     } else if (o instanceof BigInteger || o instanceof BigDecimal) {
@@ -62,7 +62,7 @@ public class SyntaxParserTest {
         registration.addType(
                 String.class,
                 "string",
-                "string\u00a6s",
+                "string¦s",
                 StringUtils::parseConstantString,
                 s -> s.replaceAll("\\\\(.)", "$1")
         );

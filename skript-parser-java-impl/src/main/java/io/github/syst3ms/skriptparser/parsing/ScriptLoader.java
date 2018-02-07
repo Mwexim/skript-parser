@@ -5,14 +5,11 @@ import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.file.SimpleFileLine;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.registration.PatternType;
-import io.github.syst3ms.skriptparser.registration.TypeManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ScriptLoader {
-    private static final PatternType<Boolean> BOOLEAN_PATTERN_TYPE = new PatternType<>(TypeManager.getInstance().getByClass(Boolean.class), true);
 
     public static List<Effect> loadItems(FileSection section) {
         List<Effect> effects = new ArrayList<>();

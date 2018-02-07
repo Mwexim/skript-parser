@@ -33,16 +33,8 @@ public class PatternType<T> {
 
     // TODO convert this to make use of a Skript-like plural syntax
     @Override
-    public String toString() { // Not perfect, but good enough for toString()
-        String baseName = type.getBaseName();
-        if (single)
-            return baseName;
-        if (baseName.endsWith("child")) { // This exception seems likely enough
-            return baseName.replace("child", "children");
-        } else if (baseName.matches(".*(s|ch|sh|x|z)")) {
-            return baseName + "es";
-        } else {
-            return baseName + "s";
-        }
+    public String toString() {
+        String[] forms = type.getPluralForms();
+        return forms[single ? 0 : 1];
     }
 }

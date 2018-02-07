@@ -1,8 +1,6 @@
 package io.github.syst3ms.skriptparser.pattern;
 
-import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
-import io.github.syst3ms.skriptparser.registration.PatternType;
 
 import java.util.List;
 import java.util.regex.Matcher;

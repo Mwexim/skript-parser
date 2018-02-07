@@ -1,9 +1,10 @@
 package io.github.syst3ms.skriptparser.registration;
 
+import io.github.syst3ms.skriptparser.util.StringUtils;
+
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 /**
  * A basic definition of a type. This doesn't handle number (single/plural), see {@link PatternType} for that.
@@ -12,7 +13,7 @@ import java.util.regex.Pattern;
 public class Type<T> {
     private Class<T> typeClass;
     private String baseName;
-    private String pluralPattern;
+    private String[] pluralForms;
     private Function<String, ? extends T> literalParser;
     private Function<Object, String> toStringFunction;
 
@@ -72,15 +73,15 @@ public class Type<T> {
         this.baseName = baseName;
         this.literalParser = literalParser;
         this.toStringFunction = (Function<Object, String>) toStringFunction;
-        this.pluralPattern = pattern.trim();
+        this.pluralForms = StringUtils.getForms(pattern.trim());
     }
 
     public Function<String, ? extends T> getLiteralParser() {
         return literalParser;
     }
 
-    public String getPluralPattern() {
-        return pluralPattern;
+    public String[] getPluralForms() {
+        return pluralForms;
     }
 
     public Class<T> getTypeClass() {
@@ -93,13 +94,14 @@ public class Type<T> {
             return false;
         } else {
             Type<?> o = (Type<?>) obj;
-            return typeClass.equals(o.typeClass) && baseName.equals(o.baseName) && pluralPattern.equals(o.pluralPattern);
+            return typeClass.equals(o.typeClass) && baseName.equals(o.baseName) &&
+                   Arrays.equals(pluralForms, o.pluralForms);
         }
     }
 
     @Override
     public int hashCode() {
-        return pluralPattern.hashCode();
+        return Arrays.hashCode(pluralForms);
     }
 
     public String getBaseName() {

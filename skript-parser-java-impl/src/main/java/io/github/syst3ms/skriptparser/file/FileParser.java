@@ -11,7 +11,7 @@ public class FileParser {
     public static final Pattern LINE_PATTERN = Pattern.compile("^((?:[^#]|##)*)(\\s*#(?!#).*)$"); // Might as well take that from Skript
 
     public List<FileElement> parseFileLines(String fileName, List<String> lines, int expectedIndentation, int lastLine) {
-		List<FileElement> elements = new ArrayList<>();
+        List<FileElement> elements = new ArrayList<>();
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
             String content;

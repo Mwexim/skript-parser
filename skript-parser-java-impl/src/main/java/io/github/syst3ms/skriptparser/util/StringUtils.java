@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collector;
 
 public class StringUtils {
     public static final Pattern R_LITERAL_CONTENT_PATTERN = Pattern.compile("^(.+?)\\((.+)\\)\\1$"); // It's actually rare to be able to use '.+' raw like this
@@ -75,17 +74,18 @@ public class StringUtils {
         List<String[]> words = new ArrayList<>();
         for (String s : pluralizable.split("\\s+")) {
             int count = count(s, "\u00a6");
+            String[] split;
             switch (count) {
                 case 0:
                     words.add(new String[]{s, s});
                     break;
                 case 1:
-                    String pluralEnd = s.split("\\xa6")[1];
-                    words.add(new String[]{s, s + pluralEnd});
+                    split = s.split("\\xa6");
+                    words.add(new String[]{split[0], split[0] + split[1]});
                     break;
                 case 2:
-                    String[] splitted = s.split("\\xa6");
-                    words.add(new String[]{s + splitted[1], s + splitted[2]});
+                    split = s.split("\\xa6");
+                    words.add(new String[]{split[0] + split[1], split[0] + split[2]});
                     break;
                 default:
                     throw new SkriptParserException("Invalid pluralized word : " + s);
@@ -93,9 +93,11 @@ public class StringUtils {
         }
         String[] pluralized = new String[]{"", ""};
         for (String[] word : words) {
-            pluralized[0] += " " + word[0];
-            pluralized[1] += " " + word[1];
+            pluralized[0] += word[0] + " ";
+            pluralized[1] += word[1] + " ";
         }
+        for (int i = 0; i < pluralized.length; i++)
+            pluralized[i] = pluralized[i].trim();
         return pluralized;
     }
 

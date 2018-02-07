@@ -25,8 +25,8 @@ public class PatternParserTest {
 
     static {
         SkriptRegistration reg = new SkriptRegistration("unit-tests");
-        reg.addType(Number.class, "number", "number\u00a6s", Double::parseDouble);
-        reg.addType(String.class, "string", "string\u00a6s");
+        reg.addType(Number.class, "number", "number¦s", Double::parseDouble);
+        reg.addType(String.class, "string", "string¦s");
         reg.register();
     }
 
@@ -109,7 +109,7 @@ public class PatternParserTest {
         assertEquals(15, pattern.match("you must choose", 0, parser));
         assertEquals(13, pattern.match("you must this", 0, parser));
         assertEquals(16, pattern.match("you must or this", 0, parser));
-        pattern = patternParser.parsePattern("I choose (1�this|2�that)");
+        pattern = patternParser.parsePattern("I choose (1\u00a6this|2\u00a6that)");
         parser = new SkriptParser(pattern);
         assertTrue(pattern.match("I choose this", 0, parser) == 13 && parser.getParseMark() == 1);
         // The real stuff

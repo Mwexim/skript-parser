@@ -1,7 +1,5 @@
 package io.github.syst3ms.skriptparser;
 
-import io.github.syst3ms.skriptparser.registration.PatternType;
-import io.github.syst3ms.skriptparser.registration.TypeManager;
 import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
 import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
 import io.github.syst3ms.skriptparser.pattern.CompoundElement;
@@ -10,6 +8,8 @@ import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.RegexGroup;
 import io.github.syst3ms.skriptparser.pattern.TextElement;
+import io.github.syst3ms.skriptparser.registration.PatternType;
+import io.github.syst3ms.skriptparser.registration.TypeManager;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 
 import java.util.ArrayList;

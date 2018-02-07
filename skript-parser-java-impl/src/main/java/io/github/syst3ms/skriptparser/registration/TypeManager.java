@@ -1,11 +1,8 @@
 package io.github.syst3ms.skriptparser.registration;
 
-import io.github.syst3ms.skriptparser.util.StringUtils;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Matcher;
 
 /**
  * Manages all different types.
@@ -37,13 +34,13 @@ public class TypeManager {
     }
 
     /**
-     * Gets a {@link Type} using {@link Type#pluralPattern}, which means this matches any alternate and/or plural form.
+     * Gets a {@link Type} using {@link Type#pluralForms}, which means this matches any alternate and/or plural form.
      * @param name the name to get a Type from
      * @return the matching Type, or {@literal null} if nothing matched
      */
     public Type<?> getByName(String name) {
         for (Type<?> t : nameToType.values()) {
-            String[] forms = StringUtils.getForms(t.getPluralPattern());
+            String[] forms = t.getPluralForms();
             if (name.equalsIgnoreCase(forms[0]) || name.equalsIgnoreCase(forms[1])) {
                 return t;
             }
@@ -63,11 +60,12 @@ public class TypeManager {
     }
 
     public <T> Type<? super T> getByClass(Class<T> c) {
-        Type<? super T> type;
-        do {
-            Class<? super T> superclass = c.getSuperclass();
+        Type<? super T> type = getByClassExact(c);
+        Class<? super T> superclass = c;
+        while (superclass != null && type == null) {
+            superclass = superclass.getSuperclass();
             type = getByClassExact(superclass);
-        } while (type == null);
+        }
         return type;
     }
 
@@ -100,7 +98,7 @@ public class TypeManager {
      */
     public PatternType<?> getPatternType(String name) {
         for (Type<?> t : nameToType.values()) {
-            String[] forms = StringUtils.getForms(t.getPluralPattern());
+            String[] forms = t.getPluralForms();
             if (name.equalsIgnoreCase(forms[0])) {
                 return new PatternType<>(t, true);
             } else if (name.equalsIgnoreCase(forms[1])) {

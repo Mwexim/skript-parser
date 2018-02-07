@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.registration;
 
-import com.sun.xml.internal.ws.server.ServerRtException;
 import io.github.syst3ms.skriptparser.PatternParser;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
@@ -8,8 +7,6 @@ import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -17,7 +14,7 @@ import java.util.function.Function;
 public class SkriptRegistration {
     private String registerer;
     private MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
-    private List<SyntaxInfo> effects = new ArrayList<>();
+    private List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
     private List<Type<?>> types = new ArrayList<>();
     private PatternParser patternParser;
 
@@ -34,7 +31,7 @@ public class SkriptRegistration {
         return expressions;
     }
 
-    public List<SyntaxInfo> getEffects() {
+    public List<SyntaxInfo<? extends Effect>> getEffects() {
         return effects;
     }
 
