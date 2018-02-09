@@ -9,6 +9,7 @@ import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 import io.github.syst3ms.skriptparser.registration.Type;
 import io.github.syst3ms.skriptparser.registration.TypeManager;
+import io.github.syst3ms.skriptparser.util.VariableString;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -19,6 +20,7 @@ import java.util.function.Function;
 @SuppressWarnings("unchecked")
 public class SyntaxParser {
     public static final PatternType<Boolean> BOOLEAN_PATTERN_TYPE = new PatternType<>((Type<Boolean>) TypeManager.getInstance().getByClass(Boolean.class), true);
+    public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getInstance().getByClass(Object.class), true);
     private static final LinkedList<SyntaxInfo<? extends Effect>> recentEffects = new LinkedList<>();
     private static final LinkedList<SyntaxInfo<? extends CodeSection>> recentSections = new LinkedList<>();
     private static final LinkedList<ExpressionInfo<?, ?>> recentExpressions = new LinkedList<>();
@@ -36,6 +38,11 @@ public class SyntaxParser {
                     T literal = (T) literalParser.apply(s);
                     if (literal != null) {
                         return new Literal<>(typeClass, literal);
+                    } else if (expectedType.getType().getTypeClass() == String.class) {
+                        VariableString vs = VariableString.newInstanceWithQuotes(s);
+                        if (vs != null) {
+                            return (Expression<? extends T>) vs;
+                        }
                     }
                 }
             }

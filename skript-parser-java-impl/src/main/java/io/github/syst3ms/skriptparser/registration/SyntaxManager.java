@@ -72,6 +72,16 @@ public class SyntaxManager {
         return infos;
     }
 
+    public ExpressionInfo<?, ?> getExpressionExact(Class<?> c) {
+        Collection<ExpressionInfo<?, ?>> infos = getAllExpressions();
+        for (ExpressionInfo<?, ?> info : infos) {
+            if (info.getSyntaxClass() == c) {
+                return info;
+            }
+        }
+        return null;
+    }
+
     public Collection<SyntaxInfo<? extends Effect>> getEffects() {
         return effects;
     }
