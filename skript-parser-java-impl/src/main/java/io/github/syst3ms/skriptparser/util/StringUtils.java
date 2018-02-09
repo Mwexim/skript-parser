@@ -57,6 +57,14 @@ public class StringUtils {
         return null;
     }
 
+    public static boolean startsWithIgnoreCase(String haystack, String needle) {
+        return haystack.toLowerCase().startsWith(needle.toLowerCase());
+    }
+
+    public static boolean endsWithIgnoreCase(String haystack, String needle) {
+        return haystack.toLowerCase().endsWith(needle.toLowerCase());
+    }
+
     public static String fixEncoding(String s) {
         try {
             return new String(s.getBytes(Charset.defaultCharset()), "UTF-8");

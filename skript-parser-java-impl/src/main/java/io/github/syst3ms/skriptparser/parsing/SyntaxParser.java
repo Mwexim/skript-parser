@@ -1,10 +1,7 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.lang.CodeSection;
-import io.github.syst3ms.skriptparser.lang.ConditionalExpression;
-import io.github.syst3ms.skriptparser.lang.Effect;
-import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.Literal;
+import io.github.syst3ms.skriptparser.expressions.ExprWhether;
+import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.PatternType;
@@ -145,7 +142,8 @@ public class SyntaxParser {
             PatternElement element = patterns.get(i);
             SkriptParser parser = new SkriptParser(element);
             if (element.match(s, 0, parser) != -1) {
-                if (!returnType.isSingle() && expectedType.isSingle()) {
+                if (!DynamicNumberExpression.class.isAssignableFrom(info.getSyntaxClass()) &&
+                    !returnType.isSingle() && expectedType.isSingle()) {
                     error("Expected a single value, but multiple were given");
                     continue;
                 }
@@ -156,11 +154,16 @@ public class SyntaxParser {
                         i,
                         parser.toParseResult()
                     );
+                    if (DynamicNumberExpression.class.isAssignableFrom(expression.getClass()) &&
+                        !((DynamicNumberExpression) expression).isSingle() &&
+                        expectedType.isSingle()) {
+                        error("Expected a single value, but multiple were given");
+                        continue;
+                    }
                     return expression;
                 } catch (InstantiationException | IllegalAccessException e) {
                     error("Parsing of " + info.getSyntaxClass()
 											  .getSimpleName() + " succeeded, but it couldn't be instantiated");
-                    continue;
                 }
             }
         }
@@ -185,7 +188,6 @@ public class SyntaxParser {
                 } catch (InstantiationException | IllegalAccessException e) {
                     error("Parsing of " + info.getSyntaxClass()
                                               .getSimpleName() + " succeeded, but it couldn't be instantiated");
-                    continue;
                 }
             }
         }

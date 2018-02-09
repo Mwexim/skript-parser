@@ -5,7 +5,7 @@ import io.github.syst3ms.skriptparser.registration.TypeManager;
 
 import java.lang.reflect.Array;
 
-public class Literal<T> implements Expression<T> {
+public class Literal<T> implements Expression<T>, DynamicNumberExpression {
     private T[] values;
 
     @SuppressWarnings("unchecked")
@@ -34,7 +34,7 @@ public class Literal<T> implements Expression<T> {
         }
     }
 
-    // This is only necessary here, as literals aren't registered per-say
+    @Override
     public boolean isSingle() {
         return values.length == 1;
     }

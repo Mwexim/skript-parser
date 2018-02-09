@@ -1,6 +1,9 @@
 package io.github.syst3ms.skriptparser.registration;
 
+import io.github.syst3ms.skriptparser.lang.DynamicNumberExpression;
 import io.github.syst3ms.skriptparser.lang.Effect;
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 
 import java.util.ArrayList;
@@ -34,6 +37,19 @@ public class SyntaxManager {
                 expressions.putOne(key, info);
                 syntaxes.putOne(reg.getRegisterer(), info);
             }
+        }
+    }
+
+    public boolean isSingle(Expression<?> expression) {
+        if (expression instanceof DynamicNumberExpression) {
+            return ((DynamicNumberExpression) expression).isSingle();
+        } else {
+            for (ExpressionInfo<?, ?> info : expressions.getAllValues()) {
+                if (info.getSyntaxClass() == expression.getClass()) {
+                    return info.getReturnType().isSingle();
+                }
+            }
+            throw new SkriptParserException("Unregistered expression class : " + expression.getClass().getName());
         }
     }
 
