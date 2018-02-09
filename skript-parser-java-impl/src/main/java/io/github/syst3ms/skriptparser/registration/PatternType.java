@@ -31,7 +31,6 @@ public class PatternType<T> {
         }
     }
 
-    // TODO convert this to make use of a Skript-like plural syntax
     @Override
     public String toString() {
         String[] forms = type.getPluralForms();

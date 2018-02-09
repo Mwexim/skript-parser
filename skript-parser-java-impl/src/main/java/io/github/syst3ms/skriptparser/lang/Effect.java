@@ -1,10 +1,12 @@
 package io.github.syst3ms.skriptparser.lang;
 
+import io.github.syst3ms.skriptparser.event.Event;
+
 public abstract class Effect implements SyntaxElement {
     protected CodeSection parent;
     protected Effect next;
 
-    public abstract void execute();
+    public abstract void execute(Event e);
 
     public CodeSection getParent() {
         return parent;
@@ -24,8 +26,8 @@ public abstract class Effect implements SyntaxElement {
         return this;
     }
 
-    protected Effect walk() {
-        execute();
+    protected Effect walk(Event e) {
+        execute(e);
         if (next != null) {
             return next;
         } else {

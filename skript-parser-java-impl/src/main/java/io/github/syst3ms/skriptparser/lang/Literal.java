@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
+import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.registration.TypeManager;
 
@@ -21,12 +22,12 @@ public class Literal<T> implements Expression<T>, DynamicNumberExpression {
     }
 
     @Override
-    public T[] getValues() {
+    public T[] getValues(Event e) {
         return values;
     }
 
     @Override
-    public String toString(boolean debug) {
+    public String toString(Event e, boolean debug) {
         if (isSingle()) {
             return values[0].toString();
         } else {

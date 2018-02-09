@@ -129,7 +129,12 @@ public class ExpressionElement implements PatternElement {
         } else if (acceptance == Acceptance.LITERALS_ONLY) {
             sb.append('*');
         }
-        sb.append(StringUtils.join("/", types.toArray()));
+        sb.append(
+            String.join(
+                "/",
+                types.stream().map(PatternType::toString).toArray(CharSequence[]::new)
+            )
+        );
         return sb.append("%").toString();
     }
 

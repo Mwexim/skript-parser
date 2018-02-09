@@ -29,16 +29,6 @@ public class StringUtils {
         return sb.toString();
     }
 
-    public static String join(String delimiter, Object... objects) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < objects.length; i++) {
-            if (i > 0)
-                sb.append(delimiter);
-            sb.append(objects[i]);
-        }
-        return sb.toString();
-    }
-
     public static String getEnclosedText(String pattern, char opening, char closing, int start) {
         int n = 0;
         for (int i = start; i < pattern.length(); i++) {

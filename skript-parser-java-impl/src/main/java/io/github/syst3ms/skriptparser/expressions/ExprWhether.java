@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
+import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
@@ -30,12 +31,12 @@ public class ExprWhether implements Expression<Boolean> {
 	}
 
 	@Override
-	public Boolean[] getValues() {
-		return condition.getValues();
+	public Boolean[] getValues(Event e) {
+		return condition.getValues(e);
 	}
 
 	@Override
-	public String toString(boolean debug) {
-		return "whether " + condition.toString(debug);
+	public String toString(Event e, boolean debug) {
+		return "whether " + condition.toString(e, debug);
 	}
 }

@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.parsing;
 
+import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.registration.PatternType;
@@ -90,7 +91,7 @@ public class SyntaxParserTest {
 
     public void assertExpressionEquals(Expression<?> expected, Expression<?> actual) {
         if (expected == actual) return;
-        assertArrayEquals(expected.getValues(), actual.getValues());
+        assertArrayEquals(expected.getValues(null), actual.getValues(null));
     }
 
     @Test
@@ -101,11 +102,11 @@ public class SyntaxParserTest {
                 SyntaxParser.parseExpression("the number 2 squared", numberType)
         );
         int expectedInt = SyntaxParser.parseExpression("random integer between 0 and 10", numberType)
-                                      .getSingle()
+                                      .getSingle(null)
                                       .intValue();
         assertTrue(0 <= expectedInt && expectedInt <= 10);
         double expectedDouble = SyntaxParser.parseExpression("random number between 9.9999 and 10 exclusively", numberType)
-                                            .getSingle()
+                                            .getSingle(null)
                                             .doubleValue();
         assertTrue(9.9999 + Double.MIN_VALUE <= expectedDouble && expectedDouble <= 10 - Double.MIN_VALUE);
         PatternType<String> stringType = new PatternType<>(TypeManager.getInstance().getByClassExact(String.class), false);
@@ -133,16 +134,16 @@ public class SyntaxParserTest {
         }
 
         @Override
-        public Number[] getValues() {
-            Number n = number.getSingle();
+        public Number[] getValues(Event e) {
+            Number n = number.getSingle(e);
             if (n == null)
                 return new Number[0];
             return new Number[]{n.doubleValue() * n.doubleValue()};
         }
 
         @Override
-        public String toString(boolean debug) {
-            return number.toString(debug) + " squared";
+        public String toString(Event e, boolean debug) {
+            return number.toString(e, debug) + " squared";
         }
     }
 
@@ -161,9 +162,9 @@ public class SyntaxParserTest {
         }
 
         @Override
-        public Number[] getValues() {
-            Number lower = lowerBound.getSingle();
-            Number upper = upperBound.getSingle();
+        public Number[] getValues(Event e) {
+            Number lower = lowerBound.getSingle(e);
+            Number upper = upperBound.getSingle(e);
             if (lower == null || upper == null)
                 return new Number[0];
             if (integer) {
@@ -195,13 +196,13 @@ public class SyntaxParserTest {
         }
 
         @Override
-        public String toString(boolean debug) {
+        public String toString(Event e, boolean debug) {
             return "random " +
                    (integer ? "integer" : "number") +
                    " between " +
-                   lowerBound.toString(debug) +
+                   lowerBound.toString(e, debug) +
                    " and " +
-                   upperBound.toString(debug);
+                   upperBound.toString(e, debug);
         }
     }
 
@@ -218,10 +219,10 @@ public class SyntaxParserTest {
         }
 
         @Override
-        public String[] getValues() {
-            String str = string.getSingle();
-            Number start = startIndex.getSingle();
-            Number end = endIndex.getSingle();
+        public String[] getValues(Event event) {
+            String str = string.getSingle(event);
+            Number start = startIndex.getSingle(event);
+            Number end = endIndex.getSingle(event);
             if (str == null || start == null || end == null)
                 return new String[0];
             int s = start.intValue();
@@ -232,13 +233,13 @@ public class SyntaxParserTest {
         }
 
         @Override
-        public String toString(boolean debug) {
+        public String toString(Event e, boolean debug) {
             return "substring " +
-                   string.toString(debug) +
+                   string.toString(e, debug) +
                    " from " +
-                   startIndex.toString(debug) +
+                   startIndex.toString(e, debug) +
                    " to " +
-                   endIndex.toString(debug);
+                   endIndex.toString(e, debug);
         }
     }
 }

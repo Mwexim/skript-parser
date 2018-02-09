@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
+import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.file.FileSection;
 
 public class Conditional extends CodeSection {
@@ -17,16 +18,16 @@ public class Conditional extends CodeSection {
     }
 
     @Override
-    public void execute() {
+    public void execute(Event e) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected Effect walk() {
+    protected Effect walk(Event e) {
         if (mode == ConditionalMode.ELSE) {
             return getFirst();
         }
-        Boolean c = condition.getSingle();
+        Boolean c = condition.getSingle(e);
         if (c != null && c) {
             return getFirst();
         } else if (fallingClause != null){
@@ -41,8 +42,8 @@ public class Conditional extends CodeSection {
     }
 
     @Override
-    public String toString(boolean debug) {
-        return mode.name().toLowerCase().replace('_', ' ') + " " + condition.toString(debug);
+    public String toString(Event e, boolean debug) {
+        return mode.name().toLowerCase().replace('_', ' ') + " " + condition.toString(e, debug);
     }
 
     public enum ConditionalMode {
