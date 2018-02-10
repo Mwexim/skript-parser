@@ -1,7 +1,8 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.expressions.ExprWhether;
 import io.github.syst3ms.skriptparser.lang.*;
+import io.github.syst3ms.skriptparser.lang.interfaces.ConditionalExpression;
+import io.github.syst3ms.skriptparser.lang.interfaces.DynamicNumberExpression;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.PatternType;
@@ -9,7 +10,7 @@ import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 import io.github.syst3ms.skriptparser.registration.Type;
 import io.github.syst3ms.skriptparser.registration.TypeManager;
-import io.github.syst3ms.skriptparser.util.VariableString;
+import io.github.syst3ms.skriptparser.lang.VariableString;
 
 import java.util.Collection;
 import java.util.LinkedList;

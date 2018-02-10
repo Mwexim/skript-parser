@@ -47,6 +47,26 @@ public class StringUtils {
         return null;
     }
 
+    public static String getPercentContent(String s, int start) {
+        for (int i = start; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '\\') {
+                i++;
+            } else if (c == '{') { // We must ignore variable content
+                String content = getEnclosedText(s, '{', '}', i);
+                if (content == null) {
+                    return null;
+                }
+                i += content.length() + 1;
+            } else if (c == '%') {
+                return s.substring(start, i);
+            } else if (c == '}') { // We normally skip over these, this must be an error
+                return null;
+            }
+        }
+        return null; // There were no percents (unclosed percent is handled by VariableString already)
+    }
+
     public static boolean startsWithIgnoreCase(String haystack, String needle) {
         return haystack.toLowerCase().startsWith(needle.toLowerCase());
     }

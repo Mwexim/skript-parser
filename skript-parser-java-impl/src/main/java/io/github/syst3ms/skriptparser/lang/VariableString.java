@@ -1,10 +1,12 @@
-package io.github.syst3ms.skriptparser.util;
+package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.event.Event;
-import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
+import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
+import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 import io.github.syst3ms.skriptparser.registration.TypeManager;
+import io.github.syst3ms.skriptparser.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,9 +53,13 @@ public class VariableString implements Expression<String> {
 		for (int i = 0; i < charArray.length; i++) {
 			char c = charArray[i];
 			if (c == '%') {
-				String content = StringUtils.getEnclosedText(s, '%', '%', i); // The perks of using backslash escaping
+				if (i == charArray.length - 1) {
+					error("Unclosed '%' symbol at the end of the string");
+					return null;
+				}
+				String content = StringUtils.getPercentContent(s, i + 1);
 				if (content == null) {
-					error("Unclosed '%' group at index " + i);
+					error("Malformed percent group at index " + i + ". This is most likely caused by an illegal variable declaration");
 					return null;
 				}
 				String toParse = content.replaceAll("\\\\(.)", "$1");
@@ -94,12 +100,12 @@ public class VariableString implements Expression<String> {
 
 	@Override
 	public String[] getValues(Event e) {
-		return new String[0];
+		return new String[]{toString(e)};
 	}
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
-		return false;
+		throw new UnsupportedOperationException();
 	}
 
 	public String toString(Event e) {
@@ -129,5 +135,21 @@ public class VariableString implements Expression<String> {
 			}
 		}
 		return sb.append("\"").toString();
+	}
+
+	public String defaultVariableName() {
+		if (simple)
+			return (String) data[0];
+		StringBuilder sb = new StringBuilder();
+		for (Object o : data) {
+			if (o instanceof String) {
+				sb.append(o);
+			} else {
+				assert o instanceof Expression;
+				ExpressionInfo<?, ?> exprInfo = SyntaxManager.getInstance().getExpressionExact(o.getClass());
+				sb.append("<").append(exprInfo.getReturnType().toString()).append(">");
+			}
+		}
+		return sb.toString();
 	}
 }
