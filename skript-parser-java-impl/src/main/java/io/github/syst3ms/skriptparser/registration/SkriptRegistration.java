@@ -4,6 +4,9 @@ import io.github.syst3ms.skriptparser.PatternParser;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
+import io.github.syst3ms.skriptparser.types.Converters;
+import io.github.syst3ms.skriptparser.types.Type;
+import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 
@@ -16,6 +19,7 @@ public class SkriptRegistration {
     private MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
     private List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
     private List<Type<?>> types = new ArrayList<>();
+    private List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
     private PatternParser patternParser;
 
     public SkriptRegistration(String registerer) {
@@ -39,12 +43,16 @@ public class SkriptRegistration {
         return registerer;
     }
 
+    public List<Converters.ConverterInfo<?, ?>> getConverters() {
+        return converters;
+    }
+
     public <C extends Expression<T>, T> void addExpression(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
         List<PatternElement> elements = new ArrayList<>();
         for (String s : patterns) {
             elements.add(patternParser.parsePattern(StringUtils.fixEncoding(s)));
         }
-        Type<T> t = TypeManager.getInstance().getByClassExact(returnType);
+        Type<T> t = TypeManager.getByClassExact(returnType);
         if (t == null) {
             //TODO error
             return;
@@ -75,8 +83,9 @@ public class SkriptRegistration {
     }
 
     public void register() {
-        SyntaxManager.getInstance().register(this);
-        TypeManager.getInstance().register(this);
+        SyntaxManager.register(this);
+        TypeManager.register(this);
+        Converters.registerConverters(this);
+        Converters.createMissingConverters();
     }
-
 }

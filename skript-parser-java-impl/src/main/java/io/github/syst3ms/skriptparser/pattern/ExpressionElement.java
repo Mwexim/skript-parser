@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.pattern;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
-import io.github.syst3ms.skriptparser.registration.PatternType;
+import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 
 import java.util.List;

@@ -14,9 +14,9 @@ import java.util.Map;
 
 public class SyntaxManager {
     private static SyntaxManager instance = new SyntaxManager();
-    private MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
-    private MultiMap<String, SyntaxInfo<?>> syntaxes = new MultiMap<>();
-    private List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
+    private static MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
+    private static MultiMap<String, SyntaxInfo<?>> syntaxes = new MultiMap<>();
+    private static List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
 
     private SyntaxManager() {
     }
@@ -25,7 +25,7 @@ public class SyntaxManager {
         return instance;
     }
 
-    void register(SkriptRegistration reg) {
+    public static void register(SkriptRegistration reg) {
         for (SyntaxInfo<? extends Effect> info : reg.getEffects()) {
             effects.add(info);
             syntaxes.putOne(reg.getRegisterer(), info);
@@ -40,29 +40,16 @@ public class SyntaxManager {
         }
     }
 
-    public boolean isSingle(Expression<?> expression) {
-        if (expression instanceof DynamicNumberExpression) {
-            return ((DynamicNumberExpression) expression).isSingle();
-        } else {
-            for (ExpressionInfo<?, ?> info : expressions.getAllValues()) {
-                if (info.getSyntaxClass() == expression.getClass()) {
-                    return info.getReturnType().isSingle();
-                }
-            }
-            throw new SkriptParserException("Unregistered expression class : " + expression.getClass().getName());
-        }
-    }
-
-    public Iterable<SyntaxInfo<?>> getAddonSyntaxes(String name) {
+    public static Iterable<SyntaxInfo<?>> getAddonSyntaxes(String name) {
         List<SyntaxInfo<?>> infos = syntaxes.get(name);
         return infos == null ? Collections.emptyList() : infos;
     }
 
-    public Collection<ExpressionInfo<?, ?>> getAllExpressions() {
+    public static Collection<ExpressionInfo<?, ?>> getAllExpressions() {
         return expressions.getAllValues();
     }
 
-    public <T> List<ExpressionInfo<?, ?>> getExpressionsByReturnType(Class<? extends T> c) {
+    public static  <T> List<ExpressionInfo<?, ?>> getExpressionsByReturnType(Class<? extends T> c) {
         List<ExpressionInfo<?, ?>> infos = new ArrayList<>();
         for (Class<?> returnType : expressions.keySet()) {
             if (returnType.isAssignableFrom(c)) {
@@ -72,17 +59,7 @@ public class SyntaxManager {
         return infos;
     }
 
-    public ExpressionInfo<?, ?> getExpressionExact(Class<?> c) {
-        Collection<ExpressionInfo<?, ?>> infos = getAllExpressions();
-        for (ExpressionInfo<?, ?> info : infos) {
-            if (info.getSyntaxClass() == c) {
-                return info;
-            }
-        }
-        return null;
-    }
-
-    public Collection<SyntaxInfo<? extends Effect>> getEffects() {
+    public static Collection<SyntaxInfo<? extends Effect>> getEffects() {
         return effects;
     }
 }

@@ -2,11 +2,8 @@ package io.github.syst3ms.skriptparser.variables;
 
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.registration.Type;
-import io.github.syst3ms.skriptparser.registration.TypeManager;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;

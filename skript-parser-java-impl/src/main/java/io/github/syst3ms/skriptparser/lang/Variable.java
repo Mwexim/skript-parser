@@ -4,11 +4,13 @@ import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.interfaces.DynamicNumberExpression;
 import io.github.syst3ms.skriptparser.lang.interfaces.LoopableExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
-import io.github.syst3ms.skriptparser.registration.TypeManager;
-import io.github.syst3ms.skriptparser.util.ClassUtils;
+import io.github.syst3ms.skriptparser.types.TypeManager;
+import io.github.syst3ms.skriptparser.types.ClassUtils;
 import io.github.syst3ms.skriptparser.variables.Variables;
 
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
 
 public class Variable<T> implements Expression<T>, DynamicNumberExpression, LoopableExpression<T> {
 	private final VariableString name;
@@ -71,15 +73,23 @@ public class Variable<T> implements Expression<T>, DynamicNumberExpression, Loop
 	}
 
 	@Override
-	public Iterator<T> iterator() {
-		return null;
+	public Iterator<T> iterator(Event event) {
+		return Collections.emptyIterator();
+	}
+
+	public Iterator<Map.Entry<String, Object>> variableIterator() {
+		return Collections.emptyIterator();
 	}
 
 	@Override
 	public String toString(Event e, boolean debug) {
 		if (e != null)
-			return TypeManager.getInstance().toString((Object[]) getValues(e));
+			return TypeManager.toString((Object[]) getValues(e));
 		String name = this.name.toString(null, debug);
 		return "{" + (local ? Variables.LOCAL_VARIABLE_TOKEN : "") + name.substring(1, name.length() - 1) + "}" + (debug ? "(as " + supertype.getSimpleName() + ")" : "");
+	}
+
+	public Class<?> getReturnType() {
+		return supertype;
 	}
 }

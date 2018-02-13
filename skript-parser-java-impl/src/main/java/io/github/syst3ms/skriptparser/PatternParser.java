@@ -8,8 +8,8 @@ import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.RegexGroup;
 import io.github.syst3ms.skriptparser.pattern.TextElement;
-import io.github.syst3ms.skriptparser.registration.PatternType;
-import io.github.syst3ms.skriptparser.registration.TypeManager;
+import io.github.syst3ms.skriptparser.types.PatternType;
+import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 
 import java.util.ArrayList;
@@ -150,7 +150,7 @@ public class PatternParser {
                     String[] types = typeString.split("/");
                     List<PatternType<?>> patternTypes = new ArrayList<>();
                     for (String type : types) {
-                        PatternType<?> t = TypeManager.getInstance().getPatternType(type);
+                        PatternType<?> t = TypeManager.getPatternType(type);
                         if (t == null) {
                             error("Unknown type : " + type);
                             return null;

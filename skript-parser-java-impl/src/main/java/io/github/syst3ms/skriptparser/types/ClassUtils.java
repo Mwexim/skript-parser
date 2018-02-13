@@ -1,4 +1,4 @@
-package io.github.syst3ms.skriptparser.util;
+package io.github.syst3ms.skriptparser.types;
 
 public class ClassUtils {
 	public final static Class<?> getCommonSuperclass(final Class<?>... cs) {

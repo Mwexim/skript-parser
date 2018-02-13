@@ -1,4 +1,4 @@
-package io.github.syst3ms.skriptparser.registration;
+package io.github.syst3ms.skriptparser.types;
 
 import io.github.syst3ms.skriptparser.util.StringUtils;
 

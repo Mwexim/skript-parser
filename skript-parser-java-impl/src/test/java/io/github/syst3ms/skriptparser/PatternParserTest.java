@@ -2,7 +2,7 @@ package io.github.syst3ms.skriptparser;
 
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
-import io.github.syst3ms.skriptparser.registration.TypeManager;
+import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
 import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
 import io.github.syst3ms.skriptparser.pattern.CompoundElement;
@@ -69,7 +69,7 @@ public class PatternParserTest {
         assertEquals(new RegexGroup(Pattern.compile(".+")), parser.parsePattern("<.+>"));
         assertEquals(
                 new ExpressionElement(
-                        Collections.singletonList(TypeManager.getInstance().getPatternType("number")),
+                        Collections.singletonList(TypeManager.getPatternType("number")),
                         ExpressionElement.Acceptance.BOTH,
                         false
                 ),
@@ -78,8 +78,8 @@ public class PatternParserTest {
         assertEquals(
                 new ExpressionElement(
                     Arrays.asList(
-                            TypeManager.getInstance().getPatternType("number"),
-                            TypeManager.getInstance().getPatternType("strings")
+                            TypeManager.getPatternType("number"),
+                            TypeManager.getPatternType("strings")
                     ),
                         ExpressionElement.Acceptance.LITERALS_ONLY,
                         true

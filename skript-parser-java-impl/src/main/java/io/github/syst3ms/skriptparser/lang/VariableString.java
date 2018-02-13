@@ -4,8 +4,8 @@ import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
-import io.github.syst3ms.skriptparser.registration.SyntaxManager;
-import io.github.syst3ms.skriptparser.registration.TypeManager;
+import io.github.syst3ms.skriptparser.types.TypeManager;
+import io.github.syst3ms.skriptparser.util.Expressions;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 
 import java.util.ArrayList;
@@ -114,7 +114,7 @@ public class VariableString implements Expression<String> {
 		StringBuilder sb = new StringBuilder();
 		for (Object o : data) {
 			if (o instanceof Expression) {
-				sb.append(TypeManager.getInstance().toString(((Expression) o).getValues(e)));
+				sb.append(TypeManager.toString(((Expression) o).getValues(e)));
 			} else {
 				sb.append(o);
 			}
@@ -146,7 +146,7 @@ public class VariableString implements Expression<String> {
 				sb.append(o);
 			} else {
 				assert o instanceof Expression;
-				ExpressionInfo<?, ?> exprInfo = SyntaxManager.getInstance().getExpressionExact(o.getClass());
+				ExpressionInfo<?, ?> exprInfo = Expressions.getExpressionExact(o.getClass());
 				sb.append("<").append(exprInfo.getReturnType().toString()).append(">");
 			}
 		}

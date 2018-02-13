@@ -3,9 +3,9 @@ package io.github.syst3ms.skriptparser.parsing;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
-import io.github.syst3ms.skriptparser.registration.PatternType;
+import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
-import io.github.syst3ms.skriptparser.registration.TypeManager;
+import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.junit.Test;
 
@@ -96,7 +96,7 @@ public class SyntaxParserTest {
 
     @Test
     public void parseExpression() {
-        PatternType<Number> numberType = new PatternType<>(TypeManager.getInstance().getByClassExact(Number.class), false);
+        PatternType<Number> numberType = new PatternType<>(TypeManager.getByClassExact(Number.class), false);
         assertExpressionEquals(new Literal<>(Long.class, 2L), SyntaxParser.parseExpression("2", numberType));
         assertExpressionEquals(new Literal<>(Double.class, 4.0d),
                 SyntaxParser.parseExpression("the number 2 squared", numberType)
@@ -109,7 +109,7 @@ public class SyntaxParserTest {
                                             .getSingle(null)
                                             .doubleValue();
         assertTrue(9.9999 + Double.MIN_VALUE <= expectedDouble && expectedDouble <= 10 - Double.MIN_VALUE);
-        PatternType<String> stringType = new PatternType<>(TypeManager.getInstance().getByClassExact(String.class), false);
+        PatternType<String> stringType = new PatternType<>(TypeManager.getByClassExact(String.class), false);
         assertExpressionEquals(
                 new Literal<>(String.class, "Hello"),
                 SyntaxParser.parseExpression("substring \"Hello\" from 0 to 5", stringType)

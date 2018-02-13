@@ -3,7 +3,9 @@ package io.github.syst3ms.skriptparser.lang;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.interfaces.DynamicNumberExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
-import io.github.syst3ms.skriptparser.registration.TypeManager;
+import io.github.syst3ms.skriptparser.types.PatternType;
+import io.github.syst3ms.skriptparser.types.Type;
+import io.github.syst3ms.skriptparser.types.TypeManager;
 
 import java.lang.reflect.Array;
 
@@ -32,12 +34,17 @@ public class Literal<T> implements Expression<T>, DynamicNumberExpression {
         if (isSingle()) {
             return values[0].toString();
         } else {
-            return TypeManager.getInstance().toString((Object[]) values);
+            return TypeManager.toString((Object[]) values);
         }
     }
 
     @Override
     public boolean isSingle() {
         return values.length == 1;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Class<? extends T> getReturnType() {
+        return (Class<? extends T>) values.getClass().getComponentType();
     }
 }

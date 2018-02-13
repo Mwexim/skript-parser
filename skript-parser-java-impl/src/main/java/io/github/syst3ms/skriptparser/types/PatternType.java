@@ -1,4 +1,4 @@
-package io.github.syst3ms.skriptparser.registration;
+package io.github.syst3ms.skriptparser.types;
 
 /**
  * A type used in a pattern.

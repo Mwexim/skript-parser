@@ -5,11 +5,11 @@ import io.github.syst3ms.skriptparser.lang.interfaces.ConditionalExpression;
 import io.github.syst3ms.skriptparser.lang.interfaces.DynamicNumberExpression;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
-import io.github.syst3ms.skriptparser.registration.PatternType;
+import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
-import io.github.syst3ms.skriptparser.registration.Type;
-import io.github.syst3ms.skriptparser.registration.TypeManager;
+import io.github.syst3ms.skriptparser.types.Type;
+import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.lang.VariableString;
 
 import java.util.Collection;
@@ -20,8 +20,8 @@ import java.util.function.Function;
 
 @SuppressWarnings("unchecked")
 public class SyntaxParser {
-    public static final PatternType<Boolean> BOOLEAN_PATTERN_TYPE = new PatternType<>((Type<Boolean>) TypeManager.getInstance().getByClass(Boolean.class), true);
-    public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getInstance().getByClass(Object.class), true);
+    public static final PatternType<Boolean> BOOLEAN_PATTERN_TYPE = new PatternType<>((Type<Boolean>) TypeManager.getByClass(Boolean.class), true);
+    public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class), true);
     private static final LinkedList<SyntaxInfo<? extends Effect>> recentEffects = new LinkedList<>();
     private static final LinkedList<SyntaxInfo<? extends CodeSection>> recentSections = new LinkedList<>();
     private static final LinkedList<ExpressionInfo<?, ?>> recentExpressions = new LinkedList<>();
@@ -30,7 +30,7 @@ public class SyntaxParser {
 	    if (expectedType.equals(BOOLEAN_PATTERN_TYPE)) {
 	        throw new IllegalStateException("Parsing of boolean expressions should be delegated to parseBooleanExpression");
         }
-        Map<Class<?>, Type<?>> classToTypeMap = TypeManager.getInstance().getClassToTypeMap();
+        Map<Class<?>, Type<?>> classToTypeMap = TypeManager.getClassToTypeMap();
         for (Class<?> c : classToTypeMap.keySet()) {
             Class<T> typeClass = expectedType.getType().getTypeClass();
             if (typeClass.isAssignableFrom(c)) {
@@ -57,7 +57,7 @@ public class SyntaxParser {
             }
         }
         // Let's not loop over the same elements again
-        Collection<ExpressionInfo<?, ?>> remainingExpressions = SyntaxManager.getInstance().getAllExpressions();
+        Collection<ExpressionInfo<?, ?>> remainingExpressions = SyntaxManager.getAllExpressions();
         remainingExpressions.removeAll(recentExpressions);
         for (ExpressionInfo<?, ?> info : remainingExpressions) {
             Expression<? extends T> expression = matchExpressionInfo(s, info, expectedType);
@@ -92,7 +92,7 @@ public class SyntaxParser {
             }
         }
         // Let's not loop over the same elements again
-        Collection<ExpressionInfo<?, ?>> remainingExpressions = SyntaxManager.getInstance().getAllExpressions();
+        Collection<ExpressionInfo<?, ?>> remainingExpressions = SyntaxManager.getAllExpressions();
         remainingExpressions.removeAll(recentExpressions);
         for (ExpressionInfo<?, ?> info : remainingExpressions) {
             if (info.getReturnType().getType().getTypeClass() != Boolean.class)
@@ -121,7 +121,7 @@ public class SyntaxParser {
             }
         }
         // Let's not loop over the same elements again
-        Collection<SyntaxInfo<? extends Effect>> remainingEffects = SyntaxManager.getInstance().getEffects();
+        Collection<SyntaxInfo<? extends Effect>> remainingEffects = SyntaxManager.getEffects();
         remainingEffects.removeAll(recentEffects);
         for (SyntaxInfo<? extends Effect> info : remainingEffects) {
             Effect effect = matchEffectInfo(s, info);
