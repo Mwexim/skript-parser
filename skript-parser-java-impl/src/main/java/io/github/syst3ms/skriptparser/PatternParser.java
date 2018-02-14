@@ -137,7 +137,7 @@ public class PatternParser {
                     return null;
                 } else {
                     boolean nullable = m.group(1) != null;
-                    ExpressionElement.Acceptance acceptance = ExpressionElement.Acceptance.BOTH;
+                    ExpressionElement.Acceptance acceptance = ExpressionElement.Acceptance.ALL;
                     if (m.group(2) != null) {
                         String acc = m.group(2);
                         if (acc.equals("~")) {

@@ -70,7 +70,7 @@ public class PatternParserTest {
         assertEquals(
                 new ExpressionElement(
                         Collections.singletonList(TypeManager.getPatternType("number")),
-                        ExpressionElement.Acceptance.BOTH,
+                        ExpressionElement.Acceptance.ALL,
                         false
                 ),
                 parser.parsePattern("%number%")

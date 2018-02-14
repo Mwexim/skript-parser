@@ -98,8 +98,8 @@ public class SkriptParser {
                     possibilities.addAll(getPossibleInputs(flatten(choice.getElement())));
                 }
                 return possibilities;
-            } else if (element instanceof ExpressionElement) { // Can't do much about this
-                possibilities.add(new RegexGroup(Pattern.compile(".+")));
+            } else if (element instanceof ExpressionElement) { // TODO handle in ExpressionElement
+                possibilities.add(element);
                 return possibilities;
             } else if (element instanceof OptionalGroup) {
                 possibilities.addAll(getPossibleInputs(flatten(((OptionalGroup) element).getElement())));
