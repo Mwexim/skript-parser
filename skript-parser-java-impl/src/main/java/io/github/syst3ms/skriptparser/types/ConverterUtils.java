@@ -4,6 +4,7 @@ import com.sun.istack.internal.Nullable;
 
 import java.util.function.Function;
 
+@SuppressWarnings("unchecked")
 public class ConverterUtils {
 
 	public static <F, T> Function<?, ? extends T> createInstanceofConverter(final Converters.ConverterInfo<F, T> conv) {

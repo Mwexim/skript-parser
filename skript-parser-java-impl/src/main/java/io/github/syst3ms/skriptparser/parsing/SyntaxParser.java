@@ -65,11 +65,11 @@ public class SyntaxParser {
                     T literal = (T) literalParser.apply(s);
                     if (literal != null) {
                         return new Literal<>(typeClass, literal);
-                    } else if (expectedType.getType().getTypeClass() == String.class) {
-                        VariableString vs = VariableString.newInstanceWithQuotes(s);
-                        if (vs != null) {
-                            return (Expression<? extends T>) vs;
-                        }
+                    }
+                } else if (expectedType.getType().getTypeClass() == String.class) {
+                    VariableString vs = VariableString.newInstanceWithQuotes(s);
+                    if (vs != null) {
+                        return (Expression<? extends T>) vs;
                     }
                 }
             }

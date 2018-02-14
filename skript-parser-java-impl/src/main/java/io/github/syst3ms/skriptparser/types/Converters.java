@@ -45,10 +45,10 @@ public abstract class Converters {
 	}
 
 	public final static class ConverterInfo<F, T> {
-		public final Class<F> from;
-		public final Class<T> to;
-		public final Function<F, T> converter;
-		public final int options;
+		private final Class<F> from;
+		private final Class<T> to;
+		private final Function<F, T> converter;
+		private final int options;
 
 		public ConverterInfo(final Class<F> from, final Class<T> to, final Function<F, T> converter, final int options) {
 			this.from = from;
@@ -57,6 +57,21 @@ public abstract class Converters {
 			this.options = options;
 		}
 
+		public Class<F> getFrom() {
+			return from;
+		}
+
+		public Class<T> getTo() {
+			return to;
+		}
+
+		public Function<F, T> getConverter() {
+			return converter;
+		}
+
+		public int getOptions() {
+			return options;
+		}
 	}
 
 	@SuppressWarnings("unchecked")

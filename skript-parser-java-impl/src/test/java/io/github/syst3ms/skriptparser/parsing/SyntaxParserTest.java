@@ -63,9 +63,7 @@ public class SyntaxParserTest {
         registration.addType(
                 String.class,
                 "string",
-                "string¦s",
-                StringUtils::parseConstantString,
-                s -> s.replaceAll("\\\\(.)", "$1")
+                "string¦s"
         );
         registration.register();
         registration.addExpression(
