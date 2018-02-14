@@ -23,6 +23,20 @@ public class ConvertedExpression<F, T> implements Expression<T>, DynamicNumberEx
 		this.converter = converter;
 	}
 
+	public static <F, T> ConvertedExpression<F, T> newInstance(final Expression<F> v, Class<T>... to) {
+		for (final Class<T> c : to) {
+			assert c != null;
+			// casting <? super ? extends F> to <? super F> is wrong, but since the converter is only used for values returned by the expression
+			// (which are instances of "<? extends F>") this won't result in any ClassCastExceptions.
+			@SuppressWarnings("unchecked")
+			final Function<? super F, ? extends T> conv = (Function<? super F, ? extends T>) Converters.getConverter(Expressions.getReturnType(v), c);
+			if (conv == null)
+				continue;
+			return new ConvertedExpression<>(v, c, conv);
+		}
+		return null;
+	}
+
 	@Override
 	public T[] getValues(Event e) {
 		return Converters.convert(source.getValues(e), to, converter);
@@ -30,7 +44,7 @@ public class ConvertedExpression<F, T> implements Expression<T>, DynamicNumberEx
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
-		return false;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -53,6 +67,10 @@ public class ConvertedExpression<F, T> implements Expression<T>, DynamicNumberEx
 	@Override
 	public boolean isLoopOf(String loop) {
 		return false;
+	}
+
+	public Expression<? extends F> getSource() {
+		return source;
 	}
 
 	@Override

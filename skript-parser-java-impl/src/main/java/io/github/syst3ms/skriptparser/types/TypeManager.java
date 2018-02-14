@@ -10,6 +10,7 @@ import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -22,7 +23,7 @@ public class TypeManager {
     public static final String EMPTY_REPRESENTATION = "<empty>";
     private static final TypeManager instance = new TypeManager();
     private static Map<String, Type<?>> nameToType = new HashMap<>();
-    private static Map<Class<?>, Type<?>> classToType = new HashMap<>();
+    private static Map<Class<?>, Type<?>> classToType = new LinkedHashMap<>(); // Ordering is important for stuff like number types
 
     private TypeManager(){}
 

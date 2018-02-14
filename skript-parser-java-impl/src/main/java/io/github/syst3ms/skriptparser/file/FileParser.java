@@ -46,25 +46,6 @@ public class FileParser {
         return elements;
     }
 
-    /*
-    // Remember, CodeSection extends Effect
-    public List<Effect> parseFileSyntaxes(List<FileElement> fileElements) {
-        List<Effect> effects = new ArrayList<>();
-        for (FileElement fileElement : fileElements) {
-            if (fileElement instanceof SimpleFileLine) {
-                Effect eff = Effect.parse((SimpleFileLine) fileElement);
-                if (eff == null) {
-                    error("Can't understand this effect : '" + eff);
-                }
-                effects.add(eff);
-            } else {
-                effects.add();
-            }
-        }
-        return effects;
-    }
-    */
-
     private void error(String error) {
         // TODO
     }

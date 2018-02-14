@@ -146,7 +146,8 @@ public class VariableString implements Expression<String> {
 				sb.append(o);
 			} else {
 				assert o instanceof Expression;
-				ExpressionInfo<?, ?> exprInfo = Expressions.getExpressionExact(o.getClass());
+				ExpressionInfo<?, ?> exprInfo = Expressions.getExpressionExact((Expression<?>) o);
+				assert exprInfo != null;
 				sb.append("<").append(exprInfo.getReturnType().toString()).append(">");
 			}
 		}

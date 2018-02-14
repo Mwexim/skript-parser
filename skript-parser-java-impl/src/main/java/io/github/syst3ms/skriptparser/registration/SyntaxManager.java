@@ -49,7 +49,7 @@ public class SyntaxManager {
         return expressions.getAllValues();
     }
 
-    public static  <T> List<ExpressionInfo<?, ?>> getExpressionsByReturnType(Class<? extends T> c) {
+    public static <T> List<ExpressionInfo<?, ?>> getExpressionsByReturnType(Class<? extends T> c) {
         List<ExpressionInfo<?, ?>> infos = new ArrayList<>();
         for (Class<?> returnType : expressions.keySet()) {
             if (returnType.isAssignableFrom(c)) {

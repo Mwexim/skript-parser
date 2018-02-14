@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
+import io.github.syst3ms.skriptparser.lang.interfaces.ConvertibleExpression;
 import io.github.syst3ms.skriptparser.lang.interfaces.DynamicNumberExpression;
 import io.github.syst3ms.skriptparser.lang.interfaces.LoopableExpression;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
@@ -27,7 +28,7 @@ public class Expressions {
 		} else if (expr instanceof ConvertedExpression) {
 			return ((ConvertedExpression) expr).getReturnType();
 		} else {
-			ExpressionInfo info = getExpressionExact(expr.getClass());
+			ExpressionInfo info = getExpressionExact(expr);
 			if (info == null) {
 				assert false;
 				return Object.class;
@@ -36,9 +37,14 @@ public class Expressions {
 		}
 	}
 
-	public static ExpressionInfo<?, ?> getExpressionExact(Class<?> c) {
-		Collection<ExpressionInfo<?, ?>> infos = SyntaxManager.getAllExpressions();
-		for (ExpressionInfo<?, ?> info : infos) {
+	public static ExpressionInfo<?, ?> getExpressionExact(Expression<?> expr) {
+		Class<?> c;
+		if (expr instanceof ConvertedExpression) {
+			c = ((ConvertedExpression) expr).getSource().getClass();
+		} else {
+			c = expr.getClass();
+		}
+		for (ExpressionInfo<?, ?> info : SyntaxManager.getAllExpressions()) {
 			if (info.getSyntaxClass() == c) {
 				return info;
 			}
@@ -65,6 +71,14 @@ public class Expressions {
 			return ((LoopableExpression<T>) expr).iterator(e);
 		} else {
 			return CollectionUtils.iterator(expr.getValues(e));
+		}
+	}
+
+	public static <F, T> Expression<?> convertExpression(Expression<F> expression, Class<T>... to) {
+		if (expression instanceof ConvertibleExpression) {
+			return ((ConvertibleExpression) expression).getConvertedExpression(to);
+		} else {
+			return ConvertedExpression.newInstance(expression, to);
 		}
 	}
 }
