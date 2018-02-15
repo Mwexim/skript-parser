@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.interfaces.DynamicNumberExpression;
 import io.github.syst3ms.skriptparser.lang.interfaces.LoopableExpression;
+import io.github.syst3ms.skriptparser.lang.interfaces.SourcedExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.util.Expressions;
 
@@ -12,17 +13,18 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
-public class ConvertedExpression<F, T> implements Expression<T>, DynamicNumberExpression, LoopableExpression<T> {
+public class ConvertedExpression<F, T> implements Expression<T>, DynamicNumberExpression, LoopableExpression<T>, SourcedExpression {
 	private Expression<? extends F> source;
 	private Class<T> to;
 	private Function<? super F, ? extends T> converter;
 
-	private ConvertedExpression(Expression<? extends F> source, Class<T> to, Function<? super F, ? extends T> converter) {
+	ConvertedExpression(Expression<? extends F> source, Class<T> to, Function<? super F, ? extends T> converter) {
 		this.source = source;
 		this.to = to;
 		this.converter = converter;
 	}
 
+	@SafeVarargs
 	public static <F, T> ConvertedExpression<F, T> newInstance(final Expression<F> v, Class<T>... to) {
 		for (final Class<T> c : to) {
 			assert c != null;
@@ -69,6 +71,7 @@ public class ConvertedExpression<F, T> implements Expression<T>, DynamicNumberEx
 		return false;
 	}
 
+	@Override
 	public Expression<? extends F> getSource() {
 		return source;
 	}

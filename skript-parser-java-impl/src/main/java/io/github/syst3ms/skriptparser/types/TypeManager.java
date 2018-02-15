@@ -1,13 +1,6 @@
 package io.github.syst3ms.skriptparser.types;
 
-import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.Literal;
-import io.github.syst3ms.skriptparser.lang.Variable;
-import io.github.syst3ms.skriptparser.lang.VariableString;
-import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
-import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
-import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;

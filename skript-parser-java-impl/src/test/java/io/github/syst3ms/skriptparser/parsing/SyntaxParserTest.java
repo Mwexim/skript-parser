@@ -2,11 +2,10 @@ package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.Literal;
+import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.types.TypeManager;
-import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -95,8 +94,8 @@ public class SyntaxParserTest {
     @Test
     public void parseExpression() {
         PatternType<Number> numberType = new PatternType<>(TypeManager.getByClassExact(Number.class), false);
-        assertExpressionEquals(new Literal<>(Long.class, 2L), SyntaxParser.parseExpression("2", numberType));
-        assertExpressionEquals(new Literal<>(Double.class, 4.0d),
+        assertExpressionEquals(new SimpleLiteral<>(Long.class, 2L), SyntaxParser.parseExpression("2", numberType));
+        assertExpressionEquals(new SimpleLiteral<>(Double.class, 4.0d),
                 SyntaxParser.parseExpression("the number 2 squared", numberType)
         );
         int expectedInt = SyntaxParser.parseExpression("random integer between 0 and 10", numberType)
@@ -109,16 +108,20 @@ public class SyntaxParserTest {
         assertTrue(9.9999 + Double.MIN_VALUE <= expectedDouble && expectedDouble <= 10 - Double.MIN_VALUE);
         PatternType<String> stringType = new PatternType<>(TypeManager.getByClassExact(String.class), false);
         assertExpressionEquals(
-                new Literal<>(String.class, "Hello"),
+                new SimpleLiteral<>(String.class, "Hello"),
                 SyntaxParser.parseExpression("substring \"Hello\" from 0 to 5", stringType)
         );
         assertExpressionEquals(
-                new Literal<>(String.class, "Hello, I am \"raw\""),
+                new SimpleLiteral<>(String.class, "Hello, I am \"raw\""),
                 SyntaxParser.parseExpression("substring R\"$(Hello, I am \"raw\")$\" from 0 to 17", stringType)
         );
         assertExpressionEquals(
-                new Literal<>(String.class, "I am \"raw\" too !"),
+                new SimpleLiteral<>(String.class, "I am \"raw\" too !"),
                 SyntaxParser.parseExpression("substring 'I am \"raw\" too !' from 0 to 16", stringType)
+        );
+        assertExpressionEquals(
+            new SimpleLiteral<>(Number.class, 1L, 2L, 3L),
+            SyntaxParser.parseExpression("1, 2 and 3", new PatternType<>(TypeManager.getByClass(Number.class), false))
         );
     }
 

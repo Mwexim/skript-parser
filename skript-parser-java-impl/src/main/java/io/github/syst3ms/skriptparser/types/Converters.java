@@ -39,7 +39,6 @@ public abstract class Converters {
 
 	private static List<ConverterInfo<?, ?>> converters = new ArrayList<>(50);
 
-	@SuppressWarnings("null")
 	public static List<ConverterInfo<?, ?>> getConverters() {
 		return Collections.unmodifiableList(converters);
 	}

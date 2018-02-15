@@ -2,25 +2,25 @@ package io.github.syst3ms.skriptparser.util;
 
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.Literal;
+import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
 import io.github.syst3ms.skriptparser.lang.interfaces.ConvertibleExpression;
 import io.github.syst3ms.skriptparser.lang.interfaces.DynamicNumberExpression;
 import io.github.syst3ms.skriptparser.lang.interfaces.LoopableExpression;
+import io.github.syst3ms.skriptparser.lang.interfaces.SourcedExpression;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 import io.github.syst3ms.skriptparser.types.ConvertedExpression;
 
-import java.util.Collection;
 import java.util.Iterator;
 
 public class Expressions {
 
 	public static <T> Class<?> getReturnType(Expression<? extends T> expr) {
-		if (expr instanceof Literal) {
-			return ((Literal<?>) expr).getReturnType();
+		if (expr instanceof SimpleLiteral) {
+			return ((SimpleLiteral<?>) expr).getReturnType();
 		} else if (expr instanceof Variable) {
 			return ((Variable<?>) expr).getReturnType();
 		} else if (expr instanceof VariableString) {
@@ -39,8 +39,8 @@ public class Expressions {
 
 	public static ExpressionInfo<?, ?> getExpressionExact(Expression<?> expr) {
 		Class<?> c;
-		if (expr instanceof ConvertedExpression) {
-			c = ((ConvertedExpression) expr).getSource().getClass();
+		if (expr instanceof SourcedExpression) {
+			c = ((SourcedExpression) expr).getSource().getClass();
 		} else {
 			c = expr.getClass();
 		}

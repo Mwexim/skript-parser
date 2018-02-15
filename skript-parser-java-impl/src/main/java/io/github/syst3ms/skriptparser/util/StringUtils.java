@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtils {
-    public static final Pattern R_LITERAL_CONTENT_PATTERN = Pattern.compile("^(.+?)\\((.+)\\)\\1$"); // It's actually rare to be able to use '.+' raw like this
+    public static final Pattern R_LITERAL_CONTENT_PATTERN = Pattern.compile("(.+?)\\((.+)\\)\\1"); // It's actually rare to be able to use '.+' raw like this
 
     public static int count(String s, String... toFind) {
         int count = 0;
@@ -29,7 +29,7 @@ public class StringUtils {
         return sb.toString();
     }
 
-    public static String getEnclosedText(String pattern, char opening, char closing, int start) {
+    public static int findClosingIndex(String pattern, char opening, char closing, int start) {
         int n = 0;
         for (int i = start; i < pattern.length(); i++) {
             char c = pattern.charAt(i);
@@ -38,13 +38,71 @@ public class StringUtils {
             } else if (c == closing) {
                 n--;
                 if (n == 0) {
-                    return pattern.substring(start + 1, i); // We don't want the beginning bracket in there
+                    return i;
                 }
             } else if (c == opening) {
                 n++;
             }
         }
-        return null;
+        return -1;
+    }
+
+    public static String getEnclosedText(String pattern, char opening, char closing, int start) {
+        int closingBracket = findClosingIndex(pattern, opening, closing, start);
+        if (closingBracket == -1) {
+            return null;
+        } else {
+            return pattern.substring(start + 1, closingBracket);
+        }
+    }
+
+    /**
+     * Returns the next character in the string, skipping over brackets and string literals
+     * @param s the string  to search
+     * @param index the current index
+     * @return the index of the next "simple" character, or -1 if the end of the string has been reached
+     * @throws StringIndexOutOfBoundsException if {@code index < 0}
+     */
+    public static int nextSimpleCharacterIndex(String s, int index) {
+        if (index < 0)
+            throw new StringIndexOutOfBoundsException(index);
+        char[] chars = s.toCharArray();
+        for (int i = index; i < chars.length; i++) {
+            char c = chars[i];
+            if (c == '\\') {
+                if (i == chars.length - 1)
+                    return -1;
+                return i + 1;
+            } else if (c == '(') {
+                int closing = findClosingIndex(s, '(', ')', i);
+                if (closing == -1)
+                    return -1;
+                i = closing;
+            } else if (c == '{') {
+                int closing = findClosingIndex(s, '{', '}', i);
+                if (closing == -1)
+                    return -1;
+                i = closing;
+            } else if (c == '"') {
+                int closing = findClosingIndex(s, '"', '"', i);
+                if (closing == -1)
+                    return -1;
+                i = closing;
+            } else if (c == '\'') {
+                int closing = findClosingIndex(s, '\'', '\'', i);
+                if (closing == -1)
+                    return -1;
+                i = closing;
+            } else if (c == 'R' && i < s.length() - 2 && chars[i + 1] == '"') {
+                Matcher m = R_LITERAL_CONTENT_PATTERN.matcher(s).region(i + 2, s.length());
+                if (!m.lookingAt())
+                    return -1;
+                i = m.end() + 1;
+            } else {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public static String getPercentContent(String s, int start) {
@@ -53,11 +111,10 @@ public class StringUtils {
             if (c == '\\') {
                 i++;
             } else if (c == '{') { // We must ignore variable content
-                String content = getEnclosedText(s, '{', '}', i);
-                if (content == null) {
+                int closing = findClosingIndex(s, '{', '}', i);
+                if (closing == -1)
                     return null;
-                }
-                i += content.length() + 1;
+                i += closing;
             } else if (c == '%') {
                 return s.substring(start, i);
             } else if (c == '}') { // We normally skip over these, this must be an error
@@ -71,8 +128,8 @@ public class StringUtils {
         return haystack.toLowerCase().startsWith(needle.toLowerCase());
     }
 
-    public static boolean endsWithIgnoreCase(String haystack, String needle) {
-        return haystack.toLowerCase().endsWith(needle.toLowerCase());
+    public static boolean containsIgnoreCase(String haystack, String needle) {
+        return haystack.toLowerCase().contains(needle.toLowerCase());
     }
 
     public static String fixEncoding(String s) {
@@ -117,71 +174,5 @@ public class StringUtils {
         for (int i = 0; i < pluralized.length; i++)
             pluralized[i] = pluralized[i].trim();
         return pluralized;
-    }
-
-    /**
-     * Parses a string literal. Supports the following formats :
-     * <ul>
-     *     <li>Plain old string literal, <strong>characters are escaped using \\</strong></li>
-     *     <li>Simple quote raw literal, only simple quotes can be escaped, all the rest corresponds to raw text</li>
-     *     <li>C-style R-literals, see definition (among other string literals') <a href="http://en.cppreference.com/w/cpp/language/string_literal">here</a></li>
-     * </ul>
-     * "Constant" as in "doesn't have variables" (VariableString will be a thing)
-     * @param s The string to parse
-     * @return the parsed {@link String}, or {@literal null}
-     */
-    public static String parseConstantString(String s) {
-        String parsed = parseSimpleString(s);
-        if (parsed == null) {
-            parsed = parseSimpleQuoteLiteral(s);
-            if (parsed == null) {
-                parsed = parseRRawLiteral(s);
-                if (parsed == null) {
-                    return null;
-                }
-            }
-        }
-        return parsed;
-    }
-
-
-    private static String parseSimpleString(String s) {
-        if (!s.startsWith("\"") || !s.endsWith("\""))
-            return null;
-        String withoutEscapes = s.replaceAll("\\\\.", "\0\0"); // Removing character escapes, let's not get bothered by quote escapes
-        int start = withoutEscapes.indexOf('"');
-        if (start == -1)
-            return null;
-        int end = withoutEscapes.indexOf('"', start + 1);
-        if (end == -1)
-            return null;
-        return s.substring(start + 1, end).replaceAll("\\\\(.)", "$1");
-    }
-
-    private static String parseSimpleQuoteLiteral(String s) {
-        if (!s.startsWith("'") || !s.endsWith("'"))
-            return null;
-        String withoutEscapes = s.replaceAll("\\\\'", "\0\0"); // Same thing, but we only have to worry about single quote escaping here
-        int start = withoutEscapes.indexOf('\'');
-        if (start == -1)
-            return null;
-        int end = withoutEscapes.indexOf('\'', start + 1);
-        if (end == -1)
-            return null;
-        return s.substring(start + 1, end).replaceAll("\\\\'", "'");
-    }
-
-    /**
-     * This is not a typo. This parses C-style "R-literals".
-     * Example : {@code R"delimiter(What are "escapes" ?)delimiter"} turns into {@literal What are "escapes" ?}
-     */
-    private static String parseRRawLiteral(String s) {
-        if (!s.startsWith("R\"") || !s.endsWith("\""))
-            return null;
-        String content = s.substring(2, s.length() - 1);
-        Matcher m = R_LITERAL_CONTENT_PATTERN.matcher(content);
-        if (!m.matches())
-            return null;
-        return m.group(2);
     }
 }

@@ -12,15 +12,16 @@ import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.lang.VariableString;
 import io.github.syst3ms.skriptparser.util.Expressions;
+import io.github.syst3ms.skriptparser.util.StringUtils;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @SuppressWarnings("unchecked")
 public class SyntaxParser {
+    public static final Pattern LIST_SPLIT_PATTERN = Pattern.compile("\\s*(,)\\s*|\\s+(and|or)\\s+", Pattern.CASE_INSENSITIVE);
     public static final PatternType<Boolean> BOOLEAN_PATTERN_TYPE = new PatternType<>((Type<Boolean>) TypeManager.getByClass(Boolean.class), true);
     public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class), true);
     private static final LinkedList<SyntaxInfo<? extends Effect>> recentEffects = new LinkedList<>();
@@ -52,7 +53,78 @@ public class SyntaxParser {
                 return expression;
             }
         }
+        if (!expectedType.isSingle()) {
+            Expression<? extends T> list = parseListLiteral(s, expectedType);
+            if (list != null)
+                return list;
+        }
         return null;
+    }
+
+    public static <T> Expression<? extends T> parseListLiteral(String s, PatternType<T> expectedType) {
+        assert !expectedType.isSingle();
+        List<String> parts = new ArrayList<>();
+        Matcher m = LIST_SPLIT_PATTERN.matcher(s);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i + 1)) {
+            if (i == -1)
+                break;
+            char c = s.charAt(i);
+            if (c == ' ' || c == ',') {
+                m.region(i, s.length());
+                if (m.lookingAt()) {
+                    if (sb.length() == 0)
+                        return null;
+                    parts.add(sb.toString());
+                    parts.add(m.group());
+                    sb.setLength(0);
+                    i = m.end() - 1;
+                }
+            } else {
+                sb.append(c);
+            }
+        }
+        if (sb.length() > 0)
+            parts.add(sb.toString());
+        Boolean isAndList = null; // Hello nullable booleans, it had been a pleasure NOT using you
+        for (int i = 0; i < parts.size(); i++) {
+            if ((i & 1) == 1) { // Odd index == separator
+                String separator = parts.get(i);
+                if (StringUtils.containsIgnoreCase(separator, "and")) {
+                    isAndList = true;
+                } else if (StringUtils.containsIgnoreCase(separator, "or")) {
+                    isAndList = isAndList != null && isAndList;
+                }
+            }
+        }
+        isAndList = isAndList == null || isAndList; // Defaults to true
+        List<Expression<? extends T>> expressions = new ArrayList<>();
+        boolean isLiteralList = true;
+        for (int i = 0; i < parts.size(); i++) {
+            if ((i & 1) == 0) { // Even index == element
+                String part = parts.get(i);
+                Expression<? extends T> expression = parseExpression(part, expectedType);
+                if (expression == null)
+                    return null;
+                isLiteralList &= expression instanceof SimpleLiteral;
+                expressions.add(expression);
+            }
+        }
+        if (expressions.size() == 1)
+            return expressions.get(0);
+        if (isLiteralList) {
+            return new LiteralList<>(
+                expressions.toArray(new Literal[expressions.size()]),
+                expectedType.getType().getTypeClass(),
+                isAndList
+            );
+        } else {
+            return new ExpressionList<>(
+                expressions.toArray(new Expression[expressions.size()]),
+                expectedType.getType().getTypeClass(),
+                isAndList
+            );
+        }
     }
 
     public static <T> Expression<? extends T> parseLiteral(String s, PatternType<T> expectedType) {
@@ -64,7 +136,7 @@ public class SyntaxParser {
                 if (literalParser != null) {
                     T literal = (T) literalParser.apply(s);
                     if (literal != null) {
-                        return new Literal<>(typeClass, literal);
+                        return new SimpleLiteral<>(typeClass, literal);
                     }
                 } else if (expectedType.getType().getTypeClass() == String.class) {
                     VariableString vs = VariableString.newInstanceWithQuotes(s);
@@ -179,9 +251,9 @@ public class SyntaxParser {
     public static Expression<Boolean> parseBooleanExpression(String s, boolean shouldNotBeConditional) {
         // I swear this is the cleanest way to do it
         if (s.equalsIgnoreCase("true")) {
-            return new Literal<>(Boolean.class, true);
+            return new SimpleLiteral<>(Boolean.class, true);
         } else if (s.equalsIgnoreCase("false")) {
-            return new Literal<>(Boolean.class, false);
+            return new SimpleLiteral<>(Boolean.class, false);
         }
         for (ExpressionInfo<?, ?> info : recentExpressions) {
             if (info.getReturnType().getType().getTypeClass() != Boolean.class)

@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.pattern;
 
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.Literal;
+import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
@@ -185,10 +185,10 @@ public class ExpressionElement implements PatternElement {
                 case ALL:
                     break;
                 case EXPRESSIONS_ONLY:
-                    if (expression instanceof Literal) return null;
+                    if (expression instanceof SimpleLiteral) return null;
                     break;
                 case LITERALS_ONLY:
-                    if (expression instanceof VariableString && !((VariableString) expression).isSimple() || !(expression instanceof Literal)) {
+                    if (expression instanceof VariableString && !((VariableString) expression).isSimple() || !(expression instanceof SimpleLiteral)) {
                         return null;
                     }
                     break;
