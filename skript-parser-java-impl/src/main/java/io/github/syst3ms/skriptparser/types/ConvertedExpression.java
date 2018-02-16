@@ -2,23 +2,19 @@ package io.github.syst3ms.skriptparser.types;
 
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.interfaces.DynamicNumberExpression;
-import io.github.syst3ms.skriptparser.lang.interfaces.LoopableExpression;
-import io.github.syst3ms.skriptparser.lang.interfaces.SourcedExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
-import io.github.syst3ms.skriptparser.util.Expressions;
 
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
-public class ConvertedExpression<F, T> implements Expression<T>, DynamicNumberExpression, LoopableExpression<T>, SourcedExpression {
+public class ConvertedExpression<F, T> implements Expression<T> {
 	private Expression<? extends F> source;
 	private Class<T> to;
 	private Function<? super F, ? extends T> converter;
 
-	ConvertedExpression(Expression<? extends F> source, Class<T> to, Function<? super F, ? extends T> converter) {
+	private ConvertedExpression(Expression<? extends F> source, Class<T> to, Function<? super F, ? extends T> converter) {
 		this.source = source;
 		this.to = to;
 		this.converter = converter;
@@ -31,7 +27,7 @@ public class ConvertedExpression<F, T> implements Expression<T>, DynamicNumberEx
 			// casting <? super ? extends F> to <? super F> is wrong, but since the converter is only used for values returned by the expression
 			// (which are instances of "<? extends F>") this won't result in any ClassCastExceptions.
 			@SuppressWarnings("unchecked")
-			final Function<? super F, ? extends T> conv = (Function<? super F, ? extends T>) Converters.getConverter(Expressions.getReturnType(v), c);
+			final Function<? super F, ? extends T> conv = (Function<? super F, ? extends T>) Converters.getConverter(v.getReturnType(), c);
 			if (conv == null)
 				continue;
 			return new ConvertedExpression<>(v, c, conv);
@@ -52,13 +48,13 @@ public class ConvertedExpression<F, T> implements Expression<T>, DynamicNumberEx
 	@Override
 	public String toString(Event e, boolean debug) {
 		if (debug && e == null)
-			return "(" + source.toString(null, true) + " >> " + converter + ": " + Expressions.getReturnType(source).getName() + "->" + to.getName() + ")";
+			return "(" + source.toString(null, true) + " >> " + converter + ": " + source.getReturnType().getName() + "->" + to.getName() + ")";
 		return source.toString(e, debug);
 	}
 
 	@Override
 	public boolean isSingle() {
-		return Expressions.isSingle(source);
+		return source.isSingle();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -78,7 +74,7 @@ public class ConvertedExpression<F, T> implements Expression<T>, DynamicNumberEx
 
 	@Override
 	public Iterator<? extends T> iterator(Event event) {
-		Iterator<? extends F> sourceIterator = Expressions.iterator(source, event);
+		Iterator<? extends F> sourceIterator = source.iterator(event);
 		if (sourceIterator == null)
 			return Collections.emptyIterator();
 		return new Iterator<T>() {

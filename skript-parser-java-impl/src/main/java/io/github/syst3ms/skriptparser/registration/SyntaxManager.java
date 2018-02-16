@@ -1,9 +1,7 @@
 package io.github.syst3ms.skriptparser.registration;
 
-import io.github.syst3ms.skriptparser.lang.interfaces.DynamicNumberExpression;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 
 import java.util.ArrayList;
@@ -19,10 +17,6 @@ public class SyntaxManager {
     private static List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
 
     private SyntaxManager() {
-    }
-
-    public static SyntaxManager getInstance() {
-        return instance;
     }
 
     public static void register(SkriptRegistration reg) {
@@ -57,6 +51,17 @@ public class SyntaxManager {
             }
         }
         return infos;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E extends Expression<T>, T> ExpressionInfo<E, T> getExpressionExact(Expression<T> expr) {
+        Class<?> c = expr.getSource().getClass();
+        for (ExpressionInfo<?, ?> info : SyntaxManager.getAllExpressions()) {
+            if (info.getSyntaxClass() == c) {
+                return (ExpressionInfo<E, T>) info;
+            }
+        }
+        return null;
     }
 
     public static Collection<SyntaxInfo<? extends Effect>> getEffects() {

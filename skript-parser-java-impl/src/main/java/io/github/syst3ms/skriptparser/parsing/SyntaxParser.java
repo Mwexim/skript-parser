@@ -1,20 +1,28 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.lang.*;
+import io.github.syst3ms.skriptparser.lang.CodeSection;
+import io.github.syst3ms.skriptparser.lang.Effect;
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.ExpressionList;
+import io.github.syst3ms.skriptparser.lang.Literal;
+import io.github.syst3ms.skriptparser.lang.LiteralList;
+import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
+import io.github.syst3ms.skriptparser.lang.VariableString;
 import io.github.syst3ms.skriptparser.lang.interfaces.ConditionalExpression;
-import io.github.syst3ms.skriptparser.lang.interfaces.DynamicNumberExpression;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
-import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
+import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
-import io.github.syst3ms.skriptparser.lang.VariableString;
-import io.github.syst3ms.skriptparser.util.Expressions;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -185,11 +193,6 @@ public class SyntaxParser {
             PatternElement element = patterns.get(i);
             SkriptParser parser = new SkriptParser(element);
             if (element.match(s, 0, parser) != -1) {
-                if (!DynamicNumberExpression.class.isAssignableFrom(info.getSyntaxClass()) &&
-                    !returnType.isSingle() &&
-                    expectedType.isSingle()) {
-                    continue;
-                }
                 try {
                     Expression<? extends T> expression = (Expression<? extends T>) info.getSyntaxClass().newInstance();
                     expression.init(
@@ -198,17 +201,16 @@ public class SyntaxParser {
                         parser.toParseResult()
                     );
                     Class<?> returnTypeClass = returnType.getType().getTypeClass();
-                    Class<?> exprReturnType = Expressions.getReturnType(expression);
+                    Class<?> exprReturnType = expression.getReturnType();
                     if (!returnTypeClass.isAssignableFrom(exprReturnType)) {
-                        Expression<?> converted = Expressions.convertExpression(expression, returnTypeClass);
+                        Expression<?> converted = expression.convertExpression(returnTypeClass);
                         if (converted != null) {
                             return (Expression<? extends T>) converted;
                         } else {
                             error("Unmatching return types : expected " + returnTypeClass.getName() + " or subclass, but only found " + exprReturnType.getName());
                         }
                     }
-                    if (DynamicNumberExpression.class.isAssignableFrom(expression.getClass()) &&
-                        !((DynamicNumberExpression) expression).isSingle() &&
+                    if (!expression.isSingle() &&
                         expectedType.isSingle()) {
                         error("Expected a single value, but multiple were given");
                         continue;

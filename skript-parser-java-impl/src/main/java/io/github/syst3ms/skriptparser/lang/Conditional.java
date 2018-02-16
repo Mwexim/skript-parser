@@ -7,6 +7,7 @@ public class Conditional extends CodeSection {
     private ConditionalMode mode;
     private Expression<Boolean> condition;
     private Conditional fallingClause;
+
     public Conditional(FileSection section, Expression<Boolean> condition, ConditionalMode mode) {
         super(section);
         this.condition = condition;
@@ -46,17 +47,5 @@ public class Conditional extends CodeSection {
         return mode.name().toLowerCase().replace('_', ' ') + " " + condition.toString(e, debug);
     }
 
-    public enum ConditionalMode {
-        IF,
-        ELSE_IF,
-        ELSE;
-
-        public boolean hasIf() {
-            return this == IF || this == ELSE_IF;
-        }
-
-        public boolean hasElse() {
-            return this == ELSE_IF || this == ELSE;
-        }
-    }
+    public enum ConditionalMode { IF, ELSE_IF, ELSE }
 }

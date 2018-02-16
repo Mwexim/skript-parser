@@ -1,19 +1,17 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.event.Event;
-import io.github.syst3ms.skriptparser.lang.interfaces.ConvertibleExpression;
-import io.github.syst3ms.skriptparser.lang.interfaces.DynamicNumberExpression;
-import io.github.syst3ms.skriptparser.lang.interfaces.ListExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
-import io.github.syst3ms.skriptparser.types.*;
+import io.github.syst3ms.skriptparser.types.ClassUtils;
+import io.github.syst3ms.skriptparser.types.Converters;
+import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 
 import java.lang.reflect.Array;
-import java.util.Collections;
 import java.util.Iterator;
 
 @SuppressWarnings("unchecked")
-public class SimpleLiteral<T> implements Literal<T>, ListExpression<T> {
+public class SimpleLiteral<T> implements Literal<T> {
     private T[] values;
     private boolean isAndList = true;
     private Class<T> returnType;
@@ -86,9 +84,10 @@ public class SimpleLiteral<T> implements Literal<T>, ListExpression<T> {
         }
     }
 
-    public <R> SimpleLiteral<? extends R> getConvertedExpression(final Class<R>... to) {
+    @Override
+    public <R> Expression<R> convertExpression(Class<R>[] to) {
         if (CollectionUtils.containsSuperclass(to, getReturnType()))
-            return (SimpleLiteral<? extends R>) this;
+            return (SimpleLiteral<R>) this;
         Class<R> superType = (Class<R>) ClassUtils.getCommonSuperclass(to);
         R[] converted = Converters.convertArray(values, to, superType);
         if (converted.length != values.length)

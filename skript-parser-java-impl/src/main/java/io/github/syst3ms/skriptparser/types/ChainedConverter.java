@@ -19,8 +19,6 @@
  */
 package io.github.syst3ms.skriptparser.types;
 
-import io.github.syst3ms.skriptparser.types.Converters;
-
 import java.util.function.Function;
 
 /**
@@ -45,7 +43,7 @@ public final class ChainedConverter<F, M, T> implements Function<F, T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public final static <F, M, T> ChainedConverter<F, M, T> newInstance(final Function<? super F, ?> first, final Function<?, ? extends T> second) {
+	public static <F, M, T> ChainedConverter<F, M, T> newInstance(final Function<? super F, ?> first, final Function<?, ? extends T> second) {
 		return new ChainedConverter<>((Function<? super F, ? extends M>) first, (Function<? super M, ? extends T>) second);
 	}
 

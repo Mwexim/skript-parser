@@ -1,11 +1,8 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.event.Event;
-import io.github.syst3ms.skriptparser.lang.interfaces.ConvertibleExpression;
-import io.github.syst3ms.skriptparser.lang.interfaces.DynamicNumberExpression;
-import io.github.syst3ms.skriptparser.lang.interfaces.ListExpression;
 
-public interface Literal<T> extends NativeExpression<T> {
+public interface Literal<T> extends Expression<T> {
 	T[] getValues();
 
 	default T getSingle() {

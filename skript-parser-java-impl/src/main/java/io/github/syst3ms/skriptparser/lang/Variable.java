@@ -1,8 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.event.Event;
-import io.github.syst3ms.skriptparser.lang.interfaces.DynamicNumberExpression;
-import io.github.syst3ms.skriptparser.lang.interfaces.LoopableExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.ClassUtils;
@@ -12,7 +10,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
-public class Variable<T> implements Expression<T>, DynamicNumberExpression, LoopableExpression<T> {
+public class Variable<T> implements Expression<T> {
 	private final VariableString name;
 	private final boolean local;
 	private final boolean list;
@@ -89,7 +87,7 @@ public class Variable<T> implements Expression<T>, DynamicNumberExpression, Loop
 		return "{" + (local ? Variables.LOCAL_VARIABLE_TOKEN : "") + name.substring(1, name.length() - 1) + "}" + (debug ? "(as " + supertype.getSimpleName() + ")" : "");
 	}
 
-	public Class<?> getReturnType() {
-		return supertype;
+	public Class<? extends T> getReturnType() {
+		return (Class<? extends T>) supertype;
 	}
 }

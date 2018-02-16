@@ -9,6 +9,7 @@ import java.util.List;
 public abstract class CodeSection extends Effect {
     protected List<Effect> items;
     private Effect first;
+    private Effect last;
 
     private CodeSection() {}
 
@@ -19,7 +20,11 @@ public abstract class CodeSection extends Effect {
 
     public CodeSection(FileSection section) {
         items = ScriptLoader.loadItems(section);
+        for (Effect item : items) {
+            item.setParent(this);
+        }
         first = items.get(0);
+        last = items.get(items.size() - 1).setNext(getNext());
     }
 
     public List<Effect> getItems() {
@@ -28,5 +33,9 @@ public abstract class CodeSection extends Effect {
 
     protected final Effect getFirst() {
         return first == null ? getNext() : first;
+    }
+
+    protected final Effect getLast() {
+        return last == null ? getNext() : last;
     }
 }

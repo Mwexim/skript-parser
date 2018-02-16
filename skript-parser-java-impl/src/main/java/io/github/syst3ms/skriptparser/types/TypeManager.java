@@ -20,10 +20,6 @@ public class TypeManager {
 
     private TypeManager(){}
 
-    public static TypeManager getInstance() {
-        return instance;
-    }
-
     public static Map<Class<?>, Type<?>> getClassToTypeMap() {
         return classToType;
     }
