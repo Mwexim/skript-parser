@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.types.comparisons;
 
-import com.sun.istack.internal.Nullable;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import javafx.util.Pair;
 
@@ -43,7 +42,7 @@ public class Comparators {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static <F, S> Relation compare(final @Nullable F o1, final @Nullable S o2) {
+    public static <F, S> Relation compare(final F o1, final S o2) {
         if (o1 == null || o2 == null)
             return Relation.NOT_EQUAL;
         @SuppressWarnings("null")
@@ -62,7 +61,6 @@ public class Comparators {
     private final static Map<Pair<Class<?>, Class<?>>, Comparator<?, ?>> comparatorsQuickAccess = new HashMap<>();
 
     @SuppressWarnings("unchecked")
-    @Nullable
     public static <F, S> Comparator<? super F, ? super S> getComparator(final Class<F> f, final Class<S> s) {
         final Pair<Class<?>, Class<?>> p = new Pair<>(f, s);
         if (comparatorsQuickAccess.containsKey(p))
@@ -73,7 +71,6 @@ public class Comparators {
     }
 
     @SuppressWarnings("unchecked")
-    @Nullable
     private static <F, S> Comparator<?, ?> getComparator_i(final Class<F> f, final Class<S> s) {
 
         // perfect match
@@ -135,7 +132,6 @@ public class Comparators {
         @SuppressWarnings("rawtypes")
         private final Comparator c;
         @SuppressWarnings("rawtypes")
-        @Nullable
         private final Function c1, c2;
 
         public ConvertedComparator(final Function<? super T1, ?> c1, final Comparator<?, ?> c) {

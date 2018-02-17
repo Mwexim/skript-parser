@@ -33,7 +33,9 @@ public class TextElement implements PatternElement {
             return -1;
         }
         String substr = s.substring(i, i + trimmed.length());
-        if (substr.equalsIgnoreCase(trimmed)) {
+        if (index == 0 && trimmed.isEmpty()) {
+            return 0;
+        } else if (substr.equalsIgnoreCase(trimmed)) {
             return index + text.length(); // Let's not forget the spaces we removed earlier
         } else {
             return -1;

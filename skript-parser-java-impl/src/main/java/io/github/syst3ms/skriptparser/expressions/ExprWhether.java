@@ -7,7 +7,7 @@ import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.pattern.CompoundElement;
-import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
+import io.github.syst3ms.skriptparser.pattern.ExpressionElemen;
 import io.github.syst3ms.skriptparser.pattern.TextElement;
 
 import java.util.Collections;
@@ -25,7 +25,7 @@ public class ExprWhether implements Expression<Boolean> {
 		SkriptParser.setWhetherPattern(
 			new CompoundElement(
 				new TextElement("whether "),
-				new ExpressionElement(Collections.singletonList(SyntaxParser.BOOLEAN_PATTERN_TYPE), ExpressionElement.Acceptance.EXPRESSIONS_ONLY, false)
+				new ExpressionElemen(Collections.singletonList(SyntaxParser.BOOLEAN_PATTERN_TYPE), ExpressionElemen.Acceptance.EXPRESSIONS_ONLY, false)
 			)
 		);
 	}

@@ -22,12 +22,12 @@ import java.util.regex.Matcher;
  * <li>whether the expression resorts to default expressions or not, defaulting to {@literal null} instead</li>
  * </ul>
  */
-public class ExpressionElement implements PatternElement {
+public class ExpressionElemen implements PatternElement {
     private List<PatternType<?>> types;
     private Acceptance acceptance;
     private boolean nullable;
 
-    public ExpressionElement(List<PatternType<?>> types, Acceptance acceptance, boolean nullable) {
+    public ExpressionElemen(List<PatternType<?>> types, Acceptance acceptance, boolean nullable) {
         this.types = types;
         this.acceptance = acceptance;
         this.nullable = nullable;
@@ -38,7 +38,7 @@ public class ExpressionElement implements PatternElement {
         if (parser.getOriginalElement().equals(this))
             parser.advanceInPattern();
         PatternType<?>[] typeArray = types.toArray(new PatternType<?>[types.size()]);
-        if (s.charAt(index) == '(') {
+        if (index < s.length() && s.charAt(index) == '(') {
             String enclosed = StringUtils.getEnclosedText(s, '(', ')', index);
             /*
              * We don't want to return here, a single bracket could come from a syntax (albeit a stupid one)
@@ -57,7 +57,9 @@ public class ExpressionElement implements PatternElement {
         for (PatternElement possibleInput : possibleInputs) {
             if (possibleInput instanceof TextElement) {
                 String text = ((TextElement) possibleInput).getText();
-                if (text.equals("")) { // End of line
+                if (text.equals("\0")) { // End of line
+                    if (index == 0)
+                        return -1;
                     String toParse = s.substring(index);
                     Expression<?> expression = parse(toParse, parser.getOriginalElement(), typeArray);
                     if (expression != null) {
@@ -91,7 +93,7 @@ public class ExpressionElement implements PatternElement {
                     }
                 }
             } else {
-                assert possibleInput instanceof ExpressionElement;
+                assert possibleInput instanceof ExpressionElemen;
                 List<PatternElement> nextPossibleInputs = parser
                     .getPossibleInputs(flattened.subList(parser.getPatternIndex() + 1, flattened.size()));
                 if (nextPossibleInputs.stream()
@@ -175,7 +177,7 @@ public class ExpressionElement implements PatternElement {
             Expression<? extends T> expression;
             if (type.equals(SyntaxParser.BOOLEAN_PATTERN_TYPE)) {
                 // REMINDER : conditions call parseBooleanExpression straight away
-                expression = (Expression<? extends T>) SyntaxParser.parseBooleanExpression(s, originalPattern.equals(SkriptParser.WHETHER_PATTERN));
+                expression = (Expression<? extends T>) SyntaxParser.parseBooleanExpression(s, !originalPattern.equals(SkriptParser.WHETHER_PATTERN));
             } else {
                 expression = SyntaxParser.parseExpression(s, (PatternType<T>) type);
             }
@@ -203,10 +205,10 @@ public class ExpressionElement implements PatternElement {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof ExpressionElement)) {
+        if (obj == null || !(obj instanceof ExpressionElemen)) {
             return false;
         } else {
-            ExpressionElement e = (ExpressionElement) obj;
+            ExpressionElemen e = (ExpressionElemen) obj;
             return types.equals(e.types) && acceptance == e.acceptance;
         }
     }

@@ -6,7 +6,7 @@ import java.util.function.Function;
 public class ConverterUtils {
 
 	public static <F, T> Function<?, ? extends T> createInstanceofConverter(final Converters.ConverterInfo<F, T> conv) {
-		return createInstanceofConverter(conv.getFrom(), conv.getConverter());
+		return createInstanceofConverter(conv.getFrom(), (Function<F, T>) conv.getConverter());
 	}
 
 	public static <F, T> Function<?, ? extends T> createInstanceofConverter(final Class<F> from, final Function<F, T> conv) {
@@ -27,7 +27,7 @@ public class ConverterUtils {
 	}
 
 	public static <F, T> Function<?, ? extends T> createDoubleInstanceofConverter(final Converters.ConverterInfo<F, ?> conv, final Class<T> to) {
-		return createDoubleInstanceofConverter(conv.getFrom(), conv.getConverter(), to);
+		return createDoubleInstanceofConverter(conv.getFrom(), (Function<F, ?>) conv.getConverter(), to);
 	}
 
 	public static <F, T> Function<?, ? extends T> createDoubleInstanceofConverter(final Class<F> from, final Function<F, ?> conv, final Class<T> to) {

@@ -104,7 +104,7 @@ public class FileParserTest {
         File file = new File(classLoader.getResource("test-file.txt").getFile());
         assertEquals(
             Arrays.asList(
-                "# The purpose of this file is to check multiline syntax",
+                "# The purpose of this file is to test multiline syntax",
                 "First with no indents",
                 "Opening a section:",
                 "    now with some indents"

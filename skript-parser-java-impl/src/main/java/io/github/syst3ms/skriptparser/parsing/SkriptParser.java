@@ -4,7 +4,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
 import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
 import io.github.syst3ms.skriptparser.pattern.CompoundElement;
-import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
+import io.github.syst3ms.skriptparser.pattern.ExpressionElemen;
 import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.RegexGroup;
@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
 
 /**
  * A parser instance used for matching a pattern to a syntax
@@ -87,9 +86,13 @@ public class SkriptParser {
 
     public List<PatternElement> getPossibleInputs(List<PatternElement> elements) {
         List<PatternElement> possibilities = new ArrayList<>();
-        for (PatternElement element : elements) {
+        for (int i = 0; i < elements.size(); i++) {
+            PatternElement element = elements.get(i);
             if (element instanceof TextElement || element instanceof RegexGroup) {
-                if (element instanceof TextElement && ((TextElement) element).getText().matches("\\s+"))
+                if (element instanceof TextElement &&
+                    ((TextElement) element).getText().matches("\\s+") &&
+                    (i == elements.size() - 1 ||
+                     elements.get(i + 1) instanceof OptionalGroup))
                     continue;
                 possibilities.add(element);
                 return possibilities;
@@ -98,14 +101,14 @@ public class SkriptParser {
                     possibilities.addAll(getPossibleInputs(flatten(choice.getElement())));
                 }
                 return possibilities;
-            } else if (element instanceof ExpressionElement) { // TODO handle in ExpressionElement
+            } else if (element instanceof ExpressionElemen) {
                 possibilities.add(element);
                 return possibilities;
             } else if (element instanceof OptionalGroup) {
                 possibilities.addAll(getPossibleInputs(flatten(((OptionalGroup) element).getElement())));
             }
         }
-        possibilities.add(new TextElement(""));
+        possibilities.add(new TextElement("\0"));
         return possibilities;
     }
 

@@ -23,7 +23,12 @@ import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import javafx.util.Pair;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 /**

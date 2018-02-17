@@ -7,7 +7,7 @@ import io.github.syst3ms.skriptparser.types.Type;
 import java.util.List;
 
 /**
- * Represents something that returns something and has patterns which
+ * Represents something that returns something and has PATTERNS which
  * may result it being matched
  */
 public class ExpressionInfo<C, T> extends SyntaxInfo<C> {

@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.classes;
 
-import io.github.syst3ms.skriptparser.PatternParser;
+import io.github.syst3ms.skriptparser.PatternParse;
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.TextElement;
@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 public class SkriptParserTest {
     @Test
     public void getPossibleInputs() throws Exception {
-        PatternParser patternParser = new PatternParser();
+        PatternParse patternParser = new PatternParse();
         PatternElement e = patternParser.parsePattern("text [and optional]");
         SkriptParser parser = new SkriptParser(e);
         assertEquals(Collections.singletonList(new TextElement("text ")), parser.getPossibleInputs(parser.flatten(e)));

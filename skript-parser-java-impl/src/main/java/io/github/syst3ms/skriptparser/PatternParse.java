@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser;
 import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
 import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
 import io.github.syst3ms.skriptparser.pattern.CompoundElement;
-import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
+import io.github.syst3ms.skriptparser.pattern.ExpressionElemen;
 import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.RegexGroup;
@@ -19,7 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public class PatternParser {
+public class PatternParse {
     private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(\\d+?)\\xa6.*");
     private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*~])?(?<types>[\\w/]+)?");
 
@@ -29,6 +29,8 @@ public class PatternParser {
      * @return the parsed PatternElement, or {@literal null} if something went wrong.
      */
     public PatternElement parsePattern(String pattern) {
+        if (pattern.isEmpty())
+            return new TextElement("");
         List<PatternElement> elements = new ArrayList<>();
         StringBuilder textBuilder = new StringBuilder("");
         char[] chars = pattern.toCharArray();
@@ -74,7 +76,7 @@ public class PatternParser {
                     textBuilder = new StringBuilder("");
                 }
                 i += s.length() + 1;
-                String[] choices = s.split("(?<!\\\\)\\|");
+                String[] choices = StringUtils.splitVerticalBars(s);
                 List<ChoiceElement> choiceElements = new ArrayList<>();
                 for (String choice : choices) {
                     Matcher matcher = PARSE_MARK_PATTERN.matcher(choice);
@@ -137,13 +139,13 @@ public class PatternParser {
                     return null;
                 } else {
                     boolean nullable = m.group(1) != null;
-                    ExpressionElement.Acceptance acceptance = ExpressionElement.Acceptance.ALL;
+                    ExpressionElemen.Acceptance acceptance = ExpressionElemen.Acceptance.ALL;
                     if (m.group(2) != null) {
                         String acc = m.group(2);
                         if (acc.equals("~")) {
-                            acceptance = ExpressionElement.Acceptance.EXPRESSIONS_ONLY;
+                            acceptance = ExpressionElemen.Acceptance.EXPRESSIONS_ONLY;
                         } else {
-                            acceptance = ExpressionElement.Acceptance.LITERALS_ONLY;
+                            acceptance = ExpressionElemen.Acceptance.LITERALS_ONLY;
                         }
                     }
                     String typeString = m.group("types");
@@ -157,7 +159,7 @@ public class PatternParser {
                         }
                         patternTypes.add(t);
                     }
-                    elements.add(new ExpressionElement(patternTypes, acceptance, nullable));
+                    elements.add(new ExpressionElemen(patternTypes, acceptance, nullable));
                 }
             } else if (c == '\\') {
                 if (i == pattern.length() - 1) {
@@ -167,7 +169,7 @@ public class PatternParser {
                     textBuilder.append(chars[++i]);
                 }
             } else if (c == '|') {
-                String[] groups = pattern.split("(?<!\\\\)|");
+                String[] groups = StringUtils.splitVerticalBars(pattern);
                 List<ChoiceElement> choices = new ArrayList<>();
                 for (String choice : groups) {
                     Matcher matcher = PARSE_MARK_PATTERN.matcher(choice);

@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 public class StringUtils {
     public static final Pattern R_LITERAL_CONTENT_PATTERN = Pattern.compile("(.+?)\\((.+)\\)\\1"); // It's actually rare to be able to use '.+' raw like this
+    private static final String osName = System.getProperty("os.name");
 
     public static int count(String s, String... toFind) {
         int count = 0;
@@ -73,11 +74,6 @@ public class StringUtils {
                 if (i == chars.length - 1)
                     return -1;
                 return i + 1;
-            } else if (c == '(') {
-                int closing = findClosingIndex(s, '(', ')', i);
-                if (closing == -1)
-                    return -1;
-                i = closing;
             } else if (c == '{') {
                 int closing = findClosingIndex(s, '{', '}', i);
                 if (closing == -1)
@@ -128,12 +124,43 @@ public class StringUtils {
         return haystack.toLowerCase().startsWith(needle.toLowerCase());
     }
 
-    public static String fixEncoding(String s) {
-        try {
-            return new String(s.getBytes(Charset.defaultCharset()), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            return s;
+    public static String[] splitVerticalBars(String s) {
+        List<String> split = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        char[] chars = s.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
+            if (c == '\\') {
+                sb.append(c);
+                if (i + 1 < s.length()) {
+                    sb.append(chars[++i]);
+                }
+            } else if (c == '(' || c == '[') {
+                char closing = c == '(' ? ')' : ']';
+                String text = getEnclosedText(s, c, closing, i);
+                if (text == null)
+                    throw new SkriptParserException("Couldn't find a closing '" + c + "' bracket at index " + i);
+                sb.append(c).append(text).append(closing);
+                i += text.length() + 1;
+            } else if (c == '|') {
+                split.add(sb.toString());
+                sb.setLength(0);
+            } else {
+                sb.append(c);
+            }
         }
+        split.add(sb.toString());
+        return split.toArray(new String[split.size()]);
+    }
+
+    public static String fixEncoding(String s) {
+        String os = osName;
+        if (os.contains("Windows"))
+            try {
+                return new String(s.getBytes(Charset.defaultCharset()), "UTF-8");
+            } catch (UnsupportedEncodingException ignored) {
+            }
+        return s;
     }
 
     /**

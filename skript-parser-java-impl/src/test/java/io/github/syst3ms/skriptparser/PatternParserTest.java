@@ -1,12 +1,12 @@
 package io.github.syst3ms.skriptparser;
 
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
+import io.github.syst3ms.skriptparser.pattern.ExpressionElemen;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
 import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
 import io.github.syst3ms.skriptparser.pattern.CompoundElement;
-import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
 import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.RegexGroup;
@@ -32,7 +32,7 @@ public class PatternParserTest {
 
     @Test
     public void testParsePattern() throws Exception {
-        PatternParser parser = new PatternParser();
+        PatternParse parser = new PatternParse();
         assertEquals(new TextElement("syntax"), parser.parsePattern("syntax"));
         assertEquals(new OptionalGroup(new TextElement("optional")), parser.parsePattern("[optional]"));
         PatternElement expected = new OptionalGroup(
@@ -68,20 +68,20 @@ public class PatternParserTest {
         assertEquals(expected, parser.parsePattern("[lookie, (another|1\u00a6choice) !]"));
         assertEquals(new RegexGroup(Pattern.compile(".+")), parser.parsePattern("<.+>"));
         assertEquals(
-                new ExpressionElement(
+                new ExpressionElemen(
                         Collections.singletonList(TypeManager.getPatternType("number")),
-                        ExpressionElement.Acceptance.ALL,
+                        ExpressionElemen.Acceptance.ALL,
                         false
                 ),
                 parser.parsePattern("%number%")
         );
         assertEquals(
-                new ExpressionElement(
+                new ExpressionElemen(
                     Arrays.asList(
                             TypeManager.getPatternType("number"),
                             TypeManager.getPatternType("strings")
                     ),
-                        ExpressionElement.Acceptance.LITERALS_ONLY,
+                        ExpressionElemen.Acceptance.LITERALS_ONLY,
                         true
                 ),
                 parser.parsePattern("%*number/strings%")
@@ -92,7 +92,7 @@ public class PatternParserTest {
 
     @Test
     public void testMatch() throws Exception {
-        PatternParser patternParser = new PatternParser();
+        PatternParse patternParser = new PatternParse();
         PatternElement pattern = patternParser.parsePattern("pattern");
         SkriptParser parser = new SkriptParser(pattern);
         assertEquals(7, pattern.match("pattern", 0, parser));

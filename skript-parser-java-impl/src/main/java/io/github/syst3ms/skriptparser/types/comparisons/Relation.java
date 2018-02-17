@@ -24,12 +24,15 @@ public enum Relation {
     }
 
     /**
-     * Gets a Relation from a difference: If d is 0, EQUAL is returned, if d is greater than 0, GREATER is returned, otherwise SMALLER.
+     * Gets a Relation from a difference: If d is 0, {@link #EQUAL} is returned, if d is greater than 0, {@link #GREATER} is returned, otherwise {@link #SMALLER}.
+     * If d is {@link Double#NaN}, then {@link #NOT_EQUAL} is returned
      *
      * @param d
-     * @return <tt>d == 0 ? Relation.EQUAL : d > 0 ? Relation.GREATER : Relation.SMALLER</tt>
+     * @return <tt>d == 0 ? Relation.EQUAL : d > 0 ? Relation.GREATER : Relation.SMALLER</tt>, or {@code Relation.NOT_EQUAL} if <tt>Double.isNan(d)</tt>
      */
     public static Relation get(final double d) {
+        if (Double.isNaN(d))
+            return NOT_EQUAL;
         return d == 0 ? Relation.EQUAL : d > 0 ? Relation.GREATER : Relation.SMALLER;
     }
 

@@ -25,13 +25,13 @@ public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <R> Literal<? extends R> getConvertedExpression(final Class<R>... to) {
+	public <R> Expression<R> convertExpression(final Class<R>... to) {
 		final Literal<? extends R>[] exprs = new Literal[expressions.length];
 		final Class<?>[] classes = new Class[expressions.length];
 		for (int i = 0; i < exprs.length; i++) {
-			if ((exprs[i] = (Literal<? extends R>) Expressions.convertExpression(expressions[i], to)) == null)
+			if ((exprs[i] = (Literal<? extends R>) expressions[i].convertExpression(to)) == null)
 				return null;
-			classes[i] = Expressions.getReturnType(exprs[i]);
+			classes[i] = exprs[i].getReturnType();
 		}
 		return new LiteralList<>(exprs, (Class<R>) ClassUtils.getCommonSuperclass(classes), and, this);
 	}

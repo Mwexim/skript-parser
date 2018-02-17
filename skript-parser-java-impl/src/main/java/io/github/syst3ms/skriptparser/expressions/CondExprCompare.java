@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import com.sun.istack.internal.Nullable;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
@@ -14,9 +13,9 @@ import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 
-public class CondExprComparisons extends ConditionalExpression {
+public class CondExprCompare extends ConditionalExpression {
 
-    private static final PatternInfos<Relation> patterns = new PatternInfos<>(new Object[][] {
+    public static final PatternInfos<Relation> PATTERNS = new PatternInfos<>(new Object[][] {
             {"(1¦neither|) %objects% ((is|are)(|2¦(n't| not|4¦ neither)) ((greater|more|higher|bigger|larger) than|above)|\\>) %objects%", Relation.GREATER},
             {"(1¦neither|) %objects% ((is|are)(|2¦(n't| not|4¦ neither)) (greater|more|higher|bigger|larger|above) [than] or (equal to|the same as)|\\>=) %objects%", Relation.GREATER_OR_EQUAL},
             {"(1¦neither|) %objects% ((is|are)(|2¦(n't| not|4¦ neither)) ((less|smaller) than|below)|\\<) %objects%", Relation.SMALLER},
@@ -30,10 +29,10 @@ public class CondExprComparisons extends ConditionalExpression {
 
     static {
         Main.getMainRegistration().addExpression(
-                CondExprComparisons.class,
+                CondExprCompare.class,
                 Boolean.class,
                 true,
-                patterns.getPatterns()
+                PATTERNS.getPatterns()
         );
     }
 
@@ -50,7 +49,7 @@ public class CondExprComparisons extends ConditionalExpression {
         second = vars[1];
         if (vars.length == 3)
             third = vars[2];
-        relation = patterns.getInfo(matchedPattern);
+        relation = PATTERNS.getInfo(matchedPattern);
         if ((result.getParseMark() & 2) != 0) // "not" somewhere in the condition
             setNegated(true);
         if ((result.getParseMark() & 1) != 0) // "neither" on the left side

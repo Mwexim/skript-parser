@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import com.sun.istack.internal.Nullable;
 import io.github.syst3ms.skriptparser.classes.ChangeMode;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
@@ -87,7 +86,7 @@ public interface Expression<T> extends SyntaxElement {
         return check(getValues(e), c, negated, isAndList());
     }
 
-    static <T> boolean check(final @Nullable T[] all, final Predicate<? super T> c, final boolean invert, final boolean and) {
+    static <T> boolean check(final T[] all, final Predicate<? super T> c, final boolean invert, final boolean and) {
         if (all == null) return false;
         boolean hasElement = false;
         for (final T t : all) {

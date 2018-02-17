@@ -1,25 +1,36 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.expressions.CondExprCompare;
+import io.github.syst3ms.skriptparser.expressions.ExprWhether;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
-import io.github.syst3ms.skriptparser.types.PatternType;
+import io.github.syst3ms.skriptparser.pattern.CompoundElement;
+import io.github.syst3ms.skriptparser.pattern.ExpressionElemen;
+import io.github.syst3ms.skriptparser.pattern.TextElement;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
+import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
+import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
+import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
+import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Random;
+import java.util.Collections;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @SuppressWarnings("unchecked")
 public class SyntaxParserTest {
 
     static {
         SkriptRegistration registration = new SkriptRegistration("unit-tests");
+        registration.addType(
+                Object.class,
+                "object",
+                "object¦s"
+        );
         registration.addType(
                 Number.class,
                 "number",
@@ -64,30 +75,78 @@ public class SyntaxParserTest {
                 "string",
                 "string¦s"
         );
+        registration.addType(
+                Boolean.class,
+                "boolean",
+                "boolean¦s"
+        );
         registration.register();
         registration.addExpression(
-                ExprSquared.class,
+                TestExpressions.ExprSquared.class,
                 Number.class,
                 true,
                 "the number %number% squared"
         );
         registration.addExpression(
-                ExprRandom.class,
+                TestExpressions.ExprRandom.class,
                 Number.class,
                 true,
                 "random (0¦number|1¦integer) between %number% and %number% [2¦exclusively]"
         );
         registration.addExpression(
-                ExprSubstring.class,
+                TestExpressions.ExprSubstring.class,
                 String.class,
                 true,
                 "substring %string% from %number% to %number%"
         );
+        registration.addExpression(
+                ExprWhether.class,
+                Boolean.class,
+                true,
+                "whether %~boolean%"
+        );
+        SkriptParser.setWhetherPattern(
+                new CompoundElement(
+                        new TextElement("whether "),
+                        new ExpressionElemen(Collections.singletonList(SyntaxParser.BOOLEAN_PATTERN_TYPE), ExpressionElemen.Acceptance.EXPRESSIONS_ONLY, false)
+                )
+        );
+        registration.addExpression(
+                CondExprCompare.class,
+                Boolean.class,
+                true,
+                CondExprCompare.PATTERNS.getPatterns()
+        );
+        Comparators.registerComparator(Number.class, Number.class, new Comparator<Number, Number>() {
+            @Override
+            public Relation apply(Number number, Number number2) {
+                if (number instanceof BigDecimal || number2 instanceof BigDecimal) {
+                    if (number instanceof BigDecimal && number2 instanceof BigDecimal)
+                        return Relation.get(((BigDecimal) number).compareTo((BigDecimal) number2));
+                    else if (number instanceof BigDecimal)
+                        return Relation.get(((BigDecimal) number).compareTo(new BigDecimal(number2.toString())));
+                    else
+                        return Relation.get(-((BigDecimal) number2).compareTo(new BigDecimal(number.toString())));
+                } else if (number instanceof Double || number2 instanceof Double) {
+                    return Relation.get(number.doubleValue() - number2.doubleValue());
+                } else {
+                    return Relation.get(number.longValue() - number2.longValue());
+                }
+            }
+
+            @Override
+            public boolean supportsOrdering() {
+                return true;
+            }
+        });
         registration.register();
     }
 
     public void assertExpressionEquals(Expression<?> expected, Expression<?> actual) {
-        if (expected == actual) return;
+        if (expected == actual)
+            return;
+        if (expected == null || actual == null)
+            fail();
         assertArrayEquals(expected.getValues(null), actual.getValues(null));
     }
 
@@ -123,124 +182,10 @@ public class SyntaxParserTest {
             new SimpleLiteral<>(Number.class, 1L, 2L, 3L),
             SyntaxParser.parseExpression("1, 2 and 3", new PatternType<>(TypeManager.getByClass(Number.class), false))
         );
+        assertExpressionEquals(
+                new SimpleLiteral<>(Boolean.class, true),
+                SyntaxParser.parseBooleanExpression("whether 5 is greater than 0", false)
+        );
     }
 
-    public static class ExprSquared implements Expression<Number> {
-        private Expression<Number> number;
-
-        @Override
-        public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
-            number = (Expression<Number>) expressions[0];
-            return true;
-        }
-
-        @Override
-        public Number[] getValues(Event e) {
-            Number n = number.getSingle(e);
-            if (n == null)
-                return new Number[0];
-            return new Number[]{n.doubleValue() * n.doubleValue()};
-        }
-
-        @Override
-        public String toString(Event e, boolean debug) {
-            return number.toString(e, debug) + " squared";
-        }
-    }
-
-    public static class ExprRandom implements Expression<Number> {
-        private static final Random rnd = new Random();
-        private Expression<Number> lowerBound, upperBound;
-        private boolean integer, exclusive;
-
-        @Override
-        public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
-            lowerBound = (Expression<Number>) expressions[0];
-            upperBound = (Expression<Number>) expressions[1];
-            integer = (parseResult.getParseMark() & 1) == 1;
-            exclusive = (parseResult.getParseMark() & 2) == 2;
-            return true;
-        }
-
-        @Override
-        public Number[] getValues(Event e) {
-            Number lower = lowerBound.getSingle(e);
-            Number upper = upperBound.getSingle(e);
-            if (lower == null || upper == null)
-                return new Number[0];
-            if (integer) {
-                int l = lower.intValue();
-                int u = upper.intValue();
-                if (l > u) { // Just swap the variables
-                    int temp = l;
-                    l = u;
-                    u = temp;
-                }
-                if (exclusive) {
-                    l++;
-                    u--;
-                }
-                return new Number[]{l + rnd.nextInt(u - l)};
-            } else {
-                double l = lower.doubleValue();
-                double u = upper.doubleValue();
-                if (l > u) { // Just swap the variables
-                    double temp = l;
-                    l = u;
-                    u = temp;
-                }
-                double r = l + rnd.nextDouble() * (u - l);
-                while (r == l || r == u)
-                    r = l + rnd.nextDouble() * (u - l);
-                return new Number[]{r};
-            }
-        }
-
-        @Override
-        public String toString(Event e, boolean debug) {
-            return "random " +
-                   (integer ? "integer" : "number") +
-                   " between " +
-                   lowerBound.toString(e, debug) +
-                   " and " +
-                   upperBound.toString(e, debug);
-        }
-    }
-
-    public static class ExprSubstring implements Expression<String> {
-        private Expression<String> string;
-        private Expression<Number> startIndex, endIndex;
-
-        @Override
-        public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
-            string = (Expression<String>) expressions[0];
-            startIndex = (Expression<Number>) expressions[1];
-            endIndex = (Expression<Number>) expressions[2];
-            return true;
-        }
-
-        @Override
-        public String[] getValues(Event event) {
-            String str = string.getSingle(event);
-            Number start = startIndex.getSingle(event);
-            Number end = endIndex.getSingle(event);
-            if (str == null || start == null || end == null)
-                return new String[0];
-            int s = start.intValue();
-            int e = end.intValue();
-            if (s < 0 && e >= str.length())
-                return new String[0];
-            return new String[]{str.substring(s, e)};
-        }
-
-        @Override
-        public String toString(Event e, boolean debug) {
-            return "substring " +
-                   string.toString(e, debug) +
-                   " from " +
-                   startIndex.toString(e, debug) +
-                   " to " +
-                   endIndex.toString(e, debug);
-        }
-    }
 }

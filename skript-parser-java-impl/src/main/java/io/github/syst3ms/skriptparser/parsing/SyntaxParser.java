@@ -16,6 +16,7 @@ import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
+import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 
 import java.util.ArrayList;
@@ -40,8 +41,9 @@ public class SyntaxParser {
 	    if (expectedType.equals(BOOLEAN_PATTERN_TYPE)) {
 	        throw new IllegalStateException("Parsing of boolean expressions should be delegated to parseBooleanExpression");
         }
-        Expression<? extends T> typeClass = parseLiteral(s, expectedType);
-        if (typeClass != null) return typeClass;
+        Expression<? extends T> literal = parseLiteral(s, expectedType);
+        if (literal != null)
+            return literal;
         for (ExpressionInfo<?, ?> info : recentExpressions) {
             Expression<? extends T> expression = matchExpressionInfo(s, info, expectedType);
             if (expression != null) {
@@ -188,8 +190,12 @@ public class SyntaxParser {
 	 */
     private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType) {
         List<PatternElement> patterns = info.getPatterns();
+        PatternType<?> infoType = info.getReturnType();
+        Class<?> infoTypeClass = infoType.getType().getTypeClass();
+        Class<T> expectedTypeClass = expectedType.getType().getTypeClass();
+        if (!expectedTypeClass.isAssignableFrom(infoTypeClass) && !Converters.converterExists(infoTypeClass, expectedTypeClass))
+            return null;
         for (int i = 0; i < patterns.size(); i++) {
-            PatternType<?> returnType = info.getReturnType();
             PatternElement element = patterns.get(i);
             SkriptParser parser = new SkriptParser(element);
             if (element.match(s, 0, parser) != -1) {
@@ -200,14 +206,18 @@ public class SyntaxParser {
                         i,
                         parser.toParseResult()
                     );
-                    Class<?> returnTypeClass = returnType.getType().getTypeClass();
-                    Class<?> exprReturnType = expression.getReturnType();
-                    if (!returnTypeClass.isAssignableFrom(exprReturnType)) {
-                        Expression<?> converted = expression.convertExpression(returnTypeClass);
+                    Class<?> expressionReturnType = expression.getReturnType();
+                    if (!expectedTypeClass.isAssignableFrom(expressionReturnType)) {
+                        Expression<?> converted = expression.convertExpression(
+                                (Class<?>) expectedTypeClass);
                         if (converted != null) {
                             return (Expression<? extends T>) converted;
                         } else {
-                            error("Unmatching return types : expected " + returnTypeClass.getName() + " or subclass, but only found " + exprReturnType.getName());
+                            error("Unmatching return types : expected " +
+                                  infoType +
+                                  " or a subclass, but found " +
+                                  TypeManager.getByClass(expressionReturnType).getPluralForms()[expression.isSingle() ? 0 : 1]);
+                            return null;
                         }
                     }
                     if (!expression.isSingle() &&

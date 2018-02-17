@@ -1,7 +1,5 @@
 package io.github.syst3ms.skriptparser.variables;
 
-import io.github.syst3ms.skriptparser.event.Event;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
