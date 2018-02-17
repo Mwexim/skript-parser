@@ -26,10 +26,10 @@ public class FileParserTest {
     @Test
     public void parseFileLines() throws Exception {
         FileParser parser = new FileParser();
-        assertEquals(Collections.singletonList(simpleFileLine("test", 0, 1)), parseLines(parser, Collections.singletonList("test")));
+        assertEquals(Collections.singletonList(simpleFileLine("check", 0, 1)), parseLines(parser, Collections.singletonList("check")));
         assertEquals(
-                Collections.singletonList(fileSection("test section", 0, 1)),
-                parseLines(parser, Collections.singletonList("test section:"))
+                Collections.singletonList(fileSection("check section", 0, 1)),
+                parseLines(parser, Collections.singletonList("check section:"))
         );
         assertEquals(
             Collections.singletonList(
@@ -67,7 +67,7 @@ public class FileParserTest {
                 ))
         );
     	expected = Arrays.asList(
-    		simpleFileLine("Let's test simple elements after a section closes", 0, 1),
+    		simpleFileLine("Let's check simple elements after a section closes", 0, 1),
             fileSection(
                 "The section",
                 0,
@@ -81,7 +81,7 @@ public class FileParserTest {
             parseLines(
                 parser,
                 Arrays.asList(
-                    "Let's test simple elements after a section closes",
+                    "Let's check simple elements after a section closes",
                     "The section:",
                     "\tthe element inside",
                     "the element after the section"
@@ -104,7 +104,7 @@ public class FileParserTest {
         File file = new File(classLoader.getResource("test-file.txt").getFile());
         assertEquals(
             Arrays.asList(
-                "# The purpose of this file is to test multiline syntax",
+                "# The purpose of this file is to check multiline syntax",
                 "First with no indents",
                 "Opening a section:",
                 "    now with some indents"

@@ -128,10 +128,6 @@ public class StringUtils {
         return haystack.toLowerCase().startsWith(needle.toLowerCase());
     }
 
-    public static boolean containsIgnoreCase(String haystack, String needle) {
-        return haystack.toLowerCase().contains(needle.toLowerCase());
-    }
-
     public static String fixEncoding(String s) {
         try {
             return new String(s.getBytes(Charset.defaultCharset()), "UTF-8");
@@ -171,8 +167,12 @@ public class StringUtils {
             pluralized[0] += word[0] + " ";
             pluralized[1] += word[1] + " ";
         }
-        for (int i = 0; i < pluralized.length; i++)
-            pluralized[i] = pluralized[i].trim();
-        return pluralized;
+        return trimAll(pluralized);
+    }
+
+    private static String[] trimAll(String[] strings) {
+        for (int i = 0; i < strings.length; i++)
+            strings[i] = strings[i].trim();
+        return strings;
     }
 }

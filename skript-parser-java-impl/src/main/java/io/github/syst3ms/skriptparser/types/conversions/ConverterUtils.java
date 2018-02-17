@@ -1,6 +1,4 @@
-package io.github.syst3ms.skriptparser.types;
-
-import com.sun.istack.internal.Nullable;
+package io.github.syst3ms.skriptparser.types.conversions;
 
 import java.util.function.Function;
 

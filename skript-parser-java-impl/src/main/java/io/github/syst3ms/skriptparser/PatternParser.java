@@ -117,8 +117,8 @@ public class PatternParser {
                 elements.add(new RegexGroup(pat));
             } else if (c == '%') {
                 /*
-                 * Can't use getEnclosedText as % acts for both opening and closing
-                 * Moreover, there's no need of checking for nested stuff
+                 * Can't use getEnclosedText as % acts for both opening and closing,
+                 * and there's no need of checking for nested stuff
                  */
                 int nextIndex = pattern.indexOf('%', i + 1);
                 if (nextIndex == -1) {

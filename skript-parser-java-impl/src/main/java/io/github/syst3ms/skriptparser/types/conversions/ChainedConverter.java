@@ -17,7 +17,7 @@
  *
  * Copyright 2011-2017 Peter Güttinger and contributors
  */
-package io.github.syst3ms.skriptparser.types;
+package io.github.syst3ms.skriptparser.types.conversions;
 
 import java.util.function.Function;
 

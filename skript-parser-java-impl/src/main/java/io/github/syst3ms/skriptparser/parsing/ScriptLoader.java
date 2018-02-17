@@ -10,14 +10,13 @@ import io.github.syst3ms.skriptparser.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class ScriptLoader {
-
     public static List<Effect> loadItems(FileSection section) {
         List<Effect> items = new ArrayList<>();
         List<FileElement> elements = section.getElements();
-        for (int i = 0; i < elements.size(); i++) {
-            FileElement element = elements.get(i);
+        for (FileElement element : elements) {
             if (element instanceof FileSection) {
                 FileSection sec = (FileSection) element;
                 String content = sec.getLineContent();
@@ -62,8 +61,7 @@ public class ScriptLoader {
                 SimpleFileLine line = (SimpleFileLine) element;
                 String content = line.getLineContent();
                 Effect eff = SyntaxParser.parseEffect(content);
-                if (eff == null)
-                    continue;
+                if (eff == null) continue;
                 items.add(eff);
             }
         }

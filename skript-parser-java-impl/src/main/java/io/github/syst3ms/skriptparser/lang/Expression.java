@@ -1,15 +1,17 @@
 package io.github.syst3ms.skriptparser.lang;
 
+import com.sun.istack.internal.Nullable;
 import io.github.syst3ms.skriptparser.classes.ChangeMode;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
-import io.github.syst3ms.skriptparser.types.ConvertedExpression;
+import io.github.syst3ms.skriptparser.types.conversions.ConvertedExpression;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 
 import java.util.Iterator;
+import java.util.function.Predicate;
 
 public interface Expression<T> extends SyntaxElement {
     T[] getValues(Event e);
@@ -72,4 +74,32 @@ public interface Expression<T> extends SyntaxElement {
     default Expression<?> getSource() {
         return this;
     }
+
+    default Expression<T> simplify() {
+        return this;
+    }
+
+    default boolean check(final Event e, final Predicate<? super T> c) {
+        return check(e, c, false);
+    }
+
+    default boolean check(final Event e, final Predicate<? super T> c, final boolean negated) {
+        return check(getValues(e), c, negated, isAndList());
+    }
+
+    static <T> boolean check(final @Nullable T[] all, final Predicate<? super T> c, final boolean invert, final boolean and) {
+        if (all == null) return false;
+        boolean hasElement = false;
+        for (final T t : all) {
+            if (t == null) continue;
+            hasElement = true;
+            final boolean b = c.test(t);
+            if (and && !b)
+                return invert;
+            if (!and && b)
+                return !invert;
+        }
+        return hasElement && invert ^ and;
+    }
+
 }

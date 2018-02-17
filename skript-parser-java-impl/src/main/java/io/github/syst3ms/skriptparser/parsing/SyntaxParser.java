@@ -97,10 +97,10 @@ public class SyntaxParser {
         Boolean isAndList = null; // Hello nullable booleans, it had been a pleasure NOT using you
         for (int i = 0; i < parts.size(); i++) {
             if ((i & 1) == 1) { // Odd index == separator
-                String separator = parts.get(i);
-                if (StringUtils.containsIgnoreCase(separator, "and")) {
+                String separator = parts.get(i).trim();
+                if (separator.equalsIgnoreCase("and") || separator.equalsIgnoreCase("nor")) {
                     isAndList = true;
-                } else if (StringUtils.containsIgnoreCase(separator, "or")) {
+                } else if (separator.equalsIgnoreCase("or")) {
                     isAndList = isAndList != null && isAndList;
                 }
             }

@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
+import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
@@ -15,6 +16,12 @@ public class ExprWhether implements Expression<Boolean> {
 	private Expression<Boolean> condition;
 
 	static {
+	    Main.getMainRegistration().addExpression(
+	            ExprWhether.class,
+                Boolean.class,
+                true,
+                "whether %~boolean%"
+        );
 		SkriptParser.setWhetherPattern(
 			new CompoundElement(
 				new TextElement("whether "),

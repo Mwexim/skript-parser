@@ -17,7 +17,7 @@
  *
  * Copyright 2011-2017 Peter Güttinger and contributors
  */
-package io.github.syst3ms.skriptparser.types;
+package io.github.syst3ms.skriptparser.types.conversions;
 
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import javafx.util.Pair;
@@ -46,10 +46,14 @@ public abstract class Converters {
 	public final static class ConverterInfo<F, T> {
 		private final Class<F> from;
 		private final Class<T> to;
-		private final Function<F, T> converter;
+		private final Function<? super F, ? extends T> converter;
 		private final int options;
 
-		public ConverterInfo(final Class<F> from, final Class<T> to, final Function<F, T> converter, final int options) {
+		public ConverterInfo(final Class<F> from, final Class<T> to, final Function<? super F, ? extends T> converter) {
+		    this(from, to, converter, 0);
+        }
+
+		public ConverterInfo(final Class<F> from, final Class<T> to, final Function<? super F, ? extends T> converter, final int options) {
 			this.from = from;
 			this.to = to;
 			this.converter = converter;
@@ -64,7 +68,7 @@ public abstract class Converters {
 			return to;
 		}
 
-		public Function<F, T> getConverter() {
+		public Function<? super F, ? extends T> getConverter() {
 			return converter;
 		}
 

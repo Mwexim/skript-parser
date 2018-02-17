@@ -4,7 +4,7 @@ import io.github.syst3ms.skriptparser.PatternParser;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
-import io.github.syst3ms.skriptparser.types.Converters;
+import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.MultiMap;
@@ -80,6 +80,14 @@ public class SkriptRegistration {
 
     public <T> void addType(Class<T> c, String name, String pattern, Function<String, ? extends T> literalParser, Function<? super T, String> toStringFunction) {
         types.add(new Type<>(c, name, pattern, literalParser, toStringFunction));
+    }
+
+    public <F, T> void addConverter(Class<F> from, Class<T> to, Function<? super F, ? extends T> converter) {
+        converters.add(new Converters.ConverterInfo<>(from, to, converter));
+    }
+
+    public <F, T> void addConverter(Class<F> from, Class<T> to, Function<? super F, ? extends T> converter, int options) {
+        converters.add(new Converters.ConverterInfo<>(from, to, converter, options));
     }
 
     public void register() {

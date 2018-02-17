@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.lang;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.types.ClassUtils;
-import io.github.syst3ms.skriptparser.types.Converters;
+import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 
