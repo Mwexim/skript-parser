@@ -38,6 +38,8 @@ public class SyntaxParser {
     private static final LinkedList<ExpressionInfo<?, ?>> recentExpressions = new LinkedList<>();
 
     public static <T> Expression<? extends T> parseExpression(String s, PatternType<T> expectedType) {
+        if (s.isEmpty())
+            return null;
         Expression<? extends T> literal = parseLiteral(s, expectedType);
         if (literal != null)
             return literal;
@@ -96,6 +98,8 @@ public class SyntaxParser {
         }
         if (sb.length() > 0)
             parts.add(sb.toString());
+        if (parts.size() == 1)
+            return null;
         Boolean isAndList = null; // Hello nullable booleans, it had been a pleasure NOT using you
         for (int i = 0; i < parts.size(); i++) {
             if ((i & 1) == 1) { // Odd index == separator

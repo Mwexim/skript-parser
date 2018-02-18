@@ -27,14 +27,14 @@ public class TextElement implements PatternElement {
         if (parser.getOriginalElement().equals(this))
             parser.advanceInPattern();
         String trimmed = text.trim();
-        while (i < s.length() && s.charAt(i) == ' ')
+        while (i < s.length() && Character.isWhitespace(s.charAt(i)))
             i++;
         if (i + trimmed.length() > s.length()) {
             return -1;
         }
         String substr = s.substring(i, i + trimmed.length());
-        if (index == 0 && trimmed.isEmpty()) {
-            return 0;
+        if (trimmed.isEmpty() && substr.isEmpty()) {
+            return i;
         } else if (substr.equalsIgnoreCase(trimmed)) {
             return index + text.length(); // Let's not forget the spaces we removed earlier
         } else {

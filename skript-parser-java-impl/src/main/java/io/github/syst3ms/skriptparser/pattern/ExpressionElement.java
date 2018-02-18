@@ -57,6 +57,8 @@ public class ExpressionElement implements PatternElement {
         for (PatternElement possibleInput : possibleInputs) {
             if (possibleInput instanceof TextElement) {
                 String text = ((TextElement) possibleInput).getText();
+                if (text.isEmpty())
+                    continue;
                 if (text.equals("\0")) { // End of line
                     if (index == 0)
                         return -1;

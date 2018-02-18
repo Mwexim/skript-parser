@@ -26,6 +26,7 @@ public class SkriptParser {
     private List<Expression<?>> parsedExpressions = new ArrayList<>();
     private List<MatchResult> regexMatches = new ArrayList<>();
     private int parseMark = 0;
+    private String lastMatched = "";
 
     public SkriptParser(PatternElement e) {
         this.originalPattern = e.toString();
@@ -116,5 +117,13 @@ public class SkriptParser {
         if (WHETHER_PATTERN == null) { // We don't want people changing this that easily
             WHETHER_PATTERN = element;
         }
+    }
+
+    public String getLastMatched() {
+        return lastMatched;
+    }
+
+    public void setLastMatched(String lastMatched) {
+        this.lastMatched = lastMatched;
     }
 }

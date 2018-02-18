@@ -49,7 +49,9 @@ public class RegexGroup implements PatternElement {
                 if (!m.matches())
                     continue;
                 parser.addRegexMatch(m.toMatchResult());
-                return index + m.group().length();
+                String content = m.group();
+                parser.setLastMatched(content);
+                return index + content.length();
             } else {
                 assert possibleInput instanceof RegexGroup;
                 Matcher boundMatcher = ((RegexGroup) possibleInput).getPattern().matcher(s).region(index, s.length());
@@ -63,7 +65,9 @@ public class RegexGroup implements PatternElement {
                      */
                     if (m.matches()) {
                         parser.addRegexMatch(m.toMatchResult());
-                        return index + m.group().length();
+                        String content = m.group();
+                        parser.setLastMatched(content);
+                        return index + content.length();
                     }
                 }
             }
