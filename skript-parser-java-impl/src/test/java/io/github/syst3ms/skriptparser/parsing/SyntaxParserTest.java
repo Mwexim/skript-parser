@@ -8,6 +8,7 @@ import io.github.syst3ms.skriptparser.pattern.CompoundElement;
 import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
 import io.github.syst3ms.skriptparser.pattern.TextElement;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
+import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
@@ -164,7 +165,6 @@ public class SyntaxParserTest {
 
     @Test
     public void parseExpression() {
-        /*
         PatternType<Number> numberType = new PatternType<>(TypeManager.getByClassExact(Number.class), false);
         assertExpressionEquals(new SimpleLiteral<>(Long.class, 2L), SyntaxParser.parseExpression("2", numberType));
         int expectedInt = SyntaxParser.parseExpression("random integer between 0 and 10", numberType)
@@ -192,7 +192,6 @@ public class SyntaxParserTest {
             new SimpleLiteral<>(Number.class, 1L, 2L, 3L),
             SyntaxParser.parseExpression("1, 2 and 3", new PatternType<>(TypeManager.getByClass(Number.class), false))
         );
-        */
         assertExpressionTrue(
                 SyntaxParser.parseBooleanExpression("whether 5 is greater than 0", false)
         );
