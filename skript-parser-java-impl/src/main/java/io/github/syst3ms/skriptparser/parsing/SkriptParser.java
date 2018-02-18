@@ -4,7 +4,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
 import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
 import io.github.syst3ms.skriptparser.pattern.CompoundElement;
-import io.github.syst3ms.skriptparser.pattern.ExpressionElemen;
+import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
 import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.RegexGroup;
@@ -101,7 +101,7 @@ public class SkriptParser {
                     possibilities.addAll(getPossibleInputs(flatten(choice.getElement())));
                 }
                 return possibilities;
-            } else if (element instanceof ExpressionElemen) {
+            } else if (element instanceof ExpressionElement) {
                 possibilities.add(element);
                 return possibilities;
             } else if (element instanceof OptionalGroup) {

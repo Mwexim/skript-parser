@@ -89,6 +89,11 @@ public class Type<T> {
     }
 
     @Override
+    public String toString() {
+        return pluralForms[0];
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof Type)) {
             return false;

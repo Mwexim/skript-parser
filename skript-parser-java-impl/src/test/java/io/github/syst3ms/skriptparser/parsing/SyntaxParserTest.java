@@ -5,7 +5,7 @@ import io.github.syst3ms.skriptparser.expressions.ExprWhether;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.pattern.CompoundElement;
-import io.github.syst3ms.skriptparser.pattern.ExpressionElemen;
+import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
 import io.github.syst3ms.skriptparser.pattern.TextElement;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.types.PatternType;
@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collections;
 
+import static io.github.syst3ms.skriptparser.parsing.TestExpressions.*;
 import static org.junit.Assert.*;
 
 @SuppressWarnings("unchecked")
@@ -82,19 +83,19 @@ public class SyntaxParserTest {
         );
         registration.register();
         registration.addExpression(
-                TestExpressions.ExprSquared.class,
+                ExprSquared.class,
                 Number.class,
                 true,
                 "the number %number% squared"
         );
         registration.addExpression(
-                TestExpressions.ExprRandom.class,
+                ExprRandom.class,
                 Number.class,
                 true,
                 "random (0¦number|1¦integer) between %number% and %number% [2¦exclusively]"
         );
         registration.addExpression(
-                TestExpressions.ExprSubstring.class,
+                ExprSubstring.class,
                 String.class,
                 true,
                 "substring %string% from %number% to %number%"
@@ -108,7 +109,7 @@ public class SyntaxParserTest {
         SkriptParser.setWhetherPattern(
                 new CompoundElement(
                         new TextElement("whether "),
-                        new ExpressionElemen(Collections.singletonList(SyntaxParser.BOOLEAN_PATTERN_TYPE), ExpressionElemen.Acceptance.EXPRESSIONS_ONLY, false)
+                        new ExpressionElement(Collections.singletonList(SyntaxParser.BOOLEAN_PATTERN_TYPE), ExpressionElement.Acceptance.EXPRESSIONS_ONLY, false)
                 )
         );
         registration.addExpression(
@@ -139,6 +140,14 @@ public class SyntaxParserTest {
                 return true;
             }
         });
+        registration.addConverter(
+                Number.class,
+                Boolean.class,
+                n -> {
+                    long l = n.longValue();
+                    return l != 0;
+                }
+        );
         registration.register();
     }
 
@@ -154,9 +163,6 @@ public class SyntaxParserTest {
     public void parseExpression() {
         PatternType<Number> numberType = new PatternType<>(TypeManager.getByClassExact(Number.class), false);
         assertExpressionEquals(new SimpleLiteral<>(Long.class, 2L), SyntaxParser.parseExpression("2", numberType));
-        assertExpressionEquals(new SimpleLiteral<>(Double.class, 4.0d),
-                SyntaxParser.parseExpression("the number 2 squared", numberType)
-        );
         int expectedInt = SyntaxParser.parseExpression("random integer between 0 and 10", numberType)
                                       .getSingle(null)
                                       .intValue();
@@ -185,6 +191,10 @@ public class SyntaxParserTest {
         assertExpressionEquals(
                 new SimpleLiteral<>(Boolean.class, true),
                 SyntaxParser.parseBooleanExpression("whether 5 is greater than 0", false)
+        );
+        assertExpressionEquals(
+                new SimpleLiteral<>(Boolean.class, true),
+                SyntaxParser.parseExpression("1", SyntaxParser.BOOLEAN_PATTERN_TYPE)
         );
     }
 

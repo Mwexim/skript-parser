@@ -274,7 +274,7 @@ public abstract class Converters {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <F, T> Function<? super F, ? extends T> getConverter(final Class<F> from, final Class<T> to) {
-		final Pair<Class<?>, Class<?>> p = new Pair<Class<?>, Class<?>>(from, to);
+		final Pair<Class<?>, Class<?>> p = new Pair<>(from, to);
 		if (convertersCache.containsKey(p)) // can contain null to denote nonexistence of a converter
 			return (Function<? super F, ? extends T>) convertersCache.get(p);
 		final Function<? super F, ? extends T> c = getConverter_i(from, to);

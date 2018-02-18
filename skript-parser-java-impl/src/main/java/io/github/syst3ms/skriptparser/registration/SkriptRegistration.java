@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
-import io.github.syst3ms.skriptparser.PatternParse;
+import io.github.syst3ms.skriptparser.PatternParser;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
@@ -20,11 +20,11 @@ public class SkriptRegistration {
     private List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
     private List<Type<?>> types = new ArrayList<>();
     private List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
-    private PatternParse patternParser;
+    private PatternParser patternParser;
 
     public SkriptRegistration(String registerer) {
         this.registerer = registerer;
-        this.patternParser = new PatternParse();
+        this.patternParser = new PatternParser();
     }
 
     public List<Type<?>> getTypes() {

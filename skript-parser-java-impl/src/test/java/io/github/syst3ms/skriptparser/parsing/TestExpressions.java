@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 
 import java.util.Random;
 
+@SuppressWarnings("unchecked")
 public class TestExpressions {
     public static class ExprSquared implements Expression<Number> {
         private Expression<Number> number;

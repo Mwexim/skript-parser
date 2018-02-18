@@ -38,12 +38,12 @@ public class SyntaxParser {
     private static final LinkedList<ExpressionInfo<?, ?>> recentExpressions = new LinkedList<>();
 
     public static <T> Expression<? extends T> parseExpression(String s, PatternType<T> expectedType) {
-	    if (expectedType.equals(BOOLEAN_PATTERN_TYPE)) {
-	        throw new IllegalStateException("Parsing of boolean expressions should be delegated to parseBooleanExpression");
-        }
         Expression<? extends T> literal = parseLiteral(s, expectedType);
         if (literal != null)
             return literal;
+        if (expectedType.equals(BOOLEAN_PATTERN_TYPE)) {
+            throw new IllegalStateException("Parsing of boolean expressions should be delegated to parseBooleanExpression");
+        }
         for (ExpressionInfo<?, ?> info : recentExpressions) {
             Expression<? extends T> expression = matchExpressionInfo(s, info, expectedType);
             if (expression != null) {
@@ -140,17 +140,19 @@ public class SyntaxParser {
     public static <T> Expression<? extends T> parseLiteral(String s, PatternType<T> expectedType) {
         Map<Class<?>, Type<?>> classToTypeMap = TypeManager.getClassToTypeMap();
         for (Class<?> c : classToTypeMap.keySet()) {
-            Class<T> typeClass = expectedType.getType().getTypeClass();
-            if (typeClass.isAssignableFrom(c)) {
+            Class<T> expectedClass = expectedType.getType().getTypeClass();
+            if (expectedClass.isAssignableFrom(c) || Converters.converterExists(c, expectedClass)) {
                 Function<String, ?> literalParser = classToTypeMap.get(c).getLiteralParser();
                 if (literalParser != null) {
                     T literal = (T) literalParser.apply(s);
-                    if (literal != null) {
-                        return new SimpleLiteral<>(typeClass, literal);
+                    if (literal != null && expectedClass.isAssignableFrom(c)) {
+                        return new SimpleLiteral<>(expectedClass, literal);
+                    } else if (literal != null) {
+                        return new SimpleLiteral<>((Class<T>) c, literal).convertExpression(new Class[]{expectedType.getType().getTypeClass()});
                     }
-                } else if (expectedType.getType().getTypeClass() == String.class) {
+                } else if (expectedClass == String.class || c == String.class) {
                     VariableString vs = VariableString.newInstanceWithQuotes(s);
-                    if (vs != null) {
+                    if (vs != null && expectedClass.isAssignableFrom(c)) {
                         return (Expression<? extends T>) vs;
                     }
                 }

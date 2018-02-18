@@ -22,12 +22,12 @@ import java.util.regex.Matcher;
  * <li>whether the expression resorts to default expressions or not, defaulting to {@literal null} instead</li>
  * </ul>
  */
-public class ExpressionElemen implements PatternElement {
+public class ExpressionElement implements PatternElement {
     private List<PatternType<?>> types;
     private Acceptance acceptance;
     private boolean nullable;
 
-    public ExpressionElemen(List<PatternType<?>> types, Acceptance acceptance, boolean nullable) {
+    public ExpressionElement(List<PatternType<?>> types, Acceptance acceptance, boolean nullable) {
         this.types = types;
         this.acceptance = acceptance;
         this.nullable = nullable;
@@ -93,7 +93,7 @@ public class ExpressionElemen implements PatternElement {
                     }
                 }
             } else {
-                assert possibleInput instanceof ExpressionElemen;
+                assert possibleInput instanceof ExpressionElement;
                 List<PatternElement> nextPossibleInputs = parser
                     .getPossibleInputs(flattened.subList(parser.getPatternIndex() + 1, flattened.size()));
                 if (nextPossibleInputs.stream()
@@ -205,10 +205,10 @@ public class ExpressionElemen implements PatternElement {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof ExpressionElemen)) {
+        if (obj == null || !(obj instanceof ExpressionElement)) {
             return false;
         } else {
-            ExpressionElemen e = (ExpressionElemen) obj;
+            ExpressionElement e = (ExpressionElement) obj;
             return types.equals(e.types) && acceptance == e.acceptance;
         }
     }

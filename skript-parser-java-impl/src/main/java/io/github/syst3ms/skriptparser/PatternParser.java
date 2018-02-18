@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser;
 import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
 import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
 import io.github.syst3ms.skriptparser.pattern.CompoundElement;
-import io.github.syst3ms.skriptparser.pattern.ExpressionElemen;
+import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
 import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.RegexGroup;
@@ -19,7 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public class PatternParse {
+public class PatternParser {
     private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(\\d+?)\\xa6.*");
     private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*~])?(?<types>[\\w/]+)?");
 
@@ -139,13 +139,13 @@ public class PatternParse {
                     return null;
                 } else {
                     boolean nullable = m.group(1) != null;
-                    ExpressionElemen.Acceptance acceptance = ExpressionElemen.Acceptance.ALL;
+                    ExpressionElement.Acceptance acceptance = ExpressionElement.Acceptance.ALL;
                     if (m.group(2) != null) {
                         String acc = m.group(2);
                         if (acc.equals("~")) {
-                            acceptance = ExpressionElemen.Acceptance.EXPRESSIONS_ONLY;
+                            acceptance = ExpressionElement.Acceptance.EXPRESSIONS_ONLY;
                         } else {
-                            acceptance = ExpressionElemen.Acceptance.LITERALS_ONLY;
+                            acceptance = ExpressionElement.Acceptance.LITERALS_ONLY;
                         }
                     }
                     String typeString = m.group("types");
@@ -159,7 +159,7 @@ public class PatternParse {
                         }
                         patternTypes.add(t);
                     }
-                    elements.add(new ExpressionElemen(patternTypes, acceptance, nullable));
+                    elements.add(new ExpressionElement(patternTypes, acceptance, nullable));
                 }
             } else if (c == '\\') {
                 if (i == pattern.length() - 1) {
