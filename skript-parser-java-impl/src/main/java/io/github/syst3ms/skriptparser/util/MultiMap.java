@@ -9,7 +9,6 @@ import java.util.List;
  * values. (I know classes like this are out there but the ones available to me didn't work).
  */
 public class MultiMap<K, V> extends HashMap<K, List<V>> {
-
     /**
      * Looks for a list that is mapped to the given key. If there is not one then a new one is created
      * mapped and has the value added to it.

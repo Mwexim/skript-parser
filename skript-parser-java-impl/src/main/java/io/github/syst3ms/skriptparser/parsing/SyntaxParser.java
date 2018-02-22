@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.ExpressionList;
@@ -17,11 +16,10 @@ import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
+import io.github.syst3ms.skriptparser.util.RecentElementList;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -33,48 +31,51 @@ public class SyntaxParser {
     public static final Pattern LIST_SPLIT_PATTERN = Pattern.compile("\\s*(,)\\s*|\\s+(and|or)\\s+", Pattern.CASE_INSENSITIVE);
     public static final PatternType<Boolean> BOOLEAN_PATTERN_TYPE = new PatternType<>((Type<Boolean>) TypeManager.getByClass(Boolean.class), true);
     public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class), true);
-    private static final LinkedList<SyntaxInfo<? extends Effect>> recentEffects = new LinkedList<>();
-    private static final LinkedList<SyntaxInfo<? extends CodeSection>> recentSections = new LinkedList<>();
-    private static final LinkedList<ExpressionInfo<?, ?>> recentExpressions = new LinkedList<>();
+    private static final RecentElementList<SyntaxInfo<? extends Effect>> recentEffects = new RecentElementList<>();
+    //private static final LinkedList<SyntaxInfo<? extends CodeSection>> recentSections = new LinkedList<>();
+    private static final RecentElementList<ExpressionInfo<?, ?>> recentExpressions = new RecentElementList<>();
 
     public static <T> Expression<? extends T> parseExpression(String s, PatternType<T> expectedType) {
         if (s.isEmpty())
             return null;
+        if (s.startsWith("(") && s.endsWith(")")) {
+            int closing = StringUtils.findClosingIndex(s, '(', ')', 0);
+            if (closing == s.length() - 1)
+                s = s.substring(1, s.length() - 1);
+        }
         Expression<? extends T> literal = parseLiteral(s, expectedType);
-        if (literal != null)
+        if (literal != null) {
             return literal;
-        if (expectedType.equals(BOOLEAN_PATTERN_TYPE)) {
-            throw new IllegalStateException("Parsing of boolean expressions should be delegated to parseBooleanExpression");
+        }
+        if (!expectedType.isSingle()) {
+            Expression<? extends T> listLiteral = parseListLiteral(s, expectedType);
+            if (listLiteral != null)
+                return listLiteral;
         }
         for (ExpressionInfo<?, ?> info : recentExpressions) {
-            Expression<? extends T> expression = matchExpressionInfo(s, info, expectedType);
-            if (expression != null) {
-                recentExpressions.removeFirstOccurrence(info);
-                recentExpressions.addFirst(info);
-                return expression;
+            Expression<? extends T> expr = matchExpressionInfo(s, info, expectedType);
+            if (expr != null) {
+                recentExpressions.moveToFirst(info);
+                return expr;
             }
         }
         // Let's not loop over the same elements again
-        Collection<ExpressionInfo<?, ?>> remainingExpressions = SyntaxManager.getAllExpressions();
-        remainingExpressions.removeAll(recentExpressions);
+        List<ExpressionInfo<?, ?>> remainingExpressions = SyntaxManager.getAllExpressions();
+        recentExpressions.removeFrom(remainingExpressions);
         for (ExpressionInfo<?, ?> info : remainingExpressions) {
-            Expression<? extends T> expression = matchExpressionInfo(s, info, expectedType);
-            if (expression != null) {
-                recentExpressions.removeFirstOccurrence(info);
-                recentExpressions.addFirst(info);
-                return expression;
+            Expression<? extends T> expr = matchExpressionInfo(s, info, expectedType);
+            if (expr != null) {
+                recentExpressions.moveToFirst(info);
+                return expr;
             }
-        }
-        if (!expectedType.isSingle()) {
-            Expression<? extends T> list = parseListLiteral(s, expectedType);
-            if (list != null)
-                return list;
         }
         return null;
     }
 
     public static <T> Expression<? extends T> parseListLiteral(String s, PatternType<T> expectedType) {
         assert !expectedType.isSingle();
+        if (!s.contains(",") && !s.contains("and") && !s.contains("nor") && !s.contains("or"))
+            return null;
         List<String> parts = new ArrayList<>();
         Matcher m = LIST_SPLIT_PATTERN.matcher(s);
         StringBuilder sb = new StringBuilder();
@@ -91,10 +92,18 @@ public class SyntaxParser {
                     parts.add(m.group());
                     sb.setLength(0);
                     i = m.end() - 1;
+                    continue;
                 }
-            } else {
-                sb.append(c);
+            } else if (c == '(') {
+                String closing = StringUtils.getEnclosedText(s, '(', ')', i);
+                if (closing != null) {
+                    int endIndex = i + closing.length() + 1;
+                    sb.append("(").append(s.substring(i + 1, endIndex)).append(")");
+                    i = endIndex;
+                    continue;
+                }
             }
+            sb.append(c);
         }
         if (sb.length() > 0)
             parts.add(sb.toString());
@@ -120,13 +129,14 @@ public class SyntaxParser {
                 Expression<? extends T> expression = parseExpression(part, expectedType);
                 if (expression == null)
                     return null;
-                isLiteralList &= expression instanceof SimpleLiteral;
+                isLiteralList &= expression instanceof Literal;
                 expressions.add(expression);
             }
         }
         if (expressions.size() == 1)
             return expressions.get(0);
         if (isLiteralList) {
+            //noinspection SuspiciousToArrayCall
             return new LiteralList<>(
                 expressions.toArray(new Literal[expressions.size()]),
                 expectedType.getType().getTypeClass(),
@@ -156,7 +166,7 @@ public class SyntaxParser {
                     }
                 } else if (expectedClass == String.class || c == String.class) {
                     VariableString vs = VariableString.newInstanceWithQuotes(s);
-                    if (vs != null && expectedClass.isAssignableFrom(c)) {
+                    if (vs != null) {
                         return (Expression<? extends T>) vs;
                     }
                 }
@@ -166,24 +176,30 @@ public class SyntaxParser {
     }
 
     public static Effect parseEffect(String s) {
-        for (SyntaxInfo<? extends Effect> info : recentEffects) {
-            Effect effect = matchEffectInfo(s, info);
-            if (effect != null) {
-                recentEffects.removeFirstOccurrence(info);
-                recentEffects.addFirst(info);
-                return effect;
-            }
+        Effect eff = null;
+        SyntaxInfo<? extends Effect> info = null;
+        for (SyntaxInfo<? extends Effect> recentEffect : recentEffects) {
+            info = recentEffect;
+            eff = matchEffectInfo(s, info);
+            if (eff != null)
+                break;
+        }
+        if (eff != null) {
+            recentEffects.moveToFirst(info);
+            return eff;
         }
         // Let's not loop over the same elements again
-        Collection<SyntaxInfo<? extends Effect>> remainingEffects = SyntaxManager.getEffects();
-        remainingEffects.removeAll(recentEffects);
-        for (SyntaxInfo<? extends Effect> info : remainingEffects) {
-            Effect effect = matchEffectInfo(s, info);
-            if (effect != null) {
-                recentEffects.removeFirstOccurrence(info);
-                recentEffects.addFirst(info);
-                return effect;
-            }
+        List<SyntaxInfo<? extends Effect>> remainingEffects = SyntaxManager.getEffects();
+        recentEffects.removeFrom(remainingEffects);
+        for (SyntaxInfo<? extends Effect> remainingEffect : remainingEffects) {
+            info = remainingEffect;
+            eff = matchEffectInfo(s, info);
+            if (eff != null)
+                break;
+        }
+        if (eff != null) {
+            recentEffects.moveToFirst(info);
+            return eff;
         }
         return null;
     }
@@ -266,42 +282,42 @@ public class SyntaxParser {
         return null;
     }
 
-    public static Expression<Boolean> parseBooleanExpression(String s, boolean shouldNotBeConditional) {
+    public static Expression<Boolean> parseBooleanExpression(String s, boolean shouldBeConditional) {
         // I swear this is the cleanest way to do it
         if (s.equalsIgnoreCase("true")) {
             return new SimpleLiteral<>(Boolean.class, true);
         } else if (s.equalsIgnoreCase("false")) {
             return new SimpleLiteral<>(Boolean.class, false);
         }
+        if (s.startsWith("(") && s.endsWith(")"))
+            s = s.substring(1, s.length() - 1);
         for (ExpressionInfo<?, ?> info : recentExpressions) {
             if (info.getReturnType().getType().getTypeClass() != Boolean.class)
                 continue;
-            Expression<Boolean> expression = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE);
-            if (expression != null) {
-                if (shouldNotBeConditional && ConditionalExpression.class.isAssignableFrom(expression.getClass())) {
+            Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE);
+            if (expr != null) {
+                if (!shouldBeConditional && ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
                     error("This expression can't be used outside of conditions and 'whether %boolean%'");
                     return null;
                 }
-                recentExpressions.removeFirstOccurrence(info);
-                recentExpressions.addFirst(info);
-                return expression;
+                recentExpressions.moveToFirst(info);
+                return expr;
             }
         }
         // Let's not loop over the same elements again
-        Collection<ExpressionInfo<?, ?>> remainingExpressions = SyntaxManager.getAllExpressions();
-        remainingExpressions.removeAll(recentExpressions);
+        List<ExpressionInfo<?, ?>> remainingExpressions = SyntaxManager.getAllExpressions();
+        recentExpressions.removeFrom(remainingExpressions);
         for (ExpressionInfo<?, ?> info : remainingExpressions) {
             if (info.getReturnType().getType().getTypeClass() != Boolean.class)
                 continue;
-            Expression<Boolean> expression = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE);
-            if (expression != null) {
-                if (ConditionalExpression.class.isAssignableFrom(expression.getClass()) && shouldNotBeConditional) {
+            Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE);
+            if (expr != null) {
+                if (ConditionalExpression.class.isAssignableFrom(expr.getClass()) && !shouldBeConditional) {
                     error("This expression can't be used outside of conditions and 'whether %boolean%'");
                     return null;
                 }
-                recentExpressions.removeFirstOccurrence(info);
-                recentExpressions.addFirst(info);
-                return expression;
+                recentExpressions.moveToFirst(info);
+                return expr;
             }
         }
         return null;

@@ -38,20 +38,22 @@ public class ExpressionElement implements PatternElement {
         if (parser.getOriginalElement().equals(this))
             parser.advanceInPattern();
         PatternType<?>[] typeArray = types.toArray(new PatternType<?>[types.size()]);
-        if (index < s.length() && s.charAt(index) == '(') {
+        if (index >= s.length()) {
+            return -1;
+        }
+        /*
+        if (s.charAt(index) == '(') {
             String enclosed = StringUtils.getEnclosedText(s, '(', ')', index);
-            /*
-             * We don't want to return here, a single bracket could come from a syntax (albeit a stupid one)
-             * We also want to continue the code in any case
-             */
+            // We don't want to return here
             if (enclosed != null) {
-                Expression<?> expression = parse(s, parser.getOriginalElement(), typeArray);
+                Expression<?> expression = parse(enclosed, parser.getOriginalElement(), typeArray);
                 if (expression != null) {
                     parser.addExpression(expression);
                     return index + s.length();
                 }
             }
         }
+         */
         List<PatternElement> flattened = parser.flatten(parser.getOriginalElement());
         List<PatternElement> possibleInputs = parser.getPossibleInputs(flattened.subList(parser.getPatternIndex(), flattened.size()));
         for (PatternElement possibleInput : possibleInputs) {
@@ -70,15 +72,15 @@ public class ExpressionElement implements PatternElement {
                     }
                     return -1;
                 }
-                int i = s.indexOf(text, index);
-                if (i == -1) {
-                    continue;
-                }
-                String toParse = s.substring(index, i).trim();
-                Expression<?> expression = parse(toParse, parser.getOriginalElement(), typeArray);
-                if (expression != null) {
-                    parser.addExpression(expression);
-                    return index + toParse.length();
+                int i = StringUtils.indexOfIgnoreCase(s, text, index);
+                while (i != -1) {
+                    String toParse = s.substring(index, i).trim();
+                    Expression<?> expression = parse(toParse, parser.getOriginalElement(), typeArray);
+                    if (expression != null) {
+                        parser.addExpression(expression);
+                        return index + toParse.length();
+                    }
+                    i = StringUtils.indexOfIgnoreCase(s, text, i + 1);
                 }
             } else if (possibleInput instanceof RegexGroup) {
                 Matcher m = ((RegexGroup) possibleInput).getPattern().matcher(s).region(index, s.length());
@@ -88,6 +90,8 @@ public class ExpressionElement implements PatternElement {
                         continue;
                     }
                     String toParse = s.substring(index, i);
+                    if (toParse.length() == parser.getOriginalPattern().length())
+                        continue;
                     Expression<?> expression = parse(toParse, parser.getOriginalElement(), typeArray);
                     if (expression != null) {
                         parser.addExpression(expression);
@@ -108,7 +112,7 @@ public class ExpressionElement implements PatternElement {
                         String rest = s.substring(index, s.length());
                         List<String> splits = getSplits(rest);
                         for (String split : splits) {
-                            int i = s.indexOf(split, index);
+                            int i = StringUtils.indexOfIgnoreCase(s, split, index);
                             if (i != -1) {
                                 String toParse = s.substring(index, i);
                                 Expression<?> expression = parse(toParse, parser.getOriginalElement(), typeArray);
@@ -120,14 +124,14 @@ public class ExpressionElement implements PatternElement {
                         }
                         return -1;
                     } else {
-                        int bound = s.indexOf(text, index);
+                        int bound = StringUtils.indexOfIgnoreCase(s, text, index);
                         if (bound == -1) {
                             continue;
                         }
                         String rest = s.substring(index, bound);
                         List<String> splits = getSplits(rest);
                         for (String split : splits) {
-                            int i = s.indexOf(split, index);
+                            int i = StringUtils.indexOfIgnoreCase(s, split, index);
                             if (i != -1) {
                                 String toParse = s.substring(index, i);
                                 Expression<?> expression = parse(toParse, parser.getOriginalElement(), typeArray);
@@ -179,7 +183,9 @@ public class ExpressionElement implements PatternElement {
             Expression<? extends T> expression;
             if (type.equals(SyntaxParser.BOOLEAN_PATTERN_TYPE)) {
                 // REMINDER : conditions call parseBooleanExpression straight away
-                expression = (Expression<? extends T>) SyntaxParser.parseBooleanExpression(s, !originalPattern.equals(SkriptParser.WHETHER_PATTERN));
+                expression = (Expression<? extends T>) SyntaxParser.parseBooleanExpression(s,
+                        originalPattern.equals(SkriptParser.WHETHER_PATTERN)
+                );
             } else {
                 expression = SyntaxParser.parseExpression(s, (PatternType<T>) type);
             }

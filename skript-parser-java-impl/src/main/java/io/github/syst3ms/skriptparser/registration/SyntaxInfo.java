@@ -8,10 +8,12 @@ import java.util.List;
 public class SyntaxInfo<C> {
     private Class<C> c;
     private List<PatternElement> patterns = new ArrayList<>();
+    private int priority;
 
-    public SyntaxInfo(Class<C> c, List<PatternElement> patterns) {
+    public SyntaxInfo(Class<C> c, List<PatternElement> patterns, int priority) {
         this.c = c;
         this.patterns = patterns;
+        this.priority = priority;
     }
 
     public List<PatternElement> getPatterns() {
@@ -20,5 +22,9 @@ public class SyntaxInfo<C> {
 
     public Class<C> getSyntaxClass() {
         return c;
+    }
+
+    public int getPriority() {
+        return priority;
     }
 }

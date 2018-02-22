@@ -19,22 +19,22 @@ public class ScriptLoader {
             if (element instanceof FileSection) {
                 FileSection sec = (FileSection) element;
                 String content = sec.getLineContent();
-                if (StringUtils.startsWithIgnoreCase(content, "if ")) {
+                if (content.regionMatches(true, 0, "if ", 0, "if ".length())) {
                     String toParse = content.substring("if ".length());
-                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, false);
+                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, true);
                     if (booleanExpression == null) {
                         error("Can't understand this condition : " + toParse);
                         continue;
                     }
                     items.add(new Conditional(sec, booleanExpression, Conditional.ConditionalMode.IF));
-                } else if (StringUtils.startsWithIgnoreCase(content, "else if ")) {
+                } else if (content.regionMatches(true, 0, "else if ", 0, "else if ".length())) {
                     if (items.size() == 0 ||
                         !(items.get(items.size() - 1) instanceof Conditional) ||
                         ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
                         error("An 'else if' must be placed right after an 'if' or another 'else if'");
                     }
                     String toParse = content.substring("else if ".length());
-                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, false);
+                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, true);
                     if (booleanExpression == null) {
                         error("Can't understand this condition : " + toParse);
                         continue;

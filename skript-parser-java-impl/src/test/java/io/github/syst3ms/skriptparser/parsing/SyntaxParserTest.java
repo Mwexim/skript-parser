@@ -13,13 +13,15 @@ import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
-import org.junit.Test;
+import org.junit.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collections;
 
-import static io.github.syst3ms.skriptparser.parsing.TestExpressions.*;
+import static io.github.syst3ms.skriptparser.parsing.TestExpressions.ExprRandom;
+import static io.github.syst3ms.skriptparser.parsing.TestExpressions.ExprSquared;
+import static io.github.syst3ms.skriptparser.parsing.TestExpressions.ExprSubstring;
 import static org.junit.Assert.*;
 
 @SuppressWarnings("unchecked")
@@ -79,7 +81,16 @@ public class SyntaxParserTest {
         registration.addType(
                 Boolean.class,
                 "boolean",
-                "boolean¦s"
+                "boolean¦s",
+                s -> {
+                    if (s.equalsIgnoreCase("true")) {
+                        return true;
+                    } else if (s.equalsIgnoreCase("false")) {
+                        return false;
+                    } else {
+                        return null;
+                    }
+                }
         );
         registration.register();
         registration.addExpression(
@@ -116,6 +127,7 @@ public class SyntaxParserTest {
                 CondExprCompare.class,
                 Boolean.class,
                 true,
+                1,
                 CondExprCompare.PATTERNS.getPatterns()
         );
         Comparators.registerComparator(Number.class, Number.class, new Comparator<Number, Number>() {
@@ -165,7 +177,7 @@ public class SyntaxParserTest {
 
     @Test
     public void parseExpression() {
-        PatternType<Number> numberType = new PatternType<>(TypeManager.getByClassExact(Number.class), false);
+        PatternType<Number> numberType = new PatternType<>(TypeManager.getByClassExact(Number.class), true);
         assertExpressionEquals(new SimpleLiteral<>(Long.class, 2L), SyntaxParser.parseExpression("2", numberType));
         int expectedInt = SyntaxParser.parseExpression("random integer between 0 and 10", numberType)
                                       .getSingle(null)
@@ -175,7 +187,7 @@ public class SyntaxParserTest {
                                             .getSingle(null)
                                             .doubleValue();
         assertTrue(9.9999 + Double.MIN_VALUE <= expectedDouble && expectedDouble <= 10 - Double.MIN_VALUE);
-        PatternType<String> stringType = new PatternType<>(TypeManager.getByClassExact(String.class), false);
+        PatternType<String> stringType = new PatternType<>(TypeManager.getByClassExact(String.class), true);
         assertExpressionEquals(
                 new SimpleLiteral<>(String.class, "Hello"),
                 SyntaxParser.parseExpression("substring \"Hello\" from 0 to 5", stringType)
@@ -204,6 +216,19 @@ public class SyntaxParserTest {
         assertExpressionTrue(
                 SyntaxParser.parseBooleanExpression("whether 2 != 5", false)
         );
+        assertExpressionTrue(
+                SyntaxParser.parseBooleanExpression("  \r   -3   iS    \t   eQuAl TO\t\t\t\t  -3     ", true)
+        );
+        // These tests try to push the parser to its limits more than anything else
+        /*
+        assertExpressionEquals(
+                new SimpleLiteral<>(Boolean.class, true, false, true),
+                SyntaxParser.parseExpression("whether 2 <= 4, (whether 5 is greater than or equal to 6) and true", new PatternType<>(TypeManager.getByClass(Boolean.class), false))
+        );
+        assertExpressionTrue(
+                SyntaxParser.parseBooleanExpression("whether whether 2 <= 4, (whether 10 is greater than or equal to 6) and true are true", false)
+        );
+        */
     }
 
 }

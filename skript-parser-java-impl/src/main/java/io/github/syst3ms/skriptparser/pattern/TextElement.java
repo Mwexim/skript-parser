@@ -2,6 +2,8 @@ package io.github.syst3ms.skriptparser.pattern;
 
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
 
+import java.util.Arrays;
+
 /**
  * Text inside of a pattern. Is case and whitespace insensitive.
  */
@@ -32,10 +34,9 @@ public class TextElement implements PatternElement {
         if (i + trimmed.length() > s.length()) {
             return -1;
         }
-        String substr = s.substring(i, i + trimmed.length());
-        if (trimmed.isEmpty() && substr.isEmpty()) {
+        if (trimmed.isEmpty()) {
             return i;
-        } else if (substr.equalsIgnoreCase(trimmed)) {
+        } else if (s.regionMatches(true, i, trimmed, 0, trimmed.length())) {
             return index + text.length(); // Let's not forget the spaces we removed earlier
         } else {
             return -1;

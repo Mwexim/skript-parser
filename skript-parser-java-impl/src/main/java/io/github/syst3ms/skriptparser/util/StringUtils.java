@@ -120,8 +120,41 @@ public class StringUtils {
         return null; // There were no percents (unclosed percent is handled by VariableString already)
     }
 
-    public static boolean startsWithIgnoreCase(String haystack, String needle) {
-        return haystack.toLowerCase().startsWith(needle.toLowerCase());
+    /*
+     * Does not allocate heap memory, so much better for this purpose
+     */
+    public static int indexOfIgnoreCase(final String haystack,
+                                        final String needle,
+                                        final int start) {
+        if (needle.isEmpty() || haystack.isEmpty()) {
+            // Fallback to legacy behavior.
+            return haystack.indexOf(needle);
+        }
+        for (int i = start; i < haystack.length(); ++i) {
+            // Early out, if possible.
+            if (i + needle.length() > haystack.length()) {
+                return -1;
+            }
+
+            // Attempt to match substring starting at position i of haystack.
+            int j = 0;
+            int ii = i;
+            while (ii < haystack.length() && j < needle.length()) {
+                char c = Character.toLowerCase(haystack.charAt(ii));
+                char c2 = Character.toLowerCase(needle.charAt(j));
+                if (c != c2) {
+                    break;
+                }
+                j++;
+                ii++;
+            }
+            // Walked all the way to the end of the needle, return the start
+            // position that this was found.
+            if (j == needle.length()) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public static String[] splitVerticalBars(String s) {
@@ -154,8 +187,7 @@ public class StringUtils {
     }
 
     public static String fixEncoding(String s) {
-        String os = osName;
-        if (os.contains("Windows"))
+        if (osName.contains("Windows"))
             try {
                 return new String(s.getBytes(Charset.defaultCharset()), "UTF-8");
             } catch (UnsupportedEncodingException ignored) {

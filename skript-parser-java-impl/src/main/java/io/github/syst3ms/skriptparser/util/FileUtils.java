@@ -13,11 +13,11 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 public class FileUtils {
     private static File jarFileLocation;
     public static final Pattern LEADING_WHITESPACE_PATTERN = Pattern.compile("(\\s+)\\S.+");
+    public static final String MULTILINE_SYNTAX_TOKEN = "\\";
 
     public static List<String> readAllLines(File file) throws IOException {
         List<String> lines = new ArrayList<>();
@@ -26,7 +26,8 @@ public class FileUtils {
         String line;
         StringBuilder multilineBuilder = new StringBuilder();
         while ((line = reader.readLine()) != null) {
-            if (line.replace("\\\\", "\0").endsWith("\\")) {
+            if (line.replaceAll("\\\\" + Pattern.quote(MULTILINE_SYNTAX_TOKEN), "\0")
+                    .endsWith(MULTILINE_SYNTAX_TOKEN)) {
                 multilineBuilder.append(line.substring(0, line.length() - 1)).append("\0");
             } else if (multilineBuilder.length() > 0) {
                 multilineBuilder.append(line);
@@ -54,8 +55,8 @@ public class FileUtils {
 
     private static String trimMultilineIndent(String multilineText) {
         String[] lines = multilineText.split("\0");
-        // Copied from Kotlin's trimIndent() function
-        int baseIndent = Stream.of(lines)
+        // Insipred from Kotlin's trimIndent() function
+        int baseIndent = Arrays.stream(lines)
 							   .skip(1) // First line's indent should be ignored
 							   .mapToInt(FileUtils::getIndentationLevel)
 							   .min()

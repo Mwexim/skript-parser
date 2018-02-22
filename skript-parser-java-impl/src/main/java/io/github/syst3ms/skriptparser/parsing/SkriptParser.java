@@ -87,13 +87,9 @@ public class SkriptParser {
 
     public List<PatternElement> getPossibleInputs(List<PatternElement> elements) {
         List<PatternElement> possibilities = new ArrayList<>();
-        for (int i = 0; i < elements.size(); i++) {
-            PatternElement element = elements.get(i);
+        for (PatternElement element : elements) {
             if (element instanceof TextElement || element instanceof RegexGroup) {
-                if (element instanceof TextElement &&
-                    ((TextElement) element).getText().matches("\\s+") &&
-                    (i == elements.size() - 1 ||
-                     elements.get(i + 1) instanceof OptionalGroup))
+                if (element instanceof TextElement && ((TextElement) element).getText().matches("\\s+"))
                     continue;
                 possibilities.add(element);
                 return possibilities;
