@@ -250,7 +250,7 @@ public class SyntaxParser {
                     return expression;
                 } catch (InstantiationException | IllegalAccessException e) {
                     error("Parsing of " + info.getSyntaxClass()
-											  .getSimpleName() + " succeeded, but it couldn't be instantiated");
+                                              .getSimpleName() + " succeeded, but it couldn't be instantiated");
                 }
             }
         }

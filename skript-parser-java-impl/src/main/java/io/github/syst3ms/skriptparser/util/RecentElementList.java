@@ -1,11 +1,8 @@
 package io.github.syst3ms.skriptparser.util;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -13,13 +10,6 @@ public class RecentElementList<T> implements Iterable<T> {
     private Node<T> head;
 
     public RecentElementList() {}
-
-    public RecentElementList(Collection<? extends T> coll) {
-        List<T> list = new ArrayList<>(coll);
-        for (int i = list.size() - 1; i >= 0; i--) {
-            head = new Node<>(list.get(i), head);
-        }
-    }
 
     public void moveToFirst(T element) {
         Set<T> traversed = new HashSet<>();

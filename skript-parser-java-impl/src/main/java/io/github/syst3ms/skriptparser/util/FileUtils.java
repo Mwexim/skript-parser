@@ -26,7 +26,7 @@ public class FileUtils {
         String line;
         StringBuilder multilineBuilder = new StringBuilder();
         while ((line = reader.readLine()) != null) {
-            if (line.replaceAll("\\\\" + Pattern.quote(MULTILINE_SYNTAX_TOKEN), "\0")
+            if (line.replace("\\" + MULTILINE_SYNTAX_TOKEN, "\0")
                     .endsWith(MULTILINE_SYNTAX_TOKEN)) {
                 multilineBuilder.append(line.substring(0, line.length() - 1)).append("\0");
             } else if (multilineBuilder.length() > 0) {
@@ -57,10 +57,10 @@ public class FileUtils {
         String[] lines = multilineText.split("\0");
         // Insipred from Kotlin's trimIndent() function
         int baseIndent = Arrays.stream(lines)
-							   .skip(1) // First line's indent should be ignored
-							   .mapToInt(FileUtils::getIndentationLevel)
-							   .min()
-			                   .orElse(0);
+                               .skip(1) // First line's indent should be ignored
+                               .mapToInt(FileUtils::getIndentationLevel)
+                               .min()
+                               .orElse(0);
         if (baseIndent == 0)
             return multilineText.replace("\0", "");
         Pattern pat = Pattern.compile("\\t| {4}");

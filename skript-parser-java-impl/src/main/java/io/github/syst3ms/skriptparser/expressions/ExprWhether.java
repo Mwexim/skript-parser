@@ -13,37 +13,37 @@ import io.github.syst3ms.skriptparser.pattern.TextElement;
 import java.util.Collections;
 
 public class ExprWhether implements Expression<Boolean> {
-	private Expression<Boolean> condition;
+    private Expression<Boolean> condition;
 
-	static {
-	    Main.getMainRegistration().addExpression(
-	            ExprWhether.class,
+    static {
+        Main.getMainRegistration().addExpression(
+                ExprWhether.class,
                 Boolean.class,
                 true,
                 "whether %~boolean%"
         );
-		SkriptParser.setWhetherPattern(
-			new CompoundElement(
-				new TextElement("whether "),
-				new ExpressionElement(Collections.singletonList(SyntaxParser.BOOLEAN_PATTERN_TYPE), ExpressionElement.Acceptance.EXPRESSIONS_ONLY, false)
-			)
-		);
-	}
+        SkriptParser.setWhetherPattern(
+            new CompoundElement(
+                new TextElement("whether "),
+                new ExpressionElement(Collections.singletonList(SyntaxParser.BOOLEAN_PATTERN_TYPE), ExpressionElement.Acceptance.EXPRESSIONS_ONLY, false)
+            )
+        );
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
-		condition = (Expression<Boolean>) expressions[0];
-		return true;
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+        condition = (Expression<Boolean>) expressions[0];
+        return true;
+    }
 
-	@Override
-	public Boolean[] getValues(Event e) {
-		return condition.getValues(e);
-	}
+    @Override
+    public Boolean[] getValues(Event e) {
+        return condition.getValues(e);
+    }
 
-	@Override
-	public String toString(Event e, boolean debug) {
-		return "whether " + condition.toString(e, debug);
-	}
+    @Override
+    public String toString(Event e, boolean debug) {
+        return "whether " + condition.toString(e, debug);
+    }
 }

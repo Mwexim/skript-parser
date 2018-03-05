@@ -5,18 +5,18 @@ package io.github.syst3ms.skriptparser.event;
  * equivalent to {@code public static void main(String[] args)} in Java
  */
 public class MainEvent implements Event {
-	private String[] args;
+    private String[] args;
 
-	public MainEvent(String[] args) {
-		this.args = args;
-	}
+    public MainEvent(String[] args) {
+        this.args = args;
+    }
 
-	@Override
-	public String getEventName() {
-		return "main";
-	}
+    @Override
+    public String getEventName() {
+        return "main";
+    }
 
-	public String[] getArguments() {
-		return args;
-	}
+    public String[] getArguments() {
+        return args;
+    }
 }

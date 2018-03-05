@@ -5,5 +5,5 @@ package io.github.syst3ms.skriptparser.event;
  * This won't have much implementations in this particular project
  */
 public interface Event {
-	String getEventName();
+    String getEventName();
 }

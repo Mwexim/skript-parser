@@ -20,7 +20,7 @@ public class FileParser {
             if (m.matches())
                 content = m.group(1).replace("##", "#").trim();
             else
-            	content = line.replace("##", "#").trim();
+                content = line.replace("##", "#").trim();
             if (content.matches("\\s*"))
                 continue;
             int lineIndentation = FileUtils.getIndentationLevel(line);

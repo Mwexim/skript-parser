@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -188,10 +189,7 @@ public class StringUtils {
 
     public static String fixEncoding(String s) {
         if (osName.contains("Windows"))
-            try {
-                return new String(s.getBytes(Charset.defaultCharset()), "UTF-8");
-            } catch (UnsupportedEncodingException ignored) {
-            }
+            return new String(s.getBytes(Charset.defaultCharset()), StandardCharsets.UTF_8);
         return s;
     }
 

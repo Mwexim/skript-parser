@@ -14,15 +14,15 @@ public class FileParserTest {
     private SimpleFileLine simpleFileLine(String content, int indentation, int line) {
         return new SimpleFileLine("unit-tests", line, content, indentation);
     }
-	
+
     private FileSection fileSection(String content, int indentation, int line, FileElement... elements) {
         return new FileSection("unit-tests", line, content, Arrays.asList(elements), indentation);
     }
-	
+
     private List<FileElement> parseLines(FileParser parser, List<String> lines) {
         return parser.parseFileLines("unit-tests", lines, 0, 1);
     }
-	
+
     @Test
     public void parseFileLines() throws Exception {
         FileParser parser = new FileParser();
@@ -34,7 +34,7 @@ public class FileParserTest {
         assertEquals(
             Collections.singletonList(
                 fileSection(
-                	"section with an element",
+                    "section with an element",
                     0,
                     1,
                     simpleFileLine("i am an element", 1, 2)
@@ -42,10 +42,10 @@ public class FileParserTest {
             ),
             parseLines(parser, Arrays.asList("section with an element:", "    i am an element"))
         );
-    	List<FileElement> expected = Arrays.asList(
-    		simpleFileLine("let's see nested sections", 0, 1),
-    		fileSection(
-    			"this is a section",
+        List<FileElement> expected = Arrays.asList(
+            simpleFileLine("let's see nested sections", 0, 1),
+            fileSection(
+                "this is a section",
                 0,
                 2,
                 fileSection(
@@ -56,8 +56,8 @@ public class FileParserTest {
                 )
             )
         );
-    	assertEquals(
-    		expected,
+        assertEquals(
+            expected,
             parseLines(parser,
                 Arrays.asList(
                     "let's see nested sections",
@@ -66,8 +66,8 @@ public class FileParserTest {
                     "\t\twith an element inside"
                 ))
         );
-    	expected = Arrays.asList(
-    		simpleFileLine("Let's check simple elements after a section closes", 0, 1),
+        expected = Arrays.asList(
+            simpleFileLine("Let's check simple elements after a section closes", 0, 1),
             fileSection(
                 "The section",
                 0,
@@ -76,8 +76,8 @@ public class FileParserTest {
             ),
             simpleFileLine("the element after the section", 0, 4)
         );
-    	assertEquals(
-    		expected,
+        assertEquals(
+            expected,
             parseLines(
                 parser,
                 Arrays.asList(
@@ -88,12 +88,12 @@ public class FileParserTest {
                 )
             )
         );
-    	assertEquals(
-    		Collections.singletonList(simpleFileLine("Hello there", 0, 1)),
+        assertEquals(
+            Collections.singletonList(simpleFileLine("Hello there", 0, 1)),
             parseLines(parser, Collections.singletonList("Hello there # ignore this !!!"))
         );
-    	assertEquals(
-    		Collections.singletonList(simpleFileLine("However # do not ignore this !!", 0, 1)),
+        assertEquals(
+            Collections.singletonList(simpleFileLine("However # do not ignore this !!", 0, 1)),
             parseLines(parser, Collections.singletonList("However ## do not ignore this !!"))
         );
     }
