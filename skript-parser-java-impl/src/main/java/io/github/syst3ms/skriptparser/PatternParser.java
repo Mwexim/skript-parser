@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser;
 
+import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
 import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
 import io.github.syst3ms.skriptparser.pattern.CompoundElement;
@@ -21,7 +22,7 @@ import java.util.regex.PatternSyntaxException;
 
 public class PatternParser {
     private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(\\d+?)\\xa6.*");
-    private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*~])?(?<types>[\\w/]+)?");
+    private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*~])?(=)?(?<types>[\\w/]+)?");
 
     /**
      * Parses a pattern and returns a {@link PatternElement}. This method can be called by itself, for example when parsing group constructs.
@@ -159,7 +160,10 @@ public class PatternParser {
                         }
                         patternTypes.add(t);
                     }
-                    elements.add(new ExpressionElement(patternTypes, acceptance, nullable));
+                    boolean acceptConditional = m.group(3) != null;
+                    if (acceptConditional && patternTypes.stream().noneMatch(t -> t.getType().getTypeClass() == Boolean.class))
+                        throw new SkriptParserException("Can't use the '=' flag on non-boolean types");
+                    elements.add(new ExpressionElement(patternTypes, acceptance, nullable, acceptConditional));
                 }
             } else if (c == '\\') {
                 if (i == pattern.length() - 1) {

@@ -1,5 +1,7 @@
 package io.github.syst3ms.skriptparser.parsing;
 
+import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.ExpressionList;
@@ -32,7 +34,7 @@ public class SyntaxParser {
     public static final PatternType<Boolean> BOOLEAN_PATTERN_TYPE = new PatternType<>((Type<Boolean>) TypeManager.getByClass(Boolean.class), true);
     public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class), true);
     private static final RecentElementList<SyntaxInfo<? extends Effect>> recentEffects = new RecentElementList<>();
-    //private static final LinkedList<SyntaxInfo<? extends CodeSection>> recentSections = new LinkedList<>();
+    private static final RecentElementList<SyntaxInfo<? extends CodeSection>> recentSections = new RecentElementList<>();
     private static final RecentElementList<ExpressionInfo<?, ?>> recentExpressions = new RecentElementList<>();
 
     public static <T> Expression<? extends T> parseExpression(String s, PatternType<T> expectedType) {
@@ -176,40 +178,33 @@ public class SyntaxParser {
     }
 
     public static Effect parseEffect(String s) {
-        Effect eff = null;
-        SyntaxInfo<? extends Effect> info = null;
         for (SyntaxInfo<? extends Effect> recentEffect : recentEffects) {
-            info = recentEffect;
-            eff = matchEffectInfo(s, info);
-            if (eff != null)
-                break;
-        }
-        if (eff != null) {
-            recentEffects.moveToFirst(info);
-            return eff;
+            Effect eff = matchEffectInfo(s, recentEffect);
+            if (eff != null) {
+                recentEffects.moveToFirst(recentEffect);
+                return eff;
+            }
         }
         // Let's not loop over the same elements again
         List<SyntaxInfo<? extends Effect>> remainingEffects = SyntaxManager.getEffects();
         recentEffects.removeFrom(remainingEffects);
         for (SyntaxInfo<? extends Effect> remainingEffect : remainingEffects) {
-            info = remainingEffect;
-            eff = matchEffectInfo(s, info);
-            if (eff != null)
-                break;
+            Effect eff = matchEffectInfo(s, remainingEffect);
+            if (eff != null) {
+                recentEffects.moveToFirst(remainingEffect);
+                return eff;
+            }
         }
-        if (eff != null) {
-            recentEffects.moveToFirst(info);
-            return eff;
-        }
+        error("Can't understand the effect : '" + s + "'");
         return null;
     }
 
     /**
-	 * Tries to match an {@link ExpressionInfo} against the given {@link String} expression.
-	 * Made for DRY purposes inside of {@link #parseExpression(String, PatternType)}
-	 * @param <T> The return type of the {@link Expression}
-	 * @return the Expression instance of matching, or {@literal null} otherwise
-	 */
+     * Tries to match an {@link ExpressionInfo} against the given {@link String} expression.
+     * Made for DRY purposes inside of {@link #parseExpression(String, PatternType)}
+     * @param <T> The return type of the {@link Expression}
+     * @return the Expression instance of matching, or {@literal null} otherwise
+     */
     private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType) {
         List<PatternElement> patterns = info.getPatterns();
         PatternType<?> infoType = info.getReturnType();
@@ -278,11 +273,10 @@ public class SyntaxParser {
                 }
             }
         }
-        error("Can't understand the effect : '" + s + "'");
         return null;
     }
 
-    public static Expression<Boolean> parseBooleanExpression(String s, boolean shouldBeConditional) {
+    public static Expression<Boolean> parseBooleanExpression(String s, boolean canBeConditional) {
         // I swear this is the cleanest way to do it
         if (s.equalsIgnoreCase("true")) {
             return new SimpleLiteral<>(Boolean.class, true);
@@ -296,8 +290,8 @@ public class SyntaxParser {
                 continue;
             Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE);
             if (expr != null) {
-                if (!shouldBeConditional && ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
-                    error("This expression can't be used outside of conditions and 'whether %boolean%'");
+                if (!canBeConditional && ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
+                    error("This boolean expression is conditional, so it can't be used here !");
                     return null;
                 }
                 recentExpressions.moveToFirst(info);
@@ -312,14 +306,60 @@ public class SyntaxParser {
                 continue;
             Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE);
             if (expr != null) {
-                if (ConditionalExpression.class.isAssignableFrom(expr.getClass()) && !shouldBeConditional) {
-                    error("This expression can't be used outside of conditions and 'whether %boolean%'");
+                if (!canBeConditional && ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
+                    error("This boolean expression is conditional, so it can't be used here !");
                     return null;
                 }
                 recentExpressions.moveToFirst(info);
                 return expr;
             }
         }
+        return null;
+    }
+
+    public static CodeSection parseSection(FileSection section) {
+        for (SyntaxInfo<? extends CodeSection> recentSection : recentSections) {
+            CodeSection sec = matchSectionInfo(section, recentSection);
+            if (sec != null) {
+                recentSections.moveToFirst(recentSection);
+                return sec;
+            }
+        }
+        List<SyntaxInfo<? extends CodeSection>> remainingSections = SyntaxManager.getSections();
+        recentSections.removeFrom(remainingSections);
+        for (SyntaxInfo<? extends CodeSection> remainingSection : remainingSections) {
+            CodeSection sec = matchSectionInfo(section, remainingSection);
+            if (sec != null) {
+                recentSections.moveToFirst(remainingSection);
+                return sec;
+            }
+        }
+        error("Can't understand the effect : '" + section.getLineContent() + "'");
+        return null;
+    }
+
+    private static CodeSection matchSectionInfo(FileSection section, SyntaxInfo<? extends CodeSection> info) {
+        List<PatternElement> patterns = info.getPatterns();
+        for (int i = 0; i < patterns.size(); i++) {
+            PatternElement element = patterns.get(i);
+            SkriptParser parser = new SkriptParser(element);
+            if (element.match(section.getLineContent(), 0, parser) != -1) {
+                try {
+                    CodeSection sec = info.getSyntaxClass().newInstance();
+                    sec.loadSection(section);
+                    sec.init(
+                            parser.getParsedExpressions().toArray(new Expression[0]),
+                            i,
+                            parser.toParseResult()
+                    );
+                    return sec;
+                } catch (InstantiationException | IllegalAccessException e) {
+                    error("Parsing of " + info.getSyntaxClass()
+                                              .getSimpleName() + " succeeded, but it couldn't be instantiated");
+                }
+            }
+        }
+        error("Can't understand the section : '" + section.getLineContent() + "'");
         return null;
     }
 

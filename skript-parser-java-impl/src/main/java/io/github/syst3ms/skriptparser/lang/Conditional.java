@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.parsing.ParseResult;
 
 public class Conditional extends CodeSection {
     private ConditionalMode mode;
@@ -9,7 +10,7 @@ public class Conditional extends CodeSection {
     private Conditional fallingClause;
 
     public Conditional(FileSection section, Expression<Boolean> condition, ConditionalMode mode) {
-        super(section);
+        super.loadSection(section);
         this.condition = condition;
         this.mode = mode;
     }
@@ -43,9 +44,23 @@ public class Conditional extends CodeSection {
     }
 
     @Override
-    public String toString(Event e, boolean debug) {
-        return mode.name().toLowerCase().replace('_', ' ') + " " + condition.toString(e, debug);
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+        return true;
     }
 
-    public enum ConditionalMode { IF, ELSE_IF, ELSE }
+    @Override
+    public String toString(Event e, boolean debug) {
+        return mode + " " + condition.toString(e, debug);
+    }
+
+    public enum ConditionalMode {
+        IF, ELSE_IF, ELSE;
+
+        private final String[] modeNames = {"if", "else if", "else"};
+
+        @Override
+        public String toString() {
+            return modeNames[this.ordinal()];
+        }
+    }
 }

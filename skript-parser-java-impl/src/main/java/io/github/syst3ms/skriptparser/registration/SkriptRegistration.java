@@ -1,8 +1,10 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.PatternParser;
+import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.types.Type;
@@ -20,13 +22,17 @@ public class SkriptRegistration {
     private String registerer;
     private MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
     private List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
+    private List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
     private List<Type<?>> types = new ArrayList<>();
     private List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
     private PatternParser patternParser;
-
     public SkriptRegistration(String registerer) {
         this.registerer = registerer;
         this.patternParser = new PatternParser();
+    }
+
+    public List<SyntaxInfo<? extends CodeSection>> getSections() {
+        return sections;
     }
 
     public List<Type<?>> getTypes() {
@@ -77,6 +83,14 @@ public class SkriptRegistration {
                                           .register();
     }
 
+    public void addSection(Class<? extends CodeSection> c, String... patterns) {
+        new SectionRegistrar<>(c, patterns).register();
+    }
+
+    public void addSection(Class<? extends CodeSection> c, int priority, String... patterns) {
+        new SectionRegistrar<>(c, patterns).setPriority(priority).register();
+    }
+
     public <T> void addType(Class<T> c, String name, String pattern) {
         types.add(new Type<>(c, name, pattern));
     }
@@ -97,6 +111,7 @@ public class SkriptRegistration {
         converters.add(new Converters.ConverterInfo<>(from, to, converter, options));
     }
 
+
     public void register() {
         SyntaxManager.register(this);
         TypeManager.register(this);
@@ -104,81 +119,94 @@ public class SkriptRegistration {
         Converters.createMissingConverters();
     }
 
-    public class ExpressionRegistrar<C extends Expression<? extends T>, T> {
+    public abstract class SyntaxRegistrar<C extends SyntaxElement> {
         private final Class<C> c;
-        private final Class<T> returnType;
-        private final boolean isSingle;
         private List<String> patterns = new ArrayList<>();
         private int priority = 5;
 
-        public ExpressionRegistrar(Class<C> c, Class<T> returnType, boolean isSingle) {
-            this.c = c;
-            this.returnType = returnType;
-            this.isSingle = isSingle;
+        SyntaxRegistrar(Class<C> c, String... patterns) {
+            this(c, 5, patterns);
         }
 
-        public ExpressionRegistrar(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
+        SyntaxRegistrar(Class<C> c, int priority, String... patterns) {
             this.c = c;
-            this.returnType = returnType;
-            this.isSingle = isSingle;
+            this.priority = priority;
             Collections.addAll(this.patterns, patterns);
         }
 
-        public ExpressionRegistrar<C, T> addPatterns(String... patterns) {
+        public SyntaxRegistrar<C> addPatterns(String... patterns) {
             Collections.addAll(this.patterns, patterns);
             return this;
         }
 
-        public ExpressionRegistrar<C, T> setPriority(int priority) {
+        public SyntaxRegistrar<C> setPriority(int priority) {
             if (priority < 0)
-                throw new IllegalArgumentException("Can't have a negative priority !");
+                throw new SkriptParserException("Can't have a negative priority !");
             this.priority = priority;
             return this;
         }
 
+        public abstract void register();
+    }
+
+    public class ExpressionRegistrar<C extends Expression<? extends T>, T> extends SyntaxRegistrar<C> {
+        private final Class<T> returnType;
+        private final boolean isSingle;
+
+        ExpressionRegistrar(Class<C> c, Class<T> returnType, boolean isSingle) {
+            this(c, returnType, isSingle, new String[0]);
+        }
+
+        ExpressionRegistrar(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
+            super(c, patterns);
+            this.returnType = returnType;
+            this.isSingle = isSingle;
+        }
+
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
-            for (String s : patterns) {
+            for (String s : super.patterns) {
                 elements.add(patternParser.parsePattern(StringUtils.fixEncoding(s)));
             }
             Type<T> type = TypeManager.getByClassExact(returnType);
             if (type == null) {
                 throw new SkriptParserException("Couldn't figure out the return type corresponding to " + returnType.getName());
             }
-            ExpressionInfo<C, T> info = new ExpressionInfo<>(c, elements, type, isSingle, priority);
-            expressions.putOne(c, info);
+            ExpressionInfo<C, T> info = new ExpressionInfo<>(super.c, elements, type, isSingle, super.priority);
+            expressions.putOne(super.c, info);
         }
     }
 
-    public class EffectRegistrar<C extends Effect> {
-        private final Class<C> c;
-        private List<String> patterns = new ArrayList<>();
-        private int priority = 5;
+    public class EffectRegistrar<C extends Effect> extends SyntaxRegistrar<C> {
 
-        public EffectRegistrar(Class<C> c, String... patterns) {
-            this.c = c;
-            Collections.addAll(this.patterns, patterns);
-        }
-
-        public EffectRegistrar<C> addPatterns(String... patterns) {
-            Collections.addAll(this.patterns, patterns);
-            return this;
-        }
-
-        public EffectRegistrar<C> setPriority(int priority) {
-            if (priority < 0)
-                throw new IllegalArgumentException("Can't have a negative priority !");
-            this.priority = priority;
-            return this;
+        EffectRegistrar(Class<C> c, String... patterns) {
+            super(c, patterns);
         }
 
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
-            for (String s : patterns) {
+            for (String s : super.patterns) {
                 elements.add(patternParser.parsePattern(StringUtils.fixEncoding(s)));
             }
-            SyntaxInfo<C> info = new SyntaxInfo<>(c, elements, 5);
+            SyntaxInfo<C> info = new SyntaxInfo<>(super.c, elements, super.priority);
             effects.add(info);
+        }
+    }
+
+    public class SectionRegistrar<C extends CodeSection> extends SyntaxRegistrar<C> {
+
+        SectionRegistrar(Class<C> c, String... patterns) {
+            super(c, patterns);
+        }
+
+        @Override
+        public void register() {
+            List<PatternElement> elements = new ArrayList<>();
+            for (String s : super.patterns) {
+                elements.add(patternParser.parsePattern(StringUtils.fixEncoding(s)));
+            }
+            SyntaxInfo<C> info = new SyntaxInfo<C>(super.c, elements, super.priority);
+            sections.add(info);
         }
     }
 }

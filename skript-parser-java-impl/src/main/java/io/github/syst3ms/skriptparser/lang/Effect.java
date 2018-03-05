@@ -18,7 +18,13 @@ public abstract class Effect implements SyntaxElement {
     }
 
     public final Effect getNext() {
-        return next == null ? parent.getNext() : next;
+        if (next != null) {
+            return next;
+        } else if (parent != null) {
+            return parent.getNext();
+        } else {
+            return null;
+        }
     }
 
     public Effect setNext(Effect next) {
@@ -30,8 +36,10 @@ public abstract class Effect implements SyntaxElement {
         execute(e);
         if (next != null) {
             return next;
-        } else {
+        } else if (parent != null) {
             return parent.getNext();
+        } else {
+            return null;
         }
     }
 }

@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.parsing;
 import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.file.SimpleFileLine;
+import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Conditional;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
@@ -52,15 +53,18 @@ public class ScriptLoader {
                     ((Conditional) items.get(items.size() - 1)).setFallingClause(c);
                     items.add(c);
                 } else {
-                    // I am not doing this right now. Please.
-                    error("Can't understand this section : " + sec.getLineContent());
+                    CodeSection codeSection = SyntaxParser.parseSection(sec);
+                    if (codeSection == null)
+                        continue;
+                    items.add(codeSection);
                 }
             } else {
                 assert element instanceof SimpleFileLine;
                 SimpleFileLine line = (SimpleFileLine) element;
                 String content = line.getLineContent();
                 Effect eff = SyntaxParser.parseEffect(content);
-                if (eff == null) continue;
+                if (eff == null)
+                    continue;
                 items.add(eff);
             }
         }

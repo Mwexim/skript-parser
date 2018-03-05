@@ -11,6 +11,7 @@ import io.github.syst3ms.skriptparser.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 
 /**
@@ -25,12 +26,13 @@ import java.util.regex.Matcher;
 public class ExpressionElement implements PatternElement {
     private List<PatternType<?>> types;
     private Acceptance acceptance;
-    private boolean nullable;
+    private boolean nullable, acceptsConditional;
 
-    public ExpressionElement(List<PatternType<?>> types, Acceptance acceptance, boolean nullable) {
+    public ExpressionElement(List<PatternType<?>> types, Acceptance acceptance, boolean nullable, boolean acceptsConditional) {
         this.types = types;
         this.acceptance = acceptance;
         this.nullable = nullable;
+        this.acceptsConditional = acceptsConditional;
     }
 
     @Override
@@ -65,7 +67,7 @@ public class ExpressionElement implements PatternElement {
                     if (index == 0)
                         return -1;
                     String toParse = s.substring(index);
-                    Expression<?> expression = parse(toParse, parser.getOriginalElement(), typeArray);
+                    Expression<?> expression = parse(toParse, typeArray);
                     if (expression != null) {
                         parser.addExpression(expression);
                         return index + toParse.length();
@@ -75,7 +77,7 @@ public class ExpressionElement implements PatternElement {
                 int i = StringUtils.indexOfIgnoreCase(s, text, index);
                 while (i != -1) {
                     String toParse = s.substring(index, i).trim();
-                    Expression<?> expression = parse(toParse, parser.getOriginalElement(), typeArray);
+                    Expression<?> expression = parse(toParse, typeArray);
                     if (expression != null) {
                         parser.addExpression(expression);
                         return index + toParse.length();
@@ -92,7 +94,7 @@ public class ExpressionElement implements PatternElement {
                     String toParse = s.substring(index, i);
                     if (toParse.length() == parser.getOriginalPattern().length())
                         continue;
-                    Expression<?> expression = parse(toParse, parser.getOriginalElement(), typeArray);
+                    Expression<?> expression = parse(toParse, typeArray);
                     if (expression != null) {
                         parser.addExpression(expression);
                         return index + toParse.length();
@@ -115,7 +117,7 @@ public class ExpressionElement implements PatternElement {
                             int i = StringUtils.indexOfIgnoreCase(s, split, index);
                             if (i != -1) {
                                 String toParse = s.substring(index, i);
-                                Expression<?> expression = parse(toParse, parser.getOriginalElement(), typeArray);
+                                Expression<?> expression = parse(toParse, typeArray);
                                 if (expression != null) {
                                     parser.addExpression(expression);
                                     return index + toParse.length();
@@ -134,7 +136,7 @@ public class ExpressionElement implements PatternElement {
                             int i = StringUtils.indexOfIgnoreCase(s, split, index);
                             if (i != -1) {
                                 String toParse = s.substring(index, i);
-                                Expression<?> expression = parse(toParse, parser.getOriginalElement(), typeArray);
+                                Expression<?> expression = parse(toParse, typeArray);
                                 if (expression != null) {
                                     parser.addExpression(expression);
                                     return index + toParse.length();
@@ -178,13 +180,14 @@ public class ExpressionElement implements PatternElement {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Expression<? extends T> parse(String s, PatternElement originalPattern, PatternType<?>[] types) {
+    private <T> Expression<? extends T> parse(String s, PatternType<?>[] types) {
         for (PatternType<?> type : types) {
             Expression<? extends T> expression;
             if (type.equals(SyntaxParser.BOOLEAN_PATTERN_TYPE)) {
                 // REMINDER : conditions call parseBooleanExpression straight away
-                expression = (Expression<? extends T>) SyntaxParser.parseBooleanExpression(s,
-                        originalPattern.equals(SkriptParser.WHETHER_PATTERN)
+                expression = (Expression<? extends T>) SyntaxParser.parseBooleanExpression(
+                        s,
+                        acceptsConditional
                 );
             } else {
                 expression = SyntaxParser.parseExpression(s, (PatternType<T>) type);
@@ -217,7 +220,7 @@ public class ExpressionElement implements PatternElement {
             return false;
         } else {
             ExpressionElement e = (ExpressionElement) obj;
-            return types.equals(e.types) && acceptance == e.acceptance;
+            return types.equals(e.types) && acceptance == e.acceptance && acceptsConditional == e.acceptsConditional;
         }
     }
 
@@ -226,13 +229,21 @@ public class ExpressionElement implements PatternElement {
         StringBuilder sb = new StringBuilder("%");
         if (nullable)
             sb.append('-');
-        if (acceptance == Acceptance.EXPRESSIONS_ONLY) {
-            sb.append('~');
-        } else if (acceptance == Acceptance.LITERALS_ONLY) {
-            sb.append('*');
-        } else if (acceptance == Acceptance.VARIABLES_ONLY) {
-            sb.append('^');
+        switch (acceptance) {
+            case ALL:
+                break;
+            case EXPRESSIONS_ONLY:
+                sb.append('~');
+                break;
+            case LITERALS_ONLY:
+                sb.append('*');
+                break;
+            case VARIABLES_ONLY:
+                sb.append('^');
+                break;
         }
+        if (acceptsConditional)
+            sb.append('=');
         sb.append(
             String.join(
                 "/",
@@ -245,6 +256,7 @@ public class ExpressionElement implements PatternElement {
     public enum Acceptance {
         ALL,
         EXPRESSIONS_ONLY,
-        LITERALS_ONLY, VARIABLES_ONLY
+        LITERALS_ONLY,
+        VARIABLES_ONLY
     }
 }

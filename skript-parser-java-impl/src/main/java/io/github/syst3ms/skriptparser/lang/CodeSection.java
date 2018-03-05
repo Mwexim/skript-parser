@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.file.FileSection;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 
 import java.util.List;
@@ -11,15 +10,12 @@ public abstract class CodeSection extends Effect {
     private Effect first;
     private Effect last;
 
-    private CodeSection() {}
-
-    @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
-        return true;
+    public void loadSection(FileSection section) {
+        setTriggerItems(ScriptLoader.loadItems(section));
     }
 
-    public CodeSection(FileSection section) {
-        items = ScriptLoader.loadItems(section);
+    public final void setTriggerItems(List<Effect> items) {
+        this.items = items;
         for (Effect item : items) {
             item.setParent(this);
         }

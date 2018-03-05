@@ -1,9 +1,15 @@
 package io.github.syst3ms.skriptparser.parsing;
 
+import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.expressions.CondExprCompare;
 import io.github.syst3ms.skriptparser.expressions.ExprWhether;
+import io.github.syst3ms.skriptparser.file.FileElement;
+import io.github.syst3ms.skriptparser.file.FileParser;
+import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.lang.Conditional;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
+import io.github.syst3ms.skriptparser.lang.While;
 import io.github.syst3ms.skriptparser.pattern.CompoundElement;
 import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
 import io.github.syst3ms.skriptparser.pattern.TextElement;
@@ -13,11 +19,15 @@ import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
+import io.github.syst3ms.skriptparser.util.FileUtils;
 import org.junit.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collections;
+import java.util.List;
 
 import static io.github.syst3ms.skriptparser.parsing.TestExpressions.ExprRandom;
 import static io.github.syst3ms.skriptparser.parsing.TestExpressions.ExprSquared;
@@ -115,13 +125,7 @@ public class SyntaxParserTest {
                 ExprWhether.class,
                 Boolean.class,
                 true,
-                "whether %~boolean%"
-        );
-        SkriptParser.setWhetherPattern(
-                new CompoundElement(
-                        new TextElement("whether "),
-                        new ExpressionElement(Collections.singletonList(SyntaxParser.BOOLEAN_PATTERN_TYPE), ExpressionElement.Acceptance.EXPRESSIONS_ONLY, false)
-                )
+                "whether %~=boolean%"
         );
         registration.addExpression(
                 CondExprCompare.class,
@@ -129,6 +133,14 @@ public class SyntaxParserTest {
                 true,
                 1,
                 CondExprCompare.PATTERNS.getPatterns()
+        );
+        registration.addSection(
+                While.class,
+                "while %=boolean%"
+        );
+        registration.addEffect(
+                TestEffects.EffPrintln.class,
+                "println %string%"
         );
         Comparators.registerComparator(Number.class, Number.class, new Comparator<Number, Number>() {
             @Override
@@ -231,4 +243,14 @@ public class SyntaxParserTest {
         */
     }
 
+    @Test
+    public void parseSection() throws Exception {
+        FileParser fileParser = new FileParser();
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader.getResource("section-test.txt").getFile());
+        List<String> lines = FileUtils.readAllLines(file);
+        List<FileElement> elements = fileParser.parseFileLines("section-test", lines, 0, 1);
+        FileSection sec = (FileSection) elements.get(0);
+        SyntaxParser.parseSection(sec);
+    }
 }

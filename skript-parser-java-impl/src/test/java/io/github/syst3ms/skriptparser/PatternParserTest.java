@@ -11,7 +11,7 @@ import io.github.syst3ms.skriptparser.pattern.RegexGroup;
 import io.github.syst3ms.skriptparser.pattern.TextElement;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.types.TypeManager;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -69,18 +69,20 @@ public class PatternParserTest {
                 new ExpressionElement(
                         Collections.singletonList(TypeManager.getPatternType("number")),
                         ExpressionElement.Acceptance.ALL,
+                        false,
                         false
                 ),
                 parser.parsePattern("%number%")
         );
         assertEquals(
                 new ExpressionElement(
-                    Arrays.asList(
-                            TypeManager.getPatternType("number"),
-                            TypeManager.getPatternType("strings")
-                    ),
+                        Arrays.asList(
+                                TypeManager.getPatternType("number"),
+                                TypeManager.getPatternType("strings")
+                        ),
                         ExpressionElement.Acceptance.LITERALS_ONLY,
-                        true
+                        true,
+                        false
                 ),
                 parser.parsePattern("%*number/strings%")
         );
