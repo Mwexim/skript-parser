@@ -21,4 +21,8 @@ public class Main {
     public static SkriptRegistration getMainRegistration() {
         return registration;
     }
+
+    public static void error(String error) {
+        // TODO some day
+    }
 }

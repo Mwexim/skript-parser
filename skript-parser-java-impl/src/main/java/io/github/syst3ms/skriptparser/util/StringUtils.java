@@ -232,4 +232,17 @@ public class StringUtils {
             strings[i] = strings[i].trim();
         return strings;
     }
+
+    public static String withIndefiniteArticle(String name, boolean plural) {
+        if (name.isEmpty())
+            return null;
+        else if (plural)
+            return name;
+        char first = Character.toLowerCase(name.trim().charAt(0));
+        if (first == 'a' || first == 'e' || first == 'i' || first == 'o' || first == 'u' || first == 'y') {
+            return "an " + name;
+        } else {
+            return "a " + name;
+        }
+    }
 }

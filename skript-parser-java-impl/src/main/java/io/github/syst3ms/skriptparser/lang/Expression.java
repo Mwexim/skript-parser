@@ -15,13 +15,18 @@ import java.util.function.Predicate;
 public interface Expression<T> extends SyntaxElement {
     T[] getValues(Event e);
 
+    /*
+     * This is staying until we figure out a better way to implement this
+     */
     default T[] getArray(Event e) {
         return getValues(e);
     }
 
-    default boolean change(Event e, ChangeMode changeMode) {
-        return false;
+    default Class<?>[] acceptsChange(ChangeMode mode) {
+        return null;
     }
+
+    default void change(Event e, Object[] changeTo, ChangeMode changeMode) {}
 
     default T getSingle(Event e) {
         T[] values = getValues(e);

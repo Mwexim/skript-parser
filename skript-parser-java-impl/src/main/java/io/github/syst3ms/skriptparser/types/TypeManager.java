@@ -14,11 +14,8 @@ import java.util.Objects;
 public class TypeManager {
     public static final String NULL_REPRESENTATION = "<none>";
     public static final String EMPTY_REPRESENTATION = "<empty>";
-    private static final TypeManager instance = new TypeManager();
     private static Map<String, Type<?>> nameToType = new HashMap<>();
     private static Map<Class<?>, Type<?>> classToType = new LinkedHashMap<>(); // Ordering is important for stuff like number types
-
-    private TypeManager(){}
 
     public static Map<Class<?>, Type<?>> getClassToTypeMap() {
         return classToType;
@@ -55,6 +52,8 @@ public class TypeManager {
      * @return the associated Type, or {@literal null}
      */
     public static <T> Type<T> getByClassExact(Class<T> c) {
+        if (c.isArray())
+            c = (Class<T>) c.getComponentType();
         return (Type<T>) classToType.get(c);
     }
 

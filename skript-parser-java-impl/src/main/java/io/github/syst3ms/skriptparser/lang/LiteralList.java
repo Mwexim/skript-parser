@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.types.ClassUtils;
+import io.github.syst3ms.skriptparser.util.ClassUtils;
 
 public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
 

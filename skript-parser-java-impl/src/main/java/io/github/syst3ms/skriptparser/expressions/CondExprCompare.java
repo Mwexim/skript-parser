@@ -7,14 +7,13 @@ import io.github.syst3ms.skriptparser.lang.ExpressionList;
 import io.github.syst3ms.skriptparser.lang.interfaces.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
-import io.github.syst3ms.skriptparser.types.ClassUtils;
+import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 
 public class CondExprCompare extends ConditionalExpression {
-
     public static final PatternInfos<Relation> PATTERNS = new PatternInfos<>(new Object[][] {
             {"[1¦neither] %objects% ((is|are)[2¦(n't| not|4¦ neither)] (greater|more|higher|bigger|larger|above) [than] or (equal to|the same as)|\\>=) %objects%", Relation.GREATER_OR_EQUAL},
             {"[1¦neither] %objects% ((is|are)[2¦(n't| not|4¦ neither)] (less|smaller|below) [than] or (equal to|the same as)|\\<=) %objects%", Relation.SMALLER_OR_EQUAL},

@@ -1,7 +1,8 @@
-package io.github.syst3ms.skriptparser.types;
+package io.github.syst3ms.skriptparser.util;
 
 public class ClassUtils {
-    public final static Class<?> getCommonSuperclass(final Class<?>... cs) {
+
+    public static Class<?> getCommonSuperclass(final Class<?>... cs) {
         assert cs.length > 0;
         Class<?> r = cs[0];
         assert r != null;
@@ -30,5 +31,13 @@ public class ClassUtils {
             }
         }
         return r;
+    }
+
+    public static boolean containsSuperclass(Class<?>[] haystack, Class<?> needle) {
+        for (Class<?> c : haystack) {
+            if (c.isAssignableFrom(needle))
+                return true;
+        }
+        return false;
     }
 }
