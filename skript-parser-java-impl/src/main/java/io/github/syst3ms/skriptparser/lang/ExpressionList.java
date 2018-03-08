@@ -98,7 +98,7 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
-    public <R> Expression<R> convertExpression(Class<R>[] to) {
+    public <R> Expression<R> convertExpression(Class<R> to) {
         final Expression<? extends R>[] exprs = new Expression[expressions.length];
         for (int i = 0; i < exprs.length; i++)
             if ((exprs[i] = expressions[i].convertExpression(to)) == null)

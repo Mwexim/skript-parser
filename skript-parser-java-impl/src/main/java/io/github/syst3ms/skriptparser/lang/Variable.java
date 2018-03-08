@@ -26,16 +26,15 @@ public class Variable<T> implements Expression<T> {
     private final VariableString name;
     private final boolean local;
     private final boolean list;
-    private final Class<?>[] types;
+    private final Class<?> type;
     private final Class<?> supertype;
 
-
-    public Variable(VariableString name, boolean local, boolean list, Class<?>[] types) {
+    public Variable(VariableString name, boolean local, boolean list, Class<?> type) {
         this.name = name;
         this.local = local;
         this.list = list;
-        this.types = types;
-        this.supertype = ClassUtils.getCommonSuperclass(types);
+        this.type = type;
+        this.supertype = ClassUtils.getCommonSuperclass(this.type);
     }
 
     public Object getRaw(Event e) {
@@ -53,7 +52,7 @@ public class Variable<T> implements Expression<T> {
         if (!list)
             return val;
         if (val == null)
-            return Array.newInstance(types[0], 0);
+            return Array.newInstance(type, 0);
         List<Object> l = new ArrayList<>();
         for (Map.Entry<String, ?> v : ((Map<String, ?>) val).entrySet()) {
             if (v.getKey() != null && v.getValue() != null) {
@@ -85,12 +84,12 @@ public class Variable<T> implements Expression<T> {
 
     private T getConverted(Event e) {
         assert !list;
-        return (T) Converters.convert(get(e), types);
+        return (T) Converters.convert(get(e), type);
     }
 
     private T[] getConvertedArray(Event e) {
         assert list;
-        return Converters.convertArray((Object[]) get(e), (Class<? extends T>[]) types, (Class<T>) supertype);
+        return Converters.convertArray((Object[]) get(e), (Class<T>) type, (Class<T>) supertype);
     }
 
     @Override
@@ -132,7 +131,7 @@ public class Variable<T> implements Expression<T> {
                 while (keys.hasNext()) {
                     key = keys.next();
                     if (key != null) {
-                        next = (T) Converters.convert(Variables.getVariable(name + key, e, local), types);
+                        next = (T) Converters.convert(Variables.getVariable(name + key, e, local), type);
                         if (next != null && !(next instanceof TreeMap))
                             return true;
                     }

@@ -225,15 +225,14 @@ public abstract class Converters {
 	 * @return The converted array
 	 */
     @SuppressWarnings("unchecked")
-    public static <T> T[] convertArray(final Object[] o, final Class<? extends T>[] to, final Class<T> superType) {
+    public static <T> T[] convertArray(final Object[] o, final Class<? extends T> to, final Class<T> superType) {
         if (o == null) {
             final T[] r = (T[]) Array.newInstance(superType, 0);
             assert r != null;
             return r;
         }
-        for (final Class<? extends T> t : to)
-            if (t.isAssignableFrom(o.getClass().getComponentType()))
-                return (T[]) o;
+        if (to.isAssignableFrom(o.getClass().getComponentType()))
+            return (T[]) o;
         final List<T> l = new ArrayList<>(o.length);
         for (final Object e : o) {
             final T c = convert(e, to);

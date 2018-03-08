@@ -4,7 +4,7 @@ import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.ExpressionList;
-import io.github.syst3ms.skriptparser.lang.interfaces.ConditionalExpression;
+import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.ClassUtils;

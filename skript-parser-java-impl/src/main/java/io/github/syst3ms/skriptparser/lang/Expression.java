@@ -6,7 +6,7 @@ import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
-import io.github.syst3ms.skriptparser.types.conversions.ConvertedExpression;
+import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 
 import java.util.Iterator;
@@ -60,7 +60,7 @@ public interface Expression<T> extends SyntaxElement {
         return CollectionUtils.iterator(getValues(e));
     }
 
-    default <C> Expression<C> convertExpression(Class<C>... to) {
+    default <C> Expression<C> convertExpression(Class<C> to) {
         return ConvertedExpression.newInstance(this, to);
     }
 
@@ -79,7 +79,7 @@ public interface Expression<T> extends SyntaxElement {
         return this;
     }
 
-    default Expression<T> simplify() {
+    default Expression<? extends T> simplify() {
         return this;
     }
 

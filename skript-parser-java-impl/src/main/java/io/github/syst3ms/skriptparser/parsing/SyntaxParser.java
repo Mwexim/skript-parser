@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.parsing;
 
+import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
@@ -8,8 +9,9 @@ import io.github.syst3ms.skriptparser.lang.ExpressionList;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.LiteralList;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
+import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
-import io.github.syst3ms.skriptparser.lang.interfaces.ConditionalExpression;
+import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
@@ -20,6 +22,7 @@ import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.RecentElementList;
 import io.github.syst3ms.skriptparser.util.StringUtils;
+import io.github.syst3ms.skriptparser.variables.Variables;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +51,14 @@ public class SyntaxParser {
         Expression<? extends T> literal = parseLiteral(s, expectedType);
         if (literal != null) {
             return literal;
+        }
+        Variable<? extends T> variable = (Variable<? extends T>) Variables.parseVariable(s, expectedType.getType().getTypeClass());
+        if (variable != null) {
+            if (!variable.isSingle() && expectedType.isSingle()) {
+                Main.error("Expected a single value, but multiple were given");
+                return null;
+            }
+            return variable;
         }
         if (!expectedType.isSingle()) {
             Expression<? extends T> listLiteral = parseListLiteral(s, expectedType);
@@ -164,7 +175,7 @@ public class SyntaxParser {
                     if (literal != null && expectedClass.isAssignableFrom(c)) {
                         return new SimpleLiteral<>(expectedClass, literal);
                     } else if (literal != null) {
-                        return new SimpleLiteral<>((Class<T>) c, literal).convertExpression(new Class[]{expectedType.getType().getTypeClass()});
+                        return new SimpleLiteral<>((Class<T>) c, literal).convertExpression(expectedType.getType().getTypeClass());
                     }
                 } else if (expectedClass == String.class || c == String.class) {
                     VariableString vs = VariableString.newInstanceWithQuotes(s);
@@ -225,8 +236,7 @@ public class SyntaxParser {
                     );
                     Class<?> expressionReturnType = expression.getReturnType();
                     if (!expectedTypeClass.isAssignableFrom(expressionReturnType)) {
-                        Expression<?> converted = expression.convertExpression(
-                                (Class<?>) expectedTypeClass);
+                        Expression<?> converted = expression.convertExpression(expectedTypeClass);
                         if (converted != null) {
                             return (Expression<? extends T>) converted;
                         } else {

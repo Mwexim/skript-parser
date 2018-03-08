@@ -35,6 +35,8 @@ public class ClassUtils {
 
     public static boolean containsSuperclass(Class<?>[] haystack, Class<?> needle) {
         for (Class<?> c : haystack) {
+            if (c.isArray())
+                c = c.getComponentType();
             if (c.isAssignableFrom(needle))
                 return true;
         }

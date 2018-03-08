@@ -1,4 +1,4 @@
-package io.github.syst3ms.skriptparser.lang.interfaces;
+package io.github.syst3ms.skriptparser.lang.base;
 
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;

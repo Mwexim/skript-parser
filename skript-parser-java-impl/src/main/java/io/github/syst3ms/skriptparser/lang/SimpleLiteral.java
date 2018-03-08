@@ -85,8 +85,8 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     @Override
-    public <R> Expression<R> convertExpression(Class<R>[] to) {
-        if (CollectionUtils.containsSuperclass(to, getReturnType()))
+    public <R> Expression<R> convertExpression(Class<R> to) {
+        if (to.isAssignableFrom(getReturnType()))
             return (SimpleLiteral<R>) this;
         Class<R> superType = (Class<R>) ClassUtils.getCommonSuperclass(to);
         R[] converted = Converters.convertArray(values, to, superType);

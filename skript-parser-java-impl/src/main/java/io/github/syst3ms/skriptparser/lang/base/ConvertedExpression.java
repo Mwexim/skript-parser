@@ -1,8 +1,9 @@
-package io.github.syst3ms.skriptparser.types.conversions;
+package io.github.syst3ms.skriptparser.lang.base;
 
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.types.conversions.Converters;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -14,25 +15,22 @@ public class ConvertedExpression<F, T> implements Expression<T> {
     private Class<T> to;
     private Function<? super F, ? extends T> converter;
 
-    private ConvertedExpression(Expression<? extends F> source, Class<T> to, Function<? super F, ? extends T> converter) {
+    ConvertedExpression(Expression<? extends F> source, Class<T> to, Function<? super F, ? extends T> converter) {
         this.source = source;
         this.to = to;
         this.converter = converter;
     }
 
-    @SafeVarargs
-    public static <F, T> ConvertedExpression<F, T> newInstance(final Expression<F> v, Class<T>... to) {
-        for (final Class<T> c : to) {
-            assert c != null;
-            // casting <? super ? extends F> to <? super F> is wrong, but since the converter is only used for values returned by the expression
-            // (which are instances of "<? extends F>") this won't result in any ClassCastExceptions.
-            @SuppressWarnings("unchecked")
-            final Function<? super F, ? extends T> conv = (Function<? super F, ? extends T>) Converters.getConverter(v.getReturnType(), c);
-            if (conv == null)
-                continue;
-            return new ConvertedExpression<>(v, c, conv);
-        }
-        return null;
+    public static <F, T> ConvertedExpression<F, T> newInstance(final Expression<F> v, Class<T> to) {
+        // casting <? super ? extends F> to <? super F> is wrong, but since the converter is only used for values returned by the expression
+        // (which are instances of "<? extends F>") this won't result in any ClassCastExceptions.
+        @SuppressWarnings("unchecked")
+        final Function<? super F, ? extends T> conv = (Function<? super F, ? extends T>) Converters
+                .getConverter(v.getReturnType(), to);
+        if (conv == null)
+            return null;
+        return new ConvertedExpression<>(v, to, conv);
+
     }
 
     @Override

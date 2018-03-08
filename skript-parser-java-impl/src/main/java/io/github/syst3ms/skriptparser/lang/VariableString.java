@@ -153,4 +153,9 @@ public class VariableString implements Expression<String> {
         }
         return sb.toString();
     }
+
+    @Override
+    public Class<? extends String> getReturnType() {
+        return String.class;
+    }
 }
