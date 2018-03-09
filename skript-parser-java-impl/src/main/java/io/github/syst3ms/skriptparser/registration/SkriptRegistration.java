@@ -9,6 +9,8 @@ import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
+import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
+import io.github.syst3ms.skriptparser.types.changers.Changer;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 import io.github.syst3ms.skriptparser.util.StringUtils;
@@ -20,11 +22,11 @@ import java.util.function.Function;
 
 public class SkriptRegistration {
     private String registerer;
-    private MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
-    private List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
-    private List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
-    private List<Type<?>> types = new ArrayList<>();
-    private List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
+    MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
+    List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
+    List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
+    List<Type<?>> types = new ArrayList<>();
+    List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
     private PatternParser patternParser;
     public SkriptRegistration(String registerer) {
         this.registerer = registerer;
@@ -92,15 +94,11 @@ public class SkriptRegistration {
     }
 
     public <T> void addType(Class<T> c, String name, String pattern) {
-        types.add(new Type<>(c, name, pattern));
+        new TypeRegistrar<>(c, name, pattern).register();
     }
 
-    public <T> void addType(Class<T> c, String name, String pattern, Function<String, ? extends T> literalParser) {
-        types.add(new Type<>(c, name, pattern, literalParser));
-    }
-
-    public <T> void addType(Class<T> c, String name, String pattern, Function<String, ? extends T> literalParser, Function<? super T, String> toStringFunction) {
-        types.add(new Type<>(c, name, pattern, literalParser, toStringFunction));
+    public <T> TypeRegistrar<T> newType(Class<T> c, String name, String pattern) {
+        return new TypeRegistrar<>(c, name, pattern);
     }
 
     public <F, T> void addConverter(Class<F> from, Class<T> to, Function<? super F, ? extends T> converter) {
@@ -111,7 +109,6 @@ public class SkriptRegistration {
         converters.add(new Converters.ConverterInfo<>(from, to, converter, options));
     }
 
-
     public void register() {
         SyntaxManager.register(this);
         TypeManager.register(this);
@@ -119,7 +116,52 @@ public class SkriptRegistration {
         Converters.createMissingConverters();
     }
 
-    public abstract class SyntaxRegistrar<C extends SyntaxElement> {
+    public interface Registrar {
+        void register();
+    }
+
+    public class TypeRegistrar<C> implements Registrar {
+        private final Class<C> c;
+        private final String baseName;
+        private final String pattern;
+        private Function<String, ? extends C> literalParser;
+        private Function<? super C, String> toStringFunction;
+        private Changer<? super C> defaultChanger;
+        private Arithmetic<C, ?> arithmetic;
+
+        public TypeRegistrar(Class<C> c, String baseName, String pattern) {
+            this.c = c;
+            this.baseName = baseName;
+            this.pattern = pattern;
+        }
+
+        public TypeRegistrar<C> literalParser(Function<String, ? extends C> literalParser) {
+            this.literalParser = literalParser;
+            return this;
+        }
+
+        public TypeRegistrar<C> toStringFunction(Function<? super C, String> toStringFunction) {
+            this.toStringFunction = toStringFunction;
+            return this;
+        }
+
+        public TypeRegistrar<C> defaultChanger(Changer<? super C> defaultChanger) {
+            this.defaultChanger = defaultChanger;
+            return this;
+        }
+
+        public <R> TypeRegistrar<C> arithmetic(Arithmetic<C, R> arithmetic) {
+            this.arithmetic = arithmetic;
+            return this;
+        }
+
+        @Override
+        public void register() {
+            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic));
+        }
+    }
+
+    public abstract class SyntaxRegistrar<C extends SyntaxElement> implements Registrar {
         private final Class<C> c;
         private List<String> patterns = new ArrayList<>();
         private int priority = 5;
@@ -145,8 +187,6 @@ public class SkriptRegistration {
             this.priority = priority;
             return this;
         }
-
-        public abstract void register();
     }
 
     public class ExpressionRegistrar<C extends Expression<? extends T>, T> extends SyntaxRegistrar<C> {

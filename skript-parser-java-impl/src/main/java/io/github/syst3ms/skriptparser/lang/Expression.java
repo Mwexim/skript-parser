@@ -2,11 +2,11 @@ package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.classes.ChangeMode;
 import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
-import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 
 import java.util.Iterator;
@@ -26,7 +26,7 @@ public interface Expression<T> extends SyntaxElement {
         return null;
     }
 
-    default void change(Event e, Object[] changeTo, ChangeMode changeMode) {}
+    default void change(Event e, Object[] changeWith, ChangeMode changeMode) {}
 
     default T getSingle(Event e) {
         T[] values = getValues(e);

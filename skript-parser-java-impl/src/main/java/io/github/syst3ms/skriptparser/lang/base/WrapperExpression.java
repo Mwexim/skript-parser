@@ -88,8 +88,8 @@ public abstract class WrapperExpression<T> implements Expression<T> {
     }
 
     @Override
-    public void change(final Event e, final Object[] delta, final ChangeMode mode) {
-        expr.change(e, delta, mode);
+    public void change(final Event e, final Object[] changeWith, final ChangeMode mode) {
+        expr.change(e, changeWith, mode);
     }
 
     @Override

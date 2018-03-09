@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser;
 
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
+import io.github.syst3ms.skriptparser.parsing.TestRegistration;
 import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
 import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
 import io.github.syst3ms.skriptparser.pattern.CompoundElement;
@@ -22,10 +23,7 @@ import static org.junit.Assert.*;
 public class PatternParserTest {
 
     static {
-        SkriptRegistration reg = new SkriptRegistration("unit-tests");
-        reg.addType(Number.class, "number", "number¦s", Double::parseDouble);
-        reg.addType(String.class, "string", "string¦s");
-        reg.register();
+        TestRegistration.register();
     }
 
     @Test

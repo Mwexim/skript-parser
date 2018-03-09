@@ -4,7 +4,10 @@ import io.github.syst3ms.skriptparser.classes.ChangeMode;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
+import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
+import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
+import io.github.syst3ms.skriptparser.types.changers.Changer;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
@@ -237,7 +240,7 @@ public class Variable<T> implements Expression<T> {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public void change(Event e, Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
+    public void change(Event e, Object[] changeWith, ChangeMode mode) throws UnsupportedOperationException {
         switch (mode) {
             case DELETE:
                 if (list) {
@@ -259,11 +262,11 @@ public class Variable<T> implements Expression<T> {
                 set(e, null);
                 break;
             case SET:
-                assert delta != null;
+                assert changeWith != null;
                 if (list) {
                     set(e, null);
                     int i = 1;
-                    for (Object d : delta) {
+                    for (Object d : changeWith) {
                         if (d instanceof Object[]) {
                             for (int j = 0; j < ((Object[]) d).length; j++)
                                 setIndex(e, "" + i + Variables.LIST_SEPARATOR + j, ((Object[]) d)[j]);
@@ -273,38 +276,35 @@ public class Variable<T> implements Expression<T> {
                         i++;
                     }
                 } else {
-                    set(e, delta[0]);
+                    set(e, changeWith[0]);
                 }
                 break;
             case RESET:
                 Object x = getRaw(e);
                 if (x == null)
                     return;
-                /*
-                for (Object o : x instanceof Map ? ((Map<?, ?>) x).values() : Arrays.asList(x)) {
+                for (Object o : x instanceof Map ? ((Map<?, ?>) x).values() : Collections.singletonList(x)) {
                     Class<?> c = o.getClass();
-                    assert c != null;
-                    Type<?> ci = TypeManager.getByClass(c);
-
-                    if (changer != null && changer.acceptChange(ChangeMode.RESET) != null) {
+                    Type<?> type = TypeManager.getByClass(c);
+                    Changer<?> changer = type.getDefaultChanger();
+                    if (changer != null && changer.acceptsChange(ChangeMode.RESET) != null) {
                         Object[] one = (Object[]) Array.newInstance(o.getClass(), 1);
                         one[0] = o;
                         ((Changer) changer).change(one, null, ChangeMode.RESET);
                     }
                 }
-                */
                 break;
             case ADD:
             case REMOVE:
             case REMOVE_ALL:
-                assert delta != null;
+                assert changeWith != null;
                 if (list) {
                     Map<String, Object> o = (Map<String, Object>) getRaw(e);
                     if (mode == ChangeMode.REMOVE) {
                         if (o == null)
                             return;
                         ArrayList<String> rem = new ArrayList<>(); // prevents CMEs
-                        for (Object d : delta) {
+                        for (Object d : changeWith) {
                             for (Map.Entry<String, Object> i : o.entrySet()) {
                                 if (Relation.EQUAL.is(Comparators.compare(i.getValue(), d))) {
                                     rem.add(i.getKey());
@@ -321,7 +321,7 @@ public class Variable<T> implements Expression<T> {
                             return;
                         ArrayList<String> rem = new ArrayList<>(); // prevents CMEs
                         for (Map.Entry<String, Object> i : o.entrySet()) {
-                            for (Object d : delta) {
+                            for (Object d : changeWith) {
                                 if (Relation.EQUAL.is(Comparators.compare(i.getValue(), d)))
                                     rem.add(i.getKey());
                             }
@@ -333,7 +333,7 @@ public class Variable<T> implements Expression<T> {
                     } else {
                         assert mode == ChangeMode.ADD;
                         int i = 1;
-                        for (Object d : delta) {
+                        for (Object d : changeWith) {
                             if (o != null)
                                 while (o.containsKey("" + i))
                                     i++;
@@ -342,35 +342,30 @@ public class Variable<T> implements Expression<T> {
                         }
                     }
                 } else {
-                    /*
                     Object o = get(e);
-                    ClassInfo<?> ci;
+                    Type<?> type;
                     if (o == null) {
-                        ci = null;
+                        type = null;
                     } else {
-                        Class<?> c = o.getClass();
-                        assert c != null;
-                        ci = Classes.getSuperClassInfo(c);
+                        type = TypeManager.getByClass(o.getClass());
                     }
                     Arithmetic a = null;
                     Changer<?> changer;
                     Class<?>[] cs;
-                    if (o == null || ci == null || (a = ci.getMath()) != null) {
+                    if (o == null || type == null || (a = type.getArithmetic()) != null) {
                         boolean changed = false;
-                        for (Object d : delta) {
-                            if (o == null || ci == null) {
-                                Class<?> c = d.getClass();
-                                assert c != null;
-                                ci = Classes.getSuperClassInfo(c);
+                        for (Object d : changeWith) {
+                            if (o == null || type == null) {
+                                type = TypeManager.getByClass(d.getClass());
                                 //Mirre Start
-                                if (ci.getMath() != null || d instanceof Number)
+                                if (type.getArithmetic() != null || d instanceof Number)
                                     o = d;
                                 //Mirre End
                                 changed = true;
                                 continue;
                             }
-                            Class<?> r = ci.getMathRelativeType();
-                            assert a != null && r != null : ci;
+                            assert a != null;
+                            Class<?> r = a.getRelativeType();
                             Object diff = Converters.convert(d, r);
                             if (diff != null) {
                                 if (mode == ChangeMode.ADD)
@@ -382,27 +377,22 @@ public class Variable<T> implements Expression<T> {
                         }
                         if (changed)
                             set(e, o);
-                    } else if ((changer = ci.getChanger()) != null && (cs = changer.acceptChange(mode)) != null) {
+                    } else if ((changer = type.getDefaultChanger()) != null && (cs = changer.acceptsChange(mode)) != null) {
                         Object[] one = (Object[]) Array.newInstance(o.getClass(), 1);
                         one[0] = o;
-
                         Class<?>[] cs2 = new Class<?>[cs.length];
                         for (int i = 0; i < cs.length; i++)
                             cs2[i] = cs[i].isArray() ? cs[i].getComponentType() : cs[i];
-
                         ArrayList<Object> l = new ArrayList<>();
-                        for (Object d : delta) {
+                        for (Object d : changeWith) {
                             Object d2 = Converters.convert(d, cs2);
                             if (d2 != null)
                                 l.add(d2);
                         }
-
-                        ChangerUtils.change(changer, one, l.toArray(), mode);
-
-                    }
-                    */
+                        ((Changer<Object>) changer).change(one, l.toArray(), mode);
                 }
                 break;
+            }
         }
     }
     // TODO uncomment

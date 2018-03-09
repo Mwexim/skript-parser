@@ -1,5 +1,7 @@
 package io.github.syst3ms.skriptparser.types;
 
+import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
+import io.github.syst3ms.skriptparser.types.changers.Changer;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 
 import java.util.Arrays;
@@ -16,6 +18,8 @@ public class Type<T> {
     private String[] pluralForms;
     private Function<String, ? extends T> literalParser;
     private Function<Object, String> toStringFunction;
+    private Changer<? super T> defaultChanger;
+    private Arithmetic<T, ?> arithmetic;
 
     /**
      * Constructs a new Type.
@@ -47,7 +51,10 @@ public class Type<T> {
      * @param literalParser the function that would parse literals for the given type. If the parser throws an exception on parsing, it will be
      *                      caught and the type will be ignored.
      */
-    public Type(Class<T> typeClass, String baseName, String pattern, Function<String, ? extends T> literalParser) {
+    public Type(Class<T> typeClass,
+                String baseName,
+                String pattern,
+                Function<String, ? extends T> literalParser) {
         this(typeClass, baseName, pattern, literalParser, Objects::toString);
     }
 
@@ -67,13 +74,38 @@ public class Type<T> {
      * @param toStringFunction the functions that converts an object of the type {@link T} to a {@link String}.Defaults to {@link Objects#toString} for
      *                         other constructors.
      */
+    public Type(Class<T> typeClass,
+                String baseName,
+                String pattern,
+                Function<String, ? extends T> literalParser,
+                Function<? super T, String> toStringFunction) {
+        this(typeClass, baseName, pattern, literalParser, toStringFunction, null);
+    }
+
+    public Type(Class<T> typeClass,
+                String baseName,
+                String pattern,
+                Function<String, ? extends T> literalParser,
+                Function<? super T, String> toStringFunction,
+                Changer<? super T> defaultChanger) {
+        this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger, null);
+    }
+
     @SuppressWarnings("unchecked")
-    public Type(Class<T> typeClass, String baseName, String pattern, Function<String, ? extends T> literalParser, Function<? super T, String> toStringFunction) {
+    public Type(Class<T> typeClass,
+                String baseName,
+                String pattern,
+                Function<String, ? extends T> literalParser,
+                Function<? super T, String> toStringFunction,
+                Changer<? super T> defaultChanger,
+                Arithmetic<T, ?> arithmetic) {
         this.typeClass = typeClass;
         this.baseName = baseName;
         this.literalParser = literalParser;
         this.toStringFunction = (Function<Object, String>) toStringFunction;
         this.pluralForms = StringUtils.getForms(pattern.trim());
+        this.defaultChanger = defaultChanger;
+        this.arithmetic = arithmetic;
     }
 
     public Function<String, ? extends T> getLiteralParser() {
@@ -115,5 +147,13 @@ public class Type<T> {
 
     public Function<Object, String> getToStringFunction() {
         return toStringFunction;
+    }
+
+    public Changer<? super T> getDefaultChanger() {
+        return defaultChanger;
+    }
+
+    public Arithmetic<T, ?> getArithmetic() {
+        return arithmetic;
     }
 }
