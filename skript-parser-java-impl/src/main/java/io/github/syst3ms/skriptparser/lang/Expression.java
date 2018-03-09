@@ -79,6 +79,9 @@ public interface Expression<T> extends SyntaxElement {
         return this;
     }
 
+    /*
+     * Maybe later.
+     */
     default Expression<? extends T> simplify() {
         return this;
     }

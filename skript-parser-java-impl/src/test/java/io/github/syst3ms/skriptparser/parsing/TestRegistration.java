@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.effects.EffChange;
 import io.github.syst3ms.skriptparser.expressions.CondExprCompare;
+import io.github.syst3ms.skriptparser.expressions.ExprNumberArithmetic;
 import io.github.syst3ms.skriptparser.expressions.ExprWhether;
 import io.github.syst3ms.skriptparser.lang.While;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
@@ -196,6 +197,12 @@ public class TestRegistration {
                 true,
                 1,
                 CondExprCompare.PATTERNS.getPatterns()
+        );
+        registration.addExpression(
+                ExprNumberArithmetic.class,
+                Number.class,
+                true,
+                ExprNumberArithmetic.PATTERNS.getPatterns()
         );
         registration.addEffect(
                 EffChange.class,

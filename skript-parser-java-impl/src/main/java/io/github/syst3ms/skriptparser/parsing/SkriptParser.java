@@ -89,8 +89,6 @@ public class SkriptParser {
         List<PatternElement> possibilities = new ArrayList<>();
         for (PatternElement element : elements) {
             if (element instanceof TextElement || element instanceof RegexGroup) {
-                if (element instanceof TextElement && ((TextElement) element).getText().matches("\\s+"))
-                    continue;
                 possibilities.add(element);
                 return possibilities;
             } else if (element instanceof ChoiceGroup) {

@@ -24,6 +24,7 @@ import io.github.syst3ms.skriptparser.util.RecentElementList;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import io.github.syst3ms.skriptparser.variables.Variables;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -167,13 +168,15 @@ public class SyntaxParser {
     public static <T> Expression<? extends T> parseLiteral(String s, PatternType<T> expectedType) {
         Map<Class<?>, Type<?>> classToTypeMap = TypeManager.getClassToTypeMap();
         for (Class<?> c : classToTypeMap.keySet()) {
-            Class<T> expectedClass = expectedType.getType().getTypeClass();
+            Class<? extends T> expectedClass = expectedType.getType().getTypeClass();
             if (expectedClass.isAssignableFrom(c) || Converters.converterExists(c, expectedClass)) {
                 Function<String, ?> literalParser = classToTypeMap.get(c).getLiteralParser();
                 if (literalParser != null) {
                     T literal = (T) literalParser.apply(s);
                     if (literal != null && expectedClass.isAssignableFrom(c)) {
-                        return new SimpleLiteral<>(expectedClass, literal);
+                        T[] one = (T[]) Array.newInstance(literal.getClass(), 1);
+                        one[0] = literal;
+                        return new SimpleLiteral<>(one);
                     } else if (literal != null) {
                         return new SimpleLiteral<>((Class<T>) c, literal).convertExpression(expectedType.getType().getTypeClass());
                     }
