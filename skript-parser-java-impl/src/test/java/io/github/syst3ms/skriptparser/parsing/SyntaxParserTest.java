@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.parsing;
 
+import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileParser;
 import io.github.syst3ms.skriptparser.file.FileSection;
@@ -37,7 +38,7 @@ public class SyntaxParserTest {
     @Test
     public void parseExpression() {
         PatternType<Number> numberType = new PatternType<>(TypeManager.getByClassExact(Number.class), true);
-        assertExpressionEquals(new SimpleLiteral<>(Long.class, 2L), SyntaxParser.parseExpression("2", numberType));
+        assertExpressionEquals(new SimpleLiteral<>(Long.class, 2L), SyntaxParser.parseExpression("2L", numberType));
         int expectedInt = SyntaxParser.parseExpression("random integer between 0 and 10", numberType)
                                       .getSingle(null)
                                       .intValue();
@@ -61,7 +62,7 @@ public class SyntaxParserTest {
         );
         assertExpressionEquals(
             new SimpleLiteral<>(Number.class, 1L, 2L, 3L),
-            SyntaxParser.parseExpression("1, 2 and 3", new PatternType<>(TypeManager.getByClass(Number.class), false))
+            SyntaxParser.parseExpression("1L, 2L and 3L", new PatternType<>(TypeManager.getByClass(Number.class), false))
         );
         assertExpressionTrue(
                 SyntaxParser.parseBooleanExpression("whether 5 is greater than 0", false)
@@ -88,6 +89,10 @@ public class SyntaxParserTest {
                 SyntaxParser.parseBooleanExpression("whether whether 2 <= 4, (whether 10 is greater than or equal to 6) and true are true", false)
         );
         */
+        assertNull(SyntaxParser.parseExpression("2 + \"test\"", numberType));
+        SkriptLogger.printError();
+        assertNull(SyntaxParser.parseEffect("set \"test\" to 2"));
+        SkriptLogger.printError();
     }
 
     @Test

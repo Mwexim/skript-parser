@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.file;
 
+import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 
 import java.util.ArrayList;
@@ -27,10 +28,10 @@ public class FileParser {
             }
             int lineIndentation = FileUtils.getIndentationLevel(line);
             if (lineIndentation > expectedIndentation) { // One indentation behind marks the end of a section
-                error("Invalid indentation, expected " +
-                      expectedIndentation +
-                      " indents, but found " +
-                      lineIndentation);
+                SkriptLogger.error("Invalid indentation, expected " +
+                                   expectedIndentation +
+                                   " indents, but found " +
+                                   lineIndentation);
                 continue; // Let's ignore it *for now*
             } else if (lineIndentation < expectedIndentation) { // End of section
                 return elements;
@@ -54,10 +55,6 @@ public class FileParser {
             }
         }
         return elements;
-    }
-
-    private void error(String error) {
-        // TODO
     }
 
 }

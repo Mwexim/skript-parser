@@ -202,6 +202,7 @@ public class TestRegistration {
                 ExprNumberArithmetic.class,
                 Number.class,
                 true,
+                2,
                 ExprNumberArithmetic.PATTERNS.getPatterns()
         );
         registration.addEffect(

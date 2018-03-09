@@ -22,7 +22,4 @@ public class Main {
         return registration;
     }
 
-    public static void error(String error) {
-        // TODO some day
-    }
 }

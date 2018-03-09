@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.ExpressionList;
@@ -12,6 +13,7 @@ import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
+import io.github.syst3ms.skriptparser.util.StringUtils;
 
 public class CondExprCompare extends ConditionalExpression {
     public static final PatternInfos<Relation> PATTERNS = new PatternInfos<>(new Object[][] {
@@ -63,21 +65,38 @@ public class CondExprCompare extends ConditionalExpression {
         final boolean b = initialize();
         final Expression<?> third = this.third;
         if (!b) {
-            return false;
+            if (third == null && first.getReturnType() == Object.class && second.getReturnType() == Object.class) {
+                return false;
+            } else {
+                SkriptLogger.error("Can't compare " + errorString(first) + " with " + errorString(second) + (third == null ? "" : " and " + errorString(third)));
+                return false;
+            }
         }
         @SuppressWarnings("rawtypes")
         final Comparator comp = this.comp;
         if (comp != null) {
             if (third == null) {
                 if (!relation.isEqualOrInverse() && !comp.supportsOrdering()) {
+                    SkriptLogger.error("Can't test " + errorString(first) + " for being '" + relation + "' " + errorString(second));
                     return false;
                 }
             } else if (!comp.supportsOrdering()) {
+                SkriptLogger.error("Can't test " +
+                                   errorString(first) +
+                                   " for being 'between' " +
+                                   errorString(second) +
+                                   " and " +
+                                   errorString(third));
                 return false;
             }
         }
-
         return true;
+    }
+
+    private String errorString(Expression<?> expr) {
+        if (expr.getReturnType() == Object.class)
+            return expr.toString(null, false);
+        return StringUtils.withIndefiniteArticle(TypeManager.getByClass(expr.getReturnType()).getBaseName(), !expr.isSingle());
     }
 
     public static String toString(final Expression<?> e) {

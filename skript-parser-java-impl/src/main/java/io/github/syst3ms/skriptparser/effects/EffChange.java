@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.classes.ChangeMode;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Effect;
@@ -51,7 +52,7 @@ public class EffChange extends Effect {
         if (changeWith == null) {
             assert mode == ChangeMode.DELETE || mode == ChangeMode.RESET;
             if (changed.acceptsChange(mode) == null) {
-                Main.error(String.format("This expression can't be %s !", mode == ChangeMode.DELETE ? "deleted" : "reset"));
+                SkriptLogger.error(String.format("This expression can't be %s !", mode == ChangeMode.DELETE ? "deleted" : "reset"));
                 return false;
             }
         } else {
@@ -61,14 +62,14 @@ public class EffChange extends Effect {
             if (acceptance == null) {
                 switch (mode) {
                     case SET:
-                        Main.error("Can't set '" + changedString + "' to anything !");
+                        SkriptLogger.error("Can't set '" + changedString + "' to anything !");
                         break;
                     case ADD:
-                        Main.error("Can't add anything to '" + changedString + "' !");
+                        SkriptLogger.error("Can't add anything to '" + changedString + "' !");
                         break;
                     case REMOVE_ALL:
                     case REMOVE:
-                        Main.error("Can't remove anything from '" + changedString + "' !");
+                        SkriptLogger.error("Can't remove anything from '" + changedString + "' !");
                 }
                 return false;
             } else if (!ClassUtils.containsSuperclass(acceptance, changeType)) {
@@ -79,14 +80,14 @@ public class EffChange extends Effect {
                 );
                 switch (mode) {
                     case SET:
-                        Main.error("Can't set '" + changedString + "' to " + changeTypeName);
+                        SkriptLogger.error("Can't set '" + changedString + "' to " + changeTypeName);
                         break;
                     case ADD:
-                        Main.error("Can't add " + changeTypeName + " to '" + changedString + "'");
+                        SkriptLogger.error("Can't add " + changeTypeName + " to '" + changedString + "'");
                         break;
                     case REMOVE_ALL:
                     case REMOVE:
-                        Main.error("Can't remove " + changeTypeName + " from '" + changedString + "'");
+                        SkriptLogger.error("Can't remove " + changeTypeName + " from '" + changedString + "'");
                 }
                 return false;
             }

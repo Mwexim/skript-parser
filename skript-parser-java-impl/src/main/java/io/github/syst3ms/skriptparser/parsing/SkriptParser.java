@@ -89,11 +89,20 @@ public class SkriptParser {
         List<PatternElement> possibilities = new ArrayList<>();
         for (PatternElement element : elements) {
             if (element instanceof TextElement || element instanceof RegexGroup) {
+                if (element instanceof TextElement) {
+                    String text = ((TextElement) element).getText();
+                    if (text.isEmpty() || text.matches("\\s*") && elements.size() == 1) {
+                        return possibilities;
+                    } else if (text.matches("\\s*")) {
+                        continue;
+                    }
+                }
                 possibilities.add(element);
                 return possibilities;
             } else if (element instanceof ChoiceGroup) {
                 for (ChoiceElement choice : ((ChoiceGroup) element).getChoices()) {
-                    possibilities.addAll(getPossibleInputs(flatten(choice.getElement())));
+                    List<PatternElement> possibleInputs = getPossibleInputs(flatten(choice.getElement()));
+                    possibilities.addAll(possibleInputs);
                 }
                 return possibilities;
             } else if (element instanceof ExpressionElement) {

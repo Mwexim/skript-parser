@@ -40,7 +40,7 @@ public class PatternParser {
             if (c == '[') {
                 String s = StringUtils.getEnclosedText(pattern, '[', ']', i);
                 if (s == null) {
-                    error("Unclosed optional group at index " + i);
+                    SkriptLogger.error("Unclosed optional group at index " + i);
                     return null;
                 }
                 if (textBuilder.length() != 0) {
@@ -69,7 +69,7 @@ public class PatternParser {
             } else if (c == '(') {
                 String s = StringUtils.getEnclosedText(pattern, '(', ')', i);
                 if (s == null) {
-                    error("Unclosed choice group at index " + i);
+                    SkriptLogger.error("Unclosed choice group at index " + i);
                     return null;
                 }
                 if (textBuilder.length() != 0) {
@@ -102,7 +102,7 @@ public class PatternParser {
             } else if (c == '<') {
                 String s = StringUtils.getEnclosedText(pattern, '<', '>', i);
                 if (s == null) {
-                    error("Unclosed regex group at index " + i);
+                    SkriptLogger.error("Unclosed regex group at index " + i);
                     return null;
                 }
                 if (textBuilder.length() != 0) {
@@ -114,7 +114,7 @@ public class PatternParser {
                 try {
                     pat = Pattern.compile(s);
                 } catch (PatternSyntaxException e) {
-                    error("Invalid regex : '" + s + "'");
+                    SkriptLogger.error("Invalid regex : '" + s + "'");
                     return null;
                 }
                 elements.add(new RegexGroup(pat));
@@ -125,7 +125,7 @@ public class PatternParser {
                  */
                 int nextIndex = pattern.indexOf('%', i + 1);
                 if (nextIndex == -1) {
-                    error("Unclosed variable declaration at index " + i);
+                    SkriptLogger.error("Unclosed variable declaration at index " + i);
                     return null;
                 }
                 if (textBuilder.length() != 0) {
@@ -136,7 +136,7 @@ public class PatternParser {
                 i = nextIndex;
                 Matcher m = VARIABLE_PATTERN.matcher(s);
                 if (!m.matches()) {
-                    error("Invalid variable definition");
+                    SkriptLogger.error("Invalid variable definition");
                     return null;
                 } else {
                     boolean nullable = m.group(1) != null;
@@ -155,7 +155,7 @@ public class PatternParser {
                     for (String type : types) {
                         PatternType<?> t = TypeManager.getPatternType(type);
                         if (t == null) {
-                            error("Unknown type : " + type);
+                            SkriptLogger.error("Unknown type : " + type);
                             return null;
                         }
                         patternTypes.add(t);
@@ -167,7 +167,7 @@ public class PatternParser {
                 }
             } else if (c == '\\') {
                 if (i == pattern.length() - 1) {
-                    error("Backslash sequence at the end of the pattern");
+                    SkriptLogger.error("Backslash sequence at the end of the pattern");
                     return null;
                 } else {
                     textBuilder.append(chars[++i]);
@@ -195,8 +195,8 @@ public class PatternParser {
                     }
                 }
                 elements.add(new ChoiceGroup(choices));
-            } else if (c == ']' || c == ')' || c == '>') { // Closing brackets are skipped over, so this marks an error
-                error("Invalid bracket at index " + i);
+            } else if (c == ']' || c == ')' || c == '>') { // Closing brackets are skipped over, so this marks an printError
+                SkriptLogger.error("Invalid bracket at index " + i);
                 return null;
             } else {
                 textBuilder.append(c);

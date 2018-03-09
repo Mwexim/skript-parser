@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
@@ -51,38 +51,48 @@ public class SyntaxParser {
         }
         Expression<? extends T> literal = parseLiteral(s, expectedType);
         if (literal != null) {
+            SkriptLogger.printLog();
             return literal;
         }
         Variable<? extends T> variable = (Variable<? extends T>) Variables.parseVariable(s, expectedType.getType().getTypeClass());
         if (variable != null) {
             if (!variable.isSingle() && expectedType.isSingle()) {
-                Main.error("Expected a single value, but multiple were given");
+                SkriptLogger.error("Expected a single value, but multiple were given");
                 return null;
             }
+            SkriptLogger.printLog();
             return variable;
         }
+        SkriptLogger.clear();
         if (!expectedType.isSingle()) {
             Expression<? extends T> listLiteral = parseListLiteral(s, expectedType);
-            if (listLiteral != null)
+            if (listLiteral != null) {
+                SkriptLogger.printLog();
                 return listLiteral;
+            }
         }
+        SkriptLogger.clear();
         for (ExpressionInfo<?, ?> info : recentExpressions) {
             Expression<? extends T> expr = matchExpressionInfo(s, info, expectedType);
             if (expr != null) {
+                SkriptLogger.printLog();
                 recentExpressions.moveToFirst(info);
                 return expr;
             }
         }
+        SkriptLogger.clear();
         // Let's not loop over the same elements again
         List<ExpressionInfo<?, ?>> remainingExpressions = SyntaxManager.getAllExpressions();
         recentExpressions.removeFrom(remainingExpressions);
         for (ExpressionInfo<?, ?> info : remainingExpressions) {
             Expression<? extends T> expr = matchExpressionInfo(s, info, expectedType);
             if (expr != null) {
+                SkriptLogger.printLog();
                 recentExpressions.moveToFirst(info);
                 return expr;
             }
         }
+        SkriptLogger.error("Can't understand the expression : " + s);
         return null;
     }
 
@@ -141,14 +151,17 @@ public class SyntaxParser {
             if ((i & 1) == 0) { // Even index == element
                 String part = parts.get(i);
                 Expression<? extends T> expression = parseExpression(part, expectedType);
-                if (expression == null)
+                if (expression == null) {
+                    SkriptLogger.printError();
                     return null;
+                }
                 isLiteralList &= expression instanceof Literal;
                 expressions.add(expression);
             }
         }
         if (expressions.size() == 1)
             return expressions.get(0);
+        SkriptLogger.printLog();
         if (isLiteralList) {
             //noinspection SuspiciousToArrayCall
             return new LiteralList<>(
@@ -195,29 +208,31 @@ public class SyntaxParser {
         for (SyntaxInfo<? extends Effect> recentEffect : recentEffects) {
             Effect eff = matchEffectInfo(s, recentEffect);
             if (eff != null) {
+                SkriptLogger.printLog();
                 recentEffects.moveToFirst(recentEffect);
                 return eff;
             }
         }
+        SkriptLogger.clear();
         // Let's not loop over the same elements again
         List<SyntaxInfo<? extends Effect>> remainingEffects = SyntaxManager.getEffects();
         recentEffects.removeFrom(remainingEffects);
         for (SyntaxInfo<? extends Effect> remainingEffect : remainingEffects) {
             Effect eff = matchEffectInfo(s, remainingEffect);
             if (eff != null) {
+                SkriptLogger.printLog();
                 recentEffects.moveToFirst(remainingEffect);
                 return eff;
             }
         }
-        error("Can't understand the effect : '" + s + "'");
+        SkriptLogger.error("Can't understand the effect : " + s);
         return null;
     }
 
     /**
      * Tries to match an {@link ExpressionInfo} against the given {@link String} expression.
-     * Made for DRY purposes inside of {@link #parseExpression(String, PatternType)}
      * @param <T> The return type of the {@link Expression}
-     * @return the Expression instance of matching, or {@literal null} otherwise
+     * @return the Expression instance if matching, or {@literal null} otherwise
      */
     private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType) {
         List<PatternElement> patterns = info.getPatterns();
@@ -227,6 +242,7 @@ public class SyntaxParser {
         if (!expectedTypeClass.isAssignableFrom(infoTypeClass) && !Converters.converterExists(infoTypeClass, expectedTypeClass))
             return null;
         for (int i = 0; i < patterns.size(); i++) {
+            SkriptLogger.clear();
             PatternElement element = patterns.get(i);
             SkriptParser parser = new SkriptParser(element);
             if (element.match(s, 0, parser) != -1) {
@@ -243,7 +259,7 @@ public class SyntaxParser {
                         if (converted != null) {
                             return (Expression<? extends T>) converted;
                         } else {
-                            error("Unmatching return types : expected " +
+                            SkriptLogger.error("Unmatching return types : expected " +
                                   infoType +
                                   " or a subclass, but found " +
                                   TypeManager.getByClass(expressionReturnType).getPluralForms()[expression.isSingle() ? 0 : 1]);
@@ -252,17 +268,17 @@ public class SyntaxParser {
                     }
                     if (!expression.isSingle() &&
                         expectedType.isSingle()) {
-                        error("Expected a single value, but multiple were given");
+                        SkriptLogger.error("Expected a single value, but multiple were given");
                         continue;
                     }
                     return expression;
                 } catch (InstantiationException | IllegalAccessException e) {
-                    error("Parsing of " + info.getSyntaxClass()
-                                              .getSimpleName() + " succeeded, but it couldn't be instantiated");
+                    SkriptLogger.error("Parsing of " + info.getSyntaxClass()
+                                              .getName() + " succeeded, but it couldn't be instantiated");
                 }
             }
         }
-        error("Can't understand the expression : '" + s + "'");
+        SkriptLogger.printError();
         return null;
     }
 
@@ -281,11 +297,12 @@ public class SyntaxParser {
                     );
                     return effect;
                 } catch (InstantiationException | IllegalAccessException e) {
-                    error("Parsing of " + info.getSyntaxClass()
+                    SkriptLogger.error("Parsing of " + info.getSyntaxClass()
                                               .getSimpleName() + " succeeded, but it couldn't be instantiated");
                 }
             }
         }
+        SkriptLogger.printError();
         return null;
     }
 
@@ -304,13 +321,15 @@ public class SyntaxParser {
             Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE);
             if (expr != null) {
                 if (!canBeConditional && ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
-                    error("This boolean expression is conditional, so it can't be used here !");
+                    SkriptLogger.error("This boolean expression is conditional, so it can't be used here !");
                     return null;
                 }
+                SkriptLogger.printLog();
                 recentExpressions.moveToFirst(info);
                 return expr;
             }
         }
+        SkriptLogger.clear();
         // Let's not loop over the same elements again
         List<ExpressionInfo<?, ?>> remainingExpressions = SyntaxManager.getAllExpressions();
         recentExpressions.removeFrom(remainingExpressions);
@@ -320,13 +339,15 @@ public class SyntaxParser {
             Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE);
             if (expr != null) {
                 if (!canBeConditional && ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
-                    error("This boolean expression is conditional, so it can't be used here !");
+                    SkriptLogger.error("This boolean expression is conditional, so it can't be used here !");
                     return null;
                 }
+                SkriptLogger.printLog();
                 recentExpressions.moveToFirst(info);
                 return expr;
             }
         }
+        SkriptLogger.error("Can't understand the boolean expression : " + s);
         return null;
     }
 
@@ -334,20 +355,23 @@ public class SyntaxParser {
         for (SyntaxInfo<? extends CodeSection> recentSection : recentSections) {
             CodeSection sec = matchSectionInfo(section, recentSection);
             if (sec != null) {
+                SkriptLogger.printLog();
                 recentSections.moveToFirst(recentSection);
                 return sec;
             }
         }
+        SkriptLogger.clear();
         List<SyntaxInfo<? extends CodeSection>> remainingSections = SyntaxManager.getSections();
         recentSections.removeFrom(remainingSections);
         for (SyntaxInfo<? extends CodeSection> remainingSection : remainingSections) {
             CodeSection sec = matchSectionInfo(section, remainingSection);
             if (sec != null) {
+                SkriptLogger.printLog();
                 recentSections.moveToFirst(remainingSection);
                 return sec;
             }
         }
-        error("Can't understand the effect : '" + section.getLineContent() + "'");
+        SkriptLogger.error("Can't understand the section : '" + section.getLineContent() + "'");
         return null;
     }
 
@@ -367,16 +391,13 @@ public class SyntaxParser {
                     );
                     return sec;
                 } catch (InstantiationException | IllegalAccessException e) {
-                    error("Parsing of " + info.getSyntaxClass()
+                    SkriptLogger.error("Parsing of " + info.getSyntaxClass()
                                               .getSimpleName() + " succeeded, but it couldn't be instantiated");
                 }
             }
         }
-        error("Can't understand the section : '" + section.getLineContent() + "'");
+        SkriptLogger.printError();
         return null;
     }
 
-    private static void error(String s) {
-        // TODO
-    }
 }

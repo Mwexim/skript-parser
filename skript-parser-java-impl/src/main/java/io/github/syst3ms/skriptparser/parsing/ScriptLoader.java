@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.parsing;
 
+import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.file.SimpleFileLine;
@@ -24,22 +25,24 @@ public class ScriptLoader {
                     String toParse = content.substring("if ".length());
                     Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, true);
                     if (booleanExpression == null) {
-                        error("Can't understand this condition : " + toParse);
+                        SkriptLogger.printError();
                         continue;
                     }
+                    SkriptLogger.printLog();
                     items.add(new Conditional(sec, booleanExpression, Conditional.ConditionalMode.IF));
                 } else if (content.regionMatches(true, 0, "else if ", 0, "else if ".length())) {
                     if (items.size() == 0 ||
                         !(items.get(items.size() - 1) instanceof Conditional) ||
                         ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
-                        error("An 'else if' must be placed right after an 'if' or another 'else if'");
+                        SkriptLogger.error("An 'else if' must be placed right after an 'if' or another 'else if'");
                     }
                     String toParse = content.substring("else if ".length());
                     Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, true);
                     if (booleanExpression == null) {
-                        error("Can't understand this condition : " + toParse);
+                        SkriptLogger.printError();
                         continue;
                     }
+                    SkriptLogger.printLog();
                     Conditional c = new Conditional(sec, booleanExpression, Conditional.ConditionalMode.ELSE_IF);
                     ((Conditional) items.get(items.size() - 1)).setFallingClause(c);
                     items.add(c);
@@ -47,15 +50,19 @@ public class ScriptLoader {
                     if (items.size() == 0 ||
                         !(items.get(items.size() - 1) instanceof Conditional) ||
                         ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
-                        error("An 'else' must be placed right after an 'if' or an 'else if'");
+                        SkriptLogger.error("An 'else' must be placed right after an 'if' or an 'else if'");
                     }
+                    SkriptLogger.printLog();
                     Conditional c = new Conditional(sec, null, Conditional.ConditionalMode.ELSE);
                     ((Conditional) items.get(items.size() - 1)).setFallingClause(c);
                     items.add(c);
                 } else {
                     CodeSection codeSection = SyntaxParser.parseSection(sec);
-                    if (codeSection == null)
+                    if (codeSection == null) {
+                        SkriptLogger.printError();
                         continue;
+                    }
+                    SkriptLogger.printLog();
                     items.add(codeSection);
                 }
             } else {
@@ -63,18 +70,20 @@ public class ScriptLoader {
                 SimpleFileLine line = (SimpleFileLine) element;
                 String content = line.getLineContent();
                 Effect eff = SyntaxParser.parseEffect(content);
-                if (eff == null)
+                if (eff == null) {
+                    SkriptLogger.printError();
                     continue;
+                }
+                SkriptLogger.printLog();
                 items.add(eff);
             }
         }
+        if (items.size() < elements.size())
+            SkriptLogger.printError();
         for (int i = 0; i + 1 < items.size(); i++) {
             items.get(i).setNext(items.get(i + 1));
         }
         return items;
     }
 
-    private static void error(String s) {
-        // TODO get started with this thing
-    }
 }
