@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
+import org.jetbrains.annotations.NotNull;
 
 public class PatternInfos<T> {
     private String[] patterns;

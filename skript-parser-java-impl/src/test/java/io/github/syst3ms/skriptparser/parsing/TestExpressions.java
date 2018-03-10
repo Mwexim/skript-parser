@@ -2,6 +2,8 @@ package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
@@ -16,6 +18,7 @@ public class TestExpressions {
             return true;
         }
 
+        @NotNull
         @Override
         public Number[] getValues(Event e) {
             Number n = number.getSingle(e);
@@ -25,7 +28,7 @@ public class TestExpressions {
         }
 
         @Override
-        public String toString(Event e, boolean debug) {
+        public String toString(@Nullable Event e, boolean debug) {
             return number.toString(e, debug) + " squared";
         }
     }
@@ -44,6 +47,7 @@ public class TestExpressions {
             return true;
         }
 
+        @NotNull
         @Override
         public Number[] getValues(Event e) {
             Number lower = lowerBound.getSingle(e);
@@ -79,7 +83,7 @@ public class TestExpressions {
         }
 
         @Override
-        public String toString(Event e, boolean debug) {
+        public String toString(@Nullable Event e, boolean debug) {
             return "random " +
                    (integer ? "integer" : "number") +
                    " between " +
@@ -101,6 +105,7 @@ public class TestExpressions {
             return true;
         }
 
+        @NotNull
         @Override
         public String[] getValues(Event event) {
             String str = string.getSingle(event);
@@ -116,7 +121,7 @@ public class TestExpressions {
         }
 
         @Override
-        public String toString(Event e, boolean debug) {
+        public String toString(@Nullable Event e, boolean debug) {
             return "substring " +
                    string.toString(e, debug) +
                    " from " +

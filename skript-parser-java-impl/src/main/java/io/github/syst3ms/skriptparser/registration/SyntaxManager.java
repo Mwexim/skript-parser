@@ -4,6 +4,8 @@ import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.util.MultiMap;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -47,6 +49,7 @@ public class SyntaxManager {
     }
 
     @SuppressWarnings("unchecked")
+    @Nullable
     public static <E extends Expression<T>, T> ExpressionInfo<E, T> getExpressionExact(Expression<T> expr) {
         Class<?> c = expr.getSource().getClass();
         for (ExpressionInfo<?, ?> info : SyntaxManager.getAllExpressions()) {

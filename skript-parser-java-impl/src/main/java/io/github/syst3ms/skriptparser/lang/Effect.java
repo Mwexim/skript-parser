@@ -1,13 +1,18 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.event.Event;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class Effect implements SyntaxElement {
+    @Nullable
     protected CodeSection parent;
+    @Nullable
     protected Effect next;
 
     public abstract void execute(Event e);
 
+    @Nullable
     public CodeSection getParent() {
         return parent;
     }
@@ -17,6 +22,7 @@ public abstract class Effect implements SyntaxElement {
         return this;
     }
 
+    @Nullable
     public final Effect getNext() {
         if (next != null) {
             return next;
@@ -27,11 +33,12 @@ public abstract class Effect implements SyntaxElement {
         }
     }
 
-    public Effect setNext(Effect next) {
+    public Effect setNext(@Nullable Effect next) {
         this.next = next;
         return this;
     }
 
+    @Nullable
     protected Effect walk(Event e) {
         execute(e);
         if (next != null) {

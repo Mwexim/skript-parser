@@ -2,15 +2,7 @@ package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.file.FileSection;
-import io.github.syst3ms.skriptparser.lang.CodeSection;
-import io.github.syst3ms.skriptparser.lang.Effect;
-import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.ExpressionList;
-import io.github.syst3ms.skriptparser.lang.Literal;
-import io.github.syst3ms.skriptparser.lang.LiteralList;
-import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
-import io.github.syst3ms.skriptparser.lang.Variable;
-import io.github.syst3ms.skriptparser.lang.VariableString;
+import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
@@ -23,6 +15,8 @@ import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.RecentElementList;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import io.github.syst3ms.skriptparser.variables.Variables;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -35,12 +29,16 @@ import java.util.regex.Pattern;
 @SuppressWarnings("unchecked")
 public class SyntaxParser {
     public static final Pattern LIST_SPLIT_PATTERN = Pattern.compile("\\s*(,)\\s*|\\s+(and|or)\\s+", Pattern.CASE_INSENSITIVE);
+    @SuppressWarnings("ConstantConditions")
     public static final PatternType<Boolean> BOOLEAN_PATTERN_TYPE = new PatternType<>((Type<Boolean>) TypeManager.getByClass(Boolean.class), true);
+    @SuppressWarnings("ConstantConditions")
     public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class), true);
+
     private static final RecentElementList<SyntaxInfo<? extends Effect>> recentEffects = new RecentElementList<>();
     private static final RecentElementList<SyntaxInfo<? extends CodeSection>> recentSections = new RecentElementList<>();
     private static final RecentElementList<ExpressionInfo<?, ?>> recentExpressions = new RecentElementList<>();
 
+    @Nullable
     public static <T> Expression<? extends T> parseExpression(String s, PatternType<T> expectedType) {
         if (s.isEmpty())
             return null;
@@ -96,6 +94,7 @@ public class SyntaxParser {
         return null;
     }
 
+    @Nullable
     public static <T> Expression<? extends T> parseListLiteral(String s, PatternType<T> expectedType) {
         assert !expectedType.isSingle();
         if (!s.contains(",") && !s.contains("and") && !s.contains("nor") && !s.contains("or"))
@@ -178,6 +177,7 @@ public class SyntaxParser {
         }
     }
 
+    @Nullable
     public static <T> Expression<? extends T> parseLiteral(String s, PatternType<T> expectedType) {
         Map<Class<?>, Type<?>> classToTypeMap = TypeManager.getClassToTypeMap();
         for (Class<?> c : classToTypeMap.keySet()) {
@@ -204,6 +204,7 @@ public class SyntaxParser {
         return null;
     }
 
+    @Nullable
     public static Effect parseEffect(String s) {
         for (SyntaxInfo<? extends Effect> recentEffect : recentEffects) {
             Effect eff = matchEffectInfo(s, recentEffect);
@@ -234,6 +235,7 @@ public class SyntaxParser {
      * @param <T> The return type of the {@link Expression}
      * @return the Expression instance if matching, or {@literal null} otherwise
      */
+    @Nullable
     private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType) {
         List<PatternElement> patterns = info.getPatterns();
         PatternType<?> infoType = info.getReturnType();
@@ -259,10 +261,12 @@ public class SyntaxParser {
                         if (converted != null) {
                             return (Expression<? extends T>) converted;
                         } else {
+                            Type<?> type = TypeManager.getByClass(expressionReturnType);
+                            assert type != null;
                             SkriptLogger.error("Unmatching return types : expected " +
-                                  infoType +
-                                  " or a subclass, but found " +
-                                  TypeManager.getByClass(expressionReturnType).getPluralForms()[expression.isSingle() ? 0 : 1]);
+                                               infoType +
+                                               " or a subclass, but found " +
+                                               type.getPluralForms()[expression.isSingle() ? 0 : 1]);
                             return null;
                         }
                     }
@@ -282,6 +286,7 @@ public class SyntaxParser {
         return null;
     }
 
+    @Nullable
     private static Effect matchEffectInfo(String s, SyntaxInfo<? extends Effect> info) {
         List<PatternElement> patterns = info.getPatterns();
         for (int i = 0; i < patterns.size(); i++) {
@@ -306,6 +311,7 @@ public class SyntaxParser {
         return null;
     }
 
+    @Nullable
     public static Expression<Boolean> parseBooleanExpression(String s, boolean canBeConditional) {
         // I swear this is the cleanest way to do it
         if (s.equalsIgnoreCase("true")) {
@@ -351,6 +357,7 @@ public class SyntaxParser {
         return null;
     }
 
+    @Nullable
     public static CodeSection parseSection(FileSection section) {
         for (SyntaxInfo<? extends CodeSection> recentSection : recentSections) {
             CodeSection sec = matchSectionInfo(section, recentSection);
@@ -375,6 +382,7 @@ public class SyntaxParser {
         return null;
     }
 
+    @Nullable
     private static CodeSection matchSectionInfo(FileSection section, SyntaxInfo<? extends CodeSection> info) {
         List<PatternElement> patterns = info.getPatterns();
         for (int i = 0; i < patterns.size(); i++) {

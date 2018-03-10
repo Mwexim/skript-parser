@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.effects.EffChange;
+import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.expressions.CondExprCompare;
 import io.github.syst3ms.skriptparser.expressions.ExprNumberArithmetic;
 import io.github.syst3ms.skriptparser.expressions.ExprWhether;
@@ -16,6 +17,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public class TestRegistration {
+    public static final Event DUMMY = () -> ""; // SAM conversion
+
     public static void register() {
         SkriptRegistration registration = new SkriptRegistration("unit-tests");
         registration.addType(

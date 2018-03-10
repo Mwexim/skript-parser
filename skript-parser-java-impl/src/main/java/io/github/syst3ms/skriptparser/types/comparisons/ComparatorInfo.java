@@ -5,13 +5,13 @@ public class ComparatorInfo<T1, T2> {
     private Class<T2> secondClass;
     private Comparator<T1, T2> comparator;
 
-    public ComparatorInfo(final Class<T1> firstClass, final Class<T2> secondClass, final Comparator<T1, T2> comparator) {
+    public ComparatorInfo(Class<T1> firstClass, Class<T2> secondClass, Comparator<T1, T2> comparator) {
         this.firstClass = firstClass;
         this.secondClass = secondClass;
         this.comparator = comparator;
     }
 
-    public Class<?> getType(final boolean first) {
+    public Class<?> getType(boolean first) {
         return first ? getFirstClass() : getSecondClass();
     }
 

@@ -1,8 +1,9 @@
 package io.github.syst3ms.skriptparser.util;
 
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ public class StringUtils {
         return -1;
     }
 
+    @Nullable
     public static String getEnclosedText(String pattern, char opening, char closing, int start) {
         int closingBracket = findClosingIndex(pattern, opening, closing, start);
         if (closingBracket == -1) {
@@ -102,6 +104,7 @@ public class StringUtils {
         return -1;
     }
 
+    @Nullable
     public static String getPercentContent(String s, int start) {
         for (int i = start; i < s.length(); i++) {
             char c = s.charAt(i);
@@ -114,7 +117,7 @@ public class StringUtils {
                 i += closing;
             } else if (c == '%') {
                 return s.substring(start, i);
-            } else if (c == '}') { // We normally skip over these, this must be an printError
+            } else if (c == '}') { // We normally skip over these, this must be an error
                 return null;
             }
         }
@@ -124,9 +127,9 @@ public class StringUtils {
     /*
      * Does not allocate heap memory, so much better for this purpose
      */
-    public static int indexOfIgnoreCase(final String haystack,
-                                        final String needle,
-                                        final int start) {
+    public static int indexOfIgnoreCase(String haystack,
+                                        String needle,
+                                        int start) {
         if (needle.isEmpty() || haystack.isEmpty()) {
             // Fallback to legacy behavior.
             return haystack.indexOf(needle);
@@ -201,18 +204,15 @@ public class StringUtils {
         pluralizable = fixEncoding(pluralizable);
         List<String[]> words = new ArrayList<>();
         for (String s : pluralizable.split("\\s+")) {
-            int count = count(s, "\u00a6");
-            String[] split;
-            switch (count) {
-                case 0:
+            String[] split = s.split("\\xa6");
+            switch (split.length) {
+                case 1:
                     words.add(new String[]{s, s});
                     break;
-                case 1:
-                    split = s.split("\\xa6");
+                case 2:
                     words.add(new String[]{split[0], split[0] + split[1]});
                     break;
-                case 2:
-                    split = s.split("\\xa6");
+                case 3:
                     words.add(new String[]{split[0] + split[1], split[0] + split[2]});
                     break;
                 default:
@@ -234,15 +234,22 @@ public class StringUtils {
     }
 
     public static String withIndefiniteArticle(String name, boolean plural) {
+        name = name.trim();
         if (name.isEmpty())
-            return null;
+            return "";
         else if (plural)
             return name;
-        char first = Character.toLowerCase(name.trim().charAt(0));
-        if (first == 'a' || first == 'e' || first == 'i' || first == 'o' || first == 'u' || first == 'y') {
-            return "an " + name;
-        } else {
-            return "a " + name;
+        char first = Character.toLowerCase(name.charAt(0));
+        switch (first) {
+            case 'a':
+            case 'e':
+            case 'i':
+            case 'o':
+            case 'u':
+            case 'y':
+                return "an " + name;
+            default:
+                return "a " + name;
         }
     }
 }

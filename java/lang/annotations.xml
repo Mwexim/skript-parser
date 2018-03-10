@@ -1,0 +1,5 @@
+<root>
+    <item name='java.lang.Class java.lang.Class&lt;? super T&gt; getSuperclass()'>
+        <annotation name='org.jetbrains.annotations.Nullable'/>
+    </item>
+</root>

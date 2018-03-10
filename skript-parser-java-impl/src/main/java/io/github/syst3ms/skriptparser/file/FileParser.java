@@ -2,6 +2,8 @@ package io.github.syst3ms.skriptparser.file;
 
 import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.util.FileUtils;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,15 +11,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FileParser {
-    public static final Pattern LINE_PATTERN = Pattern
-            .compile("^((?:[^#]|##)*)(\\s*#(?!#).*)$"); // Might as well take that from Skript
+    public static final Pattern LINE_PATTERN = Pattern.compile("^((?:[^#]|##)*)(\\s*#(?!#).*)$"); // Might as well take that from Skript
 
     public List<FileElement> parseFileLines(String fileName, List<String> lines, int expectedIndentation, int lastLine) {
         List<FileElement> elements = new ArrayList<>();
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
             String content;
-            final Matcher m = LINE_PATTERN.matcher(line);
+            Matcher m = LINE_PATTERN.matcher(line);
             if (m.matches()) {
                 content = m.group(1).replace("##", "#").trim();
             } else {

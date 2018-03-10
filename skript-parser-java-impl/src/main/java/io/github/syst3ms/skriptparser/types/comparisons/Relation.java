@@ -1,7 +1,15 @@
 package io.github.syst3ms.skriptparser.types.comparisons;
 
+import org.jetbrains.annotations.NotNull;
+
 public enum Relation {
-    EQUAL, NOT_EQUAL, GREATER, GREATER_OR_EQUAL, SMALLER, SMALLER_OR_EQUAL;
+    EQUAL(0), NOT_EQUAL(0), GREATER(1), GREATER_OR_EQUAL(1), SMALLER(-1), SMALLER_OR_EQUAL(-1);
+
+    private final int comparison;
+
+    Relation(int comparison) {
+        this.comparison = comparison;
+    }
 
     /**
      * Returns EQUAL for true or NOT_EQUAL for false
@@ -9,7 +17,7 @@ public enum Relation {
      * @param b
      * @return <tt>b ? Relation.EQUAL : Relation.NOT_EQUAL</tt>
      */
-    public static Relation get(final boolean b) {
+    public static Relation get(boolean b) {
         return b ? Relation.EQUAL : Relation.NOT_EQUAL;
     }
 
@@ -19,7 +27,7 @@ public enum Relation {
      * @param i
      * @return <tt>i == 0 ? Relation.EQUAL : i > 0 ? Relation.GREATER : Relation.SMALLER</tt>
      */
-    public static Relation get(final int i) {
+    public static Relation get(int i) {
         return i == 0 ? Relation.EQUAL : i > 0 ? Relation.GREATER : Relation.SMALLER;
     }
 
@@ -30,7 +38,7 @@ public enum Relation {
      * @param d
      * @return <tt>d == 0 ? Relation.EQUAL : d > 0 ? Relation.GREATER : Relation.SMALLER</tt>, or {@code Relation.NOT_EQUAL} if <tt>Double.isNan(d)</tt>
      */
-    public static Relation get(final double d) {
+    public static Relation get(double d) {
         if (Double.isNaN(d))
             return NOT_EQUAL;
         return d == 0 ? Relation.EQUAL : d > 0 ? Relation.GREATER : Relation.SMALLER;
@@ -43,20 +51,18 @@ public enum Relation {
      * @param other
      * @return Whether this relation is part of the given relation, e.g. <code>GREATER_OR_EQUAL.is(EQUAL)</code> returns true.
      */
-    public boolean is(final Relation other) {
+    public boolean is(Relation other) {
         if (other == this)
             return true;
         switch (this) {
             case EQUAL:
+            case SMALLER:
+            case GREATER:
                 return false;
             case NOT_EQUAL:
                 return other == SMALLER || other == GREATER;
-            case GREATER:
-                return false;
             case GREATER_OR_EQUAL:
                 return other == GREATER || other == EQUAL;
-            case SMALLER:
-                return false;
             case SMALLER_OR_EQUAL:
                 return other == SMALLER || other == EQUAL;
         }
@@ -139,19 +145,7 @@ public enum Relation {
         return this == Relation.EQUAL || this == Relation.NOT_EQUAL;
     }
 
-    public int getRelation() {
-        switch (this) {
-            case EQUAL:
-            case NOT_EQUAL:
-                return 0;
-            case GREATER:
-            case GREATER_OR_EQUAL:
-                return 1;
-            case SMALLER:
-            case SMALLER_OR_EQUAL:
-                return -1;
-        }
-        assert false;
-        return 0;
+    public int getComparison() {
+        return comparison;
     }
 }

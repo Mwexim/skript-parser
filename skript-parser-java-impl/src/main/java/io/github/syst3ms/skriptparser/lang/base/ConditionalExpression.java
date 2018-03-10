@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.lang.base;
 
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * An interface used to mark that an {@link Expression <Boolean>} can't be used as-is,
@@ -20,6 +21,7 @@ public abstract class ConditionalExpression implements Expression<Boolean> {
         this.negated = negated;
     }
 
+    @NotNull
     @Override
     public Boolean[] getValues(Event e) {
         return new Boolean[]{check(e)};

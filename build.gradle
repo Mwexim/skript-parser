@@ -1,13 +1,14 @@
 allprojects {
     version = '1.0'
 
-    repositories {
-        jcenter()
-        mavenCentral()
-    }
     buildscript {
         repositories {
             mavenCentral()
         }
+    }
+
+    repositories {
+        jcenter()
+        mavenCentral()
     }
 }

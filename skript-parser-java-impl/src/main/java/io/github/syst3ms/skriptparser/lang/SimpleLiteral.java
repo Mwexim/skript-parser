@@ -2,12 +2,17 @@ package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
-import io.github.syst3ms.skriptparser.util.ClassUtils;
+import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
+import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
+import java.util.Collections;
 import java.util.Iterator;
 
 @SuppressWarnings("unchecked")
@@ -27,6 +32,7 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     @Override
+    @Contract("_, _, _ -> fail")
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
         throw new UnsupportedOperationException();
     }
@@ -43,7 +49,7 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     @Override
-    public String toString(Event e, boolean debug) {
+    public String toString(@Nullable Event e, boolean debug) {
         if (isSingle()) {
             return values[0].toString();
         } else {
@@ -73,6 +79,7 @@ public class SimpleLiteral<T> implements Literal<T> {
         return isAndList;
     }
 
+    @NotNull
     @Override
     public T[] getArray(Event e) {
         if (isAndList) {
@@ -100,8 +107,11 @@ public class SimpleLiteral<T> implements Literal<T> {
         return false;
     }
 
+    @NotNull
     @Override
     public Iterator iterator(Event event) {
-        return null;
+        if (!isSingle())
+            throw new SkriptRuntimeException("Can't loop a single literal !");
+        return CollectionUtils.iterator(values);
     }
 }

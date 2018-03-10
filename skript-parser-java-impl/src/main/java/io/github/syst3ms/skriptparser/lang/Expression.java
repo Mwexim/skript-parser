@@ -8,26 +8,34 @@ import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
+import jdk.nashorn.internal.objects.annotations.Constructor;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.function.Predicate;
 
 public interface Expression<T> extends SyntaxElement {
+    @NotNull
     T[] getValues(Event e);
 
     /*
      * This is staying until we figure out a better way to implement this
      */
+    @NotNull
     default T[] getArray(Event e) {
         return getValues(e);
     }
 
+    @Nullable
     default Class<?>[] acceptsChange(ChangeMode mode) {
         return null;
     }
 
     default void change(Event e, Object[] changeWith, ChangeMode changeMode) {}
 
+    @Nullable
     default T getSingle(Event e) {
         T[] values = getValues(e);
         if (values.length == 0) {
@@ -56,10 +64,12 @@ public interface Expression<T> extends SyntaxElement {
         return info.getReturnType().getType().getTypeClass();
     }
 
+    @NotNull
     default Iterator<? extends T> iterator(Event e) {
         return CollectionUtils.iterator(getValues(e));
     }
 
+    @Nullable
     default <C> Expression<C> convertExpression(Class<C> to) {
         return ConvertedExpression.newInstance(this, to);
     }
@@ -75,6 +85,7 @@ public interface Expression<T> extends SyntaxElement {
     default void setAndList(boolean isAndList) {
     }
 
+    @NotNull
     default Expression<?> getSource() {
         return this;
     }
@@ -82,25 +93,29 @@ public interface Expression<T> extends SyntaxElement {
     /*
      * Maybe later.
      */
+    @NotNull
     default Expression<? extends T> simplify() {
         return this;
     }
 
-    default boolean check(final Event e, final Predicate<? super T> c) {
+    default boolean check(Event e, Predicate<? super T> c) {
         return check(e, c, false);
     }
 
-    default boolean check(final Event e, final Predicate<? super T> c, final boolean negated) {
+    default boolean check(Event e, Predicate<? super T> c, boolean negated) {
         return check(getValues(e), c, negated, isAndList());
     }
 
-    static <T> boolean check(final T[] all, final Predicate<? super T> c, final boolean invert, final boolean and) {
-        if (all == null) return false;
+    @Contract("null, _, _, _ -> false")
+    static <T> boolean check(@Nullable T[] all, Predicate<? super T> c, boolean invert, boolean and) {
+        if (all == null)
+            return false;
         boolean hasElement = false;
-        for (final T t : all) {
-            if (t == null) continue;
+        for (T t : all) {
+            if (t == null)
+                continue;
             hasElement = true;
-            final boolean b = c.test(t);
+            boolean b = c.test(t);
             if (and && !b)
                 return invert;
             if (!and && b)

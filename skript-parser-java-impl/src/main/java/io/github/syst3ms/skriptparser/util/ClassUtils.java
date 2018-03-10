@@ -2,12 +2,10 @@ package io.github.syst3ms.skriptparser.util;
 
 public class ClassUtils {
 
-    public static Class<?> getCommonSuperclass(final Class<?>... cs) {
-        assert cs.length > 0;
+    public static Class<?> getCommonSuperclass(Class<?>... cs) {
         Class<?> r = cs[0];
-        assert r != null;
-        outer: for (final Class<?> c : cs) {
-            assert c != null && !c.isArray() && !c.isPrimitive() : c;
+        outer:
+        for (Class<?> c : cs) {
             if (c.isAssignableFrom(r)) {
                 r = c;
                 continue;
@@ -20,7 +18,7 @@ public class ClassUtils {
                         continue outer;
                     }
                 }
-                for (final Class<?> i : c.getInterfaces()) {
+                for (Class<?> i : c.getInterfaces()) {
                     s = getCommonSuperclass(i, r);
                     if (s != Object.class) {
                         r = s;

@@ -1,17 +1,12 @@
 package io.github.syst3ms.skriptparser;
 
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
-import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
-import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
-import io.github.syst3ms.skriptparser.pattern.CompoundElement;
-import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
-import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
-import io.github.syst3ms.skriptparser.pattern.PatternElement;
-import io.github.syst3ms.skriptparser.pattern.RegexGroup;
-import io.github.syst3ms.skriptparser.pattern.TextElement;
+import io.github.syst3ms.skriptparser.pattern.*;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,9 +24,10 @@ public class PatternParser {
      * @param pattern the pattern to be parsed
      * @return the parsed PatternElement, or {@literal null} if something went wrong.
      */
+    @Nullable
     public PatternElement parsePattern(String pattern) {
         if (pattern.isEmpty())
-            return new TextElement("");
+            return null;
         List<PatternElement> elements = new ArrayList<>();
         StringBuilder textBuilder = new StringBuilder("");
         char[] chars = pattern.toCharArray();
@@ -195,7 +191,7 @@ public class PatternParser {
                     }
                 }
                 elements.add(new ChoiceGroup(choices));
-            } else if (c == ']' || c == ')' || c == '>') { // Closing brackets are skipped over, so this marks an printError
+            } else if (c == ']' || c == ')' || c == '>') { // Closing brackets are skipped over, so this marks an error
                 SkriptLogger.error("Invalid bracket at index " + i);
                 return null;
             } else {
@@ -213,7 +209,4 @@ public class PatternParser {
         }
     }
 
-    private static void error(String error) {
-        // TODO
-    }
 }

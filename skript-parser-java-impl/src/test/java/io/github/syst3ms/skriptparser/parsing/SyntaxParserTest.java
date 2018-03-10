@@ -9,29 +9,32 @@ import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.FileUtils;
+import org.jetbrains.annotations.Nullable;
 import org.junit.*;
 
 import java.io.File;
 import java.util.List;
 
+import static io.github.syst3ms.skriptparser.parsing.TestRegistration.DUMMY;
 import static org.junit.Assert.*;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "ConstantConditions"})
 public class SyntaxParserTest {
 
     static {
         TestRegistration.register();
     }
 
-    public void assertExpressionEquals(Expression<?> expected, Expression<?> actual) {
+    private void assertExpressionEquals(@Nullable Expression<?> expected, @Nullable Expression<?> actual) {
         if (expected == actual)
             return;
         if (expected == null || actual == null)
             fail();
-        assertArrayEquals(expected.getValues(null), actual.getValues(null));
+        assertArrayEquals(expected.getValues(DUMMY), actual.getValues(DUMMY));
     }
 
-    public void assertExpressionTrue(Expression<?> actual) {
+
+    private void assertExpressionTrue(@Nullable Expression<?> actual) {
         assertExpressionEquals(new SimpleLiteral<>(Boolean.class, true), actual);
     }
 
@@ -40,11 +43,11 @@ public class SyntaxParserTest {
         PatternType<Number> numberType = new PatternType<>(TypeManager.getByClassExact(Number.class), true);
         assertExpressionEquals(new SimpleLiteral<>(Long.class, 2L), SyntaxParser.parseExpression("2L", numberType));
         int expectedInt = SyntaxParser.parseExpression("random integer between 0 and 10", numberType)
-                                      .getSingle(null)
+                                      .getSingle(DUMMY)
                                       .intValue();
         assertTrue(0 <= expectedInt && expectedInt <= 10);
         double expectedDouble = SyntaxParser.parseExpression("random number between 9.9999 and 10 exclusively", numberType)
-                                            .getSingle(null)
+                                            .getSingle(DUMMY)
                                             .doubleValue();
         assertTrue(9.9999 + Double.MIN_VALUE <= expectedDouble && expectedDouble <= 10 - Double.MIN_VALUE);
         PatternType<String> stringType = new PatternType<>(TypeManager.getByClassExact(String.class), true);

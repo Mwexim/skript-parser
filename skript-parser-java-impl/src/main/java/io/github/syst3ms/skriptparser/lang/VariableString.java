@@ -8,6 +8,9 @@ import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.StringUtils;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +31,7 @@ public class VariableString implements Expression<String> {
         this.simple = data.length == 1 && data[0] instanceof String;
     }
 
+    @Nullable
     public static VariableString newInstanceWithQuotes(String s) {
         if (s.startsWith("\"") && s.endsWith("\"")) {
             return newInstance(s.substring(1, s.length() - 1));
@@ -47,6 +51,7 @@ public class VariableString implements Expression<String> {
         return null;
     }
 
+    @Nullable
     public static VariableString newInstance(String s) {
         List<Object> data = new ArrayList<>(StringUtils.count(s, "%"));
         StringBuilder sb = new StringBuilder();
@@ -95,12 +100,14 @@ public class VariableString implements Expression<String> {
         return simple;
     }
 
+    @NotNull
     @Override
     public String[] getValues(Event e) {
         return new String[]{toString(e)};
     }
 
     @Override
+    @Contract("_, _, _ -> fail")
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
         throw new UnsupportedOperationException();
     }
@@ -120,7 +127,7 @@ public class VariableString implements Expression<String> {
     }
 
     @Override
-    public String toString(Event e, boolean debug) {
+    public String toString(@Nullable Event e, boolean debug) {
         if (simple)
             return "\"" + data[0] + "\"";
         StringBuilder sb = new StringBuilder("\"");

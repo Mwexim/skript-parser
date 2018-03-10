@@ -1,14 +1,14 @@
 package io.github.syst3ms.skriptparser.util;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -55,7 +55,7 @@ public class FileUtils {
 
     private static String trimMultilineIndent(String multilineText) {
         String[] lines = multilineText.split("\0");
-        // Insipred from Kotlin's trimIndent() function
+        // Inspired from Kotlin's trimIndent() function
         int baseIndent = Arrays.stream(lines)
                                .skip(1) // First line's indent should be ignored
                                .mapToInt(FileUtils::getIndentationLevel)
@@ -75,29 +75,28 @@ public class FileUtils {
         return sb.toString();
     }
 
-    public static void loadClasses(String basePackage, final String... subPackages) throws IOException, URISyntaxException {
-        assert subPackages != null;
+    public static void loadClasses(String basePackage, String... subPackages) throws IOException, URISyntaxException {
         for (int i = 0; i < subPackages.length; i++)
             subPackages[i] = subPackages[i].replace('.', '/') + "/";
         basePackage = basePackage.replace('.', '/') + "/";
         try (JarFile jar = new JarFile(getJarFileLocation())) {
-            Enumeration<JarEntry> entries = jar.entries();
-            while (entries.hasMoreElements()) {
-                JarEntry e = entries.nextElement();
+            List<JarEntry> entries = Collections.list(jar.entries());
+            for (JarEntry e : entries) {
                 if (e.getName().startsWith(basePackage) && e.getName().endsWith(".class")) {
                     boolean load = subPackages.length == 0;
-                    for (final String sub : subPackages) {
+                    for (String sub : subPackages) {
                         if (e.getName().startsWith(sub, basePackage.length())) {
                             load = true;
                             break;
                         }
                     }
                     if (load) {
-                        final String c = e.getName().replace('/', '.')
-                                          .substring(0, e.getName().length() - ".class".length());
+                        String c = e.getName()
+                                    .replace('/', '.')
+                                    .substring(0, e.getName().length() - ".class".length());
                         try {
                             Class.forName(c, true, FileUtils.class.getClassLoader());
-                        } catch (final ClassNotFoundException | ExceptionInInitializerError ex) {
+                        } catch (ClassNotFoundException | ExceptionInInitializerError ex) {
                             ex.printStackTrace();
                         }
                     }

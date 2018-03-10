@@ -8,7 +8,7 @@ import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Conditional;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,9 @@ public class ScriptLoader {
                         !(items.get(items.size() - 1) instanceof Conditional) ||
                         ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
                         SkriptLogger.error("An 'else if' must be placed right after an 'if' or another 'else if'");
+                        continue;
                     }
+
                     String toParse = content.substring("else if ".length());
                     Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, true);
                     if (booleanExpression == null) {
@@ -51,7 +53,9 @@ public class ScriptLoader {
                         !(items.get(items.size() - 1) instanceof Conditional) ||
                         ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
                         SkriptLogger.error("An 'else' must be placed right after an 'if' or an 'else if'");
+                        continue;
                     }
+
                     SkriptLogger.printLog();
                     Conditional c = new Conditional(sec, null, Conditional.ConditionalMode.ELSE);
                     ((Conditional) items.get(items.size() - 1)).setFallingClause(c);

@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.parsing;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import org.jetbrains.annotations.Nullable;
 
 public class TestEffects {
     public static class EffPrintln extends Effect {
@@ -23,7 +24,7 @@ public class TestEffects {
         }
 
         @Override
-        public String toString(Event e, boolean debug) {
+        public String toString(@Nullable Event e, boolean debug) {
             return "println " + string.toString(e, debug);
         }
     }

@@ -1,12 +1,12 @@
 package io.github.syst3ms.skriptparser.util;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 
 public class RecentElementList<T> implements Iterable<T> {
+    @Nullable
     private Node<T> head;
 
     public RecentElementList() {}
@@ -17,8 +17,8 @@ public class RecentElementList<T> implements Iterable<T> {
         do {
             if(head == null)
                 break;
-            if (node.getNext() != null) {
-                Node<T> next = node.getNext();
+            Node<T> next = node.getNext();
+            if (next != null) {
                 T nextValue = next.getValue();
                 if (element.equals(nextValue)) {
                     node.setNext(next.getNext()); // How confusing
@@ -34,15 +34,19 @@ public class RecentElementList<T> implements Iterable<T> {
             node = node.getNext();
         } while (node != null);
         // the element wasn't present already
-        if (head != null && head.getValue().equals(element))
-            return;
+        if (head != null) {
+            assert head.getValue() != null;
+            if (head.getValue().equals(element)) {
+                return;
+            }
+        }
         head = new Node<>(element, head);
     }
 
-    public void removeFrom(Collection<? extends T> remove) {
+    public void removeFrom(Collection<? extends T> removeFrom) {
         Node<T> n = head;
         while (n != null) {
-            remove.remove(n.getValue());
+            removeFrom.remove(n.getValue());
             n = n.getNext();
         }
     }
@@ -57,19 +61,22 @@ public class RecentElementList<T> implements Iterable<T> {
         return size;
     }
 
+    @NotNull
     @Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {
-            Node<T> current = new Node<>(null, head);
+            @Nullable
+            Node<T> current;
 
             @Override
             public boolean hasNext() {
-                return current.getNext() != null;
+                return current != null && current.getNext() != null;
             }
 
+            @Nullable
             @Override
             public T next() {
-                if (current.getNext() == null)
+                if (current == null ||current.getNext() == null)
                     throw new NoSuchElementException();
                 Node<T> next = current.getNext();
                 current = next;
@@ -80,11 +87,12 @@ public class RecentElementList<T> implements Iterable<T> {
 
     private static class Node<T> {
         private T value;
+        @Nullable
         private Node<T> next;
 
-        Node(T value, Node<T> next) {
-            this.setValue(value);
-            this.setNext(next);
+        Node(T value, @Nullable Node<T> next) {
+            this.value = value;
+            this.next = next;
         }
 
         T getValue() {
@@ -95,11 +103,11 @@ public class RecentElementList<T> implements Iterable<T> {
             this.value = value;
         }
 
-        Node<T> getNext() {
+        @Nullable Node<T> getNext() {
             return next;
         }
 
-        void setNext(Node<T> next) {
+        void setNext(@Nullable Node<T> next) {
             this.next = next;
         }
     }

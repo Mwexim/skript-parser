@@ -23,7 +23,9 @@ public class ChoiceElement {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof ChoiceElement)) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof ChoiceElement)) {
             return false;
         } else {
             ChoiceElement other = (ChoiceElement) obj;

@@ -14,20 +14,24 @@ import io.github.syst3ms.skriptparser.types.changers.Changer;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 import io.github.syst3ms.skriptparser.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 public class SkriptRegistration {
     private String registerer;
-    MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
-    List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
-    List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
-    List<Type<?>> types = new ArrayList<>();
-    List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
+    private MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
+    private List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
+    private List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
+    private List<Type<?>> types = new ArrayList<>();
+    private List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
     private PatternParser patternParser;
+
     public SkriptRegistration(String registerer) {
         this.registerer = registerer;
         this.patternParser = new PatternParser();
@@ -124,9 +128,12 @@ public class SkriptRegistration {
         private final Class<C> c;
         private final String baseName;
         private final String pattern;
+        private Function<? super C, String> toStringFunction = o -> Objects.toString(o, TypeManager.NULL_REPRESENTATION);
+        @Nullable
         private Function<String, ? extends C> literalParser;
-        private Function<? super C, String> toStringFunction;
+        @Nullable
         private Changer<? super C> defaultChanger;
+        @Nullable
         private Arithmetic<C, ?> arithmetic;
 
         public TypeRegistrar(Class<C> c, String baseName, String pattern) {

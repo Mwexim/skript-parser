@@ -7,7 +7,7 @@ import java.util.List;
 
 public class SyntaxInfo<C> {
     private Class<C> c;
-    private List<PatternElement> patterns = new ArrayList<>();
+    private List<PatternElement> patterns;
     private int priority;
 
     public SyntaxInfo(Class<C> c, List<PatternElement> patterns, int priority) {

@@ -21,44 +21,41 @@ package io.github.syst3ms.skriptparser.types.conversions;
 
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import javafx.util.Pair;
+import org.intellij.lang.annotations.MagicConstant;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 /**
  * @author Peter Güttinger
  */
 public abstract class Converters {
-    public final static int NO_LEFT_CHAINING = 1;
-    public final static int NO_RIGHT_CHAINING = 2;
-    public final static int NO_CHAINING = NO_LEFT_CHAINING | NO_RIGHT_CHAINING;
-    public final static int NO_COMMAND_ARGUMENTS = 4;
-
-    private Converters() {}
+    public static final int ALL_CHAINING = 0;
+    public static final int NO_LEFT_CHAINING = 1;
+    public static final int NO_RIGHT_CHAINING = 2;
+    public static final int NO_CHAINING = NO_LEFT_CHAINING | NO_RIGHT_CHAINING;
 
     private static List<ConverterInfo<?, ?>> converters = new ArrayList<>(50);
+
 
     public static List<ConverterInfo<?, ?>> getConverters() {
         return Collections.unmodifiableList(converters);
     }
-
     public final static class ConverterInfo<F, T> {
         private final Class<F> from;
         private final Class<T> to;
         private final Function<? super F, ? extends T> converter;
         private final int options;
 
-        public ConverterInfo(final Class<F> from, final Class<T> to, final Function<? super F, ? extends T> converter) {
-            this(from, to, converter, 0);
+        public ConverterInfo(Class<F> from, Class<T> to, Function<? super F, ? extends T> converter) {
+            this(from, to, converter, ALL_CHAINING);
         }
 
-        public ConverterInfo(final Class<F> from, final Class<T> to, final Function<? super F, ? extends T> converter, final int options) {
+        public ConverterInfo(Class<F> from, Class<T> to, Function<? super F, ? extends T> converter, @MagicConstant(intValues = {ALL_CHAINING, NO_LEFT_CHAINING, NO_RIGHT_CHAINING, NO_CHAINING}) int options) {
             this.from = from;
             this.to = to;
             this.converter = converter;
@@ -97,16 +94,16 @@ public abstract class Converters {
 	 * @param to
 	 * @param converter
 	 */
-    public static <F, T> void registerConverter(final Class<F> from, final Class<T> to, final Function<F, T> converter) {
+    public static <F, T> void registerConverter(Class<F> from, Class<T> to, Function<F, T> converter) {
         registerConverter(from, to, converter, 0);
     }
 
-    public static <F, T> void registerConverter(final Class<F> from, final Class<T> to, final Function<F, T> converter, final int options) {
+    public static <F, T> void registerConverter(Class<F> from, Class<T> to, Function<F, T> converter, int options) {
         if (converterExistsSlow(from, to))
             return;
-        final ConverterInfo<F, T> info = new ConverterInfo<>(from, to, converter, options);
+        ConverterInfo<F, T> info = new ConverterInfo<>(from, to, converter, options);
         for (int i = 0; i < converters.size(); i++) {
-            final ConverterInfo<?, ?> info2 = converters.get(i);
+            ConverterInfo<?, ?> info2 = converters.get(i);
             if (info2.from.isAssignableFrom(from) && to.isAssignableFrom(info2.to)) {
                 converters.add(i, info);
                 return;
@@ -117,9 +114,9 @@ public abstract class Converters {
 
     public static void createMissingConverters() {
         for (int i = 0; i < converters.size(); i++) {
-            final ConverterInfo<?, ?> info = converters.get(i);
+            ConverterInfo<?, ?> info = converters.get(i);
             for (int j = 0; j < converters.size(); j++) { // not from j = i+1 since new converters get added during the loops
-                final ConverterInfo<?, ?> info2 = converters.get(j);
+                ConverterInfo<?, ?> info2 = converters.get(j);
                 if ((info.options & NO_RIGHT_CHAINING) == 0 && (info2.options & NO_LEFT_CHAINING) == 0
                     && info2.from.isAssignableFrom(info.to) && !converterExistsSlow(info.from, info2.to)) {
                     converters.add(createChainedConverter(info, info2));
@@ -131,8 +128,8 @@ public abstract class Converters {
         }
     }
 
-    private static boolean converterExistsSlow(final Class<?> from, final Class<?> to) {
-        for (final ConverterInfo<?, ?> i : converters) {
+    private static boolean converterExistsSlow(Class<?> from, Class<?> to) {
+        for (ConverterInfo<?, ?> i : converters) {
             if ((i.from.isAssignableFrom(from) || from.isAssignableFrom(i.from)) && (i.to.isAssignableFrom(to) || to.isAssignableFrom(i.to))) {
                 return true;
             }
@@ -141,7 +138,7 @@ public abstract class Converters {
     }
 
     @SuppressWarnings("unchecked")
-    private static <F, M, T> ConverterInfo<F, T> createChainedConverter(final ConverterInfo<?, ?> first, final ConverterInfo<?, ?> second) {
+    private static <F, M, T> ConverterInfo<F, T> createChainedConverter(ConverterInfo<?, ?> first, ConverterInfo<?, ?> second) {
         return new ConverterInfo<>((Class<F>) first.from, (Class<T>) second.to, new ChainedConverter<>((Function<F, M>) first.converter, (Function<M, T>) second.converter), first.options | second.options);
     }
 
@@ -153,14 +150,15 @@ public abstract class Converters {
 	 * @param to
 	 * @return The converted value or null if no converter exists or the converter returned null for the given value.
 	 */
+    @Nullable
     @SuppressWarnings("unchecked")
-    public static <F, T> T convert(final F o, final Class<T> to) {
+    @Contract("null, _, -> null")
+    public static <F, T> T convert(@Nullable F o, Class<T> to) {
         if (o == null)
             return null;
         if (to.isInstance(o))
             return (T) o;
-        @SuppressWarnings("null")
-        final Function<? super F, ? extends T> conv = getConverter((Class<F>) o.getClass(), to);
+        Function<? super F, ? extends T> conv = getConverter((Class<F>) o.getClass(), to);
         if (conv == null)
             return null;
         return conv.apply(o);
@@ -175,17 +173,19 @@ public abstract class Converters {
 	 * @param to
 	 * @return The converted object
 	 */
+    @Nullable
     @SuppressWarnings("unchecked")
-    public static <F, T> T convert(final F o, final Class<? extends T>[] to) {
+    @Contract("null, _, -> null")
+    public static <F, T> T convert(@Nullable F o, Class<? extends T>[] to) {
         if (o == null)
             return null;
-        for (final Class<? extends T> t : to)
+        for (Class<? extends T> t : to)
             if (t.isInstance(o))
                 return (T) o;
-        final Class<F> c = (Class<F>) o.getClass();
-        for (final Class<? extends T> t : to) {
+        Class<F> c = (Class<F>) o.getClass();
+        for (Class<? extends T> t : to) {
             @SuppressWarnings("null")
-            final Function<? super F, ? extends T> conv = getConverter(c, t);
+            Function<? super F, ? extends T> conv = getConverter(c, t);
             if (conv != null)
                 return conv.apply(o);
         }
@@ -200,16 +200,17 @@ public abstract class Converters {
 	 * @param to
 	 * @return A T[] array without null elements
 	 */
+    @Nullable
     @SuppressWarnings("unchecked")
-    public static <T> T[] convertArray(final Object[] o, final Class<T> to) {
-        assert to != null;
+    @Contract("null, _, -> null")
+    public static <T> T[] convertArray(@Nullable Object[] o, Class<T> to) {
         if (o == null)
             return null;
         if (to.isAssignableFrom(o.getClass().getComponentType()))
             return (T[]) o;
-        final List<T> l = new ArrayList<>(o.length);
-        for (final Object e : o) {
-            final T c = convert(e, to);
+        List<T> l = new ArrayList<>(o.length);
+        for (Object e : o) {
+            T c = convert(e, to);
             if (c != null)
                 l.add(c);
         }
@@ -225,17 +226,15 @@ public abstract class Converters {
 	 * @return The converted array
 	 */
     @SuppressWarnings("unchecked")
-    public static <T> T[] convertArray(final Object[] o, final Class<? extends T> to, final Class<T> superType) {
+    public static <T> T[] convertArray(@Nullable Object[] o, Class<? extends T> to, Class<T> superType) {
         if (o == null) {
-            final T[] r = (T[]) Array.newInstance(superType, 0);
-            assert r != null;
-            return r;
+            return (T[]) Array.newInstance(superType, 0);
         }
         if (to.isAssignableFrom(o.getClass().getComponentType()))
             return (T[]) o;
-        final List<T> l = new ArrayList<>(o.length);
-        for (final Object e : o) {
-            final T c = convert(e, to);
+        List<T> l = new ArrayList<>(o.length);
+        for (Object e : o) {
+            T c = convert(e, to);
             if (c != null)
                 l.add(c);
         }
@@ -251,12 +250,12 @@ public abstract class Converters {
 	 * @param to
 	 * @return Whether a converter exists
 	 */
-    public static boolean converterExists(final Class<?> from, final Class<?> to) {
+    public static boolean converterExists(Class<?> from, Class<?> to) {
         return to.isAssignableFrom(from) || from.isAssignableFrom(to) || getConverter(from, to) != null;
     }
 
-    public static boolean converterExists(final Class<?> from, final Class<?>... to) {
-        for (final Class<?> t : to) {
+    public static boolean converterExists(Class<?> from, Class<?>... to) {
+        for (Class<?> t : to) {
             assert t != null;
             if (converterExists(from, t))
                 return true;
@@ -271,30 +270,32 @@ public abstract class Converters {
 	 * @param to
 	 * @return the converter or null if none exist
 	 */
+    @Nullable
     @SuppressWarnings("unchecked")
-    public static <F, T> Function<? super F, ? extends T> getConverter(final Class<F> from, final Class<T> to) {
-        final Pair<Class<?>, Class<?>> p = new Pair<>(from, to);
+    public static <F, T> Function<? super F, ? extends T> getConverter(Class<F> from, Class<T> to) {
+        Pair<Class<?>, Class<?>> p = new Pair<>(from, to);
         if (convertersCache.containsKey(p)) // can contain null to denote nonexistence of a converter
             return (Function<? super F, ? extends T>) convertersCache.get(p);
-        final Function<? super F, ? extends T> c = getConverter_i(from, to);
+        Function<? super F, ? extends T> c = getConverter_i(from, to);
         convertersCache.put(p, c);
         return c;
     }
 
     @SuppressWarnings("unchecked")
-    private static <F, T> Function<? super F, ? extends T> getConverter_i(final Class<F> from, final Class<T> to) {
-        for (final ConverterInfo<?, ?> conv : converters) {
+    @Nullable
+    private static <F, T> Function<? super F, ? extends T> getConverter_i(Class<F> from, Class<T> to) {
+        for (ConverterInfo<?, ?> conv : converters) {
             if (conv.from.isAssignableFrom(from) && to.isAssignableFrom(conv.to))
                 return (Function<? super F, ? extends T>) conv.converter;
         }
-        for (final ConverterInfo<?, ?> conv : converters) {
+        for (ConverterInfo<?, ?> conv : converters) {
             if (conv.from.isAssignableFrom(from) && conv.to.isAssignableFrom(to)) {
                 return (Function<? super F, ? extends T>) ConverterUtils.createInstanceofConverter(conv.converter, to);
             } else if (from.isAssignableFrom(conv.from) && to.isAssignableFrom(conv.to)) {
                 return (Function<? super F, ? extends T>) ConverterUtils.createInstanceofConverter(conv);
             }
         }
-        for (final ConverterInfo<?, ?> conv : converters) {
+        for (ConverterInfo<?, ?> conv : converters) {
             if (from.isAssignableFrom(conv.from) && conv.to.isAssignableFrom(to)) {
                 return (Function<? super F, ? extends T>) ConverterUtils.createDoubleInstanceofConverter(conv, to);
             }
@@ -310,16 +311,16 @@ public abstract class Converters {
 	 * @throws ArrayStoreException if the given class is not a superclass of all objects returned by the converter
 	 */
     @SuppressWarnings("unchecked")
-    public static <F, T> T[] convertUnsafe(final F[] from, final Class<?> to, final Function<? super F, ? extends T> conv) {
+    public static <F, T> T[] convertUnsafe(F[] from, Class<?> to, Function<? super F, ? extends T> conv) {
         return convert(from, (Class<T>) to, conv);
     }
 
-    public static <F, T> T[] convert(final F[] from, final Class<T> to, final Function<? super F, ? extends T> conv) {
+    public static <F, T> T[] convert(F[] from, Class<T> to, Function<? super F, ? extends T> conv) {
         @SuppressWarnings("unchecked")
         T[] ts = (T[]) Array.newInstance(to, from.length);
         int j = 0;
-        for (final F f : from) {
-            final T t = f == null ? null : conv.apply(f);
+        for (F f : from) {
+            T t = f == null ? null : conv.apply(f);
             if (t != null) {
                 ts[j++] = t;
             }

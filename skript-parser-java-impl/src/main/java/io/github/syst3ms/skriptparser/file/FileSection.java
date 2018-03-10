@@ -1,5 +1,7 @@
 package io.github.syst3ms.skriptparser.file;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 public class FileSection extends SimpleFileLine {

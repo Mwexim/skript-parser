@@ -87,6 +87,7 @@ public class PatternParserTest {
         assertNull(parser.parsePattern("%unfinished type"));
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Test
     public void testMatch() throws Exception {
         PatternParser patternParser = new PatternParser();

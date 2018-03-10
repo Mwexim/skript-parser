@@ -7,6 +7,8 @@ import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -19,7 +21,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
     private enum Operator {
         PLUS('+') {
             @Override
-            public Number calculate(final Number left, final Number right, final boolean integer) {
+            public Number calculate(Number left, Number right, boolean integer) {
                 if (integer) {
                     if (left instanceof BigInteger && right instanceof BigInteger) {
                         return ((BigInteger) left).add((BigInteger) right);
@@ -41,7 +43,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
         },
         MINUS('-') {
             @Override
-            public Number calculate(final Number left, final Number right, final boolean integer) {
+            public Number calculate(Number left, Number right, boolean integer) {
                 if (integer) {
                     if (left instanceof BigInteger && right instanceof BigInteger) {
                         return ((BigInteger) left).subtract((BigInteger) right);
@@ -63,7 +65,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
         },
         MULT('*') {
             @Override
-            public Number calculate(final Number left, final Number right, final boolean integer) {
+            public Number calculate(Number left, Number right, boolean integer) {
                 if (integer) {
                     if (left instanceof BigInteger && right instanceof BigInteger) {
                         return ((BigInteger) left).multiply((BigInteger) right);
@@ -85,7 +87,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
         },
         DIV('/') {
             @Override
-            public Number calculate(final Number left, final Number right, final boolean integer) {
+            public Number calculate(Number left, Number right, boolean integer) {
                 if (integer) {
                     if (left instanceof BigInteger && right instanceof BigInteger) {
                         return ((BigInteger) left).divide((BigInteger) right);
@@ -107,7 +109,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
         },
         EXP('^') {
             @Override
-            public Number calculate(final Number left, final Number right, final boolean integer) {
+            public Number calculate(Number left, Number right, boolean integer) {
                 if (integer) {
                     if (left instanceof BigInteger && right instanceof BigInteger) {
                         return ((BigInteger) left).pow(right.intValue());
@@ -130,7 +132,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
 
         public final char sign;
 
-        Operator(final char sign) {
+        Operator(char sign) {
             this.sign = sign;
         }
 
@@ -188,9 +190,10 @@ public class ExprNumberArithmetic implements Expression<Number> {
         }
     }
 
+    @NotNull
     @Override
-    public Number[] getValues(final Event e) {
-        final Number[] one = (Number[]) Array.newInstance(returnType, 1);
+    public Number[] getValues(Event e) {
+        Number[] one = (Number[]) Array.newInstance(returnType, 1);
         Number n1 = first.getSingle(e), n2 = second.getSingle(e);
         if (n1 == null)
             n1 = 0;
@@ -206,10 +209,12 @@ public class ExprNumberArithmetic implements Expression<Number> {
     }
 
     @Override
-    public String toString(final Event e, final boolean debug) {
+    public String toString(@Nullable Event e, boolean debug) {
         return first.toString(e, debug) + " " + op + " " + second.toString(e, debug);
     }
 
+    @SuppressWarnings("ConstantConditions")
+    @NotNull
     @Override
     public Expression<? extends Number> simplify() {
         if (first instanceof Literal && second instanceof Literal)

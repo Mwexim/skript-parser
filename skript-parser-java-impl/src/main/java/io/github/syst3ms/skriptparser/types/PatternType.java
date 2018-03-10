@@ -23,7 +23,9 @@ public class PatternType<T> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof PatternType)) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof PatternType)) {
             return false;
         } else {
             PatternType<?> o = (PatternType<?>) obj;

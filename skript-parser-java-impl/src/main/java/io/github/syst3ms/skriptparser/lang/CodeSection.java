@@ -2,6 +2,8 @@ package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -27,10 +29,12 @@ public abstract class CodeSection extends Effect {
         return items;
     }
 
+    @Nullable
     protected final Effect getFirst() {
         return first == null ? getNext() : first;
     }
 
+    @Nullable
     protected final Effect getLast() {
         return last == null ? getNext() : last;
     }

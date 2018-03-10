@@ -19,6 +19,9 @@
  */
 package io.github.syst3ms.skriptparser.types.conversions;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.function.Function;
 
 /**
@@ -31,25 +34,23 @@ import java.util.function.Function;
  * @see Converters#registerConverter(Class, Class, Function)
  */
 public final class ChainedConverter<F, M, T> implements Function<F, T> {
-
     private final Function<? super F, ? extends M> first;
     private final Function<? super M, ? extends T> second;
 
-    public ChainedConverter(final Function<? super F, ? extends M> first, final Function<? super M, ? extends T> second) {
-        assert first != null;
-        assert second != null;
+    public ChainedConverter(Function<? super F, ? extends M> first, Function<? super M, ? extends T> second) {
         this.first = first;
         this.second = second;
     }
 
     @SuppressWarnings("unchecked")
-    public static <F, M, T> ChainedConverter<F, M, T> newInstance(final Function<? super F, ?> first, final Function<?, ? extends T> second) {
+    public static <F, M, T> ChainedConverter<F, M, T> newInstance(Function<? super F, ?> first, Function<?, ? extends T> second) {
         return new ChainedConverter<>((Function<? super F, ? extends M>) first, (Function<? super M, ? extends T>) second);
     }
 
     @Override
-    public T apply(final F f) {
-        final M m = first.apply(f);
+    @Nullable
+    public T apply(@Nullable F f) {
+        M m = first.apply(f);
         if (m == null)
             return null;
         return second.apply(m);

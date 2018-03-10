@@ -1,14 +1,17 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.util.ClassUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("ConstantConditions")
 public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
 
-    public LiteralList(final Literal<? extends T>[] literals, final Class<T> returnType, final boolean and) {
+    public LiteralList(Literal<? extends T>[] literals, Class<T> returnType, boolean and) {
         super(literals, returnType, and);
     }
 
-    public LiteralList(final Literal<? extends T>[] literals, final Class<T> returnType, final boolean and, final LiteralList<?> source) {
+    public LiteralList(Literal<? extends T>[] literals, Class<T> returnType, boolean and, LiteralList<?> source) {
         super(literals, returnType, and, source);
     }
 
@@ -17,7 +20,7 @@ public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
         return getValues(null);
     }
 
-    @SuppressWarnings("null")
+    @Nullable
     @Override
     public T getSingle() {
         return getSingle(null);
@@ -26,8 +29,8 @@ public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
     @SuppressWarnings("unchecked")
     @Override
     public <R> Expression<R> convertExpression(Class<R> to) {
-        final Literal<? extends R>[] exprs = new Literal[expressions.length];
-        final Class<?>[] classes = new Class[expressions.length];
+        Literal<? extends R>[] exprs = new Literal[expressions.length];
+        Class<?>[] classes = new Class[expressions.length];
         for (int i = 0; i < exprs.length; i++) {
             if ((exprs[i] = (Literal<? extends R>) expressions[i].convertExpression(to)) == null)
                 return null;

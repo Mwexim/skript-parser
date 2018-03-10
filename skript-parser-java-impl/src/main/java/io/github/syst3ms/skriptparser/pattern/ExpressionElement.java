@@ -9,6 +9,8 @@ import io.github.syst3ms.skriptparser.parsing.SkriptParser;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,19 +45,6 @@ public class ExpressionElement implements PatternElement {
         if (index >= s.length()) {
             return -1;
         }
-        /*
-        if (s.charAt(index) == '(') {
-            String enclosed = StringUtils.getEnclosedText(s, '(', ')', index);
-            // We don't want to return here
-            if (enclosed != null) {
-                Expression<?> expression = parse(enclosed, parser.getOriginalElement(), typeArray);
-                if (expression != null) {
-                    parser.addExpression(expression);
-                    return index + s.length();
-                }
-            }
-        }
-         */
         List<PatternElement> flattened = parser.flatten(parser.getOriginalElement());
         List<PatternElement> possibleInputs = parser.getPossibleInputs(flattened.subList(parser.getPatternIndex(), flattened.size()));
         for (PatternElement possibleInput : possibleInputs) {
@@ -115,7 +104,7 @@ public class ExpressionElement implements PatternElement {
                     String text = ((TextElement) nextPossibleInput).getText();
                     if (text.equals("")) {
                         String rest = s.substring(index, s.length());
-                        List<String> splits = getSplits(rest);
+                        List<String> splits = splitAtSpaces(rest);
                         for (String split : splits) {
                             int i = StringUtils.indexOfIgnoreCase(s, split, index);
                             if (i != -1) {
@@ -135,7 +124,7 @@ public class ExpressionElement implements PatternElement {
                             continue;
                         }
                         String rest = s.substring(index, bound);
-                        List<String> splits = getSplits(rest);
+                        List<String> splits = splitAtSpaces(rest);
                         for (String split : splits) {
                             int i = StringUtils.indexOfIgnoreCase(s, split, index);
                             if (i != -1) {
@@ -154,7 +143,7 @@ public class ExpressionElement implements PatternElement {
         return -1;
     }
 
-    private List<String> getSplits(String s) {
+    private List<String> splitAtSpaces(String s) {
         List<String> splitted = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         char[] charArray = s.toCharArray();
@@ -184,11 +173,12 @@ public class ExpressionElement implements PatternElement {
     }
 
     @SuppressWarnings("unchecked")
+    @Nullable
     private <T> Expression<? extends T> parse(String s, PatternType<?>[] types) {
         for (PatternType<?> type : types) {
             Expression<? extends T> expression;
             if (type.equals(SyntaxParser.BOOLEAN_PATTERN_TYPE)) {
-                // REMINDER : conditions call parseBooleanExpression straight away
+                // NOTE : conditions call parseBooleanExpression straight away
                 expression = (Expression<? extends T>) SyntaxParser.parseBooleanExpression(
                         s,
                         acceptsConditional
@@ -227,7 +217,9 @@ public class ExpressionElement implements PatternElement {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof ExpressionElement)) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof ExpressionElement)) {
             return false;
         } else {
             ExpressionElement e = (ExpressionElement) obj;

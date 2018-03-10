@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.file;
 
 import io.github.syst3ms.skriptparser.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 public class SimpleFileLine implements FileElement {
     private final String fileName;
@@ -22,11 +23,17 @@ public class SimpleFileLine implements FileElement {
 
     @Override
     public boolean equals(Object obj) {
-        return obj != null
-            && obj instanceof SimpleFileLine && content.equalsIgnoreCase(((SimpleFileLine) obj).content)
-            && indentation == ((SimpleFileLine) obj).indentation
-            && fileName.equals(((SimpleFileLine) obj).fileName)
-            && line == ((SimpleFileLine) obj).line;
+        if (this == obj)
+            return true;
+        if (!(obj instanceof SimpleFileLine)) {
+            return false;
+        } else {
+            SimpleFileLine other = (SimpleFileLine) obj;
+            return indentation == other.indentation &&
+                   line == other.line &&
+                   content.equalsIgnoreCase(other.content) &&
+                   fileName.equals(other.fileName);
+        }
     }
 
     public int getIndentation() {

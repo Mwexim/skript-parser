@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.pattern;
 
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A group containing an optional {@link PatternElement}, that can be omitted
@@ -18,7 +19,14 @@ public class OptionalGroup implements PatternElement {
 
     @Override
     public boolean equals(Object obj) {
-        return obj != null && obj instanceof OptionalGroup && element.equals(((OptionalGroup) obj).element);
+        if (this == obj)
+            return true;
+        if (!(obj instanceof OptionalGroup)) {
+            return false;
+        } else {
+            OptionalGroup other = (OptionalGroup) obj;
+            return element.equals(other.element);
+        }
     }
 
     @Override

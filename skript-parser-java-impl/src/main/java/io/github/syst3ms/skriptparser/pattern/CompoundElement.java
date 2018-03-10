@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.pattern;
 
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +29,9 @@ public class CompoundElement implements PatternElement {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof CompoundElement)) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof CompoundElement)) {
             return false;
         } else {
             List<PatternElement> elems = ((CompoundElement) obj).elements;

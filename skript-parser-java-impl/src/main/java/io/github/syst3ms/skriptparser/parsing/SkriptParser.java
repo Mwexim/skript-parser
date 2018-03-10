@@ -1,14 +1,8 @@
 package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
-import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
-import io.github.syst3ms.skriptparser.pattern.CompoundElement;
-import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
-import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
-import io.github.syst3ms.skriptparser.pattern.PatternElement;
-import io.github.syst3ms.skriptparser.pattern.RegexGroup;
-import io.github.syst3ms.skriptparser.pattern.TextElement;
+import io.github.syst3ms.skriptparser.pattern.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,14 +13,12 @@ import java.util.regex.MatchResult;
  * A parser instance used for matching a pattern to a syntax
  */
 public class SkriptParser {
-    public static PatternElement WHETHER_PATTERN;
     private String originalPattern;
     private PatternElement originalElement;
     private int patternIndex = 0;
     private List<Expression<?>> parsedExpressions = new ArrayList<>();
     private List<MatchResult> regexMatches = new ArrayList<>();
     private int parseMark = 0;
-    private String lastMatched = "";
 
     public SkriptParser(PatternElement e) {
         this.originalPattern = e.toString();
@@ -116,17 +108,4 @@ public class SkriptParser {
         return possibilities;
     }
 
-    public static void setWhetherPattern(PatternElement element) {
-        if (WHETHER_PATTERN == null) { // We don't want people changing this that easily
-            WHETHER_PATTERN = element;
-        }
-    }
-
-    public String getLastMatched() {
-        return lastMatched;
-    }
-
-    public void setLastMatched(String lastMatched) {
-        this.lastMatched = lastMatched;
-    }
 }

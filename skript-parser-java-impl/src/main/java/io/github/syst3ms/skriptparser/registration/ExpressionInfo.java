@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.registration;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.Type;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 

@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.pattern;
 
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +30,9 @@ public class ChoiceGroup implements PatternElement {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof ChoiceGroup)) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof ChoiceGroup)) {
             return false;
         } else {
             List<ChoiceElement> choiceElements = ((ChoiceGroup) obj).choices;

@@ -1,5 +1,8 @@
 package io.github.syst3ms.skriptparser.variables;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +23,7 @@ public class VariableMap {
 	 * @param value The variable's value. Use <tt>null</tt> to delete the variable.
 	 */
     @SuppressWarnings("unchecked")
-    public void setVariable(final String name, final Object value) {
+    public void setVariable(String name, @Nullable Object value) {
         if (!name.endsWith("*")) {
             if (value == null) {
                 map.remove(name);
@@ -28,10 +31,10 @@ public class VariableMap {
                 map.put(name, value);
             }
         }
-        final String[] split = splitList(name);
+        String[] split = splitList(name);
         Map<String, Object> parent = map;
         for (int i = 0; i < split.length; i++) {
-            final String n = split[i];
+            String n = split[i];
             Object current = parent.get(n);
             if (current == null) {
                 if (i == split.length - 1) {
@@ -57,7 +60,7 @@ public class VariableMap {
                     assert value == null;
                     deleteFromHashMap(String
                         .join(Variables.LIST_SEPARATOR, Arrays.copyOfRange(split, 0, i + 1)), (Map<String, Object>) current);
-                    final Object v = ((Map<String, Object>) current).get(null);
+                    Object v = ((Map<String, Object>) current).get(null);
                     if (v == null) {
                         parent.remove(n);
                     } else {
@@ -76,7 +79,7 @@ public class VariableMap {
                     }
                     break;
                 } else if (value != null) {
-                    final Map<String, Object> c = new HashMap<>();
+                    Map<String, Object> c = new HashMap<>();
                     c.put(null, current);
                     parent.put(n, c);
                     parent = c;
@@ -88,13 +91,13 @@ public class VariableMap {
     }
 
     @SuppressWarnings("unchecked")
-    private void deleteFromHashMap(final String parent, final Map<String, Object> current) {
-        for (final Map.Entry<String, Object> e : current.entrySet()) {
+    private void deleteFromHashMap(String parent, Map<String, Object> current) {
+        for (Map.Entry<String, Object> e : current.entrySet()) {
             if (e.getKey() == null) {
                 continue;
             }
             map.remove(parent + Variables.LIST_SEPARATOR + e.getKey());
-            final Object val = e.getValue();
+            Object val = e.getValue();
             if (val instanceof Map) {
                 deleteFromHashMap(parent + Variables.LIST_SEPARATOR + e.getKey(), (Map<String, Object>) val);
             }
@@ -110,19 +113,20 @@ public class VariableMap {
 	 * @return an Object for a normal Variable or a Map<String, Object> for a list variable, or null if the variable is not set.
 	 */
     @SuppressWarnings("unchecked")
-    public Object getVariable(final String name) {
+    @Nullable
+    public Object getVariable(String name) {
         if (!name.endsWith("*")) {
             return map.get(name);
         } else {
-            final String[] split = splitList(name);
+            String[] split = splitList(name);
             Map<String, Object> current = map;
             for (int i = 0; i < split.length; i++) {
-                final String n = split[i];
+                String n = split[i];
                 if (n.equals("*")) {
                     assert i == split.length - 1;
                     return current;
                 }
-                final Object o = current.get(n);
+                Object o = current.get(n);
                 if (o == null) {
                     return null;
                 }

@@ -4,6 +4,8 @@ import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ExprWhether implements Expression<Boolean> {
     private Expression<Boolean> condition;
@@ -24,13 +26,14 @@ public class ExprWhether implements Expression<Boolean> {
         return true;
     }
 
+    @NotNull
     @Override
     public Boolean[] getValues(Event e) {
         return condition.getValues(e);
     }
 
     @Override
-    public String toString(Event e, boolean debug) {
+    public String toString(@Nullable Event e, boolean debug) {
         return "whether " + condition.toString(e, debug);
     }
 }

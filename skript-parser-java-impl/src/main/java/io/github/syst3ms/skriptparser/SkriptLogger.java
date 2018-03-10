@@ -1,9 +1,13 @@
 package io.github.syst3ms.skriptparser;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class SkriptLogger {
+    @Nullable
     private static String error;
     private static List<String> warnings = new ArrayList<>();
 

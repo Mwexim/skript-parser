@@ -1,8 +1,8 @@
 package io.github.syst3ms.skriptparser.pattern;
 
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
-
-import java.util.Arrays;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Text inside of a pattern. Is case and whitespace insensitive.
@@ -19,7 +19,7 @@ public class TextElement implements PatternElement {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         return obj != null && obj instanceof TextElement && text.equalsIgnoreCase(((TextElement) obj).text);
     }
 

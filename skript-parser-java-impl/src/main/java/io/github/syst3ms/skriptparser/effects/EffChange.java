@@ -8,9 +8,11 @@ import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
+import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 public class EffChange extends Effect {
     public static final PatternInfos<ChangeMode> PATTERNS = new PatternInfos<>(new Object[][]{
@@ -25,7 +27,9 @@ public class EffChange extends Effect {
             {"reset %~objects%", ChangeMode.RESET}
     });
 
-    private Expression<?> changed, changeWith;
+    private Expression<?> changed;
+    @Nullable
+    private Expression<?> changeWith;
     private ChangeMode mode;
 
     static {
@@ -74,9 +78,11 @@ public class EffChange extends Effect {
                 return false;
             } else if (!ClassUtils.containsSuperclass(acceptance, changeType)) {
                 boolean array = changeType.isArray();
+                Type<?> type = TypeManager.getByClassExact(changeType);
+                assert type != null;
                 String changeTypeName = StringUtils.withIndefiniteArticle(
-                        TypeManager.getByClassExact(changeType).getPluralForms()[array ? 1 : 0],
-                        array
+                    type.getPluralForms()[array ? 1 : 0],
+                    array
                 );
                 switch (mode) {
                     case SET:
@@ -98,31 +104,33 @@ public class EffChange extends Effect {
     private boolean assignement;
 
     @Override
-    public String toString(Event e, boolean debug) {
+    public String toString(@Nullable Event e, boolean debug) {
+        String changedString = changed.toString(e, debug);
+        String changedWithString = changeWith != null ? changeWith.toString(e, debug) : "";
         switch (mode) {
             case SET:
                 if (assignement) {
-                    return String.format("%s = %s", changed.toString(e, debug), changeWith.toString(e, debug));
+                    return String.format("%s = %s", changedString, changedWithString);
                 } else {
-                    return String.format("set %s to %s", changed.toString(e, debug), changeWith.toString(e, debug));
+                    return String.format("set %s to %s", changedString, changedWithString);
                 }
             case ADD:
                 if (assignement) {
-                    return String.format("%s += %s", changed.toString(e, debug), changeWith.toString(e, debug));
+                    return String.format("%s += %s", changedString, changedWithString);
                 } else {
-                    return String.format("add %s to %s", changeWith.toString(e, debug), changed.toString(e, debug));
+                    return String.format("add %s to %s", changedWithString, changedString);
                 }
             case REMOVE:
                 if (assignement) {
-                    return String.format("%s -= %s", changed.toString(e, debug), changeWith.toString(e, debug));
+                    return String.format("%s -= %s", changedString, changedWithString);
                 } else {
-                    return String.format("remove %s from %s", changeWith.toString(e, debug), changed.toString(e, debug));
+                    return String.format("remove %s from %s", changedWithString, changedString);
                 }
             case DELETE:
             case RESET:
-                return String.format("%s %s", mode.name().toLowerCase(), changed.toString(e, debug));
+                return String.format("%s %s", mode.name().toLowerCase(), changedString);
             case REMOVE_ALL:
-                return String.format("remove all %s from %s", changeWith.toString(e, debug), changed.toString(e, debug));
+                return String.format("remove all %s from %s", changedWithString, changedString);
             default:
                 assert false;
                 return "!!!unknown change mode!!!";

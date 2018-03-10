@@ -1,6 +1,9 @@
 package io.github.syst3ms.skriptparser.types;
 
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -26,6 +29,7 @@ public class TypeManager {
      * @param name the name to get the Type from
      * @return the corresponding Type, or {@literal null} if nothing matched
      */
+    @Nullable
     public static Type<?> getByExactName(String name) {
         return nameToType.get(name);
     }
@@ -35,6 +39,7 @@ public class TypeManager {
      * @param name the name to get a Type from
      * @return the matching Type, or {@literal null} if nothing matched
      */
+    @Nullable
     public static Type<?> getByName(String name) {
         for (Type<?> t : nameToType.values()) {
             String[] forms = t.getPluralForms();
@@ -51,18 +56,20 @@ public class TypeManager {
      * @param <T> the underlying type of the Class and the returned Type
      * @return the associated Type, or {@literal null}
      */
+    @Nullable
     public static <T> Type<T> getByClassExact(Class<T> c) {
         if (c.isArray())
             c = (Class<T>) c.getComponentType();
         return (Type<T>) classToType.get(c);
     }
 
+    @Nullable
     public static <T> Type<? super T> getByClass(Class<T> c) {
         Type<? super T> type = getByClassExact(c);
         Class<? super T> superclass = c;
         while (superclass != null && type == null) {
-            superclass = superclass.getSuperclass();
             type = getByClassExact(superclass);
+            superclass = superclass.getSuperclass();
         }
         return type;
     }
@@ -94,6 +101,7 @@ public class TypeManager {
      * @param name the name input
      * @return a corresponding PatternType, or {@literal null} if nothing matched
      */
+    @Nullable
     public static PatternType<?> getPatternType(String name) {
         for (Type<?> t : nameToType.values()) {
             String[] forms = t.getPluralForms();

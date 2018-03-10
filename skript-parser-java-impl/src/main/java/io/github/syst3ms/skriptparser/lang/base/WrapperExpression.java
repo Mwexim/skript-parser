@@ -6,6 +6,8 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.function.Function;
@@ -28,7 +30,7 @@ public abstract class WrapperExpression<T> implements Expression<T> {
      * this expression.
      * @param expr Wrapped expression.
      */
-    protected void setExpr(final Expression<? extends T> expr) {
+    protected void setExpr(Expression<? extends T> expr) {
         this.expr = expr;
     }
 
@@ -37,14 +39,15 @@ public abstract class WrapperExpression<T> implements Expression<T> {
     }
 
     @Override
+    @Nullable
     public final <R> Expression<R> convertExpression(Class<R> to) {
         @SuppressWarnings("unchecked")
-        final Function<? super T, ? extends R> conv = (Function<? super T, ? extends R>) Converters.getConverter(getReturnType(), to);
+        Function<? super T, ? extends R> conv = (Function<? super T, ? extends R>) Converters.getConverter(getReturnType(), to);
         if (conv == null)
             return null;
         return new ConvertedExpression<T, R>(expr, to, conv) {
             @Override
-            public String toString(final Event e, final boolean debug) {
+            public String toString(@Nullable Event e, boolean debug) {
                 if (debug && e == null)
                     return "(" + WrapperExpression.this.toString(null, true) + ")->" + to.getName();
                 return WrapperExpression.this.toString(e, debug);
@@ -52,18 +55,21 @@ public abstract class WrapperExpression<T> implements Expression<T> {
         };
     }
 
+    @NotNull
     @Override
-    public T[] getValues(final Event e) {
+    public T[] getValues(Event e) {
         return expr.getValues(e);
     }
 
+    @NotNull
     @Override
     public T[] getArray(Event e) {
         return expr.getArray(e);
     }
 
+    @NotNull
     @Override
-    public Iterator<? extends T> iterator(final Event e) {
+    public Iterator<? extends T> iterator(Event e) {
         return expr.iterator(e);
     }
 
@@ -83,15 +89,16 @@ public abstract class WrapperExpression<T> implements Expression<T> {
     }
 
     @Override
-    public Class<?>[] acceptsChange(final ChangeMode mode) {
+    public Class<?>[] acceptsChange(ChangeMode mode) {
         return expr.acceptsChange(mode);
     }
 
     @Override
-    public void change(final Event e, final Object[] changeWith, final ChangeMode mode) {
+    public void change(Event e, Object[] changeWith, ChangeMode mode) {
         expr.change(e, changeWith, mode);
     }
 
+    @NotNull
     @Override
     public Expression<? extends T> simplify() {
         return expr;

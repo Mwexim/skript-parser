@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.pattern;
 
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -22,7 +23,14 @@ public class RegexGroup implements PatternElement {
 
     @Override
     public boolean equals(Object obj) {
-        return obj != null && obj instanceof RegexGroup && pattern.pattern().equals(((RegexGroup) obj).pattern.pattern());
+        if (this == obj)
+            return true;
+        if (!(obj instanceof RegexGroup)) {
+            return false;
+        } else  {
+            RegexGroup other = (RegexGroup) obj;
+            return pattern.pattern().equals(other.pattern.pattern());
+        }
     }
 
     @Override
@@ -50,7 +58,6 @@ public class RegexGroup implements PatternElement {
                     continue;
                 parser.addRegexMatch(m.toMatchResult());
                 String content = m.group();
-                parser.setLastMatched(content);
                 return index + content.length();
             } else {
                 assert possibleInput instanceof RegexGroup;
@@ -66,7 +73,6 @@ public class RegexGroup implements PatternElement {
                     if (m.matches()) {
                         parser.addRegexMatch(m.toMatchResult());
                         String content = m.group();
-                        parser.setLastMatched(content);
                         return index + content.length();
                     }
                 }
