@@ -26,7 +26,6 @@ public class ExprWhether implements Expression<Boolean> {
         return true;
     }
 
-    @NotNull
     @Override
     public Boolean[] getValues(Event e) {
         return condition.getValues(e);

@@ -54,7 +54,6 @@ public class ExpressionList<T> implements Expression<T> {
         throw new UnsupportedOperationException();
     }
 
-    @NotNull
     @Override
     public T[] getArray(Event e) {
         if (and) {
@@ -71,7 +70,6 @@ public class ExpressionList<T> implements Expression<T> {
         return (T[]) Array.newInstance(returnType, 0);
     }
 
-    @NotNull
     @Override
     public T[] getValues(Event e) {
         List<T> values = new ArrayList<>();
@@ -116,7 +114,6 @@ public class ExpressionList<T> implements Expression<T> {
         return false;
     }
 
-    @NotNull
     @Override
     public Iterator<? extends T> iterator(Event e) {
         if (!and) {
@@ -169,7 +166,6 @@ public class ExpressionList<T> implements Expression<T> {
         this.and = isAndList;
     }
 
-    @NotNull
     @Override
     public Expression<?> getSource() {
         return source != null ? source : this;

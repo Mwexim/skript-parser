@@ -3,8 +3,10 @@ package io.github.syst3ms.skriptparser.parsing;
 import io.github.syst3ms.skriptparser.effects.EffChange;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.expressions.CondExprCompare;
+import io.github.syst3ms.skriptparser.expressions.ExprLoopValue;
 import io.github.syst3ms.skriptparser.expressions.ExprNumberArithmetic;
 import io.github.syst3ms.skriptparser.expressions.ExprWhether;
+import io.github.syst3ms.skriptparser.lang.Loop;
 import io.github.syst3ms.skriptparser.lang.While;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.types.TypeManager;
@@ -208,6 +210,13 @@ public class TestRegistration {
                 2,
                 ExprNumberArithmetic.PATTERNS.getPatterns()
         );
+        registration.addExpression(
+            ExprLoopValue.class,
+            Object.class,
+            true,
+            6,
+            "[the] loop-<.+>"
+        );
         registration.addEffect(
                 EffChange.class,
                 2,
@@ -216,6 +225,10 @@ public class TestRegistration {
         registration.addSection(
                 While.class,
                 "while %=boolean%"
+        );
+        registration.addSection(
+            Loop.class,
+            "loop %objects%"
         );
         registration.addEffect(
                 TestEffects.EffPrintln.class,

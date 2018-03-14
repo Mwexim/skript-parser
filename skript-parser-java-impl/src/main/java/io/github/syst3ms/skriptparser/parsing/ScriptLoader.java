@@ -4,16 +4,16 @@ import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.file.SimpleFileLine;
-import io.github.syst3ms.skriptparser.lang.CodeSection;
-import io.github.syst3ms.skriptparser.lang.Conditional;
-import io.github.syst3ms.skriptparser.lang.Effect;
-import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class ScriptLoader {
+    private static final LinkedList<Loop> currentLoops = new LinkedList<>();
+
     public static List<Effect> loadItems(FileSection section) {
         List<Effect> items = new ArrayList<>();
         List<FileElement> elements = section.getElements();
@@ -90,4 +90,19 @@ public class ScriptLoader {
         return items;
     }
 
+    public static void addCurrentLoop(Loop loop) {
+        currentLoops.addLast(loop);
+    }
+
+    public static Loop getCurrentLoop() {
+        return currentLoops.getLast();
+    }
+
+    public static void removeCurrentLoop() {
+        currentLoops.removeLast();
+    }
+
+    public static Iterable<Loop> getCurrentLoops() {
+        return currentLoops;
+    }
 }

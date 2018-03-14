@@ -79,7 +79,6 @@ public class SimpleLiteral<T> implements Literal<T> {
         return isAndList;
     }
 
-    @NotNull
     @Override
     public T[] getArray(Event e) {
         if (isAndList) {
@@ -107,7 +106,6 @@ public class SimpleLiteral<T> implements Literal<T> {
         return false;
     }
 
-    @NotNull
     @Override
     public Iterator iterator(Event event) {
         if (!isSingle())

@@ -10,6 +10,22 @@ public abstract class Effect implements SyntaxElement {
     @Nullable
     protected Effect next;
 
+    public static boolean runAll(Effect start, Event event) {
+        Effect item = start;
+        try {
+            while (item != null)
+                item = item.walk(event);
+            return true;
+        } catch (StackOverflowError so) {
+            System.err.println("The script repeated itself infinitely !");
+            return false;
+        } catch (Exception e) {
+            System.err.println("An exception occured. Stack trace :");
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public abstract void execute(Event e);
 
     @Nullable
@@ -41,12 +57,6 @@ public abstract class Effect implements SyntaxElement {
     @Nullable
     protected Effect walk(Event e) {
         execute(e);
-        if (next != null) {
-            return next;
-        } else if (parent != null) {
-            return parent.getNext();
-        } else {
-            return null;
-        }
+        return getNext();
     }
 }

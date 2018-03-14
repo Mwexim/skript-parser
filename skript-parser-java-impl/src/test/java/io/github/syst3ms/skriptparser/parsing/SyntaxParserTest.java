@@ -4,6 +4,8 @@ import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileParser;
 import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.lang.CodeSection;
+import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.types.PatternType;
@@ -102,10 +104,16 @@ public class SyntaxParserTest {
     public void parseSection() throws Exception {
         FileParser fileParser = new FileParser();
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("section-test.txt").getFile());
+        File file = new File(classLoader.getResource("while-test.txt").getFile());
         List<String> lines = FileUtils.readAllLines(file);
-        List<FileElement> elements = fileParser.parseFileLines("section-test", lines, 0, 1);
+        List<FileElement> elements = fileParser.parseFileLines("while-test", lines, 0, 1);
         FileSection sec = (FileSection) elements.get(0);
         SyntaxParser.parseSection(sec);
+        file = new File(classLoader.getResource("loop-test.txt").getFile());
+        lines = FileUtils.readAllLines(file);
+        elements = fileParser.parseFileLines("loop-test", lines, 0, 1);
+        sec = (FileSection) elements.get(0);
+        CodeSection loop = SyntaxParser.parseSection(sec);
+        assertTrue("The loop failed while running", Effect.runAll(loop, TestRegistration.DUMMY));
     }
 }

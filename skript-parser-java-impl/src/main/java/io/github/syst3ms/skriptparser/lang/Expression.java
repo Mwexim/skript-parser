@@ -17,13 +17,11 @@ import java.util.Iterator;
 import java.util.function.Predicate;
 
 public interface Expression<T> extends SyntaxElement {
-    @NotNull
     T[] getValues(Event e);
 
     /*
      * This is staying until we figure out a better way to implement this
      */
-    @NotNull
     default T[] getArray(Event e) {
         return getValues(e);
     }
@@ -64,7 +62,6 @@ public interface Expression<T> extends SyntaxElement {
         return info.getReturnType().getType().getTypeClass();
     }
 
-    @NotNull
     default Iterator<? extends T> iterator(Event e) {
         return CollectionUtils.iterator(getValues(e));
     }
@@ -85,7 +82,6 @@ public interface Expression<T> extends SyntaxElement {
     default void setAndList(boolean isAndList) {
     }
 
-    @NotNull
     default Expression<?> getSource() {
         return this;
     }
@@ -93,7 +89,6 @@ public interface Expression<T> extends SyntaxElement {
     /*
      * Maybe later.
      */
-    @NotNull
     default Expression<? extends T> simplify() {
         return this;
     }

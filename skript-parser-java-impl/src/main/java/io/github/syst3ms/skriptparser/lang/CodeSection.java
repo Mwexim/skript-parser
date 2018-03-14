@@ -1,7 +1,9 @@
 package io.github.syst3ms.skriptparser.lang;
 
+import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,6 +17,15 @@ public abstract class CodeSection extends Effect {
     public void loadSection(FileSection section) {
         setTriggerItems(ScriptLoader.loadItems(section));
     }
+
+    @Override
+    @Contract("_ -> fail")
+    public void execute(Event e) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected abstract Effect walk(Event e);
 
     public final void setTriggerItems(List<Effect> items) {
         this.items = items;

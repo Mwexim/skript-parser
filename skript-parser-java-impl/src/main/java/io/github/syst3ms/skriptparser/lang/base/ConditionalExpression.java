@@ -21,7 +21,6 @@ public abstract class ConditionalExpression implements Expression<Boolean> {
         this.negated = negated;
     }
 
-    @NotNull
     @Override
     public Boolean[] getValues(Event e) {
         return new Boolean[]{check(e)};

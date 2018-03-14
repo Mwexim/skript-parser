@@ -190,7 +190,6 @@ public class ExprNumberArithmetic implements Expression<Number> {
         }
     }
 
-    @NotNull
     @Override
     public Number[] getValues(Event e) {
         Number[] one = (Number[]) Array.newInstance(returnType, 1);
@@ -214,7 +213,6 @@ public class ExprNumberArithmetic implements Expression<Number> {
     }
 
     @SuppressWarnings("ConstantConditions")
-    @NotNull
     @Override
     public Expression<? extends Number> simplify() {
         if (first instanceof Literal && second instanceof Literal)

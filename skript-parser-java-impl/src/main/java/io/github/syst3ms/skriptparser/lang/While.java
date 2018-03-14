@@ -56,12 +56,6 @@ public class While extends CodeSection {
     }
 
     @Override
-    @Contract("_ -> fail")
-    public void execute(Event e) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String toString(@Nullable Event e, boolean debug) {
         return "while " + condition.toString(e, debug);
     }

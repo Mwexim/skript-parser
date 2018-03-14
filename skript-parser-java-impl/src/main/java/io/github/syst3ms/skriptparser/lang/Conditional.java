@@ -23,11 +23,6 @@ public class Conditional extends CodeSection {
     }
 
     @Override
-    public void execute(Event e) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     protected Effect walk(Event e) {
         assert condition != null || mode == ConditionalMode.ELSE;
         if (mode == ConditionalMode.ELSE) {

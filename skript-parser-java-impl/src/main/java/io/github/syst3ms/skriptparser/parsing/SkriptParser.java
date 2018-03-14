@@ -66,7 +66,7 @@ public class SkriptParser {
     }
 
     public ParseResult toParseResult() {
-        return new ParseResult(originalElement, regexMatches, parseMark);
+        return new ParseResult(originalElement, regexMatches, parseMark, originalPattern);
     }
 
     public List<PatternElement> flatten(PatternElement element) {

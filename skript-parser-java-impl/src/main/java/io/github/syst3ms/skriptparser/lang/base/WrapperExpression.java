@@ -55,19 +55,16 @@ public abstract class WrapperExpression<T> implements Expression<T> {
         };
     }
 
-    @NotNull
     @Override
     public T[] getValues(Event e) {
         return expr.getValues(e);
     }
 
-    @NotNull
     @Override
     public T[] getArray(Event e) {
         return expr.getArray(e);
     }
 
-    @NotNull
     @Override
     public Iterator<? extends T> iterator(Event e) {
         return expr.iterator(e);
@@ -98,7 +95,6 @@ public abstract class WrapperExpression<T> implements Expression<T> {
         expr.change(e, changeWith, mode);
     }
 
-    @NotNull
     @Override
     public Expression<? extends T> simplify() {
         return expr;

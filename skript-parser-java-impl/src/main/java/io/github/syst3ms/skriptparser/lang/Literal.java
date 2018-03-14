@@ -13,7 +13,6 @@ public interface Literal<T> extends Expression<T> {
         return getSingle(null);
     }
 
-    @NotNull
     @Override
     default T[] getValues(Event e) {
         return getValues();

@@ -12,6 +12,7 @@ import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
+import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.RecentElementList;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import io.github.syst3ms.skriptparser.variables.Variables;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -163,15 +165,19 @@ public class SyntaxParser {
         SkriptLogger.printLog();
         if (isLiteralList) {
             //noinspection SuspiciousToArrayCall
+            Literal[] literals = expressions.toArray(new Literal[expressions.size()]);
+            Class<?> returnType = ClassUtils.getCommonSuperclass(Arrays.stream(literals).map(Literal::getReturnType).toArray(Class[]::new));
             return new LiteralList<>(
-                expressions.toArray(new Literal[expressions.size()]),
-                expectedType.getType().getTypeClass(),
+                literals,
+                returnType,
                 isAndList
             );
         } else {
+            Expression[] exprs = expressions.toArray(new Expression[expressions.size()]);
+            Class<?> returnType = ClassUtils.getCommonSuperclass(Arrays.stream(exprs).map(Expression::getReturnType).toArray(Class[]::new));
             return new ExpressionList<>(
-                expressions.toArray(new Expression[expressions.size()]),
-                expectedType.getType().getTypeClass(),
+                exprs,
+                returnType,
                 isAndList
             );
         }
@@ -250,11 +256,14 @@ public class SyntaxParser {
             if (element.match(s, 0, parser) != -1) {
                 try {
                     Expression<? extends T> expression = (Expression<? extends T>) info.getSyntaxClass().newInstance();
-                    expression.init(
+                    if (!expression.init(
                         parser.getParsedExpressions().toArray(new Expression[0]),
                         i,
                         parser.toParseResult()
-                    );
+                    )) {
+                        SkriptLogger.printError();
+                        continue;
+                    }
                     Class<?> expressionReturnType = expression.getReturnType();
                     if (!expectedTypeClass.isAssignableFrom(expressionReturnType)) {
                         Expression<?> converted = expression.convertExpression(expectedTypeClass);
@@ -295,11 +304,14 @@ public class SyntaxParser {
             if (element.match(s, 0, parser) != -1) {
                 try {
                     Effect effect = info.getSyntaxClass().newInstance();
-                    effect.init(
-                            parser.getParsedExpressions().toArray(new Expression[0]),
-                            i,
-                            parser.toParseResult()
-                    );
+                    if (!effect.init(
+                        parser.getParsedExpressions().toArray(new Expression[0]),
+                        i,
+                        parser.toParseResult()
+                    )) {
+                        SkriptLogger.printError();
+                        continue;
+                    }
                     return effect;
                 } catch (InstantiationException | IllegalAccessException e) {
                     SkriptLogger.error("Parsing of " + info.getSyntaxClass()
@@ -391,12 +403,15 @@ public class SyntaxParser {
             if (element.match(section.getLineContent(), 0, parser) != -1) {
                 try {
                     CodeSection sec = info.getSyntaxClass().newInstance();
-                    sec.loadSection(section);
-                    sec.init(
+                    if (!sec.init(
                             parser.getParsedExpressions().toArray(new Expression[0]),
                             i,
                             parser.toParseResult()
-                    );
+                    )) {
+                        SkriptLogger.printError();
+                        continue;
+                    }
+                    sec.loadSection(section);
                     return sec;
                 } catch (InstantiationException | IllegalAccessException e) {
                     SkriptLogger.error("Parsing of " + info.getSyntaxClass()

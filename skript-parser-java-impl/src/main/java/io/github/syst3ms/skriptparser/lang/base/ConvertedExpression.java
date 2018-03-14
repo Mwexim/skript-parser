@@ -18,7 +18,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
     private Class<T> to;
     private Function<? super F, ? extends T> converter;
 
-    ConvertedExpression(Expression<? extends F> source, Class<T> to, Function<? super F, ? extends T> converter) {
+    public ConvertedExpression(Expression<? extends F> source, Class<T> to, Function<? super F, ? extends T> converter) {
         this.source = source;
         this.to = to;
         this.converter = converter;
@@ -37,7 +37,6 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 
     }
 
-    @NotNull
     @Override
     public T[] getValues(Event e) {
         return Converters.convert(source.getValues(e), to, converter);
@@ -71,13 +70,11 @@ public class ConvertedExpression<F, T> implements Expression<T> {
         return false;
     }
 
-    @NotNull
     @Override
     public Expression<? extends F> getSource() {
         return source;
     }
 
-    @NotNull
     @Override
     public Iterator<? extends T> iterator(Event event) {
         Iterator<? extends F> sourceIterator = source.iterator(event);

@@ -68,7 +68,6 @@ public class Variable<T> implements Expression<T> {
         return l.toArray();
     }
 
-    @NotNull
     @Override
     public T[] getValues(Event e) {
         if(list)
@@ -106,7 +105,10 @@ public class Variable<T> implements Expression<T> {
         return s.equalsIgnoreCase("var") || s.equalsIgnoreCase("variable") || s.equalsIgnoreCase("value") || s.equalsIgnoreCase("index");
     }
 
-    @NotNull
+    public boolean isIndexLoop(String s) {
+        return s.equalsIgnoreCase("index");
+    }
+
     public Iterator<T> iterator(Event e) {
         if (!list)
             throw new SkriptRuntimeException("");

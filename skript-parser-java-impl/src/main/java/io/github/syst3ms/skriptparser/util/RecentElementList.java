@@ -66,21 +66,21 @@ public class RecentElementList<T> implements Iterable<T> {
     public Iterator<T> iterator() {
         return new Iterator<T>() {
             @Nullable
-            Node<T> current;
+            Node<T> current = head;
 
             @Override
             public boolean hasNext() {
-                return current != null && current.getNext() != null;
+                return current != null;
             }
 
             @Nullable
             @Override
             public T next() {
-                if (current == null ||current.getNext() == null)
+                if (current == null)
                     throw new NoSuchElementException();
-                Node<T> next = current.getNext();
-                current = next;
-                return next.getValue();
+                Node<T> c = current;
+                current = c.getNext();
+                return c.getValue();
             }
         };
     }

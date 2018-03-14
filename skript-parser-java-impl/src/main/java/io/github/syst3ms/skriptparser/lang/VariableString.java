@@ -100,7 +100,6 @@ public class VariableString implements Expression<String> {
         return simple;
     }
 
-    @NotNull
     @Override
     public String[] getValues(Event e) {
         return new String[]{toString(e)};

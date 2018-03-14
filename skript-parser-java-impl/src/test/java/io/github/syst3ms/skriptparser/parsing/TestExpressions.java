@@ -18,7 +18,6 @@ public class TestExpressions {
             return true;
         }
 
-        @NotNull
         @Override
         public Number[] getValues(Event e) {
             Number n = number.getSingle(e);
@@ -47,7 +46,6 @@ public class TestExpressions {
             return true;
         }
 
-        @NotNull
         @Override
         public Number[] getValues(Event e) {
             Number lower = lowerBound.getSingle(e);
@@ -105,7 +103,6 @@ public class TestExpressions {
             return true;
         }
 
-        @NotNull
         @Override
         public String[] getValues(Event event) {
             String str = string.getSingle(event);
