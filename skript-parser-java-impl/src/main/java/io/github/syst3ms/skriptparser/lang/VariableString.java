@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
@@ -9,7 +8,6 @@ import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -45,8 +43,7 @@ public class VariableString implements Expression<String> {
             if (m.matches()) {
                 return new VariableString(new String[]{m.group(2)});
             } else {
-                SkriptLogger.error("Couldn't delimit the raw string in : '" + content + "'");
-            }
+                }
         }
         return null;
     }
@@ -60,18 +57,15 @@ public class VariableString implements Expression<String> {
             char c = charArray[i];
             if (c == '%') {
                 if (i == charArray.length - 1) {
-                    SkriptLogger.error("Unclosed '%' symbol at the end of the string");
                     return null;
                 }
                 String content = StringUtils.getPercentContent(s, i + 1);
                 if (content == null) {
-                    SkriptLogger.error("Malformed percent group at index " + i + ". This is most likely caused by an illegal variable declaration");
                     return null;
                 }
                 String toParse = content.replaceAll("\\\\(.)", "$1");
                 Expression<?> expression = SyntaxParser.parseExpression(toParse, SyntaxParser.OBJECT_PATTERN_TYPE);
                 if (expression == null) {
-                    SkriptLogger.error("Can't understand the expression : '" + toParse + "'");
                     return null;
                 }
                 if (sb.length() > 0) {
@@ -82,7 +76,6 @@ public class VariableString implements Expression<String> {
                 i += content.length() + 1;
             } else if (c == '\\') {
                 if (i + 1 == charArray.length) {
-                    SkriptLogger.error("Backslash sequence at the end of a string");
                     return null;
                 }
                 sb.append(charArray[++i]);

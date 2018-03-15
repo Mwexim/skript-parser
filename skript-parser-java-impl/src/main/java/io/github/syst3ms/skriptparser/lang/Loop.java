@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
@@ -30,7 +29,6 @@ public class Loop extends CodeSection {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
 		expr = expressions[0];
 		if (expr.isSingle()) {
-			SkriptLogger.error("Can't loop a single expression !");
 			return false;
 		}
 		return true;

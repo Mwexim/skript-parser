@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileParser;
 import io.github.syst3ms.skriptparser.file.FileSection;
@@ -95,10 +94,8 @@ public class SyntaxParserTest {
         );
         */
         assertNull(SyntaxParser.parseExpression("2 + \"test\"", numberType));
-        SkriptLogger.printError();
         assertNull(SyntaxParser.parseEffect("set \"test\" to 2"));
-        SkriptLogger.printError();
-    }
+        }
 
     @Test
     public void parseSection() throws Exception {

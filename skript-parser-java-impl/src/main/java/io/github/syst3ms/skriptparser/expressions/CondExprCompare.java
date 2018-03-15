@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.ExpressionList;
@@ -15,7 +14,6 @@ import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class CondExprCompare extends ConditionalExpression {
@@ -71,7 +69,6 @@ public class CondExprCompare extends ConditionalExpression {
             if (third == null && first.getReturnType() == Object.class && second.getReturnType() == Object.class) {
                 return false;
             } else {
-                SkriptLogger.error("Can't compare " + errorString(first) + " with " + errorString(second) + (third == null ? "" : " and " + errorString(third)));
                 return false;
             }
         }
@@ -80,16 +77,10 @@ public class CondExprCompare extends ConditionalExpression {
         if (comp != null) {
             if (third == null) {
                 if (!relation.isEqualOrInverse() && !comp.supportsOrdering()) {
-                    SkriptLogger.error("Can't test " + errorString(first) + " for being '" + relation + "' " + errorString(second));
                     return false;
                 }
             } else if (!comp.supportsOrdering()) {
-                SkriptLogger.error("Can't test " +
-                                   errorString(first) +
-                                   " for being 'between' " +
-                                   errorString(second) +
-                                   " and " +
-                                   errorString(third));
+                // REMIND error
                 return false;
             }
         }

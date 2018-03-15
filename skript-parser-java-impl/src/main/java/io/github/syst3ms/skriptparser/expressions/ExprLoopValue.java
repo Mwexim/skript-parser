@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Loop;
@@ -13,7 +12,6 @@ import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
@@ -22,6 +20,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ExprLoopValue implements Expression<Object> {
+	@SuppressWarnings("null")
+	private String name;
+	@SuppressWarnings("null")
+	private Loop loop;
+	private boolean isVariableLoop;
+	private boolean isIndex;
+
 	static {
 		Main.getMainRegistration().addExpression(
 			ExprLoopValue.class,
@@ -31,17 +36,6 @@ public class ExprLoopValue implements Expression<Object> {
 			"[the] loop-<.+>"
 		);
 	}
-
-	@SuppressWarnings("null")
-	private String name;
-
-	@SuppressWarnings("null")
-	private Loop loop;
-
-	// whether this loops a variable
-	boolean isVariableLoop = false;
-	// if this loops a variable and isIndex is true, return the index of the variable instead of the value
-	boolean isIndex = false;
 
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, ParseResult parser) {
@@ -64,10 +58,7 @@ public class ExprLoopValue implements Expression<Object> {
 		Loop loop = null;
 
 		for (final Loop l : ScriptLoader.getCurrentLoops()) {
-			if ((
-				c != null &&
-				c.isAssignableFrom(l.getLoopedExpression().getReturnType())
-				) ||
+			if (c != null && c.isAssignableFrom(l.getLoopedExpression().getReturnType()) ||
 				"value".equals(s) ||
 				l.getLoopedExpression().isLoopOf(s)) {
 				if (j < i) {
@@ -75,7 +66,6 @@ public class ExprLoopValue implements Expression<Object> {
 					continue;
 				}
 				if (loop != null) {
-					SkriptLogger.error("There are multiple loops that match loop-" + s + ". Use loop-" + s + "-1/2/3/etc. to specify which loop's value you want.");
 					return false;
 				}
 				loop = l;
@@ -84,7 +74,6 @@ public class ExprLoopValue implements Expression<Object> {
 			}
 		}
 		if (loop == null) {
-			SkriptLogger.error("There's no loop that matches 'loop-" + s + "'");
 			return false;
 		}
 		if (loop.getLoopedExpression() instanceof Variable) {

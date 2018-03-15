@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.pattern;
 
-import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.lang.Variable;
@@ -9,7 +8,6 @@ import io.github.syst3ms.skriptparser.parsing.SkriptParser;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.util.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -58,7 +56,6 @@ public class ExpressionElement implements PatternElement {
                     String toParse = s.substring(index).trim();
                     Expression<?> expression = parse(toParse, typeArray);
                     if (expression != null) {
-                        SkriptLogger.printLog();
                         parser.addExpression(expression);
                         return index + toParse.length();
                     }
@@ -69,7 +66,6 @@ public class ExpressionElement implements PatternElement {
                     String toParse = s.substring(index, i).trim();
                     Expression<?> expression = parse(toParse, typeArray);
                     if (expression != null) {
-                        SkriptLogger.printLog();
                         parser.addExpression(expression);
                         return index + toParse.length();
                     }
@@ -87,7 +83,6 @@ public class ExpressionElement implements PatternElement {
                         continue;
                     Expression<?> expression = parse(toParse, typeArray);
                     if (expression != null) {
-                        SkriptLogger.printLog();
                         parser.addExpression(expression);
                         return index + toParse.length();
                     }
@@ -111,7 +106,6 @@ public class ExpressionElement implements PatternElement {
                                 String toParse = s.substring(index, i);
                                 Expression<?> expression = parse(toParse, typeArray);
                                 if (expression != null) {
-                                    SkriptLogger.printLog();
                                     parser.addExpression(expression);
                                     return index + toParse.length();
                                 }
@@ -193,19 +187,19 @@ public class ExpressionElement implements PatternElement {
                     break;
                 case EXPRESSIONS_ONLY:
                     if (expression instanceof SimpleLiteral || expression instanceof VariableString) {
-                        SkriptLogger.error("Literals are not allowed here.");
+                        // REMIND error
                         return null;
                     }
                     break;
                 case LITERALS_ONLY:
                     if (expression instanceof VariableString && !((VariableString) expression).isSimple() || !(expression instanceof SimpleLiteral)) {
-                        SkriptLogger.error("Expressions aren't allowed here.");
+                        // REMIND error
                         return null;
                     }
                     break;
                 case VARIABLES_ONLY:
                     if (!(expression instanceof Variable)) {
-                        SkriptLogger.error("Only variables can be used here.");
+                        // REMIND error
                         return null;
                     }
                     break;

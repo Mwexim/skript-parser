@@ -1,11 +1,9 @@
 package io.github.syst3ms.skriptparser.variables;
 
-import io.github.syst3ms.skriptparser.SkriptLogger;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -29,16 +27,13 @@ public class Variables {
             return null;
         }
         if (!isValidVariableName(s, true)) {
-            SkriptLogger.printError();
             return null;
         }
         VariableString vs = VariableString.newInstance(s.startsWith(LOCAL_VARIABLE_TOKEN) ? s.substring(
             LOCAL_VARIABLE_TOKEN.length()).trim() : s);
         if (vs == null) {
-            SkriptLogger.printError();
             return null;
         }
-        SkriptLogger.printLog();
         return new Variable<>(vs, s.startsWith(LOCAL_VARIABLE_TOKEN), s.endsWith(
                 LIST_SEPARATOR + "*"), types);
     }
@@ -54,16 +49,16 @@ public class Variables {
         name = name.startsWith(LOCAL_VARIABLE_TOKEN) ? "" + name.substring(LOCAL_VARIABLE_TOKEN.length()).trim() : "" + name.trim();
         if (name.startsWith(LIST_SEPARATOR) || name.endsWith(LIST_SEPARATOR)) {
             if (printErrors)
-                SkriptLogger.error("A variable's name must neither start nor end with the separator '" + LIST_SEPARATOR + "' (printError in variable {" + name + "})");
+                // REMIND error
             return false;
         } else if (name.contains("*") && (name.indexOf("*") != name.length() - 1 || !name.endsWith(LIST_SEPARATOR + "*"))) {
             if (printErrors) {
-                SkriptLogger.error("A variable's name must not contain any asterisks except at the end after '" + LIST_SEPARATOR + "' to denote a list variable, e.g. {variable" + LIST_SEPARATOR + "*} (printError in variable {" + name + "})");
+                // REMIND error
             }
             return false;
         } else if (name.contains(LIST_SEPARATOR + LIST_SEPARATOR)) {
             if (printErrors)
-                SkriptLogger.error("A variable's name must not contain the separator '" + LIST_SEPARATOR + "' multiple times in a row (printError in variable {" + name + "})");
+                // REMIND error
             return false;
         }
         return true;
