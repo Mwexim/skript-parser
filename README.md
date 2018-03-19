@@ -32,7 +32,7 @@ section:
   code outside of the section
 ```
 
-Even though skript-parser-java-impl is not advanced enough in order to prove it *yet*, and no proofs have been written using the Skript plugin *yet*, Skript is Turing-complete.
+Even though skript-parser-java-impl is not advanced enough in order to prove it *yet*, and no proofs have been written using the Skript plugin *yet*, Skript is most certainly Turing-complete.
 
 ### Skript patterns explanation
 
@@ -51,5 +51,4 @@ It is possible to retrieve information over what the choice is, through *parse m
   
 Now, boolean expressions have a special treatment. Some boolean expressions, called "conditional", can only be used :
   * In a condition
-  * In a while loop
-  * Explanation below
+  * Alternatively, boolean types can be marked with `=` in syntax (i.e `%=boolean%`) to say that they accept conditional expressions. The easiest way to use a conditional expression as a regular boolean one is to use the "whether" expression : `whether %~=boolean%`. Note that the while loop uses `%=boolean%`
