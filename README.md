@@ -39,7 +39,7 @@ Even though skript-parser-java-impl is not advanced enough in order to prove it 
 Nearly every element of the language is defined by a syntax, of which I will detail the meaning here :
  
  `(first|second|third)` defines a choice : the user can input any of the words inside the brackets, separated by pipes
-It is possible to retrieve information over what the choice is, through *parse marks*. They consist of an integer and a broken pipe symbol (`¦`), written after the opening bracket, or a pipe `|`. If not specified, the default parse mark is 0. Example : `(1¦one|2¦two)`. All successive parse marks are XORed together, e.g the syntax `(one|1¦1)` (2¦two|2)` matched against `1 two`, will output a parse mark of `1 XOR 2 == 3`.
+It is possible to retrieve information over what the choice is, through *parse marks*. They consist of an integer and a broken pipe symbol (`¦`), written after the opening bracket, or a pipe `|`. If not specified, the default parse mark is 0. Example : `(1¦one|2¦two)`. All successive parse marks are XORed together, e.g the syntax `(one|1¦1) (2¦two|2)` matched against `1 two`, will output a parse mark of `1 XOR 2 == 3`.
 
 `[optional]` makes a part of the syntax optional. New to skript-parser is the ability to write `[1¦one]` or `[1¦one|the number one]`. Note that these are just syntax sugar for `[(1¦one)]` and `[(1¦one|the number one)]` respectively.
 
@@ -48,3 +48,8 @@ It is possible to retrieve information over what the choice is, through *parse m
   * `%~type%` is the opposite of the above syntax, it won't accept literals.
   * `%^type%` only accepts *variables* of type `type`
   * `%-type%` will make it so the expression will be null when opted out (e.g the %% part is inside an optional group), rather than defaulting to the default expression, specified when defining `type`.
+  
+Now, boolean expressions have a special treatment. Some boolean expressions, called "conditional", can only be used :
+  * In a condition
+  * In a while loop
+  * Explanation below
