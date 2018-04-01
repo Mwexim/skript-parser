@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.file;
 
 import io.github.syst3ms.skriptparser.util.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 public class SimpleFileLine implements FileElement {
     private final String fileName;

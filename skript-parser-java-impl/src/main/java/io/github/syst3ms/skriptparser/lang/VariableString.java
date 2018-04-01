@@ -33,7 +33,7 @@ public class VariableString implements Expression<String> {
     public static VariableString newInstanceWithQuotes(String s) {
         if (s.startsWith("\"") && s.endsWith("\"")) {
             return newInstance(s.substring(1, s.length() - 1));
-        } else if (s.startsWith("'") && s.endsWith("'")) {
+        } else if (s.startsWith("'") && s.endsWith("'") && StringUtils.nextSimpleCharacterIndex(s, 0) == s.length()) {
             return new VariableString(new String[]{
                 s.substring(1, s.length() - 1).replace("\\'", "'")
             });
@@ -43,7 +43,8 @@ public class VariableString implements Expression<String> {
             if (m.matches()) {
                 return new VariableString(new String[]{m.group(2)});
             } else {
-                }
+                // REMIND error
+            }
         }
         return null;
     }

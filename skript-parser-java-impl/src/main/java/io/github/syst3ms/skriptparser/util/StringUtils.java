@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.util;
 
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.Charset;
@@ -83,12 +82,12 @@ public class StringUtils {
                     return -1;
                 i = closing;
             } else if (c == '"') {
-                int closing = findClosingIndex(s, '"', '"', i);
+                int closing = s.indexOf('"', i + 1);
                 if (closing == -1)
                     return -1;
                 i = closing;
             } else if (c == '\'') {
-                int closing = findClosingIndex(s, '\'', '\'', i);
+                int closing = s.indexOf('\'', i + 1);
                 if (closing == -1)
                     return -1;
                 i = closing;
@@ -101,7 +100,7 @@ public class StringUtils {
                 return i;
             }
         }
-        return -1;
+        return s.length();
     }
 
     @Nullable

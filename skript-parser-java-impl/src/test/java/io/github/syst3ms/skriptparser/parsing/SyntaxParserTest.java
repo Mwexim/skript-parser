@@ -8,12 +8,14 @@ import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.types.PatternType;
+import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 import org.jetbrains.annotations.Nullable;
 import org.junit.*;
 
 import java.io.File;
+import java.math.BigInteger;
 import java.util.List;
 
 import static io.github.syst3ms.skriptparser.parsing.TestRegistration.DUMMY;
@@ -77,14 +79,13 @@ public class SyntaxParserTest {
         assertExpressionTrue(
                 SyntaxParser.parseExpression("1", SyntaxParser.BOOLEAN_PATTERN_TYPE)
         );
-        assertExpressionTrue(
-                SyntaxParser.parseBooleanExpression("whether 2 != 5", false)
-        );
-        assertExpressionTrue(
-                SyntaxParser.parseBooleanExpression("  \r   -3   iS    \t   eQuAl TO\t\t\t\t  -3     ", true)
-        );
+        //assertExpressionTrue(
+        //        SyntaxParser.parseBooleanExpression("whether 2 != 5", false)
+        //);
+        //assertExpressionTrue(
+        //        SyntaxParser.parseBooleanExpression("  \r   -3   iS    \t   eQuAl TO\t\t\t\t  -3     ", true)
+        //);
         // These tests try to push the parser to its limits more than anything else
-        /*
         assertExpressionEquals(
                 new SimpleLiteral<>(Boolean.class, true, false, true),
                 SyntaxParser.parseExpression("whether 2 <= 4, (whether 5 is greater than or equal to 6) and true", new PatternType<>(TypeManager.getByClass(Boolean.class), false))
@@ -92,10 +93,17 @@ public class SyntaxParserTest {
         assertExpressionTrue(
                 SyntaxParser.parseBooleanExpression("whether whether 2 <= 4, (whether 10 is greater than or equal to 6) and true are true", false)
         );
-        */
         assertNull(SyntaxParser.parseExpression("2 + \"test\"", numberType));
         assertNull(SyntaxParser.parseEffect("set \"test\" to 2"));
-        }
+        assertExpressionEquals(
+                new SimpleLiteral<>(Long.class, 0L, 1L, 2L, 3L),
+                SyntaxParser.parseExpression("0L..3L", new PatternType<>(TypeManager.getByClassExact(Number.class), false))
+        );
+        assertExpressionEquals(
+                new SimpleLiteral<>(String.class, "a", "b", "c"),
+                SyntaxParser.parseExpression("'a'..'c'", new PatternType<>(TypeManager.getByClassExact(String.class), false))
+        );
+    }
 
     @Test
     public void parseSection() throws Exception {

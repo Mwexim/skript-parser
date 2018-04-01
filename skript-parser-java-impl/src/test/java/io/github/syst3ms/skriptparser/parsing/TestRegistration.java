@@ -1,10 +1,12 @@
 package io.github.syst3ms.skriptparser.parsing;
 
+import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.effects.EffChange;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.expressions.CondExprCompare;
 import io.github.syst3ms.skriptparser.expressions.ExprLoopValue;
 import io.github.syst3ms.skriptparser.expressions.ExprNumberArithmetic;
+import io.github.syst3ms.skriptparser.expressions.ExprRange;
 import io.github.syst3ms.skriptparser.expressions.ExprWhether;
 import io.github.syst3ms.skriptparser.lang.Loop;
 import io.github.syst3ms.skriptparser.lang.While;
@@ -14,9 +16,13 @@ import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
+import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.LongStream;
 
 public class TestRegistration {
     public static final Event DUMMY = () -> ""; // SAM conversion
@@ -217,6 +223,13 @@ public class TestRegistration {
             6,
             "[the] loop-<.+>"
         );
+        registration.addExpression(
+                ExprRange.class,
+                Object.class,
+                false,
+                "range from %object% to %object%",
+                "%object%..%object%"
+        );
         registration.addEffect(
                 EffChange.class,
                 2,
@@ -262,6 +275,36 @@ public class TestRegistration {
                 n -> {
                     long l = n.longValue();
                     return l != 0;
+                }
+        );
+        Ranges.registerRange(
+                Long.class,
+                Long.class,
+                (l, r) -> {
+                    if (l.compareTo(r) <= 0) {
+                        return new Long[0];
+                    } else {
+                        return LongStream.range(l, r + 1)
+                                         .boxed()
+                                         .toArray(Long[]::new);
+                    }
+                }
+        );
+        Ranges.registerRange(
+                BigInteger.class,
+                BigInteger.class,
+                (l, r) -> {
+                    if (l.compareTo(r) <= 0) {
+                        return new BigInteger[0];
+                    } else {
+                        List<BigInteger> elements = new ArrayList<>();
+                        BigInteger current = l;
+                        do {
+                            elements.add(current);
+                            current = current.add(BigInteger.ONE);
+                        } while (current.compareTo(r) <= 0);
+                        return elements.toArray(new BigInteger[elements.size()]);
+                    }
                 }
         );
         registration.register();

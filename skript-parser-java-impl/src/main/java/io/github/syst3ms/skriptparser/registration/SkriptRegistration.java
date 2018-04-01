@@ -14,7 +14,6 @@ import io.github.syst3ms.skriptparser.types.changers.Changer;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 import io.github.syst3ms.skriptparser.util.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;

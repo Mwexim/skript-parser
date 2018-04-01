@@ -2,7 +2,6 @@ package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.pattern.*;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;

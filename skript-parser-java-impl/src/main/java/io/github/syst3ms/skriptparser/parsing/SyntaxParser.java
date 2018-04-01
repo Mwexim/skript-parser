@@ -95,8 +95,6 @@ public class SyntaxParser {
         Matcher m = LIST_SPLIT_PATTERN.matcher(s);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i + 1)) {
-            if (i == -1)
-                break;
             char c = s.charAt(i);
             if (c == ' ' || c == ',') {
                 m.region(i, s.length());

@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.pattern.*;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -26,8 +25,6 @@ public class PatternParser {
      */
     @Nullable
     public PatternElement parsePattern(String pattern) {
-        if (pattern.isEmpty())
-            return null;
         List<PatternElement> elements = new ArrayList<>();
         StringBuilder textBuilder = new StringBuilder("");
         char[] chars = pattern.toCharArray();

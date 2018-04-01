@@ -81,12 +81,15 @@ public class EffChange extends Effect {
                 );
                 switch (mode) {
                     case SET:
+                        // REMIND error
                         break;
                     case ADD:
+                        // REMIND error
                         break;
                     case REMOVE_ALL:
                     case REMOVE:
-                        }
+                        // REMIND error
+                }
                 return false;
             }
         }
