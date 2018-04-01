@@ -1,9 +1,10 @@
 package io.github.syst3ms.skriptparser.event;
 
 /**
- * Event interface made to somewhat replicate Bukkit's.
- * This won't have much implementations in this particular project
+ * Event interface made to somewhat replicate Bukkit's. Subject to changes or even a complete rework
  */
 public interface Event {
+    Event DUMMY = () -> "Dummy event";
+
     String getEventName();
 }

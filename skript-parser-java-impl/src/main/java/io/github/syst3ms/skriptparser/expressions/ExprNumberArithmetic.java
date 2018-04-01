@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
@@ -216,7 +215,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
     @Override
     public Expression<? extends Number> simplify() {
         if (first instanceof Literal && second instanceof Literal)
-            return new SimpleLiteral<>(Number.class, getValues(null));
+            return new SimpleLiteral<>(Number.class, getValues(Event.DUMMY));
         return this;
     }
 

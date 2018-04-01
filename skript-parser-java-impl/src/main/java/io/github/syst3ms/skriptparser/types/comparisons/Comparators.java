@@ -2,10 +2,13 @@ package io.github.syst3ms.skriptparser.types.comparisons;
 
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import javafx.util.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 public class Comparators {

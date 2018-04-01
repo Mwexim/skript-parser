@@ -2,7 +2,6 @@ package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SyntaxInfo<C> {

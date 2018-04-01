@@ -1,6 +1,8 @@
 package io.github.syst3ms.skriptparser.util;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Random;
 
 public class CollectionUtils {
     private static final Random rnd = new Random();

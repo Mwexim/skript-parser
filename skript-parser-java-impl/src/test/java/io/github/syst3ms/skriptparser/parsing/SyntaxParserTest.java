@@ -8,17 +8,15 @@ import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.types.PatternType;
-import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 import org.jetbrains.annotations.Nullable;
 import org.junit.*;
 
 import java.io.File;
-import java.math.BigInteger;
 import java.util.List;
 
-import static io.github.syst3ms.skriptparser.parsing.TestRegistration.DUMMY;
+import static io.github.syst3ms.skriptparser.event.Event.DUMMY;
 import static org.junit.Assert.*;
 
 @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -119,6 +117,6 @@ public class SyntaxParserTest {
         elements = fileParser.parseFileLines("loop-test", lines, 0, 1);
         sec = (FileSection) elements.get(0);
         CodeSection loop = SyntaxParser.parseSection(sec);
-        assertTrue("The loop failed while running", Effect.runAll(loop, TestRegistration.DUMMY));
+        assertTrue("The loop failed while running", Effect.runAll(loop, DUMMY));
     }
 }

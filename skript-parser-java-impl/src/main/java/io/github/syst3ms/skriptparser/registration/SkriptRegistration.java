@@ -22,6 +22,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
+/**
+ * A mutable object keeping track of everything registered by any source.
+ * Do not forget to call {@link #register()} !
+ * @see #getRegisterer()
+ */
 public class SkriptRegistration {
     private String registerer;
     private MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
@@ -52,6 +57,9 @@ public class SkriptRegistration {
         return effects;
     }
 
+    /**
+     * @return the name of what is registering everything
+     */
     public String getRegisterer() {
         return registerer;
     }

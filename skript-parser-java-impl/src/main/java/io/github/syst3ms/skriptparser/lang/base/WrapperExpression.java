@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -15,7 +14,8 @@ import java.util.function.Function;
 /**
  * Represents an expression which is a wrapper of another one. Remember to set the wrapped expression with {@link #setExpr(Expression)} in
  * {@link SyntaxElement#init(Expression[], int, ParseResult) init()}.<br/>
- * If you override {@link #getValues(Event)} (Event)} you must override {@link #iterator(Event)} as well.
+ * If you override {@link #getValues(Event)} (Event)} you must override {@link #iterator(Event)} as well. Effects of not
+ * doing so are unspecified.
  *
  * @author Peter Güttinger
  */

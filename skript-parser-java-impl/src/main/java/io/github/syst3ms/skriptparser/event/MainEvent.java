@@ -1,7 +1,5 @@
 package io.github.syst3ms.skriptparser.event;
 
-import org.jetbrains.annotations.NotNull;
-
 /**
  * The event representing the main entry point in scripts,
  * equivalent to {@code public static void main(String[] args)} in Java

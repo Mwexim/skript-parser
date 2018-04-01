@@ -3,9 +3,18 @@ package io.github.syst3ms.skriptparser.lang;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A {@linkplain CodeSection code section} representing a condition. It can either be :
+ * <ul>
+ *     <li>An "if" condition</li>
+ *     <li>An "else if" condition</li>
+ *     <li>An "else" condition, that does not include any condition</li>
+ * </ul>
+ * This "mode" is described by a {@link ConditionalMode} value, accessible through {@link #getMode()}.
+ * @see ConditionalMode
+ */
 public class Conditional extends CodeSection {
     private ConditionalMode mode;
     @Nullable
@@ -18,6 +27,10 @@ public class Conditional extends CodeSection {
         this.mode = mode;
     }
 
+    /**
+     * @return the {@link ConditionalMode} describing this Conditional
+     * @see ConditionalMode
+     */
     public ConditionalMode getMode() {
         return mode;
     }
@@ -38,6 +51,10 @@ public class Conditional extends CodeSection {
         }
     }
 
+    /**
+     * @param conditional the Conditional object this Conditional falls back to when it's condition verifies to
+     *                    false. Setting this to an "if" Conditional may cause unexpected/confusing behaviour.
+     */
     public void setFallingClause(Conditional conditional) {
         this.fallingClause = conditional;
     }

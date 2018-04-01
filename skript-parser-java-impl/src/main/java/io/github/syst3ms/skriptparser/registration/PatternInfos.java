@@ -1,8 +1,14 @@
 package io.github.syst3ms.skriptparser.registration;
 
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
-import org.jetbrains.annotations.NotNull;
 
+/**
+ * An object used to retrieve depending on which pattern was matched
+ * @param <T> the type of the data to be retrieved
+ * @see io.github.syst3ms.skriptparser.lang.SyntaxElement#init(Expression[], int, ParseResult)
+ */
 public class PatternInfos<T> {
     private String[] patterns;
     private Object[] data;

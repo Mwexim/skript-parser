@@ -4,10 +4,11 @@ import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A section that keeps executing its contents while a given condition is met.
+ */
 @SuppressWarnings("unchecked")
 public class While extends CodeSection {
     @Nullable
@@ -50,6 +51,9 @@ public class While extends CodeSection {
         return this;
     }
 
+    /**
+     * @see Loop#getActualNext()
+     */
     @Nullable
     public Effect getActualNext() {
         return actualNext;

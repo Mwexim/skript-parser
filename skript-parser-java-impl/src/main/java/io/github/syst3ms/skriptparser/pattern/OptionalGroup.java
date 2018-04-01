@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.pattern;
 
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * A group containing an optional {@link PatternElement}, that can be omitted

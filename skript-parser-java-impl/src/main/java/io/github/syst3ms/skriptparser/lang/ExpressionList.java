@@ -3,12 +3,20 @@ package io.github.syst3ms.skriptparser.lang;
 import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
+/**
+ * A list of expressions
+ * @param <T> the common supertype of all expressions in this list
+ */
 @SuppressWarnings("unchecked")
 public class ExpressionList<T> implements Expression<T> {
     protected final boolean single;

@@ -8,13 +8,15 @@ import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.Collections;
 import java.util.Iterator;
 
+/**
+ * A simple literal with a fixed set of values
+ * @param <T> the type of the values
+ */
 @SuppressWarnings("unchecked")
 public class SimpleLiteral<T> implements Literal<T> {
     private T[] values;

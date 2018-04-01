@@ -14,12 +14,22 @@ import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.variables.Variables;
 import javafx.util.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.TreeMap;
 
+/**
+ * A reference to a variable, whose value is only known at runtime. It can be local to the event, meaning it isn't
+ * defined outside of the event it was first defined in. It can also be a list of multiple values. It can also be both.
+ * @param <T> the common supertype of the possibly multiple values of the variable
+ */
 @SuppressWarnings("unchecked")
 public class Variable<T> implements Expression<T> {
     private final VariableString name;
@@ -161,6 +171,10 @@ public class Variable<T> implements Expression<T> {
         };
     }
 
+    /**
+     * @param e the event
+     * @return an {@link Iterator} that iterates over pairs of indexes and values
+     */
     @Nullable
     public Iterator<Pair<String, Object>> variablesIterator(Event e) {
         if (!list)

@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.variables;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;

@@ -1,10 +1,8 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.types.PatternType;
-import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import org.jetbrains.annotations.Nullable;
 import org.junit.*;
@@ -12,7 +10,7 @@ import org.junit.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import static io.github.syst3ms.skriptparser.parsing.TestRegistration.DUMMY;
+import static io.github.syst3ms.skriptparser.event.Event.DUMMY;
 import static org.junit.Assert.*;
 
 @SuppressWarnings("ConstantConditions")

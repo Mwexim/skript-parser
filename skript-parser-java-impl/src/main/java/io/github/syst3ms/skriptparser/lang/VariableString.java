@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * A string that possibly contains expressions inside it, meaning that its value may be unknown at runtime
+ */
 public class VariableString implements Expression<String> {
     public static final Pattern R_LITERAL_CONTENT_PATTERN = Pattern.compile("^(.+?)\\((.+)\\)\\1$"); // It's actually rare to be able to use '.+' raw like this
     /**
@@ -29,6 +32,18 @@ public class VariableString implements Expression<String> {
         this.simple = data.length == 1 && data[0] instanceof String;
     }
 
+    /**
+     * Creates a new instance of a VariableString.
+     * @param s the text to create a new instance from, with its surrounding quotes
+     * @return {@code null} if either:
+     * <ul>
+     *     <li>The argument isn't quoted correctly</li>
+     *     <li>{@link #newInstance(String)} returned null, which can happen when the string literal is of the form
+     *     {@code "..."}</li>
+     *     <li>Something went very wrong when parsing a raw literal {@code R"possible delimiter(...)possible delimiter'}
+     *     </li>
+     * </ul>. Returns a new instance of a VariableString otherwise.
+     */
     @Nullable
     public static VariableString newInstanceWithQuotes(String s) {
         if (s.startsWith("\"") && s.endsWith("\"")) {
@@ -49,6 +64,11 @@ public class VariableString implements Expression<String> {
         return null;
     }
 
+    /**
+     * Creates a new instance of a VariableString from the text inside a string literal.
+     * @param s the content of the string literal, without quotes
+     * @return a new instance of a VariableString, or {@code null} if there are unbalanced {@literal %} symbols
+     */
     @Nullable
     public static VariableString newInstance(String s) {
         List<Object> data = new ArrayList<>(StringUtils.count(s, "%"));
@@ -90,6 +110,9 @@ public class VariableString implements Expression<String> {
         return new VariableString(data.toArray());
     }
 
+    /**
+     * @return whether this VariableString is actually constant and whose value can be known at parse time
+     */
     public boolean isSimple() {
         return simple;
     }
@@ -105,6 +128,11 @@ public class VariableString implements Expression<String> {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * @param e the event
+     * @return this VariableString represented in the given event. The behaviour of passing {@code null} without
+     * checking {@link #isSimple()} is unspecified.
+     */
     public String toString(Event e) {
         if (simple)
             return (String) data[0];

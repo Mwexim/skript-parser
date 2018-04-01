@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -13,6 +12,13 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
+/**
+ * An expression that has been converted to another type. Type conversion is only being done at runtime, since the values
+ * of the source expression aren't known until runtime.
+ * @param <F> The type of the source expression
+ * @param <T> The new, converted type of this expression
+ * @see Converters
+ */
 public class ConvertedExpression<F, T> implements Expression<T> {
     private Expression<? extends F> source;
     private Class<T> to;

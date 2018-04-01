@@ -46,7 +46,7 @@ public class EffChange extends Effect {
         } else if ((matchedPattern & 1) == 1 || mode == ChangeMode.SET) {
             changed = expressions[0];
             changeWith = expressions[1];
-            assignement = (matchedPattern & 1) == 1;
+            assignment = (matchedPattern & 1) == 1;
         } else {
             changed = expressions[1];
             changeWith = expressions[0];
@@ -64,12 +64,16 @@ public class EffChange extends Effect {
             if (acceptance == null) {
                 switch (mode) {
                     case SET:
+                        // REMIND error
                         break;
                     case ADD:
+                        // REMIND error
                         break;
                     case REMOVE_ALL:
                     case REMOVE:
-                        }
+                        // REMIND error
+                        break;
+                }
                 return false;
             } else if (!ClassUtils.containsSuperclass(acceptance, changeType)) {
                 boolean array = changeType.isArray();
@@ -89,6 +93,7 @@ public class EffChange extends Effect {
                     case REMOVE_ALL:
                     case REMOVE:
                         // REMIND error
+                        break;
                 }
                 return false;
             }
@@ -96,7 +101,7 @@ public class EffChange extends Effect {
         return true;
     }
 
-    private boolean assignement;
+    private boolean assignment;
 
     @Override
     public String toString(@Nullable Event e, boolean debug) {
@@ -104,19 +109,19 @@ public class EffChange extends Effect {
         String changedWithString = changeWith != null ? changeWith.toString(e, debug) : "";
         switch (mode) {
             case SET:
-                if (assignement) {
+                if (assignment) {
                     return String.format("%s = %s", changedString, changedWithString);
                 } else {
                     return String.format("set %s to %s", changedString, changedWithString);
                 }
             case ADD:
-                if (assignement) {
+                if (assignment) {
                     return String.format("%s += %s", changedString, changedWithString);
                 } else {
                     return String.format("add %s to %s", changedWithString, changedString);
                 }
             case REMOVE:
-                if (assignement) {
+                if (assignment) {
                     return String.format("%s -= %s", changedString, changedWithString);
                 } else {
                     return String.format("remove %s from %s", changedWithString, changedString);

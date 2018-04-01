@@ -1,10 +1,12 @@
 package io.github.syst3ms.skriptparser.file;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
 
-public class FileSection extends SimpleFileLine {
+/**
+ * A class describing a section of a script inside a file (e.g a line ending with a colon and containing all the lines that
+ * were indented after it. "all the lines" doesn't exclude sections.
+ */
+public class FileSection extends FileElement {
     private List<FileElement> elements;
 
     public FileSection(String fileName, int line, String content, List<FileElement> elements, int indentation) {

@@ -1,7 +1,15 @@
 package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.file.FileSection;
-import io.github.syst3ms.skriptparser.lang.*;
+import io.github.syst3ms.skriptparser.lang.CodeSection;
+import io.github.syst3ms.skriptparser.lang.Effect;
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.ExpressionList;
+import io.github.syst3ms.skriptparser.lang.Literal;
+import io.github.syst3ms.skriptparser.lang.LiteralList;
+import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
+import io.github.syst3ms.skriptparser.lang.Variable;
+import io.github.syst3ms.skriptparser.lang.VariableString;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;

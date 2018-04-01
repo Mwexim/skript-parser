@@ -11,6 +11,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+/**
+ * A section that iterates over a collection of elements
+ */
 public class Loop extends CodeSection {
 	private Expression<?> expr;
 	private transient Map<Event, Object> current = new WeakHashMap<>();
@@ -29,6 +32,7 @@ public class Loop extends CodeSection {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
 		expr = expressions[0];
 		if (expr.isSingle()) {
+		    // REMIND error
 			return false;
 		}
 		return true;
@@ -37,7 +41,7 @@ public class Loop extends CodeSection {
 	@Override
 	public void loadSection(FileSection section) {
 		ScriptLoader.addCurrentLoop(this);
-		setTriggerItems(ScriptLoader.loadItems(section));
+		setItems(ScriptLoader.loadItems(section));
 		ScriptLoader.removeCurrentLoop();
 		super.setNext(this);
 	}
@@ -75,6 +79,9 @@ public class Loop extends CodeSection {
 		return current.get(e);
 	}
 
+    /**
+     * @return the expression whose values this loop is iterating over
+     */
 	public Expression<?> getLoopedExpression() {
 		return expr;
 	}
@@ -85,6 +92,12 @@ public class Loop extends CodeSection {
 		return this;
 	}
 
+    /**
+     * This method exists because Loop actually sets itself as its next element with {@link #getNext()}.
+     * This way it has full control over when to stop iterating over
+     * {@linkplain #getLoopedExpression() the looped expression}'s elements
+     * @return the element that is actually after this Loop
+     */
 	@Nullable
 	public Effect getActualNext() {
 		return actualNext;

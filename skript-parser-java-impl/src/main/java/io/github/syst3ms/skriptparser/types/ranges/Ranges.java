@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.types.ranges;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 

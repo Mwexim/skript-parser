@@ -1,7 +1,5 @@
 package io.github.syst3ms.skriptparser.types.comparisons;
 
-import org.jetbrains.annotations.NotNull;
-
 public enum Relation {
     EQUAL(0), NOT_EQUAL(0), GREATER(1), GREATER_OR_EQUAL(1), SMALLER(-1), SMALLER_OR_EQUAL(-1);
 

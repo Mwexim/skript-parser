@@ -1,9 +1,14 @@
 package io.github.syst3ms.skriptparser.lang;
 
+import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A list of literals, whose values are known at parse time
+ * @param <T> the common supertype of all literals in the list
+ * @see Literal
+ */
 @SuppressWarnings("ConstantConditions")
 public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
 
@@ -17,13 +22,13 @@ public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
 
     @Override
     public T[] getValues() {
-        return getValues(null);
+        return getValues(Event.DUMMY);
     }
 
     @Nullable
     @Override
     public T getSingle() {
-        return getSingle(null);
+        return getSingle(Event.DUMMY);
     }
 
     @SuppressWarnings("unchecked")

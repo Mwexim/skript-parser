@@ -2,7 +2,6 @@ package io.github.syst3ms.skriptparser;
 
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.util.FileUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

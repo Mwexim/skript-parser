@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.util;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -8,9 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * A simple implementation of a Multimap, emulating Guava's. This implementation allows duplicate elements in the the
- * values. (I know classes like this are out there but the ones available to me didn't work).
+ * A simple implementation of a Multimap, emulating Guava's. This implementation allows duplicate elements in the
+ * values.
  */
+// I know classes like this are out there but the ones available to me didn't work
 public class MultiMap<K, V> extends HashMap<K, List<V>> {
     /**
      * Looks for a list that is mapped to the given key. If there is not one then a new one is created

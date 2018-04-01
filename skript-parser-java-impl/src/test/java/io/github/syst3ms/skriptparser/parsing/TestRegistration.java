@@ -1,8 +1,6 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.effects.EffChange;
-import io.github.syst3ms.skriptparser.event.Event;
 import io.github.syst3ms.skriptparser.expressions.CondExprCompare;
 import io.github.syst3ms.skriptparser.expressions.ExprLoopValue;
 import io.github.syst3ms.skriptparser.expressions.ExprNumberArithmetic;
@@ -25,7 +23,6 @@ import java.util.List;
 import java.util.stream.LongStream;
 
 public class TestRegistration {
-    public static final Event DUMMY = () -> ""; // SAM conversion
 
     public static void register() {
         SkriptRegistration registration = new SkriptRegistration("unit-tests");

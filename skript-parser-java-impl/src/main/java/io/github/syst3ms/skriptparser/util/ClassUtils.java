@@ -2,6 +2,10 @@ package io.github.syst3ms.skriptparser.util;
 
 public class ClassUtils {
 
+    /**
+     * @param cs the array of classes
+     * @return the nearest common superclass of the provided classes, accounting for interfaces
+     */
     public static Class<?> getCommonSuperclass(Class<?>... cs) {
         Class<?> r = cs[0];
         outer:

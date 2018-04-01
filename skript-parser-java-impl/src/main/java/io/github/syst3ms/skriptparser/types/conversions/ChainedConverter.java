@@ -19,7 +19,6 @@
  */
 package io.github.syst3ms.skriptparser.types.conversions;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;

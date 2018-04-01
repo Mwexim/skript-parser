@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.file;
 
 import io.github.syst3ms.skriptparser.util.FileUtils;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.File;
 import java.util.Arrays;
@@ -11,8 +11,8 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class FileParserTest {
-    private SimpleFileLine simpleFileLine(String content, int indentation, int line) {
-        return new SimpleFileLine("unit-tests", line, content, indentation);
+    private FileElement simpleFileLine(String content, int indentation, int line) {
+        return new FileElement("unit-tests", line, content, indentation);
     }
 
     private FileSection fileSection(String content, int indentation, int line, FileElement... elements) {

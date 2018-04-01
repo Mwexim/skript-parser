@@ -2,7 +2,7 @@ package io.github.syst3ms.skriptparser.types;
 
 /**
  * A type used in a pattern.
- * Groups a {@link Type} and a number together (in contrast to {@link Type} itself)
+ * Groups a {@link Type} and a number (single or plural) together (in contrast to {@link Type})
  */
 public class PatternType<T> {
     private Type<T> type;
