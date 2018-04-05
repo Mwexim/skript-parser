@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.effects.EffChange;
 import io.github.syst3ms.skriptparser.expressions.CondExprCompare;
+import io.github.syst3ms.skriptparser.expressions.ExprBooleanOperators;
 import io.github.syst3ms.skriptparser.expressions.ExprLoopValue;
 import io.github.syst3ms.skriptparser.expressions.ExprNumberArithmetic;
 import io.github.syst3ms.skriptparser.expressions.ExprRange;
@@ -226,6 +227,15 @@ public class TestRegistration {
                 false,
                 "range from %object% to %object%",
                 "%object%..%object%"
+        );
+        registration.addExpression(
+                ExprBooleanOperators.class,
+                Boolean.class,
+                true,
+                1,
+                "not %=boolean%",
+                "%=boolean% or %=boolean%",
+                "%=boolean% and %=boolean%"
         );
         registration.addEffect(
                 EffChange.class,

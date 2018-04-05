@@ -77,13 +77,16 @@ public class SyntaxParserTest {
         assertExpressionTrue(
                 SyntaxParser.parseExpression("1", SyntaxParser.BOOLEAN_PATTERN_TYPE)
         );
-        //assertExpressionTrue(
-        //        SyntaxParser.parseBooleanExpression("whether 2 != 5", false)
-        //);
-        //assertExpressionTrue(
-        //        SyntaxParser.parseBooleanExpression("  \r   -3   iS    \t   eQuAl TO\t\t\t\t  -3     ", true)
-        //);
+        /*
+        assertExpressionTrue(
+                SyntaxParser.parseBooleanExpression("whether 2 != 5", false)
+        );
+        assertExpressionTrue(
+                SyntaxParser.parseBooleanExpression("  \r   -3   iS    \t   eQuAl TO\t\t\t\t  -3     ", true)
+        );
+        */
         // These tests try to push the parser to its limits more than anything else
+        /*
         assertExpressionEquals(
                 new SimpleLiteral<>(Boolean.class, true, false, true),
                 SyntaxParser.parseExpression("whether 2 <= 4, (whether 5 is greater than or equal to 6) and true", new PatternType<>(TypeManager.getByClass(Boolean.class), false))
@@ -91,6 +94,7 @@ public class SyntaxParserTest {
         assertExpressionTrue(
                 SyntaxParser.parseBooleanExpression("whether whether 2 <= 4, (whether 10 is greater than or equal to 6) and true are true", false)
         );
+        */
         assertNull(SyntaxParser.parseExpression("2 + \"test\"", numberType));
         assertNull(SyntaxParser.parseEffect("set \"test\" to 2"));
         assertExpressionEquals(
@@ -100,6 +104,10 @@ public class SyntaxParserTest {
         assertExpressionEquals(
                 new SimpleLiteral<>(String.class, "a", "b", "c"),
                 SyntaxParser.parseExpression("'a'..'c'", new PatternType<>(TypeManager.getByClassExact(String.class), false))
+        );
+        assertExpressionEquals(
+                new SimpleLiteral<>(Boolean.class, true),
+                SyntaxParser.parseBooleanExpression("(whether 1 > 0) or (whether 0 >= 1)", false)
         );
     }
 

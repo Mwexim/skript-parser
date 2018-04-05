@@ -50,10 +50,8 @@ public class SyntaxParser {
     public static <T> Expression<? extends T> parseExpression(String s, PatternType<T> expectedType) {
         if (s.isEmpty())
             return null;
-        if (s.startsWith("(") && s.endsWith(")")) {
-            int closing = StringUtils.findClosingIndex(s, '(', ')', 0);
-            if (closing == s.length() - 1)
-                s = s.substring(1, s.length() - 1);
+        if (s.startsWith("(") && s.endsWith(")") && StringUtils.findClosingIndex(s, '(', ')', 0) == s.length() - 1) {
+            s = s.substring(1, s.length() - 1);
         }
         Expression<? extends T> literal = parseLiteral(s, expectedType);
         if (literal != null) {
@@ -312,8 +310,9 @@ public class SyntaxParser {
         } else if (s.equalsIgnoreCase("false")) {
             return new SimpleLiteral<>(Boolean.class, false);
         }
-        if (s.startsWith("(") && s.endsWith(")"))
+        if (s.startsWith("(") && s.endsWith(")") && StringUtils.findClosingIndex(s, '(', ')', 0) == s.length() - 1) {
             s = s.substring(1, s.length() - 1);
+        }
         for (ExpressionInfo<?, ?> info : recentExpressions) {
             if (info.getReturnType().getType().getTypeClass() != Boolean.class)
                 continue;
