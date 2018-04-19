@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.parsing;
 
+import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.effects.EffChange;
 import io.github.syst3ms.skriptparser.expressions.CondExprCompare;
 import io.github.syst3ms.skriptparser.expressions.ExprBooleanOperators;
@@ -16,11 +17,15 @@ import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
+import io.github.syst3ms.skriptparser.util.FileUtils;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.LongStream;
 
 public class TestRegistration {
@@ -176,144 +181,12 @@ public class TestRegistration {
                     .toStringFunction(String::valueOf)
                     .register();
         registration.register();
-        registration.addExpression(
-                TestExpressions.ExprSquared.class,
-                Number.class,
-                true,
-                "the number %number% squared"
-        );
-        registration.addExpression(
-                TestExpressions.ExprRandom.class,
-                Number.class,
-                true,
-                "random (0¦number|1¦integer) between %number% and %number% [2¦exclusively]"
-        );
-        registration.addExpression(
-                TestExpressions.ExprSubstring.class,
-                String.class,
-                true,
-                "substring %string% from %number% to %number%"
-        );
-        registration.addExpression(
-                ExprWhether.class,
-                Boolean.class,
-                true,
-                "whether %~=boolean%"
-        );
-        registration.addExpression(
-                CondExprCompare.class,
-                Boolean.class,
-                true,
-                1,
-                CondExprCompare.PATTERNS.getPatterns()
-        );
-        registration.addExpression(
-                ExprNumberArithmetic.class,
-                Number.class,
-                true,
-                2,
-                ExprNumberArithmetic.PATTERNS.getPatterns()
-        );
-        registration.addExpression(
-            ExprLoopValue.class,
-            Object.class,
-            true,
-            6,
-            "[the] loop-<.+>"
-        );
-        registration.addExpression(
-                ExprRange.class,
-                Object.class,
-                false,
-                "range from %object% to %object%",
-                "%object%..%object%"
-        );
-        registration.addExpression(
-                ExprBooleanOperators.class,
-                Boolean.class,
-                true,
-                1,
-                "not %=boolean%",
-                "%=boolean% or %=boolean%",
-                "%=boolean% and %=boolean%"
-        );
-        registration.addEffect(
-                EffChange.class,
-                2,
-                EffChange.PATTERNS.getPatterns()
-        );
-        registration.addSection(
-                While.class,
-                "while %=boolean%"
-        );
-        registration.addSection(
-            Loop.class,
-            "loop %objects%"
-        );
-        registration.addEffect(
-                TestEffects.EffPrintln.class,
-                "println %string%"
-        );
-        Comparators.registerComparator(Number.class, Number.class, new Comparator<Number, Number>() {
-            @Override
-            public Relation apply(Number number, Number number2) {
-                if (number instanceof BigDecimal || number2 instanceof BigDecimal) {
-                    if (number instanceof BigDecimal && number2 instanceof BigDecimal)
-                        return Relation.get(((BigDecimal) number).compareTo((BigDecimal) number2));
-                    else if (number instanceof BigDecimal)
-                        return Relation.get(((BigDecimal) number).compareTo(new BigDecimal(number2.toString())));
-                    else
-                        return Relation.get(-((BigDecimal) number2).compareTo(new BigDecimal(number.toString())));
-                } else if (number instanceof Double || number2 instanceof Double) {
-                    return Relation.get(number.doubleValue() - number2.doubleValue());
-                } else {
-                    return Relation.get(number.longValue() - number2.longValue());
-                }
-            }
-
-            @Override
-            public boolean supportsOrdering() {
-                return true;
-            }
-        });
-        registration.addConverter(
-                Number.class,
-                Boolean.class,
-                n -> {
-                    long l = n.longValue();
-                    return l != 0;
-                }
-        );
-        Ranges.registerRange(
-                Long.class,
-                Long.class,
-                (l, r) -> {
-                    if (l.compareTo(r) <= 0) {
-                        return new Long[0];
-                    } else {
-                        return LongStream.range(l, r + 1)
-                                         .boxed()
-                                         .toArray(Long[]::new);
-                    }
-                }
-        );
-        Ranges.registerRange(
-                BigInteger.class,
-                BigInteger.class,
-                (l, r) -> {
-                    if (l.compareTo(r) <= 0) {
-                        return new BigInteger[0];
-                    } else {
-                        List<BigInteger> elements = new ArrayList<>();
-                        BigInteger current = l;
-                        do {
-                            elements.add(current);
-                            current = current.add(BigInteger.ONE);
-                        } while (current.compareTo(r) <= 0);
-                        return elements.toArray(new BigInteger[elements.size()]);
-                    }
-                }
-        );
-        registration.register();
+        try {
+            FileUtils.loadClasses("io.github.syst3ms.skriptparser", "effects", "expressions", "lang");
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Something is fugged :");
+            e.printStackTrace();
+        }
+        Main.getMainRegistration().register();
     }
 }

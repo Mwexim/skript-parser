@@ -25,8 +25,7 @@ public class ExprRange implements Expression<Object> {
                 ExprRange.class,
                 Object.class,
                 false,
-                "range from %object% to %object%",
-                "%object%..%object%"
+                "range from %object% to %object%"
         );
         Ranges.registerRange(
                 Long.class,

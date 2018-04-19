@@ -259,7 +259,7 @@ public class SkriptRegistration {
             for (String s : super.patterns) {
                 elements.add(patternParser.parsePattern(StringUtils.fixEncoding(s)));
             }
-            SyntaxInfo<C> info = new SyntaxInfo<C>(super.c, elements, super.priority);
+            SyntaxInfo<C> info = new SyntaxInfo<>(super.c, elements, super.priority);
             sections.add(info);
         }
     }

@@ -160,7 +160,6 @@ public class ExprNumberArithmetic implements Expression<Number> {
     private Expression<? extends Number> first, second;
     private Operator op;
     private Class<? extends Number> returnType;
-    private boolean integer;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -169,7 +168,6 @@ public class ExprNumberArithmetic implements Expression<Number> {
         second = (Expression<? extends Number>) exprs[1];
         op = PATTERNS.getInfo(matchedPattern);
         returnType = getReturnType(op, first.getReturnType(), second.getReturnType());
-        integer = returnType == Long.class || returnType == BigInteger.class;
         return true;
     }
 
@@ -177,7 +175,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
         if (op == Operator.EXP || op == Operator.DIV) {
             return first == BigDecimal.class || second == BigDecimal.class ? BigDecimal.class : Double.class;
         } else if (first == Number.class || second == Number.class) {
-            return BigDecimal.class;
+            return Number.class;
         } if (first == BigDecimal.class || second == BigDecimal.class) {
             return BigDecimal.class;
         } else if (first == Double.class || second == Double.class) {
@@ -197,6 +195,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
             n1 = 0;
         if (n2 == null)
             n2 = 0;
+        boolean integer = (n1 instanceof Long || n1 instanceof BigInteger) && (n2 instanceof Long || n2 instanceof BigInteger);
         one[0] = op.calculate(n1, n2, integer);
         return one;
     }
