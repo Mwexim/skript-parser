@@ -17,7 +17,7 @@ I am making this project because Skript's current parser, on top of being a gian
 
 Then, I have a few goals for this parser :
   * Port Skript over to Sponge, the details of how that might happen are unspecified
-  * A more personal goal of mine is to make Skript into a simple, easy to lean language, that proves useful for prototyping or explaining code to a wide audience, with its very English-friendly grammar.
+  * A more personal goal of mine is to make Skript into a simple, easy to learn language, that proves useful for prototyping or explaining code to a wide audience, with its very English-friendly grammar.
   
 ## Technical details
 
