@@ -239,7 +239,7 @@ public class Variable<T> implements Expression<T> {
     }
 
     private void set(Event e, @Nullable Object value) {
-        Variables.setVariable("" + name.toString(e), value, e, local);
+        Variables.setVariable(name.toString(e), value, e, local);
     }
 
     private void setIndex(Event e, String index, @Nullable Object value) {
@@ -287,9 +287,9 @@ public class Variable<T> implements Expression<T> {
                     for (Object d : changeWith) {
                         if (d instanceof Object[]) {
                             for (int j = 0; j < ((Object[]) d).length; j++)
-                                setIndex(e, "" + i + Variables.LIST_SEPARATOR + j, ((Object[]) d)[j]);
+                                setIndex(e, i + Variables.LIST_SEPARATOR + j, ((Object[]) d)[j]);
                         } else {
-                            setIndex(e, "" + i, d);
+                            setIndex(e, String.valueOf(i), d);
                         }
                         i++;
                     }
@@ -354,9 +354,9 @@ public class Variable<T> implements Expression<T> {
                         int i = 1;
                         for (Object d : changeWith) {
                             if (o != null)
-                                while (o.containsKey("" + i))
+                                while (o.containsKey(String.valueOf(i)))
                                     i++;
-                            setIndex(e, "" + i, d);
+                            setIndex(e, String.valueOf(i), d);
                             i++;
                         }
                     }

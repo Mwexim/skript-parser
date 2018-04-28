@@ -12,15 +12,10 @@ import java.util.Objects;
 import java.util.function.Function;
 
 public class Comparators {
-    public static final Comparator<Object, Object> EQUALS_COMPARATOR = new Comparator<Object, Object>() {
+    public static final Comparator<Object, Object> EQUALS_COMPARATOR = new Comparator<Object, Object>(false) {
         @Override
         public Relation apply(@Nullable Object o, @Nullable Object o2) {
             return Relation.get(Objects.equals(o, o2));
-        }
-
-        @Override
-        public boolean supportsOrdering() {
-            return false;
         }
     };
 
@@ -125,7 +120,7 @@ public class Comparators {
         return null;
     }
 
-    private final static class ConvertedComparator<T1, T2> implements Comparator<T1, T2> {
+    private final static class ConvertedComparator<T1, T2> extends Comparator<T1, T2> {
 
         @SuppressWarnings("rawtypes")
         private final Comparator c;
@@ -134,18 +129,21 @@ public class Comparators {
         private final Function c1, c2;
 
         public ConvertedComparator(Function<? super T1, ?> c1, Comparator<?, ?> c) {
+            super(c.supportsOrdering());
             this.c1 = c1;
             this.c = c;
             this.c2 = null;
         }
 
         public ConvertedComparator(Comparator<?, ?> c, Function<? super T2, ?> c2) {
+            super(c.supportsOrdering());
             this.c1 = null;
             this.c = c;
             this.c2 = c2;
         }
 
         public ConvertedComparator(Function<? super T1, ?> c1, Comparator<?, ?> c, Function<? super T2, ?> c2) {
+            super(c.supportsOrdering());
             this.c1 = c1;
             this.c = c;
             this.c2 = c2;
@@ -163,11 +161,6 @@ public class Comparators {
             if (t2 == null)
                 return Relation.NOT_EQUAL;
             return c.apply(t1, t2);
-        }
-
-        @Override
-        public boolean supportsOrdering() {
-            return c.supportsOrdering();
         }
 
         @Override

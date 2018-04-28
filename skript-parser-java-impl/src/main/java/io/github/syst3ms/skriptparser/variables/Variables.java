@@ -46,7 +46,8 @@ public class Variables {
      * @return true if the name is valid, false otherwise.
      */
     public static boolean isValidVariableName(String name, boolean printErrors) {
-        name = name.startsWith(LOCAL_VARIABLE_TOKEN) ? "" + name.substring(LOCAL_VARIABLE_TOKEN.length()).trim() : "" + name.trim();
+        name = name.startsWith(LOCAL_VARIABLE_TOKEN) ? name.substring(LOCAL_VARIABLE_TOKEN.length()).trim()
+			: name.trim();
         if (name.startsWith(LIST_SEPARATOR) || name.endsWith(LIST_SEPARATOR)) {
             if (printErrors)
                 // REMIND error

@@ -10,13 +10,19 @@ import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.FileUtils;
+import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
+import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 import org.junit.*;
 
+import javax.print.attribute.standard.NumberUp;
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 
 import static io.github.syst3ms.skriptparser.event.Event.DUMMY;
+import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.*;
 import static org.junit.Assert.*;
 
 @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -29,8 +35,8 @@ public class SyntaxParserTest {
     private void assertExpressionEquals(@Nullable Expression<?> expected, @Nullable Expression<?> actual) {
         if (expected == actual)
             return;
-        if (expected == null || actual == null)
-            fail();
+        if (actual == null)
+            fail("Null expression");
         assertArrayEquals(expected.getValues(DUMMY), actual.getValues(DUMMY));
     }
 
@@ -39,92 +45,100 @@ public class SyntaxParserTest {
         assertExpressionEquals(new SimpleLiteral<>(Boolean.class, true), actual);
     }
 
+    private void assertExpressionTypeEquals(Class<?> expected, @Nullable Expression<?> expr) throws Exception {
+        if (expr == null)
+            fail("Null expression");
+        if (expr.getReturnType() == expected)
+            return;
+        Object value = expr.getSingle(DUMMY);
+        if (value == null || value.getClass() != expected)
+            fail("Different return types : expected " + expected + ", got " + (value == null ? "null" : value.getClass()));
+    }
+
+    private <T> PatternType<T> getType(Class<T> c, boolean single) {
+        return new PatternType<>(TypeManager.getByClassExact(c), single);
+    }
+
     @Test
-    public void parseExpression() {
-        PatternType<Number> numberType = new PatternType<>(TypeManager.getByClassExact(Number.class), true);
-        assertExpressionEquals(new SimpleLiteral<>(Long.class, 2L), SyntaxParser.parseExpression("2L", numberType));
-        int expectedInt = SyntaxParser.parseExpression("random integer between 0 and 10", numberType)
-                                      .getSingle(DUMMY)
-                                      .intValue();
-        assertTrue(0 <= expectedInt && expectedInt <= 10);
-        double expectedDouble = SyntaxParser.parseExpression("random number between 9.9999 and 10 exclusively", numberType)
-                                            .getSingle(DUMMY)
-                                            .doubleValue();
-        assertTrue(9.9999 + Double.MIN_VALUE <= expectedDouble && expectedDouble <= 10 - Double.MIN_VALUE);
-        PatternType<String> stringType = new PatternType<>(TypeManager.getByClassExact(String.class), true);
+    public void literalTest() throws Exception {
+        PatternType<Number> numberType = getType(Number.class, true);
+        assertExpressionTypeEquals(
+            BigInteger.class,
+            parseLiteral("1", numberType)
+        );
+        assertExpressionTypeEquals(
+            BigDecimal.class,
+            parseLiteral("1.0", numberType)
+        );
+        PatternType<String> stringType = getType(String.class, true);
         assertExpressionEquals(
-                new SimpleLiteral<>(String.class, "Hello"),
-                SyntaxParser.parseExpression("substring \"Hello\" from 0 to 5", stringType)
-        );
-        assertExpressionEquals(
-                new SimpleLiteral<>(String.class, "Hello, I am \"raw\""),
-                SyntaxParser.parseExpression("substring R\"$(Hello, I am \"raw\")$\" from 0 to 17", stringType)
-        );
-        assertExpressionEquals(
-                new SimpleLiteral<>(String.class, "I am \"raw\" too !"),
-                SyntaxParser.parseExpression("substring 'I am \"raw\" too !' from 0 to 16", stringType)
-        );
-        assertExpressionEquals(
-            new SimpleLiteral<>(Number.class, 1L, 2L, 3L),
-            SyntaxParser.parseExpression("1L, 2L and 3L", new PatternType<>(TypeManager.getByClass(Number.class), false))
-        );
-        assertExpressionTrue(
-                SyntaxParser.parseBooleanExpression("whether 5 is greater than 0", false)
-        );
-        assertExpressionTrue(
-                SyntaxParser.parseBooleanExpression("whether 5 is between 1 and 10", false)
-        );
-        assertExpressionTrue(
-                SyntaxParser.parseExpression("1", SyntaxParser.BOOLEAN_PATTERN_TYPE)
-        );
-        /*
-        assertExpressionTrue(
-                SyntaxParser.parseBooleanExpression("whether 2 != 5", false)
-        );
-        assertExpressionTrue(
-                SyntaxParser.parseBooleanExpression("  \r   -3   iS    \t   eQuAl TO\t\t\t\t  -3     ", true)
-        );
-        */
-        // These tests try to push the parser to its limits more than anything else
-        /*
-        assertExpressionEquals(
-                new SimpleLiteral<>(Boolean.class, true, false, true),
-                SyntaxParser.parseExpression("whether 2 <= 4, (whether 5 is greater than or equal to 6) and true", new PatternType<>(TypeManager.getByClass(Boolean.class), false))
-        );
-        assertExpressionTrue(
-                SyntaxParser.parseBooleanExpression("whether whether 2 <= 4, (whether 10 is greater than or equal to 6) and true are true", false)
-        );
-        */
-        assertNull(SyntaxParser.parseExpression("2 + \"test\"", numberType));
-        assertNull(SyntaxParser.parseEffect("set \"test\" to 2"));
-        assertExpressionEquals(
-                new SimpleLiteral<>(Long.class, 0L, 1L, 2L, 3L),
-                SyntaxParser.parseExpression("0L..3L", new PatternType<>(TypeManager.getByClassExact(Number.class), false))
-        );
-        assertExpressionEquals(
-                new SimpleLiteral<>(String.class, "a", "b", "c"),
-                SyntaxParser.parseExpression("'a'..'c'", new PatternType<>(TypeManager.getByClassExact(String.class), false))
-        );
-        assertExpressionEquals(
-                new SimpleLiteral<>(Boolean.class, true),
-                SyntaxParser.parseBooleanExpression("(whether 1 > 0) or (whether 0 >= 1)", false)
+            new SimpleLiteral<>(String.class, "\\\" ()\"\"'"),
+            parseLiteral("R\"µ(\\\" ()\"\"')µ\"", stringType)
         );
     }
 
     @Test
-    public void parseSection() throws Exception {
+    public void standardExpressionsTest() throws Exception {
+        // CondExprCompare
+        assertExpressionTrue(
+            parseBooleanExpression("2 > 1", true)
+        );
+        assertExpressionTrue(
+            parseBooleanExpression("(3^2) - (2^3) = 1", true)
+        );
+        assertExpressionTrue(
+            parseBooleanExpression("1 is between 0 and 10", true)
+        );
+        // ExprBinaryMathFunctions
+        PatternType<Number> numberType = getType(Number.class, true);
+        assertExpressionEquals(
+            new SimpleLiteral<>(BigDecimal.class, (BigDecimal) NumberMath.log(new BigDecimal("2.0"), BigDecimal.TEN)),
+            parseExpression("log base 2 of 10", numberType)
+        );
+        // ExprBooleanOperators
+        assertExpressionTrue(
+            parseBooleanExpression("not (false and (false or true))", false)
+        );
+        // ExprNumberArithmetic
+        assertExpressionEquals(
+            new SimpleLiteral<>(Number.class, new BigDecimal("251")),
+            parseExpression("6*(6+6*6)-6/6", numberType)
+        );
+        assertExpressionEquals(
+            new SimpleLiteral<>(Number.class, BigInteger.valueOf(3435)),
+            parseExpression("3^3+4^4+3^3+5^5", numberType)
+        );
+        // ExprRange
+        PatternType<Object> objectsType = getType(Object.class, false);
+        BigInteger[] zeroThroughTen = new BigInteger[10];
+        for (int i = 1; i <= 10; i++) {
+            zeroThroughTen[i - 1] = BigInteger.valueOf(i);
+        }
+        assertExpressionEquals(
+            new SimpleLiteral<>(Number.class, zeroThroughTen),
+            parseExpression("range from 1 to 10", objectsType)
+        );
+        // ExprUnaryMathFunctions
+        assertExpressionEquals(
+            new SimpleLiteral<>(Number.class, new BigInteger("3628800")),
+            parseExpression("(round acos cos 10)!", numberType)
+        );
+    }
+
+    @Test
+    public void sectionTest() throws Exception {
         FileParser fileParser = new FileParser();
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource("while-test.txt").getFile());
         List<String> lines = FileUtils.readAllLines(file);
         List<FileElement> elements = fileParser.parseFileLines("while-test", lines, 0, 1);
         FileSection sec = (FileSection) elements.get(0);
-        SyntaxParser.parseSection(sec);
+        parseSection(sec);
         file = new File(classLoader.getResource("loop-test.txt").getFile());
         lines = FileUtils.readAllLines(file);
         elements = fileParser.parseFileLines("loop-test", lines, 0, 1);
         sec = (FileSection) elements.get(0);
-        CodeSection loop = SyntaxParser.parseSection(sec);
+        CodeSection loop = parseSection(sec);
         assertTrue("The loop failed while running", Effect.runAll(loop, DUMMY));
     }
 }

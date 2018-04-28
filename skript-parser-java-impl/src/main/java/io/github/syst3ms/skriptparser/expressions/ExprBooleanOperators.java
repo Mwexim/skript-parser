@@ -37,7 +37,7 @@ public class ExprBooleanOperators implements Expression<Boolean> {
 
     @Override
     public Boolean[] getValues(Event e) {
-        assert pattern > 0 || second != null;
+        assert pattern > 0 || second == null;
         Boolean f = first.getSingle(e);
         if (f == null)
             return new Boolean[0];

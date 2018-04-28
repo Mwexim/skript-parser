@@ -56,9 +56,5 @@ public class VariablesTest {
                             .getSingle(DUMMY)
                             .getClass()
         );
-        assertExpressionEquals(
-                new SimpleLiteral<>(BigDecimal.class, new BigDecimal("10.2")),
-                SyntaxParser.parseExpression("5 + {number}", numberType)
-        );
     }
 }

@@ -40,7 +40,7 @@ public class ExprLoopValue implements Expression<Object> {
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, ParseResult parser) {
 		name = parser.getExpressionString();
-		String s = "" + parser.getMatches().get(0).group();
+		String s = parser.getMatches().get(0).group();
 		int i = -1;
 		final Matcher m = Pattern.compile("^(.+)-(\\d+)$").matcher(s);
 		if (m.matches()) {

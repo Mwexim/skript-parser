@@ -8,18 +8,26 @@ import java.util.function.BiFunction;
  * @param <T2> the type of the second value
  * @see Comparators
  */
-public interface Comparator<T1, T2> extends BiFunction<T1, T2, Relation> {
+public abstract class Comparator<T1, T2> implements BiFunction<T1, T2, Relation> {
+    private final boolean supportsOrdering;
+
+    public Comparator(boolean supportsOrdering) {
+        this.supportsOrdering = supportsOrdering;
+    }
+
     /**
      * @param t1 the first value
      * @param t2 the second value
      * @return the {@linkplain Relation relation} between the two values
      */
     @Override
-    Relation apply(T1 t1, T2 t2);
+    public abstract Relation apply(T1 t1, T2 t2);
 
     /**
      * @return whether this Comparator can be used to order values
      */
-    boolean supportsOrdering();
+    public boolean supportsOrdering() {
+        return supportsOrdering;
+    }
 
 }

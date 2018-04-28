@@ -18,6 +18,7 @@ import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import io.github.syst3ms.skriptparser.util.FileUtils;
+import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -30,12 +31,12 @@ import java.util.stream.LongStream;
 
 public class TestRegistration {
 
-    public static void register() {
-        SkriptRegistration registration = new SkriptRegistration("unit-tests");
+    private static void registerClasses() {
+        SkriptRegistration registration = Main.getMainRegistration();
         registration.addType(
-                Object.class,
-                "object",
-                "object¦s"
+            Object.class,
+            "object",
+            "object¦s"
         );
         registration.newType(Number.class,"number","number¦s")
                     .literalParser(s -> {
@@ -164,9 +165,9 @@ public class TestRegistration {
                         }
                     }).register();
         registration.addType(
-                String.class,
-                "string",
-                "string¦s"
+            String.class,
+            "string",
+            "string¦s"
         );
         registration.newType(Boolean.class, "boolean", "boolean¦s")
                     .literalParser(s -> {
@@ -181,6 +182,42 @@ public class TestRegistration {
                     .toStringFunction(String::valueOf)
                     .register();
         registration.register();
+    }
+
+    private static void registerComparators() {
+        Comparators.registerComparator(
+            Number.class,
+            Number.class,
+            new Comparator<Number, Number>(true) {
+                @Override
+                public Relation apply(Number number, Number number2) {
+                    if (number.getClass() == number2.getClass()) {
+                        return Relation.get(((Comparable<? super Number>) number).compareTo(number2));
+                    } else if (number instanceof BigDecimal || number2 instanceof BigDecimal) {
+                        BigDecimal bd = BigDecimalMath.getBigDecimal(number);
+                        BigDecimal bd2 = BigDecimalMath.getBigDecimal(number2);
+                        return Relation.get(bd.compareTo(bd2));
+                    } else if ((number instanceof BigInteger || number2 instanceof BigInteger) && (number instanceof Long || number2 instanceof Long)) {
+                        BigInteger bi = BigDecimalMath.getBigInteger(number);
+                        BigInteger bi2 = BigDecimalMath.getBigInteger(number2);
+                        return Relation.get(bi.compareTo(bi2));
+                    } else if ((number instanceof Double || number instanceof Long) &&
+                               (number2 instanceof Double || number2 instanceof Long)) {
+                        double d = number.doubleValue() - number2.doubleValue();
+                        return Double.isNaN(d) ? Relation.NOT_EQUAL : Relation.get(d);
+                    } else {
+                        BigDecimal bd = BigDecimalMath.getBigDecimal(number);
+                        BigDecimal bd2 = BigDecimalMath.getBigDecimal(number2);
+                        return Relation.get(bd.compareTo(bd2));
+                    }
+                }
+            }
+        );
+    }
+
+    public static void register() {
+        registerClasses();
+        registerComparators();
         try {
             FileUtils.loadClasses("io.github.syst3ms.skriptparser", "effects", "expressions", "lang");
         } catch (IOException | ClassNotFoundException e) {
