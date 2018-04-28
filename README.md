@@ -3,11 +3,10 @@
 
 skript-parser is a project that aims to develop a new parser for [Skript](https://github.com/bensku/Skript). 
 
-The project is currently separated into three different modules :
-  * skript-parser-java : a bare-bones pattern precompiler, this is the is the essence of this project, all other modules are based off of it. 
-    Development on it is halted, changes may be made. 
-  * skript-parser-java-impl : a standalone implementation and extension of skript-parser-java
-  * skript-parser-kotlin : a Kotlin version of skript-parser-java, that uses Kotlin's feature to its advantage. This module is not developed at all, and I will most likely remake this entirely in the future (right now it's pretty much skript-parser-java converted to Kotlin by IntelliJ)
+The project is currently separated into two branches :
+  * master : a bare-bones pattern precompiler, this is the is the essence of this project, all other modules are based off of it. 
+    Development on it is halted, changes may be made. I will refer to this as "parser-base"
+  * java-implementation : a standalone Java implementation and extension of parser-base
     
 ## Motivations and Objectives
 
@@ -32,7 +31,7 @@ section:
   code outside of the section
 ```
 
-Even though skript-parser-java-impl is not advanced enough in order to prove it *yet*, and no proofs have been written using the Skript plugin *yet*, Skript is most certainly Turing-complete.
+Even though the Java implementation is not advanced enough in order to prove it *yet*, and no proofs have been written using the Skript plugin *yet*, Skript is most certainly Turing-complete.
 
 ### Skript patterns explanation
 
