@@ -48,7 +48,6 @@ public class ScriptLoader {
                     }
                     Conditional c = new Conditional(sec, booleanExpression, Conditional.ConditionalMode.ELSE_IF);
                     ((Conditional) items.get(items.size() - 1)).setFallingClause(c);
-                    items.add(c);
                 } else if (content.equalsIgnoreCase("else")) {
                     if (items.size() == 0 ||
                         !(items.get(items.size() - 1) instanceof Conditional) ||
@@ -58,7 +57,6 @@ public class ScriptLoader {
 
                     Conditional c = new Conditional(sec, null, Conditional.ConditionalMode.ELSE);
                     ((Conditional) items.get(items.size() - 1)).setFallingClause(c);
-                    items.add(c);
                 } else {
                     CodeSection codeSection = SyntaxParser.parseSection(sec);
                     if (codeSection == null) {
@@ -75,8 +73,7 @@ public class ScriptLoader {
                 items.add(eff);
             }
         }
-        if (items.size() < elements.size())
-            for (int i = 0; i + 1 < items.size(); i++) {
+        for (int i = 0; i + 1 < items.size(); i++) {
             items.get(i).setNext(items.get(i + 1));
         }
         return items;

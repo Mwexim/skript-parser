@@ -45,7 +45,7 @@ public class Conditional extends CodeSection {
         if (c != null && c) {
             return getFirst();
         } else if (fallingClause != null){
-            return fallingClause.getFirst();
+            return fallingClause;
         } else {
             return getNext();
         }
@@ -56,7 +56,11 @@ public class Conditional extends CodeSection {
      *                    false. Setting this to an "if" Conditional may cause unexpected/confusing behaviour.
      */
     public void setFallingClause(Conditional conditional) {
-        this.fallingClause = conditional;
+        if (fallingClause != null) {
+            fallingClause.setFallingClause(conditional);
+        } else {
+            fallingClause = conditional;
+        }
     }
 
     @Override

@@ -123,6 +123,16 @@ public class SyntaxParserTest {
             new SimpleLiteral<>(Number.class, new BigInteger("3628800")),
             parseExpression("(round acos cos 10)!", numberType)
         );
+        assertExpressionEquals(
+            new SimpleLiteral<>(Number.class, new BigDecimal("4")),
+            parseExpression("sqrt 16", numberType)
+        );
+        // ExprWhether is a wrapper, no need to test it
+        // LitMathConstants
+        assertExpressionEquals(
+                new SimpleLiteral<>(Number.class, BigDecimalMath.E),
+                parseExpression("e", numberType)
+        );
     }
 
     @Test
@@ -140,5 +150,11 @@ public class SyntaxParserTest {
         sec = (FileSection) elements.get(0);
         CodeSection loop = parseSection(sec);
         assertTrue("The loop failed while running", Effect.runAll(loop, DUMMY));
+        file = new File(classLoader.getResource("conditions.txt").getFile());
+        lines = FileUtils.readAllLines(file);
+        elements = fileParser.parseFileLines("conditions", lines, 0, 1);
+        sec = (FileSection) elements.get(0);
+        Effect first = ScriptLoader.loadItems(sec).get(0);
+        assertTrue(Effect.runAll(first, DUMMY));
     }
 }

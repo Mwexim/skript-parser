@@ -238,6 +238,12 @@ public class Variable<T> implements Expression<T> {
         return (Class<? extends T>) supertype;
     }
 
+    @Nullable
+    @Override
+    public <C> Expression<C> convertExpression(Class<C> to) {
+        return new Variable<>(name, local, list, to);
+    }
+
     private void set(Event e, @Nullable Object value) {
         Variables.setVariable(name.toString(e), value, e, local);
     }
