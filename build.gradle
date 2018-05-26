@@ -1,55 +1,15 @@
-import org.apache.tools.ant.filters.ReplaceTokens
-
-//plugins {
-//    id "com.github.hierynomus.license" version "0.13.1"
-//}
-
 apply plugin: 'java'
-apply plugin: 'maven-publish'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
 
 repositories {
-	jcenter()
+    mavenCentral()
+    jcenter()
 }
 
 dependencies {
-	testCompile 'junit:junit:4.12'
-	//testCompile 'org.easymock:easymock:3.4'
-
-	//compile fileTree(dir: 'lib', include: '*.jar')
-}
-
-processResources {
-	filter ReplaceTokens, tokens: [
-		"version" : project.property("version")
-	]
-}
-
-//license {
-//    header file('licenseheader.txt')
-//}
-
-task sourceJar(type: Jar) {
-    from sourceSets.main.allJava
-}
-
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			groupId "ch.njol"
-			artifactId "skript"
-			version project.property("version")
-
-			from components.java
-
-			artifact sourceJar {
-    			classifier "sources"
-			}
-		}
-	}
-	
-	repositories {
-		maven {
-			url "file:///itemapi_repo/"
-		}
-	}
+    compile 'org.jetbrains:annotations:15.0'
+    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+    testCompile group: 'junit', name: 'junit', version: '4.11'
 }

@@ -54,10 +54,10 @@ local.properties
 .worksheet
 
 ### Eclipse Patch ###
-# Eclipse Core		
+# Eclipse Core
 .project
 
-# JDT-specific (Eclipse Java Development Tools)		
+# JDT-specific (Eclipse Java Development Tools)
 .classpath
 
 ### Java ###
@@ -84,9 +84,12 @@ local.properties
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
+# Javadoc REMIND remove this
+javadoc/
+
 ### Gradle ###
 .gradle
-/build/
+**/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -102,3 +105,12 @@ gradle-app.setting
 
 # End of https://www.gitignore.io/api/java,gradle,eclipse
 
+### IntelliJ IDEA ###
+# .idea folder
+.idea
+
+# IDEA files (.iml and .ipr)
+*.i*
+
+# out folder
+out/
