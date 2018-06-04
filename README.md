@@ -31,7 +31,7 @@ section:
   code outside of the section
 ```
 
-Even though the Java implementation is not advanced enough in order to prove it *yet*, and no proofs have been written using the Skript plugin *yet*, Skript is most certainly Turing-complete.
+Skript is Turing-complete, as shown by this [Brainfuck interpreter](https://gist.githubusercontent.com/Syst3ms/e5759168e07715089fe5644362905262/raw/4a12d43d3baab62e34ed5b62b131b27fa3f16238/brainfuck.sk), using the Skript plugin.
 
 ### Skript patterns explanation
 
