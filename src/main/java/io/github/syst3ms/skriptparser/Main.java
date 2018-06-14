@@ -13,7 +13,7 @@ public class Main {
         try {
             FileUtils.loadClasses("io.github.syst3ms.skriptparser", "expressions");
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Error while loading classes :");
+            System.err.println("Error while loading classes:");
             e.printStackTrace();
         }
     }
