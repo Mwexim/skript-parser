@@ -7,7 +7,7 @@ import io.github.syst3ms.skriptparser.parsing.SkriptParser;
  */
 public interface PatternElement {
     /**
-     * Attemps to match the {@link PatternElement} to a string at a specified index.
+     * Attempts to match the {@link PatternElement} to a string at a specified index.
      * About the index, make sure to never increment the index by some arbitrary value when returning
      *
      * @param s the string to match this PatternElement against
