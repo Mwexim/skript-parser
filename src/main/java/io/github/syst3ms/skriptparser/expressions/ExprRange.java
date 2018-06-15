@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.types.ranges.RangeInfo;
@@ -86,7 +86,7 @@ public class ExprRange implements Expression<Object> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Object[] getValues(Event e) {
+    public Object[] getValues(TriggerContext e) {
         Object f = from.getSingle(e);
         Object t = to.getSingle(e);
         if (f == null || t == null) {
@@ -102,7 +102,7 @@ public class ExprRange implements Expression<Object> {
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
+    public String toString(@Nullable TriggerContext e, boolean debug) {
         return "range from " + from.toString(e, debug) + " to " + to.toString(e, debug);
     }
 }

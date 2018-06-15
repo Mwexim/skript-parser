@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Loop;
 import io.github.syst3ms.skriptparser.lang.Variable;
@@ -103,7 +103,7 @@ public class ExprLoopValue implements Expression<Object> {
 	}
 
 	@Override
-	public Object[] getValues(Event e) {
+	public Object[] getValues(TriggerContext e) {
 		Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
 		if (isVariableLoop) {
 			@SuppressWarnings("unchecked")
@@ -122,7 +122,7 @@ public class ExprLoopValue implements Expression<Object> {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable TriggerContext e, final boolean debug) {
 		if (e == null)
 			return name;
 		if (isVariableLoop) {

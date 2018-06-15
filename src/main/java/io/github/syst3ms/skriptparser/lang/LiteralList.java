@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,13 +22,13 @@ public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
 
     @Override
     public T[] getValues() {
-        return getValues(Event.DUMMY);
+        return getValues(TriggerContext.DUMMY);
     }
 
     @Nullable
     @Override
     public T getSingle() {
-        return getSingle(Event.DUMMY);
+        return getSingle(TriggerContext.DUMMY);
     }
 
     @SuppressWarnings("unchecked")

@@ -10,7 +10,7 @@ import org.junit.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import static io.github.syst3ms.skriptparser.event.Event.DUMMY;
+import static io.github.syst3ms.skriptparser.event.TriggerContext.DUMMY;
 import static org.junit.Assert.*;
 
 @SuppressWarnings("ConstantConditions")

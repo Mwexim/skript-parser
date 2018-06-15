@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.lang.base;
 
 import io.github.syst3ms.skriptparser.classes.ChangeMode;
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
@@ -14,7 +14,7 @@ import java.util.function.Function;
 /**
  * Represents an expression which is a wrapper of another one. Remember to set the wrapped expression with {@link #setExpr(Expression)} in
  * {@link SyntaxElement#init(Expression[], int, ParseResult) init()}.<br/>
- * If you override {@link #getValues(Event)} (Event)} you must override {@link #iterator(Event)} as well. Effects of not
+ * If you override {@link #getValues(TriggerContext)} (Event)} you must override {@link #iterator(TriggerContext)} as well. Effects of not
  * doing so are unspecified.
  *
  * @author Peter Güttinger
@@ -47,7 +47,7 @@ public abstract class WrapperExpression<T> implements Expression<T> {
             return null;
         return new ConvertedExpression<T, R>(expr, to, conv) {
             @Override
-            public String toString(@Nullable Event e, boolean debug) {
+            public String toString(@Nullable TriggerContext e, boolean debug) {
                 if (debug && e == null)
                     return "(" + WrapperExpression.this.toString(null, true) + ")->" + to.getName();
                 return WrapperExpression.this.toString(e, debug);
@@ -56,17 +56,17 @@ public abstract class WrapperExpression<T> implements Expression<T> {
     }
 
     @Override
-    public T[] getValues(Event e) {
+    public T[] getValues(TriggerContext e) {
         return expr.getValues(e);
     }
 
     @Override
-    public T[] getArray(Event e) {
+    public T[] getArray(TriggerContext e) {
         return expr.getArray(e);
     }
 
     @Override
-    public Iterator<? extends T> iterator(Event e) {
+    public Iterator<? extends T> iterator(TriggerContext e) {
         return expr.iterator(e);
     }
 
@@ -91,7 +91,7 @@ public abstract class WrapperExpression<T> implements Expression<T> {
     }
 
     @Override
-    public void change(Event e, Object[] changeWith, ChangeMode mode) {
+    public void change(TriggerContext e, Object[] changeWith, ChangeMode mode) {
         expr.change(e, changeWith, mode);
     }
 

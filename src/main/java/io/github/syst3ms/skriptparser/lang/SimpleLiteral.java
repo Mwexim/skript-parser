@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.types.TypeManager;
@@ -51,7 +51,7 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
+    public String toString(@Nullable TriggerContext e, boolean debug) {
         if (isSingle()) {
             return values[0].toString();
         } else {
@@ -82,7 +82,7 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     @Override
-    public T[] getArray(Event e) {
+    public T[] getArray(TriggerContext e) {
         if (isAndList) {
             return values;
         } else {
@@ -109,7 +109,7 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     @Override
-    public Iterator iterator(Event event) {
+    public Iterator iterator(TriggerContext context) {
         if (!isSingle())
             throw new SkriptRuntimeException("Can't loop a single literal !");
         return CollectionUtils.iterator(values);

@@ -8,11 +8,13 @@ public class SyntaxInfo<C> {
     private Class<C> c;
     private List<PatternElement> patterns;
     private int priority;
+    private SkriptAddon registerer;
 
-    public SyntaxInfo(Class<C> c, List<PatternElement> patterns, int priority) {
+    public SyntaxInfo(Class<C> c, List<PatternElement> patterns, int priority, SkriptAddon registerer) {
         this.c = c;
         this.patterns = patterns;
         this.priority = priority;
+        this.registerer = registerer;
     }
 
     public List<PatternElement> getPatterns() {
@@ -25,5 +27,9 @@ public class SyntaxInfo<C> {
 
     public int getPriority() {
         return priority;
+    }
+
+    public SkriptAddon getRegisterer() {
+        return registerer;
     }
 }

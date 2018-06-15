@@ -15,13 +15,12 @@ import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 import org.junit.*;
 
-import javax.print.attribute.standard.NumberUp;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 
-import static io.github.syst3ms.skriptparser.event.Event.DUMMY;
+import static io.github.syst3ms.skriptparser.event.TriggerContext.DUMMY;
 import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.*;
 import static org.junit.Assert.*;
 

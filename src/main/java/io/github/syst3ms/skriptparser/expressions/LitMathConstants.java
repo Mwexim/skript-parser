@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
@@ -48,7 +48,7 @@ public class LitMathConstants implements Expression<Number> {
     }
 
     @Override
-    public Number[] getValues(Event e) {
+    public Number[] getValues(TriggerContext e) {
         if (pattern == 0) {
             return new Number[]{BigDecimalMath.PI};
         } else if (pattern == 1) {
@@ -61,7 +61,7 @@ public class LitMathConstants implements Expression<Number> {
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
+    public String toString(@Nullable TriggerContext e, boolean debug) {
         if (pattern == 0) {
             return "pi";
         } else if (pattern == 1) {

@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.variables;
 
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
@@ -16,7 +16,7 @@ public class Variables {
     public static final Pattern REGEX_PATTERN = Pattern.compile("\\{([^{}]|%\\{|}%)+}");
     private static VariableMap variableMap = new VariableMap();
     // Yes, I know it should be trigger-specific, but I haven't got to that part yet, ok ? TODO make the change
-    private static Map<Event, VariableMap> localVariables = new HashMap<>();
+    private static Map<TriggerContext, VariableMap> localVariables = new HashMap<>();
 
     @Nullable
     public static <T> Expression<T> parseVariable(String s, Class<? extends T> types) {
@@ -74,7 +74,7 @@ public class Variables {
 	 * @return an Object for a normal Variable or a Map<String, Object> for a list variable, or null if the variable is not set.
 	 */
     @Nullable
-    public static Object getVariable(String name, Event e, boolean local) {
+    public static Object getVariable(String name, TriggerContext e, boolean local) {
         if (local) {
             VariableMap map = localVariables.get(e);
             if (map == null)
@@ -91,7 +91,7 @@ public class Variables {
 	 * @param name The variable's name. Can be a "list variable::*" (<tt>value</tt> must be <tt>null</tt> in this case)
 	 * @param value The variable's value. Use <tt>null</tt> to delete the variable.
 	 */
-    public static void setVariable(String name, @Nullable Object value, @Nullable Event e, boolean local) {
+    public static void setVariable(String name, @Nullable Object value, @Nullable TriggerContext e, boolean local) {
         if (local) {
             assert e != null : name;
             VariableMap map = localVariables.get(e);

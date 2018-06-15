@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
@@ -252,7 +252,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
     }
 
     @Override
-    public Number[] getValues(Event e) {
+    public Number[] getValues(TriggerContext e) {
         Number n1 = first.getSingle(e), n2 = second.getSingle(e);
         if (n1 == null)
             n1 = 0;
@@ -267,7 +267,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
+    public String toString(@Nullable TriggerContext e, boolean debug) {
         return first.toString(e, debug) + " " + op + " " + second.toString(e, debug);
     }
 
@@ -275,7 +275,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
     @Override
     public Expression<? extends Number> simplify() {
         if (first instanceof Literal && second instanceof Literal)
-            return new SimpleLiteral<>(Number.class, getValues(Event.DUMMY));
+            return new SimpleLiteral<>(Number.class, getValues(TriggerContext.DUMMY));
         return this;
     }
 

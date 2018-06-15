@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.lang.base;
 
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 
 /**
@@ -32,9 +32,9 @@ public abstract class ConditionalExpression implements Expression<Boolean> {
     }
 
     @Override
-    public Boolean[] getValues(Event e) {
+    public Boolean[] getValues(TriggerContext e) {
         return new Boolean[]{check(e)};
     }
 
-    protected abstract boolean check(Event e);
+    protected abstract boolean check(TriggerContext e);
 }

@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
@@ -52,7 +52,7 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 	}
 
 	@Override
-	public Number[] getValues(Event e) {
+	public Number[] getValues(TriggerContext e) {
 		Number f = first.getSingle(e);
 		Number s = second.getSingle(e);
 		if (f == null || s == null)
@@ -62,7 +62,7 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable TriggerContext e, boolean debug) {
 		if (pattern == 0) {
 			return "log " + first.toString(e, debug) + " of " + second.toString(e, debug);
 		} else {

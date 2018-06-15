@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.classes.ChangeMode;
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
@@ -25,12 +25,12 @@ public interface Expression<T> extends SyntaxElement {
      * @param e the event
      * @return an array of the values
      */
-    T[] getValues(Event e);
+    T[] getValues(TriggerContext e);
 
     /*
      * This is staying until we figure out a better way to implement this
      */
-    default T[] getArray(Event e) {
+    default T[] getArray(TriggerContext e) {
         return getValues(e);
     }
 
@@ -53,7 +53,7 @@ public interface Expression<T> extends SyntaxElement {
      * @param changeWith the values to change this Expression with
      * @param changeMode the mode of change
      */
-    default void change(Event e, Object[] changeWith, ChangeMode changeMode) {}
+    default void change(TriggerContext e, Object[] changeWith, ChangeMode changeMode) {}
 
     /**
      * Gets a single value out of this Expression
@@ -62,7 +62,7 @@ public interface Expression<T> extends SyntaxElement {
      * @throws SkriptRuntimeException if the expression returns more than one value
      */
     @Nullable
-    default T getSingle(Event e) {
+    default T getSingle(TriggerContext e) {
         T[] values = getValues(e);
         if (values.length == 0) {
             return null;
@@ -101,7 +101,7 @@ public interface Expression<T> extends SyntaxElement {
      * @param e the event
      * @return an iterator, used inside of a {@linkplain Loop loop}
      */
-    default Iterator<? extends T> iterator(Event e) {
+    default Iterator<? extends T> iterator(TriggerContext e) {
         return CollectionUtils.iterator(getValues(e));
     }
 
@@ -154,7 +154,7 @@ public interface Expression<T> extends SyntaxElement {
      * @param predicate the predicate
      * @return whether the expression matches the predicate
      */
-    default boolean check(Event e, Predicate<? super T> predicate) {
+    default boolean check(TriggerContext e, Predicate<? super T> predicate) {
         return check(e, predicate, false);
     }
 
@@ -165,7 +165,7 @@ public interface Expression<T> extends SyntaxElement {
      * @param negated whether the result should be inverted
      * @return whether the expression matches the predicate
      */
-    default boolean check(Event e, Predicate<? super T> predicate, boolean negated) {
+    default boolean check(TriggerContext e, Predicate<? super T> predicate, boolean negated) {
         return check(getValues(e), predicate, negated, isAndList());
     }
 

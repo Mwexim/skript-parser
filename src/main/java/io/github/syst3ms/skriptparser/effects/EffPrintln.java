@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
@@ -24,7 +24,7 @@ public class EffPrintln extends Effect {
     }
 
     @Override
-    public void execute(Event e) {
+    public void execute(TriggerContext e) {
         String str = string.getSingle(e);
         if (str == null)
             return;
@@ -32,7 +32,7 @@ public class EffPrintln extends Effect {
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
+    public String toString(@Nullable TriggerContext e, boolean debug) {
         return "println " + string.toString(e, debug);
     }
 }

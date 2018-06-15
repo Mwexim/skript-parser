@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -12,11 +12,11 @@ public interface Literal<T> extends Expression<T> {
 
     @Nullable
     default T getSingle() {
-        return getSingle(Event.DUMMY);
+        return getSingle(TriggerContext.DUMMY);
     }
 
     @Override
-    default T[] getValues(Event e) {
+    default T[] getValues(TriggerContext e) {
         return getValues();
     }
 }

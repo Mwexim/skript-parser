@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.classes.ChangeMode;
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.types.Type;
@@ -47,7 +47,7 @@ public class Variable<T> implements Expression<T> {
     }
 
     @Nullable
-    private Object getRaw(Event e) {
+    private Object getRaw(TriggerContext e) {
         String n = name.toString(e);
         if (n.endsWith(Variables.LIST_SEPARATOR + "*") != list) // prevents e.g. {%expr%} where "%expr%" ends with "::*" from returning a Map
             return null;
@@ -58,7 +58,7 @@ public class Variable<T> implements Expression<T> {
     }
 
     @Nullable
-    private Object get(Event e) {
+    private Object get(TriggerContext e) {
         Object val = getRaw(e);
         if (!list)
             return val;
@@ -79,7 +79,7 @@ public class Variable<T> implements Expression<T> {
     }
 
     @Override
-    public T[] getValues(Event e) {
+    public T[] getValues(TriggerContext e) {
         if(list)
             return getConvertedArray(e);
         T o = getConverted(e);
@@ -92,11 +92,11 @@ public class Variable<T> implements Expression<T> {
     }
 
     @Nullable
-    private T getConverted(Event e) {
+    private T getConverted(TriggerContext e) {
         return (T) Converters.convert(get(e), type);
     }
 
-    private T[] getConvertedArray(Event e) {
+    private T[] getConvertedArray(TriggerContext e) {
         return Converters.convertArray((Object[]) get(e), (Class<T>) type, (Class<T>) supertype);
     }
 
@@ -119,7 +119,7 @@ public class Variable<T> implements Expression<T> {
         return s.equalsIgnoreCase("index");
     }
 
-    public Iterator<T> iterator(Event e) {
+    public Iterator<T> iterator(TriggerContext e) {
         if (!list)
             throw new SkriptRuntimeException("");
         String n = this.name.toString(e);
@@ -176,7 +176,7 @@ public class Variable<T> implements Expression<T> {
      * @return an {@link Iterator} that iterates over pairs of indexes and values
      */
     @Nullable
-    public Iterator<Pair<String, Object>> variablesIterator(Event e) {
+    public Iterator<Pair<String, Object>> variablesIterator(TriggerContext e) {
         if (!list)
             throw new SkriptRuntimeException("Looping a non-list variable");
         String n = this.name.toString(e);
@@ -227,7 +227,7 @@ public class Variable<T> implements Expression<T> {
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
+    public String toString(@Nullable TriggerContext e, boolean debug) {
         if (e != null)
             return TypeManager.toString((Object[]) getValues(e));
         String name = this.name.toString(null, debug);
@@ -244,11 +244,11 @@ public class Variable<T> implements Expression<T> {
         return new Variable<>(name, local, list, to);
     }
 
-    private void set(Event e, @Nullable Object value) {
+    private void set(TriggerContext e, @Nullable Object value) {
         Variables.setVariable(name.toString(e), value, e, local);
     }
 
-    private void setIndex(Event e, String index, @Nullable Object value) {
+    private void setIndex(TriggerContext e, String index, @Nullable Object value) {
         assert list;
         String s = name.toString(e);
         assert s.endsWith("::*") : s + "; " + name;
@@ -264,7 +264,7 @@ public class Variable<T> implements Expression<T> {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public void change(Event e, Object[] changeWith, ChangeMode mode) throws UnsupportedOperationException {
+    public void change(TriggerContext e, Object[] changeWith, ChangeMode mode) throws UnsupportedOperationException {
         switch (mode) {
             case DELETE:
                 if (list) {

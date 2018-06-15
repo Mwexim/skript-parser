@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -16,14 +16,14 @@ public abstract class Effect implements SyntaxElement {
     /**
      * Runs all code starting at a given point sequentially
      * @param start the Effect the method should first run
-     * @param event the event
+     * @param context the context
      * @return {@code true} if the code ran normally, and {@code false} if any exception occurred
      */
-    public static boolean runAll(Effect start, Event event) {
+    public static boolean runAll(Effect start, TriggerContext context) {
         Effect item = start;
         try {
             while (item != null)
-                item = item.walk(event);
+                item = item.walk(context);
             return true;
         } catch (StackOverflowError so) {
             System.err.println("The script repeated itself infinitely !");
@@ -39,7 +39,7 @@ public abstract class Effect implements SyntaxElement {
      * Executes this Effect
      * @param e the event
      */
-    public abstract void execute(Event e);
+    public abstract void execute(TriggerContext e);
 
     /**
      * @return the parent of this Effect
@@ -85,13 +85,13 @@ public abstract class Effect implements SyntaxElement {
     }
 
     /**
-     * By default, runs {@link #execute(Event)} and returns {@link #getNext()}. If this method is overriden in extending
-     * classes, then the implementation of {@link #execute(Event)} doesn't matter.
+     * By default, runs {@link #execute(TriggerContext)} and returns {@link #getNext()}. If this method is overriden in extending
+     * classes, then the implementation of {@link #execute(TriggerContext)} doesn't matter.
      * @param e the event
      * @return the next item to be ran, or {@code null} if this is the last item to be executed
      */
     @Nullable
-    protected Effect walk(Event e) {
+    protected Effect walk(TriggerContext e) {
         execute(e);
         return getNext();
     }

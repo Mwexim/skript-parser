@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
@@ -16,8 +16,8 @@ import java.util.WeakHashMap;
  */
 public class Loop extends CodeSection {
 	private Expression<?> expr;
-	private transient Map<Event, Object> current = new WeakHashMap<>();
-	private transient Map<Event, Iterator<?>> currentIter = new WeakHashMap<>();
+	private transient Map<TriggerContext, Object> current = new WeakHashMap<>();
+	private transient Map<TriggerContext, Iterator<?>> currentIter = new WeakHashMap<>();
 	@Nullable
 	private Effect actualNext;
 
@@ -48,7 +48,7 @@ public class Loop extends CodeSection {
 
 	@Override
 	@Nullable
-	protected Effect walk(Event e) {
+	protected Effect walk(TriggerContext e) {
 		Iterator<?> iter = currentIter.get(e);
 		if (iter == null) {
 			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(e) : expr.iterator(e);
@@ -70,12 +70,12 @@ public class Loop extends CodeSection {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable TriggerContext e, boolean debug) {
 		return "loop " + expr.toString(e, debug);
 	}
 
 	@Nullable
-	public Object getCurrent(Event e) {
+	public Object getCurrent(TriggerContext e) {
 		return current.get(e);
 	}
 

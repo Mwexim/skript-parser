@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.ExpressionList;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
@@ -173,7 +173,7 @@ public class CondExprCompare extends ConditionalExpression {
      * neither a nor b # x or y === a !# x or y && b !# x or y			// nor = and
      */
     @Override
-    public boolean check(Event e) {
+    public boolean check(TriggerContext e) {
         Expression<?> third = this.third;
         return first.check(
             e,
@@ -203,7 +203,7 @@ public class CondExprCompare extends ConditionalExpression {
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
+    public String toString(@Nullable TriggerContext e, boolean debug) {
         String s;
         Expression<?> third = this.third;
         if (third == null) {

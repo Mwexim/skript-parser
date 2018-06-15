@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
@@ -52,7 +52,7 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 	}
 
 	@Override
-	public Number[] getValues(Event e) {
+	public Number[] getValues(TriggerContext e) {
 		Number num = number.getSingle(e);
 		if (num == null)
 			return new Number[0];
@@ -60,7 +60,7 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable TriggerContext e, boolean debug) {
 		/*
 		 * I know this is dirty as hell, but at least it's better than switching
 		 * over ALL of them

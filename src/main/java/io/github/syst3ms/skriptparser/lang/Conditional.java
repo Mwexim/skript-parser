@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +36,7 @@ public class Conditional extends CodeSection {
     }
 
     @Override
-    protected Effect walk(Event e) {
+    protected Effect walk(TriggerContext e) {
         assert condition != null || mode == ConditionalMode.ELSE;
         if (mode == ConditionalMode.ELSE) {
             return getFirst();
@@ -69,7 +69,7 @@ public class Conditional extends CodeSection {
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
+    public String toString(@Nullable TriggerContext e, boolean debug) {
         return mode + (condition != null ? " " + condition.toString(e, debug) : "");
     }
 

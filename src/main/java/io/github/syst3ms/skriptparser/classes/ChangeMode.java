@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.classes;
 
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 
 /**
  * An enum representing how an expression <em>could</em> be changed :
@@ -17,7 +17,7 @@ import io.github.syst3ms.skriptparser.event.Event;
  * </ul>
  * @see io.github.syst3ms.skriptparser.effects.EffChange
  * @see io.github.syst3ms.skriptparser.lang.Expression#acceptsChange(ChangeMode)
- * @see io.github.syst3ms.skriptparser.lang.Expression#change(Event, Object[], ChangeMode)
+ * @see io.github.syst3ms.skriptparser.lang.Expression#change(TriggerContext, Object[], ChangeMode)
  */
 public enum ChangeMode {
     SET, ADD, REMOVE, DELETE, RESET, REMOVE_ALL

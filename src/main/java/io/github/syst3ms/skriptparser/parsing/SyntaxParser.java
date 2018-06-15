@@ -8,6 +8,7 @@ import io.github.syst3ms.skriptparser.lang.ExpressionList;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.LiteralList;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
+import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
@@ -44,6 +45,7 @@ public class SyntaxParser {
 
     private static final RecentElementList<SyntaxInfo<? extends Effect>> recentEffects = new RecentElementList<>();
     private static final RecentElementList<SyntaxInfo<? extends CodeSection>> recentSections = new RecentElementList<>();
+    private static final RecentElementList<SyntaxInfo<? extends Trigger>> recentTriggers = new RecentElementList<>();
     private static final RecentElementList<ExpressionInfo<?, ?>> recentExpressions = new RecentElementList<>();
 
     @Nullable
@@ -204,6 +206,8 @@ public class SyntaxParser {
 
     @Nullable
     public static Effect parseEffect(String s) {
+        if (s.isEmpty())
+            return null;
         for (SyntaxInfo<? extends Effect> recentEffect : recentEffects) {
             Effect eff = matchEffectInfo(s, recentEffect);
             if (eff != null) {
@@ -348,6 +352,8 @@ public class SyntaxParser {
 
     @Nullable
     public static CodeSection parseSection(FileSection section) {
+        if (section.getLineContent().isEmpty())
+            return null;
         for (SyntaxInfo<? extends CodeSection> recentSection : recentSections) {
             CodeSection sec = matchSectionInfo(section, recentSection);
             if (sec != null) {
@@ -394,4 +400,55 @@ public class SyntaxParser {
         return null;
     }
 
+    @Nullable
+    public static Trigger parseTrigger(String s) {
+        if (s.isEmpty())
+            return null;
+        for (SyntaxInfo<? extends Trigger> recentTrigger : recentTriggers) {
+            Trigger trigger = matchTriggerInfo(s, recentTrigger);
+            if (trigger != null) {
+                recentTriggers.moveToFirst(recentTrigger);
+                recentTrigger.getRegisterer().handleTrigger(trigger);
+                return trigger;
+            }
+        }
+        // Let's not loop over the same elements again
+        List<SyntaxInfo<? extends Trigger>> remainingTriggers = SyntaxManager.getTriggers();
+        recentTriggers.removeFrom(remainingTriggers);
+        for (SyntaxInfo<? extends Trigger> remainingTrigger : remainingTriggers) {
+            Trigger trigger = matchTriggerInfo(s, remainingTrigger);
+            if (trigger != null) {
+                recentTriggers.moveToFirst(remainingTrigger);
+                remainingTrigger.getRegisterer().handleTrigger(trigger);
+                return trigger;
+            }
+        }
+        // REMIND error
+        return null;
+    }
+
+    @Nullable
+    private static Trigger matchTriggerInfo(String s, SyntaxInfo<? extends Trigger> info) {
+        List<PatternElement> patterns = info.getPatterns();
+        for (int i = 0; i < patterns.size(); i++) {
+            PatternElement element = patterns.get(i);
+            SkriptParser parser = new SkriptParser(element);
+            if (element.match(s, 0, parser) != -1) {
+                try {
+                    Trigger trigger = info.getSyntaxClass().newInstance();
+                    if (!trigger.init(
+                        parser.getParsedExpressions().toArray(new Expression[0]),
+                        i,
+                        parser.toParseResult()
+                    )) {
+                        continue;
+                    }
+                    return trigger;
+                } catch (InstantiationException | IllegalAccessException e) {
+                    // REMIND error
+                }
+            }
+        }
+        return null;
+    }
 }

@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +18,7 @@ public class TestExpressions {
         }
 
         @Override
-        public Number[] getValues(Event e) {
+        public Number[] getValues(TriggerContext e) {
             Number n = number.getSingle(e);
             if (n == null)
                 return new Number[0];
@@ -26,7 +26,7 @@ public class TestExpressions {
         }
 
         @Override
-        public String toString(@Nullable Event e, boolean debug) {
+        public String toString(@Nullable TriggerContext e, boolean debug) {
             return number.toString(e, debug) + " squared";
         }
     }
@@ -46,7 +46,7 @@ public class TestExpressions {
         }
 
         @Override
-        public Number[] getValues(Event e) {
+        public Number[] getValues(TriggerContext e) {
             Number lower = lowerBound.getSingle(e);
             Number upper = upperBound.getSingle(e);
             if (lower == null || upper == null)
@@ -80,7 +80,7 @@ public class TestExpressions {
         }
 
         @Override
-        public String toString(@Nullable Event e, boolean debug) {
+        public String toString(@Nullable TriggerContext e, boolean debug) {
             return "random " +
                    (integer ? "integer" : "number") +
                    " between " +
@@ -103,10 +103,10 @@ public class TestExpressions {
         }
 
         @Override
-        public String[] getValues(Event event) {
-            String str = string.getSingle(event);
-            Number start = startIndex.getSingle(event);
-            Number end = endIndex.getSingle(event);
+        public String[] getValues(TriggerContext context) {
+            String str = string.getSingle(context);
+            Number start = startIndex.getSingle(context);
+            Number end = endIndex.getSingle(context);
             if (str == null || start == null || end == null)
                 return new String[0];
             int s = start.intValue();
@@ -117,7 +117,7 @@ public class TestExpressions {
         }
 
         @Override
-        public String toString(@Nullable Event e, boolean debug) {
+        public String toString(@Nullable TriggerContext e, boolean debug) {
             return "substring " +
                    string.toString(e, debug) +
                    " from " +

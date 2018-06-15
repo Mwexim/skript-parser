@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
@@ -118,7 +118,7 @@ public class VariableString implements Expression<String> {
     }
 
     @Override
-    public String[] getValues(Event e) {
+    public String[] getValues(TriggerContext e) {
         return new String[]{toString(e)};
     }
 
@@ -133,7 +133,7 @@ public class VariableString implements Expression<String> {
      * @return this VariableString represented in the given event. The behaviour of passing {@code null} without
      * checking {@link #isSimple()} is unspecified.
      */
-    public String toString(Event e) {
+    public String toString(TriggerContext e) {
         if (simple)
             return (String) data[0];
         StringBuilder sb = new StringBuilder();
@@ -148,7 +148,7 @@ public class VariableString implements Expression<String> {
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
+    public String toString(@Nullable TriggerContext e, boolean debug) {
         if (simple)
             return "\"" + data[0] + "\"";
         StringBuilder sb = new StringBuilder("\"");

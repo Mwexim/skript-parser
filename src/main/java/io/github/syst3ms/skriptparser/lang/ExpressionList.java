@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import org.jetbrains.annotations.Nullable;
@@ -63,7 +63,7 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
-    public T[] getArray(Event e) {
+    public T[] getArray(TriggerContext e) {
         if (and) {
             return getValues(e);
         } else {
@@ -79,7 +79,7 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
-    public T[] getValues(Event e) {
+    public T[] getValues(TriggerContext e) {
         List<T> values = new ArrayList<>();
         for (Expression<? extends T> expression : expressions) {
             Collections.addAll(values, expression.getValues(e));
@@ -88,7 +88,7 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
+    public String toString(@Nullable TriggerContext e, boolean debug) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < expressions.length; i++) {
             if (i > 0) {
@@ -123,7 +123,7 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
-    public Iterator<? extends T> iterator(Event e) {
+    public Iterator<? extends T> iterator(TriggerContext e) {
         if (!and) {
             List<Expression<? extends T>> shuffle = Arrays.asList(expressions);
             Collections.shuffle(shuffle);

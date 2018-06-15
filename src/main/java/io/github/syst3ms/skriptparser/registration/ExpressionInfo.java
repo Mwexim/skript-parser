@@ -13,8 +13,8 @@ import java.util.List;
 public class ExpressionInfo<C, T> extends SyntaxInfo<C> {
     private PatternType<T> returnType;
 
-    public ExpressionInfo(Class<C> c, List<PatternElement> patterns, Type<T> returnType, boolean isSingle, int priority) {
-        super(c, patterns, priority);
+    public ExpressionInfo(Class<C> c, List<PatternElement> patterns, SkriptAddon registerer, Type<T> returnType, boolean isSingle, int priority) {
+        super(c, patterns, priority, registerer);
         this.returnType = new PatternType<>(returnType, isSingle);
     }
 

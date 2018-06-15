@@ -2,7 +2,7 @@ package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.classes.ChangeMode;
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
@@ -104,7 +104,7 @@ public class EffChange extends Effect {
     private boolean assignment;
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
+    public String toString(@Nullable TriggerContext e, boolean debug) {
         String changedString = changed.toString(e, debug);
         String changedWithString = changeWith != null ? changeWith.toString(e, debug) : "";
         switch (mode) {
@@ -138,7 +138,7 @@ public class EffChange extends Effect {
     }
 
     @Override
-    public void execute(Event e) {
+    public void execute(TriggerContext e) {
         if (changeWith == null) {
             changed.change(e, new Object[0], mode);
         } else {

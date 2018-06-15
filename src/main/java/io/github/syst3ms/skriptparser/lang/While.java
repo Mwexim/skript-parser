@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +36,7 @@ public class While extends CodeSection {
 
     @SuppressWarnings("PointlessBooleanExpression")
     @Override
-    protected Effect walk(Event e) {
+    protected Effect walk(TriggerContext e) {
         Boolean cond = condition.getSingle(e);
         if (cond == null) {
             return actualNext;
@@ -60,7 +60,7 @@ public class While extends CodeSection {
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
+    public String toString(@Nullable TriggerContext e, boolean debug) {
         return "while " + condition.toString(e, debug);
     }
 }

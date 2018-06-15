@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
+import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.types.Type;
@@ -28,17 +29,22 @@ import java.util.function.Function;
  * @see #getRegisterer()
  */
 public class SkriptRegistration {
-    private String registerer;
+    private SkriptAddon registerer;
     private MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
     private List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
     private List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
+    private List<SyntaxInfo<? extends Trigger>> triggers = new ArrayList<>();
     private List<Type<?>> types = new ArrayList<>();
     private List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
     private PatternParser patternParser;
 
-    public SkriptRegistration(String registerer) {
+    public SkriptRegistration(SkriptAddon registerer) {
         this.registerer = registerer;
         this.patternParser = new PatternParser();
+    }
+
+    public List<SyntaxInfo<? extends Trigger>> getTriggers() {
+        return triggers;
     }
 
     public List<SyntaxInfo<? extends CodeSection>> getSections() {
@@ -60,7 +66,7 @@ public class SkriptRegistration {
     /**
      * @return the name of what is registering everything
      */
-    public String getRegisterer() {
+    public SkriptAddon getRegisterer() {
         return registerer;
     }
 
@@ -102,6 +108,14 @@ public class SkriptRegistration {
 
     public void addSection(Class<? extends CodeSection> c, int priority, String... patterns) {
         new SectionRegistrar<>(c, patterns).setPriority(priority).register();
+    }
+
+    public void addTrigger(Class<? extends Trigger> c, String... patterns) {
+        new TriggerRegistrar<>(c, patterns).register();
+    }
+
+    public void addTrigger(Class<? extends Trigger> c, int priority, String... patterns) {
+        new TriggerRegistrar<>(c, patterns).setPriority(priority).register();
     }
 
     public <T> void addType(Class<T> c, String name, String pattern) {
@@ -226,7 +240,7 @@ public class SkriptRegistration {
             if (type == null) {
                 throw new SkriptParserException("Couldn't figure out the return type corresponding to " + returnType.getName());
             }
-            ExpressionInfo<C, T> info = new ExpressionInfo<>(super.c, elements, type, isSingle, super.priority);
+            ExpressionInfo<C, T> info = new ExpressionInfo<>(super.c, elements, registerer, type, isSingle, super.priority);
             expressions.putOne(super.c, info);
         }
     }
@@ -242,7 +256,7 @@ public class SkriptRegistration {
             for (String s : super.patterns) {
                 elements.add(patternParser.parsePattern(StringUtils.fixEncoding(s)));
             }
-            SyntaxInfo<C> info = new SyntaxInfo<>(super.c, elements, super.priority);
+            SyntaxInfo<C> info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
             effects.add(info);
         }
     }
@@ -259,8 +273,25 @@ public class SkriptRegistration {
             for (String s : super.patterns) {
                 elements.add(patternParser.parsePattern(StringUtils.fixEncoding(s)));
             }
-            SyntaxInfo<C> info = new SyntaxInfo<>(super.c, elements, super.priority);
+            SyntaxInfo<C> info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
             sections.add(info);
+        }
+    }
+
+    public class TriggerRegistrar<T extends Trigger> extends SyntaxRegistrar<T> {
+
+        TriggerRegistrar(Class<T> c, String... patterns) {
+            super(c, patterns);
+        }
+
+        @Override
+        public void register() {
+            List<PatternElement> elements = new ArrayList<>();
+            for (String s : super.patterns) {
+                elements.add(patternParser.parsePattern(StringUtils.fixEncoding(s)));
+            }
+            SyntaxInfo<T> info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
+            triggers.add(info);
         }
     }
 }

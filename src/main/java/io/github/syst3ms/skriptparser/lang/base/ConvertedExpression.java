@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.lang.base;
 
-import io.github.syst3ms.skriptparser.event.Event;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
@@ -44,7 +44,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
     }
 
     @Override
-    public T[] getValues(Event e) {
+    public T[] getValues(TriggerContext e) {
         return Converters.convert(source.getValues(e), to, converter);
     }
 
@@ -54,7 +54,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
+    public String toString(@Nullable TriggerContext e, boolean debug) {
         if (debug && e == null)
             return "(" + source.toString(null, true) + " >> " + converter + ": " + source.getReturnType().getName() + "->" + to.getName() + ")";
         return source.toString(e, debug);
@@ -82,8 +82,8 @@ public class ConvertedExpression<F, T> implements Expression<T> {
     }
 
     @Override
-    public Iterator<? extends T> iterator(Event event) {
-        Iterator<? extends F> sourceIterator = source.iterator(event);
+    public Iterator<? extends T> iterator(TriggerContext context) {
+        Iterator<? extends F> sourceIterator = source.iterator(context);
         if (!sourceIterator.hasNext())
             return Collections.emptyIterator();
         return new Iterator<T>() {
