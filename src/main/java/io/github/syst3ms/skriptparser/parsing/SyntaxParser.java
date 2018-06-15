@@ -400,12 +400,11 @@ public class SyntaxParser {
         return null;
     }
 
-    @Nullable
-    public static Trigger parseTrigger(String s) {
-        if (s.isEmpty())
+    public static Trigger parseTrigger(FileSection s) {
+        if (s.getLineContent().isEmpty())
             return null;
         for (SyntaxInfo<? extends Trigger> recentTrigger : recentTriggers) {
-            Trigger trigger = matchTriggerInfo(s, recentTrigger);
+            Trigger trigger = (Trigger) matchSectionInfo(s, recentTrigger);
             if (trigger != null) {
                 recentTriggers.moveToFirst(recentTrigger);
                 recentTrigger.getRegisterer().handleTrigger(trigger);
@@ -416,7 +415,7 @@ public class SyntaxParser {
         List<SyntaxInfo<? extends Trigger>> remainingTriggers = SyntaxManager.getTriggers();
         recentTriggers.removeFrom(remainingTriggers);
         for (SyntaxInfo<? extends Trigger> remainingTrigger : remainingTriggers) {
-            Trigger trigger = matchTriggerInfo(s, remainingTrigger);
+            Trigger trigger = (Trigger) matchSectionInfo(s, remainingTrigger);
             if (trigger != null) {
                 recentTriggers.moveToFirst(remainingTrigger);
                 remainingTrigger.getRegisterer().handleTrigger(trigger);
@@ -424,31 +423,6 @@ public class SyntaxParser {
             }
         }
         // REMIND error
-        return null;
-    }
-
-    @Nullable
-    private static Trigger matchTriggerInfo(String s, SyntaxInfo<? extends Trigger> info) {
-        List<PatternElement> patterns = info.getPatterns();
-        for (int i = 0; i < patterns.size(); i++) {
-            PatternElement element = patterns.get(i);
-            SkriptParser parser = new SkriptParser(element);
-            if (element.match(s, 0, parser) != -1) {
-                try {
-                    Trigger trigger = info.getSyntaxClass().newInstance();
-                    if (!trigger.init(
-                        parser.getParsedExpressions().toArray(new Expression[0]),
-                        i,
-                        parser.toParseResult()
-                    )) {
-                        continue;
-                    }
-                    return trigger;
-                } catch (InstantiationException | IllegalAccessException e) {
-                    // REMIND error
-                }
-            }
-        }
         return null;
     }
 }
