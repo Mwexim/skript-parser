@@ -1,19 +1,62 @@
 package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.file.FileElement;
+import io.github.syst3ms.skriptparser.file.FileParser;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Conditional;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Loop;
+import io.github.syst3ms.skriptparser.lang.Trigger;
+import io.github.syst3ms.skriptparser.registration.SkriptAddon;
+import io.github.syst3ms.skriptparser.util.FileUtils;
+import io.github.syst3ms.skriptparser.util.MultiMap;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class ScriptLoader {
     private static final LinkedList<Loop> currentLoops = new LinkedList<>();
+    private static MultiMap<String, Trigger> triggerMap = new MultiMap<>();
+
+    public static MultiMap<String, Trigger> getTriggerMap() {
+        return triggerMap;
+    }
+
+    public static void loadScript(File script) {
+        FileParser parser = new FileParser();
+        List<FileElement> elements;
+        String scriptName;
+        try {
+            List<String> lines = FileUtils.readAllLines(script);
+            scriptName = script.getName().replaceAll("(.+?)\\..+", "$1");
+            elements = parser.parseFileLines(scriptName,
+                    lines,
+                    0,
+                    1
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        for (FileElement element : elements) {
+            if (element instanceof FileSection) {
+                Trigger trig = SyntaxParser.parseTrigger((FileSection) element);
+                if (trig == null) {
+                    // REMIND error
+                    continue;
+                }
+                triggerMap.putOne(scriptName, trig);
+            } else {
+                // REMIND error
+            }
+        }
+        SkriptAddon.getAddons().forEach(SkriptAddon::finishedLoading);
+    }
 
     /**
      * Parses all items inside of a given section.
