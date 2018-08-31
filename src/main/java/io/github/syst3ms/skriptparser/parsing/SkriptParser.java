@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.parsing;
 
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
 import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
@@ -20,15 +21,17 @@ import java.util.regex.MatchResult;
  */
 public class SkriptParser {
     private String originalPattern;
+    private final Class<? extends TriggerContext>[] currentContext;
     private PatternElement originalElement;
     private int patternIndex = 0;
     private List<Expression<?>> parsedExpressions = new ArrayList<>();
     private List<MatchResult> regexMatches = new ArrayList<>();
     private int parseMark = 0;
 
-    public SkriptParser(PatternElement e) {
+    public SkriptParser(PatternElement e, Class<? extends TriggerContext>[] currentContext) {
         this.originalPattern = e.toString();
         this.originalElement = e;
+        this.currentContext = currentContext;
     }
 
     public String getOriginalPattern() {
@@ -114,4 +117,7 @@ public class SkriptParser {
         return possibilities;
     }
 
+    public Class<? extends TriggerContext>[] getCurrentContext() {
+        return currentContext;
+    }
 }

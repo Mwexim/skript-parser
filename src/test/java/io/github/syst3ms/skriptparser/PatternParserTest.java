@@ -92,34 +92,34 @@ public class PatternParserTest {
     public void testMatch() throws Exception {
         PatternParser patternParser = new PatternParser();
         PatternElement pattern = patternParser.parsePattern("pattern");
-        SkriptParser parser = new SkriptParser(pattern);
+        SkriptParser parser = new SkriptParser(pattern, currentContext);
         assertEquals(7, pattern.match("pattern", 0, parser));
         pattern = patternParser.parsePattern("pattern [with optional]");
-        parser = new SkriptParser(pattern);
+        parser = new SkriptParser(pattern, currentContext);
         assertEquals(8, pattern.match("pattern", 0, parser));
         assertEquals(21, pattern.match("pattern with optional", 0, parser));
         pattern = patternParser.parsePattern("pattern [with [another] optional]");
-        parser = new SkriptParser(pattern);
+        parser = new SkriptParser(pattern, currentContext);
         assertEquals(22, pattern.match("pattern with optional", 0, parser));
         assertEquals(29, pattern.match("pattern with another optional", 0, parser));
         pattern = patternParser.parsePattern("you must (choose|this|or this)");
-        parser = new SkriptParser(pattern);
+        parser = new SkriptParser(pattern, currentContext);
         assertEquals(15, pattern.match("you must choose", 0, parser));
         assertEquals(13, pattern.match("you must this", 0, parser));
         assertEquals(16, pattern.match("you must or this", 0, parser));
         pattern = patternParser.parsePattern("you (must|shall) (choose|select) this [(or|also) this [as well]]");
-        parser = new SkriptParser(pattern);
+        parser = new SkriptParser(pattern, currentContext);
         assertNotEquals(-1, pattern.match("you shall select this", 0, parser));
         assertNotEquals(-1, pattern.match("you must choose this or this as well", 0, parser));
         pattern = patternParser.parsePattern("I choose (1\u00a6this|2\u00a6that)");
-        parser = new SkriptParser(pattern);
+        parser = new SkriptParser(pattern, currentContext);
         assertTrue(pattern.match("I choose this", 0, parser) == 13 && parser.getParseMark() == 1);
         // The real stuff
         pattern = patternParser.parsePattern("say %number% [!]");
-        parser = new SkriptParser(pattern);
+        parser = new SkriptParser(pattern, currentContext);
         pattern.match("say 2", 0, parser);
         assertEquals(1, parser.getParsedExpressions().size());
-        parser = new SkriptParser(pattern);
+        parser = new SkriptParser(pattern, currentContext);
         pattern.match("say 2 !", 0, parser);
         assertEquals(1, parser.getParsedExpressions().size());
     }

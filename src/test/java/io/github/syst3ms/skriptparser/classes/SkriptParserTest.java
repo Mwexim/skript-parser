@@ -16,7 +16,7 @@ public class SkriptParserTest {
     public void getPossibleInputs() throws Exception {
         PatternParser patternParser = new PatternParser();
         PatternElement e = patternParser.parsePattern("text [and optional]");
-        SkriptParser parser = new SkriptParser(e);
+        SkriptParser parser = new SkriptParser(e, currentContext);
         assertEquals(Collections.singletonList(new TextElement("text ")), parser.getPossibleInputs(parser.flatten(e)));
         e = patternParser.parsePattern("[optional] and text");
         assertEquals(

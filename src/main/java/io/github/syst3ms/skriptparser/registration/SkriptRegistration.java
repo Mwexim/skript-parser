@@ -1,11 +1,8 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.PatternParser;
-import io.github.syst3ms.skriptparser.lang.CodeSection;
-import io.github.syst3ms.skriptparser.lang.Effect;
-import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.SyntaxElement;
-import io.github.syst3ms.skriptparser.lang.Trigger;
+import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.types.Type;
@@ -26,6 +23,7 @@ import java.util.function.Function;
 /**
  * A mutable object keeping track of everything registered by any source.
  * Do not forget to call {@link #register()} !
+ *
  * @see #getRegisterer()
  */
 public class SkriptRegistration {
@@ -33,7 +31,7 @@ public class SkriptRegistration {
     private MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
     private List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
     private List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
-    private List<SyntaxInfo<? extends Trigger>> triggers = new ArrayList<>();
+    private List<SyntaxInfo<? extends SkriptEvent>> events = new ArrayList<>();
     private List<Type<?>> types = new ArrayList<>();
     private List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
     private PatternParser patternParser;
@@ -43,8 +41,8 @@ public class SkriptRegistration {
         this.patternParser = new PatternParser();
     }
 
-    public List<SyntaxInfo<? extends Trigger>> getTriggers() {
-        return triggers;
+    public List<SyntaxInfo<? extends SkriptEvent>> getEvents() {
+        return events;
     }
 
     public List<SyntaxInfo<? extends CodeSection>> getSections() {
@@ -80,13 +78,13 @@ public class SkriptRegistration {
 
     public <C extends Expression<T>, T> void addExpression(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
         new ExpressionRegistrar<>(c, returnType, isSingle).addPatterns(patterns)
-                                                          .register();
+                .register();
     }
 
     public <C extends Expression<T>, T> void addExpression(Class<C> c, Class<T> returnType, boolean isSingle, int priority, String... patterns) {
         new ExpressionRegistrar<>(c, returnType, isSingle).addPatterns(patterns)
-                                                          .setPriority(priority)
-                                                          .register();
+                .setPriority(priority)
+                .register();
     }
 
     public <C extends Effect> EffectRegistrar<C> newEffect(Class<C> c, String... patterns) {
@@ -99,7 +97,7 @@ public class SkriptRegistration {
 
     public <C extends Effect> void addEffect(Class<C> c, int priority, String... patterns) {
         new EffectRegistrar<>(c, patterns).setPriority(priority)
-                                          .register();
+                .register();
     }
 
     public void addSection(Class<? extends CodeSection> c, String... patterns) {
@@ -110,12 +108,16 @@ public class SkriptRegistration {
         new SectionRegistrar<>(c, patterns).setPriority(priority).register();
     }
 
-    public void addTrigger(Class<? extends Trigger> c, String... patterns) {
-        new TriggerRegistrar<>(c, patterns).register();
+    public void addEvent(Class<? extends SkriptEvent> c, Class<? extends TriggerContext>[] handledContexts, String... patterns) {
+        new EventRegistrar<>(c, patterns).setHandledContexts(handledContexts).register();
     }
 
-    public void addTrigger(Class<? extends Trigger> c, int priority, String... patterns) {
-        new TriggerRegistrar<>(c, patterns).setPriority(priority).register();
+    public void addEvent(Class<? extends SkriptEvent> c, Class<? extends TriggerContext>[] handledContexts, int priority, String... patterns) {
+        new EventRegistrar<>(c, patterns).setHandledContexts(handledContexts).setPriority(priority).register();
+    }
+
+    public <E extends SkriptEvent> EventRegistrar<E> newEvent(Class<E> c, String... patterns) {
+        return new EventRegistrar<>(c, patterns);
     }
 
     public <T> void addType(Class<T> c, String name, String pattern) {
@@ -278,9 +280,10 @@ public class SkriptRegistration {
         }
     }
 
-    public class TriggerRegistrar<T extends Trigger> extends SyntaxRegistrar<T> {
+    public class EventRegistrar<T extends SkriptEvent> extends SyntaxRegistrar<T> {
+        private Class<? extends TriggerContext>[] handledContexts;
 
-        TriggerRegistrar(Class<T> c, String... patterns) {
+        EventRegistrar(Class<T> c, String... patterns) {
             super(c, patterns);
         }
 
@@ -288,10 +291,21 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             for (String s : super.patterns) {
+                if (s.startsWith("*")) {
+                    s = s.substring(1,s.length());
+                } else {
+                    s = "[on] " + s;
+                }
                 elements.add(patternParser.parsePattern(StringUtils.fixEncoding(s)));
             }
-            SyntaxInfo<T> info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
-            triggers.add(info);
+            SkriptEventInfo<T> info = new SkriptEventInfo<>(super.c, handledContexts, elements, super.priority, registerer);
+            events.add(info);
+        }
+
+        @SafeVarargs
+        public final EventRegistrar<T> setHandledContexts(Class<? extends TriggerContext>... contexts) {
+            this.handledContexts = contexts;
+            return this;
         }
     }
 }

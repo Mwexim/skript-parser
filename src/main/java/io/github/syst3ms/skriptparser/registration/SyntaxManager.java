@@ -34,7 +34,7 @@ public class SyntaxManager {
         effects.sort(INFO_COMPARATOR);
         sections.addAll(reg.getSections());
         sections.sort(INFO_COMPARATOR);
-        triggers.addAll(reg.getTriggers());
+        triggers.addAll(reg.getEvents());
         triggers.sort(INFO_COMPARATOR);
         for (Map.Entry<Class<?>, List<ExpressionInfo<?, ?>>> entry : reg.getExpressions().entrySet()) {
             Class<?> key = entry.getKey();

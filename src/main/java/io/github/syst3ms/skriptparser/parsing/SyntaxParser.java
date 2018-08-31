@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.parsing;
 
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
@@ -48,6 +49,8 @@ public class SyntaxParser {
     private static final RecentElementList<SyntaxInfo<? extends Trigger>> recentTriggers = new RecentElementList<>();
     private static final RecentElementList<ExpressionInfo<?, ?>> recentExpressions = new RecentElementList<>();
 
+    private static Class<? extends TriggerContext>[] currentContexts;
+
     @Nullable
     public static <T> Expression<? extends T> parseExpression(String s, PatternType<T> expectedType) {
         if (s.isEmpty())
@@ -74,7 +77,7 @@ public class SyntaxParser {
             }
         }
         for (ExpressionInfo<?, ?> info : recentExpressions) {
-            Expression<? extends T> expr = matchExpressionInfo(s, info, expectedType);
+            Expression<? extends T> expr = matchExpressionInfo(s, info, expectedType, currentContexts);
             if (expr != null) {
                 recentExpressions.moveToFirst(info);
                 return expr;
@@ -84,7 +87,7 @@ public class SyntaxParser {
         List<ExpressionInfo<?, ?>> remainingExpressions = SyntaxManager.getAllExpressions();
         recentExpressions.removeFrom(remainingExpressions);
         for (ExpressionInfo<?, ?> info : remainingExpressions) {
-            Expression<? extends T> expr = matchExpressionInfo(s, info, expectedType);
+            Expression<? extends T> expr = matchExpressionInfo(s, info, expectedType, currentContexts);
             if (expr != null) {
                 recentExpressions.moveToFirst(info);
                 return expr;
@@ -232,10 +235,10 @@ public class SyntaxParser {
     /**
      * Tries to match an {@link ExpressionInfo} against the given {@link String} expression.
      * @param <T> The return type of the {@link Expression}
+     * @param currentContextss the current 
      * @return the Expression instance if matching, or {@literal null} otherwise
      */
-    @Nullable
-    private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType) {
+    private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType, Class<? extends TriggerContext>[] currentContextss) {
         List<PatternElement> patterns = info.getPatterns();
         PatternType<?> infoType = info.getReturnType();
         Class<?> infoTypeClass = infoType.getType().getTypeClass();
@@ -244,7 +247,7 @@ public class SyntaxParser {
             return null;
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
-            SkriptParser parser = new SkriptParser(element);
+            SkriptParser parser = new SkriptParser(element, currentContextss);
             if (element.match(s, 0, parser) != -1) {
                 try {
                     Expression<? extends T> expression = (Expression<? extends T>) info.getSyntaxClass().newInstance();
@@ -286,7 +289,7 @@ public class SyntaxParser {
         List<PatternElement> patterns = info.getPatterns();
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
-            SkriptParser parser = new SkriptParser(element);
+            SkriptParser parser = new SkriptParser(element, currentContexts);
             if (element.match(s, 0, parser) != -1) {
                 try {
                     Effect effect = info.getSyntaxClass().newInstance();
@@ -320,7 +323,7 @@ public class SyntaxParser {
         for (ExpressionInfo<?, ?> info : recentExpressions) {
             if (info.getReturnType().getType().getTypeClass() != Boolean.class)
                 continue;
-            Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE);
+            Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE, currentContexts);
             if (expr != null) {
                 if (!canBeConditional && ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
                     // REMIND error
@@ -336,7 +339,7 @@ public class SyntaxParser {
         for (ExpressionInfo<?, ?> info : remainingExpressions) {
             if (info.getReturnType().getType().getTypeClass() != Boolean.class)
                 continue;
-            Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE);
+            Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE, currentContexts);
             if (expr != null) {
                 if (!canBeConditional && ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
                     // REMIND error
@@ -379,7 +382,7 @@ public class SyntaxParser {
         List<PatternElement> patterns = info.getPatterns();
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
-            SkriptParser parser = new SkriptParser(element);
+            SkriptParser parser = new SkriptParser(element, currentContexts);
             if (element.match(section.getLineContent(), 0, parser) != -1) {
                 try {
                     CodeSection sec = info.getSyntaxClass().newInstance();
@@ -424,5 +427,9 @@ public class SyntaxParser {
         }
         // REMIND error
         return null;
+    }
+
+    static void setCurrentContexts(Class<? extends TriggerContext>[] currentContexts) {
+        SyntaxParser.currentContexts = currentContexts;
     }
 }
