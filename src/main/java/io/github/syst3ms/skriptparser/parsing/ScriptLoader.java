@@ -33,7 +33,7 @@ public class ScriptLoader {
         String scriptName;
         try {
             List<String> lines = FileUtils.readAllLines(script);
-            scriptName = script.getName().replaceAll("(.+?)\\..+", "$1");
+            scriptName = script.getName().replaceAll("(.+)\\..+", "$1");
             elements = parser.parseFileLines(scriptName,
                     lines,
                     0,

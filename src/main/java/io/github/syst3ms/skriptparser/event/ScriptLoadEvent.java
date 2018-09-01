@@ -17,7 +17,7 @@ public class ScriptLoadEvent extends SkriptEvent {
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
-        return false;
+        return true;
     }
 
     @Override
@@ -27,6 +27,6 @@ public class ScriptLoadEvent extends SkriptEvent {
 
     @Override
     public String toString(@Nullable TriggerContext e, boolean debug) {
-        return "main";
+        return "script loading";
     }
 }

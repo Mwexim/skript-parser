@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.parsing;
 
+import io.github.syst3ms.skriptparser.Skript;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
@@ -9,12 +10,14 @@ import io.github.syst3ms.skriptparser.lang.ExpressionList;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.LiteralList;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
+import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
+import io.github.syst3ms.skriptparser.registration.SkriptEventInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 import io.github.syst3ms.skriptparser.types.PatternType;
@@ -46,7 +49,7 @@ public class SyntaxParser {
 
     private static final RecentElementList<SyntaxInfo<? extends Effect>> recentEffects = new RecentElementList<>();
     private static final RecentElementList<SyntaxInfo<? extends CodeSection>> recentSections = new RecentElementList<>();
-    private static final RecentElementList<SyntaxInfo<? extends Trigger>> recentTriggers = new RecentElementList<>();
+    private static final RecentElementList<SkriptEventInfo<?>> recentEvents = new RecentElementList<>();
     private static final RecentElementList<ExpressionInfo<?, ?>> recentExpressions = new RecentElementList<>();
 
     private static Class<? extends TriggerContext>[] currentContexts;
@@ -406,26 +409,53 @@ public class SyntaxParser {
     public static Trigger parseTrigger(FileSection s) {
         if (s.getLineContent().isEmpty())
             return null;
-        for (SyntaxInfo<? extends Trigger> recentTrigger : recentTriggers) {
-            Trigger trigger = (Trigger) matchSectionInfo(s, recentTrigger);
+        for (SkriptEventInfo<?> recentEvent : recentEvents) {
+            Trigger trigger = matchEventInfo(s, recentEvent);
             if (trigger != null) {
-                recentTriggers.moveToFirst(recentTrigger);
-                recentTrigger.getRegisterer().handleTrigger(trigger);
+                recentEvents.moveToFirst(recentEvent);
+                recentEvent.getRegisterer().handleTrigger(trigger);
                 return trigger;
             }
         }
         // Let's not loop over the same elements again
-        List<SyntaxInfo<? extends Trigger>> remainingTriggers = SyntaxManager.getTriggers();
-        recentTriggers.removeFrom(remainingTriggers);
-        for (SyntaxInfo<? extends Trigger> remainingTrigger : remainingTriggers) {
-            Trigger trigger = (Trigger) matchSectionInfo(s, remainingTrigger);
+        List<SkriptEventInfo<?>> remainingEvents = SyntaxManager.getTriggers();
+        recentEvents.removeFrom(remainingEvents);
+        for (SkriptEventInfo<?> remainingEvent : remainingEvents) {
+            Trigger trigger = matchEventInfo(s, remainingEvent);
             if (trigger != null) {
-                recentTriggers.moveToFirst(remainingTrigger);
-                remainingTrigger.getRegisterer().handleTrigger(trigger);
+                recentEvents.moveToFirst(remainingEvent);
+                remainingEvent.getRegisterer().handleTrigger(trigger);
                 return trigger;
             }
         }
         // REMIND error
+        return null;
+    }
+
+    @Nullable
+    private static Trigger matchEventInfo(FileSection section, SkriptEventInfo<?> info) {
+        List<PatternElement> patterns = info.getPatterns();
+        for (int i = 0; i < patterns.size(); i++) {
+            PatternElement element = patterns.get(i);
+            SkriptParser parser = new SkriptParser(element, currentContexts);
+            if (element.match(section.getLineContent(), 0, parser) != -1) {
+                try {
+                    SkriptEvent event = info.getSyntaxClass().newInstance();
+                    if (!event.init(
+                            parser.getParsedExpressions().toArray(new Expression[0]),
+                            i,
+                            parser.toParseResult()
+                    )) {
+                        continue;
+                    }
+                    Trigger trig = new Trigger(event);
+                    trig.loadSection(section);
+                    return trig;
+                } catch (InstantiationException | IllegalAccessException e) {
+                    // REMIND error
+                }
+            }
+        }
         return null;
     }
 

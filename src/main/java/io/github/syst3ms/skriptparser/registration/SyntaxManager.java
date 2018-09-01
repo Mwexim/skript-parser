@@ -3,7 +3,6 @@ package io.github.syst3ms.skriptparser.registration;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +22,7 @@ public class SyntaxManager {
     private static MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
     private static List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
     private static List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
-    private static List<SyntaxInfo<? extends Trigger>> triggers = new ArrayList<>();
+    private static List<SkriptEventInfo<?>> triggers = new ArrayList<>();
 
     public static List<SyntaxInfo<? extends CodeSection>> getSections() {
         return sections;
@@ -67,7 +66,7 @@ public class SyntaxManager {
         return effects;
     }
 
-    public static List<SyntaxInfo<? extends Trigger>> getTriggers() {
+    public static List<SkriptEventInfo<?>> getTriggers() {
         return triggers;
     }
 }

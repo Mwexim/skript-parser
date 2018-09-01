@@ -31,7 +31,7 @@ public class SkriptRegistration {
     private MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
     private List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
     private List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
-    private List<SyntaxInfo<? extends SkriptEvent>> events = new ArrayList<>();
+    private List<SkriptEventInfo<?>> events = new ArrayList<>();
     private List<Type<?>> types = new ArrayList<>();
     private List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
     private PatternParser patternParser;
@@ -41,7 +41,7 @@ public class SkriptRegistration {
         this.patternParser = new PatternParser();
     }
 
-    public List<SyntaxInfo<? extends SkriptEvent>> getEvents() {
+    public List<SkriptEventInfo<?>> getEvents() {
         return events;
     }
 
