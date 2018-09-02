@@ -39,7 +39,7 @@ public class ExpressionElement implements PatternElement {
     public int match(String s, int index, SkriptParser parser) {
         if (parser.getOriginalElement().equals(this))
             parser.advanceInPattern();
-        PatternType<?>[] typeArray = types.toArray(new PatternType<?>[types.size()]);
+        PatternType<?>[] typeArray = types.toArray(new PatternType<?>[0]);
         if (index >= s.length()) {
             return -1;
         }

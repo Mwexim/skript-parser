@@ -52,7 +52,7 @@ public class SyntaxParser {
     private static final RecentElementList<SkriptEventInfo<?>> recentEvents = new RecentElementList<>();
     private static final RecentElementList<ExpressionInfo<?, ?>> recentExpressions = new RecentElementList<>();
 
-    private static Class<? extends TriggerContext>[] currentContexts;
+    private static Class<? extends TriggerContext>[] currentContexts = new Class[]{};
 
     @Nullable
     public static <T> Expression<? extends T> parseExpression(String s, PatternType<T> expectedType) {
@@ -125,7 +125,7 @@ public class SyntaxParser {
                 String closing = StringUtils.getEnclosedText(s, '(', ')', i);
                 if (closing != null) {
                     int endIndex = i + closing.length() + 1;
-                    sb.append("(").append(s.substring(i + 1, endIndex)).append(")");
+                    sb.append("(").append(s, i + 1, endIndex).append(")");
                     i = endIndex;
                     continue;
                 }
@@ -165,7 +165,7 @@ public class SyntaxParser {
             return expressions.get(0);
         if (isLiteralList) {
             //noinspection SuspiciousToArrayCall
-            Literal[] literals = expressions.toArray(new Literal[expressions.size()]);
+            Literal[] literals = expressions.toArray(new Literal[0]);
             Class<?> returnType = ClassUtils.getCommonSuperclass(Arrays.stream(literals).map(Literal::getReturnType).toArray(Class[]::new));
             return new LiteralList<>(
                 literals,
@@ -173,7 +173,7 @@ public class SyntaxParser {
                 isAndList
             );
         } else {
-            Expression[] exprs = expressions.toArray(new Expression[expressions.size()]);
+            Expression[] exprs = expressions.toArray(new Expression[0]);
             Class<?> returnType = ClassUtils.getCommonSuperclass(Arrays.stream(exprs).map(Expression::getReturnType).toArray(Class[]::new));
             return new ExpressionList<>(
                 exprs,
@@ -450,6 +450,7 @@ public class SyntaxParser {
                     }
                     Trigger trig = new Trigger(event);
                     trig.loadSection(section);
+                    setCurrentContexts(info.getContexts());
                     return trig;
                 } catch (InstantiationException | IllegalAccessException e) {
                     // REMIND error

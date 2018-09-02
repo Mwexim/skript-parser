@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Skript;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
@@ -17,9 +18,9 @@ public class DefaultRegistration {
         registration.addType(
                 Object.class,
                 "object",
-                "object¦s"
+                "object\u00a6s"
         );
-        registration.newType(Number.class,"number","number¦s")
+        registration.newType(Number.class,"number", "number\u00a6s")
                     .literalParser(s -> {
                         Number n;
                         if (s.endsWith("L") || s.endsWith("l")) {
@@ -148,9 +149,9 @@ public class DefaultRegistration {
         registration.addType(
                 String.class,
                 "string",
-                "string¦s"
+                "string\u00a6s"
         );
-        registration.newType(Boolean.class, "boolean", "boolean¦s")
+        registration.newType(Boolean.class, "boolean", "boolean\u00a6s")
                     .literalParser(s -> {
                         if (s.equalsIgnoreCase("true")) {
                             return true;

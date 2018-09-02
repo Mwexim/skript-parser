@@ -4,9 +4,13 @@ import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
+import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
+import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.types.ranges.RangeInfo;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
+import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
@@ -19,6 +23,8 @@ import java.util.stream.LongStream;
 public class ExprRange implements Expression<Object> {
     private Expression<?> from, to;
     private RangeInfo<?, ?> range;
+    @Nullable
+    private Comparator<?, ?> comparator;
 
     static {
         Main.getMainRegistration().addExpression(
@@ -53,7 +59,7 @@ public class ExprRange implements Expression<Object> {
                             elements.add(current);
                             current = current.add(BigInteger.ONE);
                         } while (current.compareTo(r) <= 0);
-                        return elements.toArray(new BigInteger[elements.size()]);
+                        return elements.toArray(new BigInteger[0]);
                     }
                 }
         );
@@ -77,6 +83,7 @@ public class ExprRange implements Expression<Object> {
         from = expressions[0];
         to = expressions[1];
         range = Ranges.getRange(ClassUtils.getCommonSuperclass(from.getReturnType(), to.getReturnType()));
+        comparator = Comparators.getComparator(from.getReturnType(), to.getReturnType());
         if (range == null) {
             // REMIND error
             return false;
@@ -93,7 +100,12 @@ public class ExprRange implements Expression<Object> {
             return new Object[0];
         }
         // This is safe... right ?
-        return (Object[]) ((BiFunction) range.getFunction()).apply(f, t);
+        Object[] range = (Object[]) ((BiFunction) this.range.getFunction()).apply(f, t);
+        if (comparator != null && ((Comparator) comparator).apply(f, t).is(Relation.SMALLER)) {
+            return CollectionUtils.reverseArray(range);
+        } else {
+            return range;
+        }
     }
 
     @Override

@@ -186,7 +186,7 @@ public class StringUtils {
             }
         }
         split.add(sb.toString());
-        return split.toArray(new String[split.size()]);
+        return split.toArray(new String[0]);
     }
 
     public static String fixEncoding(String s) {

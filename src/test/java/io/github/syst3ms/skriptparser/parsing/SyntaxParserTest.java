@@ -9,6 +9,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
+import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
@@ -21,7 +22,10 @@ import java.math.BigInteger;
 import java.util.List;
 
 import static io.github.syst3ms.skriptparser.event.TriggerContext.DUMMY;
-import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.*;
+import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.parseBooleanExpression;
+import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.parseExpression;
+import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.parseLiteral;
+import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.parseSection;
 import static org.junit.Assert.*;
 
 @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -109,13 +113,17 @@ public class SyntaxParserTest {
         );
         // ExprRange
         PatternType<Object> objectsType = getType(Object.class, false);
-        BigInteger[] zeroThroughTen = new BigInteger[10];
+        BigInteger[] oneThroughTen = new BigInteger[10];
         for (int i = 1; i <= 10; i++) {
-            zeroThroughTen[i - 1] = BigInteger.valueOf(i);
+            oneThroughTen[i - 1] = BigInteger.valueOf(i);
         }
         assertExpressionEquals(
-            new SimpleLiteral<>(Number.class, zeroThroughTen),
+            new SimpleLiteral<>(Number.class, oneThroughTen),
             parseExpression("range from 1 to 10", objectsType)
+        );
+        assertExpressionEquals(
+                new SimpleLiteral<>(Number.class, CollectionUtils.reverseArray(oneThroughTen)),
+                parseExpression("range from 10 to 1", objectsType)
         );
         // ExprUnaryMathFunctions
         assertExpressionEquals(

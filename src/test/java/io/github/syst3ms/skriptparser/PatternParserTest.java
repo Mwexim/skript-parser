@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser;
 
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.SkriptParser;
 import io.github.syst3ms.skriptparser.parsing.TestRegistration;
 import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
@@ -26,7 +27,7 @@ public class PatternParserTest {
     }
 
     @Test
-    public void testParsePattern() throws Exception {
+    public void testParsePattern() {
         PatternParser parser = new PatternParser();
         assertEquals(new TextElement("syntax"), parser.parsePattern("syntax"));
         assertEquals(new OptionalGroup(new TextElement("optional")), parser.parsePattern("[optional]"));
@@ -89,7 +90,8 @@ public class PatternParserTest {
 
     @SuppressWarnings("ConstantConditions")
     @Test
-    public void testMatch() throws Exception {
+    public void testMatch() {
+        Class<? extends TriggerContext>[] currentContext = new Class[0];
         PatternParser patternParser = new PatternParser();
         PatternElement pattern = patternParser.parsePattern("pattern");
         SkriptParser parser = new SkriptParser(pattern, currentContext);

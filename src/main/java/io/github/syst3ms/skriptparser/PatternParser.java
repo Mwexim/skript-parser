@@ -33,7 +33,7 @@ public class PatternParser {
     @Nullable
     public PatternElement parsePattern(String pattern) {
         List<PatternElement> elements = new ArrayList<>();
-        StringBuilder textBuilder = new StringBuilder("");
+        StringBuilder textBuilder = new StringBuilder();
         char[] chars = pattern.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             char c = chars[i];
@@ -44,7 +44,7 @@ public class PatternParser {
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
-                    textBuilder = new StringBuilder("");
+                    textBuilder = new StringBuilder();
                 }
                 i += s.length() + 1; // sets i to the closing bracket, for loop does the rest
                 Matcher m = PARSE_MARK_PATTERN.matcher(s);
@@ -72,7 +72,7 @@ public class PatternParser {
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
-                    textBuilder = new StringBuilder("");
+                    textBuilder = new StringBuilder();
                 }
                 i += s.length() + 1;
                 String[] choices = StringUtils.splitVerticalBars(s);
@@ -104,7 +104,7 @@ public class PatternParser {
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
-                    textBuilder = new StringBuilder("");
+                    textBuilder = new StringBuilder();
                 }
                 i += s.length() + 1;
                 Pattern pat;

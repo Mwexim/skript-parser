@@ -31,7 +31,7 @@ public class FileUtils {
         while ((line = reader.readLine()) != null) {
             if (line.replace("\\" + MULTILINE_SYNTAX_TOKEN, "\0")
                     .endsWith(MULTILINE_SYNTAX_TOKEN)) {
-                multilineBuilder.append(line.substring(0, line.length() - 1)).append("\0");
+                multilineBuilder.append(line, 0, line.length() - 1).append("\0");
             } else if (multilineBuilder.length() > 0) {
                 multilineBuilder.append(line);
                 lines.add(trimMultilineIndent(multilineBuilder.toString()));

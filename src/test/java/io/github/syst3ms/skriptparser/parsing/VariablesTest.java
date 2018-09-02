@@ -29,7 +29,7 @@ public class VariablesTest {
     }
 
     @Test
-    public void testVariables() throws Exception {
+    public void testVariables() {
         SyntaxParser.parseEffect("set {variable} to \"test\"").execute(DUMMY);
         assertExpressionEquals(
                 new SimpleLiteral<>(String.class, "test"),

@@ -76,9 +76,7 @@ public class CondExprCompare extends ConditionalExpression {
         Comparator comp = this.comp;
         if (comp != null) {
             if (third == null) {
-                if (!relation.isEqualOrInverse() && !comp.supportsOrdering()) {
-                    return false;
-                }
+                return relation.isEqualOrInverse() || comp.supportsOrdering();
             } else if (!comp.supportsOrdering()) {
                 // REMIND error
                 return false;

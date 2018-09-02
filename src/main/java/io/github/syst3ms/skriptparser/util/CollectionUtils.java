@@ -15,4 +15,13 @@ public class CollectionUtils {
     public static <T> T getRandom(T[] array) {
         return array[rnd.nextInt(array.length)];
     }
+
+    public static <T> T[] reverseArray(T[] array) {
+        for (int i = 0; i < array.length / 2; i++) {
+            T temp = array[i];
+            array[i] = array[array.length - 1 - i];
+            array[array.length - 1 - i] = temp;
+        }
+        return array;
+    }
 }
