@@ -32,10 +32,7 @@ public class EffChange extends Effect {
     private ChangeMode mode;
 
     static {
-        Main.getMainRegistration().addEffect(
-                EffChange.class,
-                PATTERNS.getPatterns()
-        );
+        Main.getMainRegistration().addEffect(EffChange.class, PATTERNS.getPatterns());
     }
 
     @Override

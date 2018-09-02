@@ -1,20 +1,26 @@
 package io.github.syst3ms.skriptparser.util;
 
+import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Skript;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FileUtils {
     public static final Pattern LEADING_WHITESPACE_PATTERN = Pattern.compile("(\\s+)\\S.+");
     public static final String MULTILINE_SYNTAX_TOKEN = "\\";
+    private static File jarFile;
 
     public static List<String> readAllLines(File file) throws IOException {
         List<String> lines = new ArrayList<>();
@@ -72,32 +78,40 @@ public class FileUtils {
         return sb.toString();
     }
 
-    public  static void loadClasses(String pck, String... subpackages) throws ClassNotFoundException, IOException {
-        for (String subpackage : subpackages) {
-            String packageName = pck + "." + subpackage;
-            final Enumeration<URL> resources = Thread.currentThread()
-                                                     .getContextClassLoader()
-                                                     .getResources(packageName.replace('.', '/'));
-            while (resources.hasMoreElements()) {
-                loadClasses(new File(resources.nextElement().getFile()), packageName);
+    public static void loadClasses(String basePackage, String... subPackages) throws IOException, URISyntaxException {
+        assert subPackages != null;
+        for (int i = 0; i < subPackages.length; i++)
+            subPackages[i] = subPackages[i].replace('.', '/') + "/";
+        basePackage = basePackage.replace('.', '/') + "/";
+        try (JarFile jar = new JarFile(getFile())) {
+            Enumeration<JarEntry> entries = jar.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry e = entries.nextElement();
+                if (e.getName().startsWith(basePackage) && e.getName().endsWith(".class")) {
+                    boolean load = subPackages.length == 0;
+                    for (final String sub : subPackages) {
+                        if (e.getName().startsWith(sub, basePackage.length())) {
+                            load = true;
+                            break;
+                        }
+                    }
+                    if (load) {
+                        final String c = e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length());
+                        try {
+                            Class.forName(c, true, FileUtils.class.getClassLoader());
+                        } catch (final ClassNotFoundException | ExceptionInInitializerError ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
             }
         }
     }
 
-    private static void loadClasses(final File directory, final String packageName) throws ClassNotFoundException {
-        if (!directory.exists()) {
-            return;
+    private static File getFile() throws URISyntaxException {
+        if (jarFile == null) {
+            jarFile = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         }
-        File[] files = directory.listFiles();
-        if (files == null)
-            return;
-        for (final File file : files) {
-            final String name = file.getName();
-            if (file.isDirectory()) {
-                loadClasses(file, packageName + '.' + name);
-            } else if (file.getName().endsWith(".class")) {
-                Class.forName(packageName + '.' + name.substring(0, name.length() - 6), true, FileUtils.class.getClassLoader());
-            }
-        }
+        return jarFile;
     }
 }
