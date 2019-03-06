@@ -19,7 +19,7 @@ public class Loop extends CodeSection {
 	private transient Map<TriggerContext, Object> current = new WeakHashMap<>();
 	private transient Map<TriggerContext, Iterator<?>> currentIter = new WeakHashMap<>();
 	@Nullable
-	private Effect actualNext;
+	private Statement actualNext;
 
 	static {
 		Main.getMainRegistration().addSection(
@@ -48,7 +48,7 @@ public class Loop extends CodeSection {
 
 	@Override
 	@Nullable
-	protected Effect walk(TriggerContext e) {
+	protected Statement walk(TriggerContext e) {
 		Iterator<?> iter = currentIter.get(e);
 		if (iter == null) {
 			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(e) : expr.iterator(e);
@@ -87,7 +87,7 @@ public class Loop extends CodeSection {
 	}
 
 	@Override
-	public Loop setNext(@Nullable Effect next) {
+	public Loop setNext(@Nullable Statement next) {
 		actualNext = next;
 		return this;
 	}
@@ -99,7 +99,7 @@ public class Loop extends CodeSection {
      * @return the element that is actually after this Loop
      */
 	@Nullable
-	public Effect getActualNext() {
+	public Statement getActualNext() {
 		return actualNext;
 	}
 }

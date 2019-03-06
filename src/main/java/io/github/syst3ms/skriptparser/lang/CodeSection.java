@@ -19,10 +19,10 @@ import java.util.List;
  * @see While
  * @see io.github.syst3ms.skriptparser.lang.base.ConditionalExpression
  */
-public abstract class CodeSection extends Effect {
-    protected List<Effect> items;
-    private Effect first;
-    private Effect last;
+public abstract class CodeSection extends Statement {
+    protected List<Statement> items;
+    private Statement first;
+    private Statement last;
 
     /**
      * This methods determines the logic of what is being done to the elements inside of this section.
@@ -37,21 +37,21 @@ public abstract class CodeSection extends Effect {
 
     @Override
     @Contract("_ -> fail")
-    public void execute(TriggerContext e) {
+    public boolean run(TriggerContext ctx) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected abstract Effect walk(TriggerContext e);
+    protected abstract Statement walk(TriggerContext e);
 
     /**
      * Sets the items inside this lists, and also modifies other fields, reflected through {@link #getFirst()},
-     * {@link #getLast()} and {@link Effect#getParent()}.
+     * {@link #getLast()} and {@link Statement#getParent()}.
      * @param items the items to set
      */
-    public final void setItems(List<Effect> items) {
+    public final void setItems(List<Statement> items) {
         this.items = items;
-        for (Effect item : items) {
+        for (Statement item : items) {
             item.setParent(this);
         }
         first = items.get(0);
@@ -61,10 +61,10 @@ public abstract class CodeSection extends Effect {
     /**
      * The items returned by this method are not representative of the execution of the code, meaning that all items
      * in the list may not be all executed. The list should rather be considered as a flat view of all the items in the
-     * section. For actually running them, use {@link Effect#runAll(Effect, TriggerContext)}
+     * section. For actually running them, use {@link Statement#runAll(Statement, TriggerContext)}
      * @return all items inside this section
      */
-    public List<Effect> getItems() {
+    public List<Statement> getItems() {
         return items;
     }
 
@@ -73,7 +73,7 @@ public abstract class CodeSection extends Effect {
      * no item after this section, in the latter case
      */
     @Nullable
-    protected final Effect getFirst() {
+    protected final Statement getFirst() {
         return first == null ? getNext() : first;
     }
 
@@ -82,7 +82,7 @@ public abstract class CodeSection extends Effect {
      * no item after this section, in the latter case
      */
     @Nullable
-    protected final Effect getLast() {
+    protected final Statement getLast() {
         return last == null ? getNext() : last;
     }
 }

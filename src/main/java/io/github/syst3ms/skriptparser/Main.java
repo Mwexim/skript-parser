@@ -27,7 +27,7 @@ public class Main {
             System.err.println("You need to provide a script name !");
             System.exit(1);
         }
-        File script = new File(".", args[0]);
+        File script = new File(args[0]);
         ScriptLoader.loadScript(script);
     }
 

@@ -1,16 +1,15 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.Skript;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
-import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.ExpressionList;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.LiteralList;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
+import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
@@ -47,7 +46,7 @@ public class SyntaxParser {
     @SuppressWarnings("ConstantConditions")
     public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class), true);
 
-    private static final RecentElementList<SyntaxInfo<? extends Effect>> recentEffects = new RecentElementList<>();
+    private static final RecentElementList<SyntaxInfo<? extends Statement>> recentEffects = new RecentElementList<>();
     private static final RecentElementList<SyntaxInfo<? extends CodeSection>> recentSections = new RecentElementList<>();
     private static final RecentElementList<SkriptEventInfo<?>> recentEvents = new RecentElementList<>();
     private static final RecentElementList<ExpressionInfo<?, ?>> recentExpressions = new RecentElementList<>();
@@ -211,21 +210,21 @@ public class SyntaxParser {
     }
 
     @Nullable
-    public static Effect parseEffect(String s) {
+    public static Statement parseEffect(String s) {
         if (s.isEmpty())
             return null;
-        for (SyntaxInfo<? extends Effect> recentEffect : recentEffects) {
-            Effect eff = matchEffectInfo(s, recentEffect);
+        for (SyntaxInfo<? extends Statement> recentEffect : recentEffects) {
+            Statement eff = matchEffectInfo(s, recentEffect);
             if (eff != null) {
                 recentEffects.moveToFirst(recentEffect);
                 return eff;
             }
         }
         // Let's not loop over the same elements again
-        List<SyntaxInfo<? extends Effect>> remainingEffects = SyntaxManager.getEffects();
+        List<SyntaxInfo<? extends Statement>> remainingEffects = SyntaxManager.getEffects();
         recentEffects.removeFrom(remainingEffects);
-        for (SyntaxInfo<? extends Effect> remainingEffect : remainingEffects) {
-            Effect eff = matchEffectInfo(s, remainingEffect);
+        for (SyntaxInfo<? extends Statement> remainingEffect : remainingEffects) {
+            Statement eff = matchEffectInfo(s, remainingEffect);
             if (eff != null) {
                 recentEffects.moveToFirst(remainingEffect);
                 return eff;
@@ -288,22 +287,22 @@ public class SyntaxParser {
     }
 
     @Nullable
-    private static Effect matchEffectInfo(String s, SyntaxInfo<? extends Effect> info) {
+    private static Statement matchEffectInfo(String s, SyntaxInfo<? extends Statement> info) {
         List<PatternElement> patterns = info.getPatterns();
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
             SkriptParser parser = new SkriptParser(element, currentContexts);
             if (element.match(s, 0, parser) != -1) {
                 try {
-                    Effect effect = info.getSyntaxClass().newInstance();
-                    if (!effect.init(
+                    Statement statement = info.getSyntaxClass().newInstance();
+                    if (!statement.init(
                         parser.getParsedExpressions().toArray(new Expression[0]),
                         i,
                         parser.toParseResult()
                     )) {
                         continue;
                     }
-                    return effect;
+                    return statement;
                 } catch (InstantiationException | IllegalAccessException e) {
                     // REMIND error
                 }

@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 @SuppressWarnings("unchecked")
 public class While extends CodeSection {
     @Nullable
-    private Effect actualNext;
+    private Statement actualNext;
     private Expression<Boolean> condition;
 
     static {
@@ -36,7 +36,7 @@ public class While extends CodeSection {
 
     @SuppressWarnings("PointlessBooleanExpression")
     @Override
-    protected Effect walk(TriggerContext e) {
+    protected Statement walk(TriggerContext e) {
         Boolean cond = condition.getSingle(e);
         if (cond == null) {
             return actualNext;
@@ -46,7 +46,7 @@ public class While extends CodeSection {
     }
 
     @Override
-    public Effect setNext(@Nullable Effect next) {
+    public Statement setNext(@Nullable Statement next) {
         this.actualNext = next;
         return this;
     }
@@ -55,7 +55,7 @@ public class While extends CodeSection {
      * @see Loop#getActualNext()
      */
     @Nullable
-    public Effect getActualNext() {
+    public Statement getActualNext() {
         return actualNext;
     }
 

@@ -4,9 +4,9 @@ import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileParser;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
-import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
+import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
@@ -156,12 +156,12 @@ public class SyntaxParserTest {
         elements = fileParser.parseFileLines("loop-test", lines, 0, 1);
         sec = (FileSection) elements.get(0);
         CodeSection loop = parseSection(sec);
-        assertTrue("The loop failed while running", Effect.runAll(loop, DUMMY));
+        assertTrue("The loop failed while running", Statement.runAll(loop, DUMMY));
         file = new File(classLoader.getResource("conditions.txt").getFile());
         lines = FileUtils.readAllLines(file);
         elements = fileParser.parseFileLines("conditions", lines, 0, 1);
         sec = (FileSection) elements.get(0);
-        Effect first = ScriptLoader.loadItems(sec).get(0);
-        assertTrue(Effect.runAll(first, DUMMY));
+        Statement first = ScriptLoader.loadItems(sec).get(0);
+        assertTrue(Statement.runAll(first, DUMMY));
     }
 }

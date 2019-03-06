@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * The base class for all elements that are described by a syntax
- * @see Effect
+ * @see Statement
  * @see Expression
  * @see CodeSection
  */

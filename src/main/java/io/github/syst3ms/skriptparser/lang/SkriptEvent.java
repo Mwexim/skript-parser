@@ -9,7 +9,7 @@ import java.util.List;
 public abstract class SkriptEvent implements SyntaxElement {
     public abstract boolean check(TriggerContext context);
 
-    List<Effect> loadSection(FileSection section) {
+    List<Statement> loadSection(FileSection section) {
         return ScriptLoader.loadItems(section);
     }
 }
