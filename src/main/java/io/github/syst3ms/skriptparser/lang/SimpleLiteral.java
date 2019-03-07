@@ -51,7 +51,7 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
         if (isSingle()) {
             return values[0].toString();
         } else {

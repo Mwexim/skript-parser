@@ -62,11 +62,11 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext e, boolean debug) {
+	public String toString(@Nullable TriggerContext ctx, boolean debug) {
 		if (pattern == 0) {
-			return "log " + first.toString(e, debug) + " of " + second.toString(e, debug);
+			return "log " + first.toString(ctx, debug) + " of " + second.toString(ctx, debug);
 		} else {
-			return "root " + first.toString(e, debug) + " of " + second.toString(e, debug);
+			return "root " + first.toString(ctx, debug) + " of " + second.toString(ctx, debug);
 		}
 	}
 }

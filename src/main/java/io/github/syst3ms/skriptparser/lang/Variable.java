@@ -227,9 +227,9 @@ public class Variable<T> implements Expression<T> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
-        if (e != null)
-            return TypeManager.toString((Object[]) getValues(e));
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        if (ctx != null)
+            return TypeManager.toString((Object[]) getValues(ctx));
         String name = this.name.toString(null, debug);
         return "{" + (local ? Variables.LOCAL_VARIABLE_TOKEN : "") + name.substring(1, name.length() - 1) + "}" + (debug ? "(as " + supertype.getSimpleName() + ")" : "");
     }

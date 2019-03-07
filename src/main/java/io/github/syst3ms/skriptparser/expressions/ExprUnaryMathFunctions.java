@@ -60,13 +60,13 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext e, boolean debug) {
+	public String toString(@Nullable TriggerContext ctx, boolean debug) {
 		/*
 		 * I know this is dirty as hell, but at least it's better than switching
 		 * over ALL of them
 		 */
 		String pat = PATTERNS.getPatterns()[pattern];
-		String expr = number.toString(e, debug);
+		String expr = number.toString(ctx, debug);
 		if (StringUtils.count(pat, "(", "[") == 0) {
 			return pat.replace("%number%", expr);
 		} else {

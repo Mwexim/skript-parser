@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.registration;
 import io.github.syst3ms.skriptparser.PatternParser;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
+import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.Statement;
@@ -33,7 +34,7 @@ import java.util.function.Function;
 public class SkriptRegistration {
     private SkriptAddon registerer;
     private MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
-    private List<SyntaxInfo<? extends Statement>> effects = new ArrayList<>();
+    private List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
     private List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
     private List<SkriptEventInfo<?>> events = new ArrayList<>();
     private List<Type<?>> types = new ArrayList<>();
@@ -61,7 +62,7 @@ public class SkriptRegistration {
         return expressions;
     }
 
-    public List<SyntaxInfo<? extends Statement>> getEffects() {
+    public List<SyntaxInfo<? extends Effect>> getEffects() {
         return effects;
     }
 
@@ -91,15 +92,15 @@ public class SkriptRegistration {
                 .register();
     }
 
-    public <C extends Statement> EffectRegistrar<C> newEffect(Class<C> c, String... patterns) {
+    public <C extends Effect> EffectRegistrar<C> newEffect(Class<C> c, String... patterns) {
         return new EffectRegistrar<>(c, patterns);
     }
 
-    public <C extends Statement> void addEffect(Class<C> c, String... patterns) {
+    public <C extends Effect> void addEffect(Class<C> c, String... patterns) {
         new EffectRegistrar<>(c, patterns).register();
     }
 
-    public <C extends Statement> void addEffect(Class<C> c, int priority, String... patterns) {
+    public <C extends Effect> void addEffect(Class<C> c, int priority, String... patterns) {
         new EffectRegistrar<>(c, patterns).setPriority(priority)
                 .register();
     }
@@ -251,7 +252,7 @@ public class SkriptRegistration {
         }
     }
 
-    public class EffectRegistrar<C extends Statement> extends SyntaxRegistrar<C> {
+    public class EffectRegistrar<C extends Effect> extends SyntaxRegistrar<C> {
 
         EffectRegistrar(Class<C> c, String... patterns) {
             super(c, patterns);

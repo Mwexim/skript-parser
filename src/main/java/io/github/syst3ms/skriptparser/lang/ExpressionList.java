@@ -88,7 +88,7 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < expressions.length; i++) {
             if (i > 0) {
@@ -99,7 +99,7 @@ public class ExpressionList<T> implements Expression<T> {
                 }
             }
             Expression<? extends T> expr = expressions[i];
-            sb.append(expr.toString(e, debug));
+            sb.append(expr.toString(ctx, debug));
         }
         return sb.toString();
     }

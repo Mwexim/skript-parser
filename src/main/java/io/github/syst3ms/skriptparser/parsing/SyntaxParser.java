@@ -3,8 +3,11 @@ package io.github.syst3ms.skriptparser.parsing;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
+import io.github.syst3ms.skriptparser.lang.Conditional;
+import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.ExpressionList;
+import io.github.syst3ms.skriptparser.lang.InlineCondition;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.LiteralList;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
@@ -27,8 +30,10 @@ import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.RecentElementList;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import io.github.syst3ms.skriptparser.variables.Variables;
+import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.plaf.nimbus.State;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,10 +51,11 @@ public class SyntaxParser {
     @SuppressWarnings("ConstantConditions")
     public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class), true);
 
-    private static final RecentElementList<SyntaxInfo<? extends Statement>> recentEffects = new RecentElementList<>();
+    private static final RecentElementList<SyntaxInfo<? extends Effect>> recentEffects = new RecentElementList<>();
     private static final RecentElementList<SyntaxInfo<? extends CodeSection>> recentSections = new RecentElementList<>();
     private static final RecentElementList<SkriptEventInfo<?>> recentEvents = new RecentElementList<>();
     private static final RecentElementList<ExpressionInfo<?, ?>> recentExpressions = new RecentElementList<>();
+    private static final RecentElementList<ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>> recentConditions = new RecentElementList<>();
 
     private static Class<? extends TriggerContext>[] currentContexts = new Class[]{};
 
@@ -96,6 +102,141 @@ public class SyntaxParser {
             }
         }
         // REMIND error
+        return null;
+    }
+
+    @Nullable
+    public static Expression<Boolean> parseBooleanExpression(String s, @MagicConstant(intValues = {0, 1, 2}) int conditional) {
+        // I swear this is the cleanest way to do it
+        if (s.equalsIgnoreCase("true")) {
+            return new SimpleLiteral<>(Boolean.class, true);
+        } else if (s.equalsIgnoreCase("false")) {
+            return new SimpleLiteral<>(Boolean.class, false);
+        }
+        if (s.startsWith("(") && s.endsWith(")") && StringUtils.findClosingIndex(s, '(', ')', 0) == s.length() - 1) {
+            s = s.substring(1, s.length() - 1);
+        }
+        for (ExpressionInfo<?, ?> info : recentExpressions) {
+            if (info.getReturnType().getType().getTypeClass() != Boolean.class)
+                continue;
+            Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE, currentContexts);
+            if (expr != null) {
+                switch (conditional) {
+                    case 0: // Can't be conditional
+                        if (ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
+                            // REMIND error
+                            return null;
+                        }
+                        break;
+                    case 2: // Has to be conditional
+                        if (!ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
+                            // REMIND error
+                            return null;
+                        }
+                    case 1: // Can be conditional
+                        if (ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
+                            recentConditions.moveToFirst((ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>) info);
+                        }
+                    default: // You just want me dead, don't you ?
+                        break;
+                }
+                recentExpressions.moveToFirst(info);
+                return expr;
+            }
+        }
+        // Let's not loop over the same elements again
+        List<ExpressionInfo<?, ?>> remainingExpressions = SyntaxManager.getAllExpressions();
+        recentExpressions.removeFrom(remainingExpressions);
+        for (ExpressionInfo<?, ?> info : remainingExpressions) {
+            if (info.getReturnType().getType().getTypeClass() != Boolean.class)
+                continue;
+            Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE, currentContexts);
+            if (expr != null) {
+                switch (conditional) {
+                    case 0: // Can't be conditional
+                        if (ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
+                            // REMIND error
+                            return null;
+                        }
+                        break;
+                    case 2: // Has to be conditional
+                        if (!ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
+                            // REMIND error
+                            return null;
+                        }
+                    case 1: // Can be conditional
+                        if (ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
+                            recentConditions.moveToFirst((ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>) info);
+                        }
+                    default: // You just want me dead, don't you ?
+                        break;
+                }
+                recentExpressions.moveToFirst(info);
+                return expr;
+            }
+        }
+        // REMIND error
+        return null;
+    }
+
+    @Nullable
+    public static InlineCondition parseInlineCondition(String s) {
+        if (s.isEmpty())
+            return null;
+        Expression<Boolean> cond = parseBooleanExpression(s, 2);
+        return cond != null ? new InlineCondition(cond) : null;
+    }
+
+    /**
+     * Tries to match an {@link ExpressionInfo} against the given {@link String} expression.
+     * @param <T> The return type of the {@link Expression}
+     * @param currentContextss the current
+     * @return the Expression instance if matching, or {@literal null} otherwise
+     */
+    @Nullable
+    private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType, Class<? extends TriggerContext>[] currentContextss) {
+        List<PatternElement> patterns = info.getPatterns();
+        PatternType<?> infoType = info.getReturnType();
+        Class<?> infoTypeClass = infoType.getType().getTypeClass();
+        Class<T> expectedTypeClass = expectedType.getType().getTypeClass();
+        if (!expectedTypeClass.isAssignableFrom(infoTypeClass) && !Converters.converterExists(infoTypeClass, expectedTypeClass))
+            return null;
+        for (int i = 0; i < patterns.size(); i++) {
+            PatternElement element = patterns.get(i);
+            SkriptParser parser = new SkriptParser(element, currentContextss);
+            if (element.match(s, 0, parser) != -1) {
+                try {
+                    Expression<? extends T> expression = (Expression<? extends T>) info.getSyntaxClass().newInstance();
+                    if (!expression.init(
+                            parser.getParsedExpressions().toArray(new Expression[0]),
+                            i,
+                            parser.toParseResult()
+                    )) {
+                        continue;
+                    }
+                    Class<?> expressionReturnType = expression.getReturnType();
+                    if (!expectedTypeClass.isAssignableFrom(expressionReturnType)) {
+                        Expression<?> converted = expression.convertExpression(expectedTypeClass);
+                        if (converted != null) {
+                            return (Expression<? extends T>) converted;
+                        } else {
+                            Type<?> type = TypeManager.getByClass(expressionReturnType);
+                            assert type != null;
+                            // REMIND error
+                            return null;
+                        }
+                    }
+                    if (!expression.isSingle() &&
+                        expectedType.isSingle()) {
+                        // REMIND error
+                        continue;
+                    }
+                    return expression;
+                } catch (InstantiationException | IllegalAccessException e) {
+                    // REMIND error
+                }
+            }
+        }
         return null;
     }
 
@@ -210,21 +351,21 @@ public class SyntaxParser {
     }
 
     @Nullable
-    public static Statement parseEffect(String s) {
+    public static Effect parseEffect(String s) {
         if (s.isEmpty())
             return null;
-        for (SyntaxInfo<? extends Statement> recentEffect : recentEffects) {
-            Statement eff = matchEffectInfo(s, recentEffect);
+        for (SyntaxInfo<? extends Effect> recentEffect : recentEffects) {
+            Effect eff = matchEffectInfo(s, recentEffect);
             if (eff != null) {
                 recentEffects.moveToFirst(recentEffect);
                 return eff;
             }
         }
         // Let's not loop over the same elements again
-        List<SyntaxInfo<? extends Statement>> remainingEffects = SyntaxManager.getEffects();
+        List<SyntaxInfo<? extends Effect>> remainingEffects = SyntaxManager.getEffects();
         recentEffects.removeFrom(remainingEffects);
-        for (SyntaxInfo<? extends Statement> remainingEffect : remainingEffects) {
-            Statement eff = matchEffectInfo(s, remainingEffect);
+        for (SyntaxInfo<? extends Effect> remainingEffect : remainingEffects) {
+            Effect eff = matchEffectInfo(s, remainingEffect);
             if (eff != null) {
                 recentEffects.moveToFirst(remainingEffect);
                 return eff;
@@ -234,75 +375,23 @@ public class SyntaxParser {
         return null;
     }
 
-    /**
-     * Tries to match an {@link ExpressionInfo} against the given {@link String} expression.
-     * @param <T> The return type of the {@link Expression}
-     * @param currentContextss the current 
-     * @return the Expression instance if matching, or {@literal null} otherwise
-     */
-    private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType, Class<? extends TriggerContext>[] currentContextss) {
-        List<PatternElement> patterns = info.getPatterns();
-        PatternType<?> infoType = info.getReturnType();
-        Class<?> infoTypeClass = infoType.getType().getTypeClass();
-        Class<T> expectedTypeClass = expectedType.getType().getTypeClass();
-        if (!expectedTypeClass.isAssignableFrom(infoTypeClass) && !Converters.converterExists(infoTypeClass, expectedTypeClass))
-            return null;
-        for (int i = 0; i < patterns.size(); i++) {
-            PatternElement element = patterns.get(i);
-            SkriptParser parser = new SkriptParser(element, currentContextss);
-            if (element.match(s, 0, parser) != -1) {
-                try {
-                    Expression<? extends T> expression = (Expression<? extends T>) info.getSyntaxClass().newInstance();
-                    if (!expression.init(
-                        parser.getParsedExpressions().toArray(new Expression[0]),
-                        i,
-                        parser.toParseResult()
-                    )) {
-                        continue;
-                    }
-                    Class<?> expressionReturnType = expression.getReturnType();
-                    if (!expectedTypeClass.isAssignableFrom(expressionReturnType)) {
-                        Expression<?> converted = expression.convertExpression(expectedTypeClass);
-                        if (converted != null) {
-                            return (Expression<? extends T>) converted;
-                        } else {
-                            Type<?> type = TypeManager.getByClass(expressionReturnType);
-                            assert type != null;
-                            // REMIND error
-                            return null;
-                        }
-                    }
-                    if (!expression.isSingle() &&
-                        expectedType.isSingle()) {
-                        // REMIND error
-                        continue;
-                    }
-                    return expression;
-                } catch (InstantiationException | IllegalAccessException e) {
-                    // REMIND error
-                }
-            }
-        }
-        return null;
-    }
-
     @Nullable
-    private static Statement matchEffectInfo(String s, SyntaxInfo<? extends Statement> info) {
+    private static Effect matchEffectInfo(String s, SyntaxInfo<? extends Effect> info) {
         List<PatternElement> patterns = info.getPatterns();
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
             SkriptParser parser = new SkriptParser(element, currentContexts);
             if (element.match(s, 0, parser) != -1) {
                 try {
-                    Statement statement = info.getSyntaxClass().newInstance();
-                    if (!statement.init(
+                    Effect eff = info.getSyntaxClass().newInstance();
+                    if (!eff.init(
                         parser.getParsedExpressions().toArray(new Expression[0]),
                         i,
                         parser.toParseResult()
                     )) {
                         continue;
                     }
-                    return statement;
+                    return eff;
                 } catch (InstantiationException | IllegalAccessException e) {
                     // REMIND error
                 }
@@ -312,47 +401,13 @@ public class SyntaxParser {
     }
 
     @Nullable
-    public static Expression<Boolean> parseBooleanExpression(String s, boolean canBeConditional) {
-        // I swear this is the cleanest way to do it
-        if (s.equalsIgnoreCase("true")) {
-            return new SimpleLiteral<>(Boolean.class, true);
-        } else if (s.equalsIgnoreCase("false")) {
-            return new SimpleLiteral<>(Boolean.class, false);
-        }
-        if (s.startsWith("(") && s.endsWith(")") && StringUtils.findClosingIndex(s, '(', ')', 0) == s.length() - 1) {
-            s = s.substring(1, s.length() - 1);
-        }
-        for (ExpressionInfo<?, ?> info : recentExpressions) {
-            if (info.getReturnType().getType().getTypeClass() != Boolean.class)
-                continue;
-            Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE, currentContexts);
-            if (expr != null) {
-                if (!canBeConditional && ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
-                    // REMIND error
-                    return null;
-                }
-                recentExpressions.moveToFirst(info);
-                return expr;
-            }
-        }
-        // Let's not loop over the same elements again
-        List<ExpressionInfo<?, ?>> remainingExpressions = SyntaxManager.getAllExpressions();
-        recentExpressions.removeFrom(remainingExpressions);
-        for (ExpressionInfo<?, ?> info : remainingExpressions) {
-            if (info.getReturnType().getType().getTypeClass() != Boolean.class)
-                continue;
-            Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE, currentContexts);
-            if (expr != null) {
-                if (!canBeConditional && ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
-                    // REMIND error
-                    return null;
-                }
-                recentExpressions.moveToFirst(info);
-                return expr;
-            }
-        }
-        // REMIND error
-        return null;
+    public static Statement parseStatement(String s) {
+        if (s.isEmpty())
+            return null;
+        Effect eff = parseEffect(s);
+        if (eff != null)
+            return eff;
+        return parseInlineCondition(s); // If that's null, we wanted to return null anyway
     }
 
     @Nullable

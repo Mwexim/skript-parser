@@ -61,7 +61,7 @@ public class LitMathConstants implements Expression<Number> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
         if (pattern == 0) {
             return "pi";
         } else if (pattern == 1) {

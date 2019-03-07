@@ -122,17 +122,17 @@ public class ExprLoopValue implements Expression<Object> {
 	}
 
 	@Override
-	public String toString(final @Nullable TriggerContext e, final boolean debug) {
-		if (e == null)
+	public String toString(final @Nullable TriggerContext ctx, final boolean debug) {
+		if (ctx == null)
 			return name;
 		if (isVariableLoop) {
 			@SuppressWarnings("unchecked")
-			final Map.Entry<String, Object> current = (Map.Entry<String, Object>) loop.getCurrent(e);
+			final Map.Entry<String, Object> current = (Map.Entry<String, Object>) loop.getCurrent(ctx);
 			if (current == null)
 				return TypeManager.NULL_REPRESENTATION;
 			return isIndex ? "\"" + current.getKey() + "\"" : TypeManager.toString(current.getValue());
 		}
-		return TypeManager.toString(loop.getCurrent(e));
+		return TypeManager.toString(loop.getCurrent(ctx));
 	}
 
 }

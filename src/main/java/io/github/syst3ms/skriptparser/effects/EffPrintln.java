@@ -32,7 +32,7 @@ public class EffPrintln extends Effect {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
-        return "println " + string.toString(e, debug);
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        return "println " + string.toString(ctx, debug);
     }
 }

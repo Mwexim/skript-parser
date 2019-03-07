@@ -28,9 +28,9 @@ public interface SyntaxElement {
     boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult);
 
     /**
-     * @param e the event
+     * @param ctx the event
      * @param debug whether to show additional information or not
      * @return a {@link String} that should aim to resemble what is written in the script as closely as possible
      */
-    String toString(@Nullable TriggerContext e, boolean debug);
+    String toString(@Nullable TriggerContext ctx, boolean debug);
 }

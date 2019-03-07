@@ -70,8 +70,8 @@ public class Loop extends CodeSection {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext e, boolean debug) {
-		return "loop " + expr.toString(e, debug);
+	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+		return "loop " + expr.toString(ctx, debug);
 	}
 
 	@Nullable

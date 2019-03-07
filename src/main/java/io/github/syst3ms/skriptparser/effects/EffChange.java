@@ -101,9 +101,9 @@ public class EffChange extends Effect {
     private boolean assignment;
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
-        String changedString = changed.toString(e, debug);
-        String changedWithString = changeWith != null ? changeWith.toString(e, debug) : "";
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        String changedString = changed.toString(ctx, debug);
+        String changedWithString = changeWith != null ? changeWith.toString(ctx, debug) : "";
         switch (mode) {
             case SET:
                 if (assignment) {

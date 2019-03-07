@@ -47,10 +47,10 @@ public abstract class WrapperExpression<T> implements Expression<T> {
             return null;
         return new ConvertedExpression<T, R>(expr, to, conv) {
             @Override
-            public String toString(@Nullable TriggerContext e, boolean debug) {
-                if (debug && e == null)
+            public String toString(@Nullable TriggerContext ctx, boolean debug) {
+                if (debug && ctx == null)
                     return "(" + WrapperExpression.this.toString(null, true) + ")->" + to.getName();
-                return WrapperExpression.this.toString(e, debug);
+                return WrapperExpression.this.toString(ctx, debug);
             }
         };
     }

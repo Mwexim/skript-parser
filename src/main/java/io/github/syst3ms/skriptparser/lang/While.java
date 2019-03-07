@@ -60,7 +60,7 @@ public class While extends CodeSection {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
-        return "while " + condition.toString(e, debug);
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        return "while " + condition.toString(ctx, debug);
     }
 }

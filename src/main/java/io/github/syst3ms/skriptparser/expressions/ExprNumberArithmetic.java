@@ -267,8 +267,8 @@ public class ExprNumberArithmetic implements Expression<Number> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
-        return first.toString(e, debug) + " " + op + " " + second.toString(e, debug);
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        return first.toString(ctx, debug) + " " + op + " " + second.toString(ctx, debug);
     }
 
     @SuppressWarnings("ConstantConditions")

@@ -28,7 +28,7 @@ public class Trigger extends CodeSection {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
-        return event.toString(e, debug);
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        return event.toString(ctx, debug);
     }
 }

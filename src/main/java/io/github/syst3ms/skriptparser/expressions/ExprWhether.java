@@ -31,7 +31,7 @@ public class ExprWhether implements Expression<Boolean> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
-        return "whether " + condition.toString(e, debug);
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        return "whether " + condition.toString(ctx, debug);
     }
 }

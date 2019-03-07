@@ -201,13 +201,15 @@ public class CondExprCompare extends ConditionalExpression {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
         String s;
         Expression<?> third = this.third;
         if (third == null) {
-            s = first.toString(e, debug) + " is " + (isNegated() ? "not " : "") + relation + " " + second.toString(e, debug);
+            s = first.toString(ctx, debug) + " is " + (isNegated() ? "not " : "") + relation + " " + second.toString(
+                    ctx, debug);
         } else {
-            s = first.toString(e, debug) + " is " + (isNegated() ? "not " : "") + "between " + second.toString(e, debug) + " and " + third.toString(e, debug);
+            s = first.toString(ctx, debug) + " is " + (isNegated() ? "not " : "") + "between " + second.toString(ctx, debug) + " and " + third.toString(
+                    ctx, debug);
         }
         if (debug) {
             s += " (comparator: " + comp + ")";

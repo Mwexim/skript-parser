@@ -26,7 +26,7 @@ public class ScriptLoadEvent extends SkriptEvent {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
         return "script loading";
     }
 }

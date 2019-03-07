@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.lang.CodeSection;
+import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.util.MultiMap;
@@ -20,7 +21,7 @@ public class SyntaxManager {
         }
     };
     private static MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
-    private static List<SyntaxInfo<? extends Statement>> effects = new ArrayList<>();
+    private static List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
     private static List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
     private static List<SkriptEventInfo<?>> triggers = new ArrayList<>();
 
@@ -62,7 +63,7 @@ public class SyntaxManager {
         return null;
     }
 
-    public static List<SyntaxInfo<? extends Statement>> getEffects() {
+    public static List<SyntaxInfo<? extends Effect>> getEffects() {
         return effects;
     }
 

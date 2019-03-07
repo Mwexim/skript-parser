@@ -72,7 +72,7 @@ public class ScriptLoader {
                 String content = sec.getLineContent();
                 if (content.regionMatches(true, 0, "if ", 0, "if ".length())) {
                     String toParse = content.substring("if ".length());
-                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, true);
+                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, 1);
                     if (booleanExpression == null) {
                         continue;
                     }
@@ -85,7 +85,7 @@ public class ScriptLoader {
                     }
 
                     String toParse = content.substring("else if ".length());
-                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, true);
+                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, 1);
                     if (booleanExpression == null) {
                         continue;
                     }
@@ -109,7 +109,7 @@ public class ScriptLoader {
                 }
             } else {
                 String content = element.getLineContent();
-                Statement eff = SyntaxParser.parseEffect(content);
+                Statement eff = SyntaxParser.parseStatement(content);
                 if (eff == null) {
                     continue;
                 }

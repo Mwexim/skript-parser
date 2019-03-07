@@ -54,10 +54,10 @@ public class ConvertedExpression<F, T> implements Expression<T> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
-        if (debug && e == null)
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        if (debug && ctx == null)
             return "(" + source.toString(null, true) + " >> " + converter + ": " + source.getReturnType().getName() + "->" + to.getName() + ")";
-        return source.toString(e, debug);
+        return source.toString(ctx, debug);
     }
 
     @Override

@@ -56,15 +56,15 @@ public class ExprBooleanOperators implements Expression<Boolean> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
         if (pattern == 0) {
-            return "not " + first.toString(e, debug);
+            return "not " + first.toString(ctx, debug);
         } else {
             assert second != null;
             if (pattern == 1) {
-                return first.toString(e, debug) + " or " + second.toString(e, debug);
+                return first.toString(ctx, debug) + " or " + second.toString(ctx, debug);
             } else {
-                return first.toString(e, debug) + " and " + second.toString(e, debug);
+                return first.toString(ctx, debug) + " and " + second.toString(ctx, debug);
             }
         }
     }

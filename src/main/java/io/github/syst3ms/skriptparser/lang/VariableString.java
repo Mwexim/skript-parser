@@ -148,13 +148,13 @@ public class VariableString implements Expression<String> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
         if (simple)
             return "\"" + data[0] + "\"";
         StringBuilder sb = new StringBuilder("\"");
         for (Object o : data) {
             if (o instanceof Expression) {
-                sb.append('%').append(((Expression) o).toString(e, debug)).append('%');
+                sb.append('%').append(((Expression) o).toString(ctx, debug)).append('%');
             } else {
                 sb.append(o);
             }
