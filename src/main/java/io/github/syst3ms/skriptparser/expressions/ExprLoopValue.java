@@ -103,11 +103,11 @@ public class ExprLoopValue implements Expression<Object> {
 	}
 
 	@Override
-	public Object[] getValues(TriggerContext e) {
+	public Object[] getValues(TriggerContext ctx) {
 		Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
 		if (isVariableLoop) {
 			@SuppressWarnings("unchecked")
-			final Map.Entry<String, Object> current = (Map.Entry<String, Object>) loop.getCurrent(e);
+			final Map.Entry<String, Object> current = (Map.Entry<String, Object>) loop.getCurrent(ctx);
 			if (current == null) {
 				return new Object[0];
 			}
@@ -117,7 +117,7 @@ public class ExprLoopValue implements Expression<Object> {
 			one[0] = current.getValue();
 			return one;
 		}
-		one[0] = loop.getCurrent(e);
+		one[0] = loop.getCurrent(ctx);
 		return one;
 	}
 

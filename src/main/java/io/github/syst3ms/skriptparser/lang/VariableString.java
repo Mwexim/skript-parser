@@ -118,8 +118,8 @@ public class VariableString implements Expression<String> {
     }
 
     @Override
-    public String[] getValues(TriggerContext e) {
-        return new String[]{toString(e)};
+    public String[] getValues(TriggerContext ctx) {
+        return new String[]{toString(ctx)};
     }
 
     @Override

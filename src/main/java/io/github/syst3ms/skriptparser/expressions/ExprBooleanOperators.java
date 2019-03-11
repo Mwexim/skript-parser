@@ -36,15 +36,15 @@ public class ExprBooleanOperators implements Expression<Boolean> {
     }
 
     @Override
-    public Boolean[] getValues(TriggerContext e) {
+    public Boolean[] getValues(TriggerContext ctx) {
         assert pattern > 0 || second == null;
-        Boolean f = first.getSingle(e);
+        Boolean f = first.getSingle(ctx);
         if (f == null)
             return new Boolean[0];
         if (pattern == 0) {
             return new Boolean[]{!f};
         } else {
-            Boolean s = second.getSingle(e);
+            Boolean s = second.getSingle(ctx);
             if (s == null)
                 return new Boolean[0];
             if (pattern == 1) {

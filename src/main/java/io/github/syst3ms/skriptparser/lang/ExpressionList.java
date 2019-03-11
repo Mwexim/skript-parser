@@ -79,10 +79,10 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
-    public T[] getValues(TriggerContext e) {
+    public T[] getValues(TriggerContext ctx) {
         List<T> values = new ArrayList<>();
         for (Expression<? extends T> expression : expressions) {
-            Collections.addAll(values, expression.getValues(e));
+            Collections.addAll(values, expression.getValues(ctx));
         }
         return values.toArray((T[]) Array.newInstance(returnType, values.size()));
     }

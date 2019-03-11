@@ -404,10 +404,12 @@ public class SyntaxParser {
     public static Statement parseStatement(String s) {
         if (s.isEmpty())
             return null;
-        Effect eff = parseEffect(s);
-        if (eff != null)
-            return eff;
-        return parseInlineCondition(s); // If that's null, we wanted to return null anyway
+        if (s.regionMatches(true, 0, "continue if ", 0, "continue if ".length())) { // startsWithIgnoreCase
+            InlineCondition cond = parseInlineCondition(s.substring("continue if ".length(), s.length()));
+            if (cond != null)
+                return cond;
+        }
+        return parseEffect(s); // If that's null, we wanted to return null anyway
     }
 
     @Nullable

@@ -18,14 +18,15 @@ public class EffPrintln extends Effect {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
         string = (Expression<String>) expressions[0];
         return true;
     }
 
     @Override
-    public void execute(TriggerContext e) {
-        String str = string.getSingle(e);
+    public void execute(TriggerContext ctx) {
+        String str = string.getSingle(ctx);
         if (str == null)
             return;
         System.out.println(str);

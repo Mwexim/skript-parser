@@ -51,9 +51,7 @@ public class EffChange extends Effect {
         this.mode = mode;
         if (changeWith == null) {
             assert mode == ChangeMode.DELETE || mode == ChangeMode.RESET;
-            if (changed.acceptsChange(mode) == null) {
-                return false;
-            }
+            return changed.acceptsChange(mode) != null;
         } else {
             Class<?> changeType = changeWith.getReturnType();
             Class<?>[] acceptance = changed.acceptsChange(mode);
@@ -135,11 +133,11 @@ public class EffChange extends Effect {
     }
 
     @Override
-    public void execute(TriggerContext e) {
+    public void execute(TriggerContext ctx) {
         if (changeWith == null) {
-            changed.change(e, new Object[0], mode);
+            changed.change(ctx, new Object[0], mode);
         } else {
-            changed.change(e, changeWith.getValues(e), mode);
+            changed.change(ctx, changeWith.getValues(ctx), mode);
         }
     }
 }

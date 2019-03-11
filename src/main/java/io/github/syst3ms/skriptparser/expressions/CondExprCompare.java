@@ -171,12 +171,12 @@ public class CondExprCompare extends ConditionalExpression {
      * neither a nor b # x or y === a !# x or y && b !# x or y			// nor = and
      */
     @Override
-    public boolean check(TriggerContext e) {
+    public boolean check(TriggerContext ctx) {
         Expression<?> third = this.third;
         return first.check(
-            e,
+                ctx,
             o1 -> second.check(
-                e,
+                    ctx,
                 o2 -> {
                     if (third == null) {
                         return relation.is(comp != null ?
@@ -184,7 +184,7 @@ public class CondExprCompare extends ConditionalExpression {
                                                : Comparators.compare(o1, o2));
                     }
                     return third.check(
-                        e,
+                            ctx,
                         o3 -> relation == Relation.NOT_EQUAL ^
                               (Relation.GREATER_OR_EQUAL.is(comp != null
                                                                 ? comp.apply(o1, o2)

@@ -93,9 +93,9 @@ public class ExprRange implements Expression<Object> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Object[] getValues(TriggerContext e) {
-        Object f = from.getSingle(e);
-        Object t = to.getSingle(e);
+    public Object[] getValues(TriggerContext ctx) {
+        Object f = from.getSingle(ctx);
+        Object t = to.getSingle(ctx);
         if (f == null || t == null) {
             return new Object[0];
         }

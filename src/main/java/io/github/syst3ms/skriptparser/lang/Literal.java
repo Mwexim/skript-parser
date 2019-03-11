@@ -16,7 +16,7 @@ public interface Literal<T> extends Expression<T> {
     }
 
     @Override
-    default T[] getValues(TriggerContext e) {
+    default T[] getValues(TriggerContext ctx) {
         return getValues();
     }
 }

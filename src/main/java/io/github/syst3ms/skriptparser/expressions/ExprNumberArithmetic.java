@@ -252,8 +252,8 @@ public class ExprNumberArithmetic implements Expression<Number> {
     }
 
     @Override
-    public Number[] getValues(TriggerContext e) {
-        Number n1 = first.getSingle(e), n2 = second.getSingle(e);
+    public Number[] getValues(TriggerContext ctx) {
+        Number n1 = first.getSingle(ctx), n2 = second.getSingle(ctx);
         if (n1 == null)
             n1 = 0;
         if (n2 == null)

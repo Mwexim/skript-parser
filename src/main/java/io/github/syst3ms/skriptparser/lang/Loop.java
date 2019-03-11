@@ -47,24 +47,23 @@ public class Loop extends CodeSection {
 	}
 
 	@Override
-	@Nullable
-	protected Statement walk(TriggerContext e) {
-		Iterator<?> iter = currentIter.get(e);
+    protected Statement walk(TriggerContext ctx) {
+		Iterator<?> iter = currentIter.get(ctx);
 		if (iter == null) {
-			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(e) : expr.iterator(e);
+			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(ctx) : expr.iterator(ctx);
 			if (iter != null) {
 				if (iter.hasNext())
-					currentIter.put(e, iter);
+					currentIter.put(ctx, iter);
 				else
 					iter = null;
 			}
 		}
 		if (iter == null || !iter.hasNext()) {
 			if (iter != null)
-				currentIter.remove(e); // a loop inside another loop can be called multiple times in the same event
+				currentIter.remove(ctx); // a loop inside another loop can be called multiple times in the same event
 			return actualNext;
 		} else {
-			current.put(e, iter.next());
+			current.put(ctx, iter.next());
 			return getFirst();
 		}
 	}

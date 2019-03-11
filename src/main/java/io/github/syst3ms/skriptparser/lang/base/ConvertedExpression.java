@@ -44,8 +44,8 @@ public class ConvertedExpression<F, T> implements Expression<T> {
     }
 
     @Override
-    public T[] getValues(TriggerContext e) {
-        return Converters.convert(source.getValues(e), to, converter);
+    public T[] getValues(TriggerContext ctx) {
+        return Converters.convert(source.getValues(ctx), to, converter);
     }
 
     @Override

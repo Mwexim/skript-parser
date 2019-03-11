@@ -22,10 +22,10 @@ public interface Expression<T> extends SyntaxElement {
     /**
      * Retrieves all values of this Expression. This should not return null ! Doing so will most likely throw a NPE in
      * the next few instructions.
-     * @param e the event
+     * @param ctx the event
      * @return an array of the values
      */
-    T[] getValues(TriggerContext e);
+    T[] getValues(TriggerContext ctx);
 
     /*
      * This is staying until we figure out a better way to implement this

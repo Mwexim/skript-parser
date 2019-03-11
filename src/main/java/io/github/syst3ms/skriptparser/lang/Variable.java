@@ -79,10 +79,10 @@ public class Variable<T> implements Expression<T> {
     }
 
     @Override
-    public T[] getValues(TriggerContext e) {
+    public T[] getValues(TriggerContext ctx) {
         if(list)
-            return getConvertedArray(e);
-        T o = getConverted(e);
+            return getConvertedArray(ctx);
+        T o = getConverted(ctx);
         if (o == null) {
             return (T[]) Array.newInstance(supertype, 0);
         }

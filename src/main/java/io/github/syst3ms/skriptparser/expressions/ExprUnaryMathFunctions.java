@@ -52,8 +52,8 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 	}
 
 	@Override
-	public Number[] getValues(TriggerContext e) {
-		Number num = number.getSingle(e);
+	public Number[] getValues(TriggerContext ctx) {
+		Number num = number.getSingle(ctx);
 		if (num == null)
 			return new Number[0];
 		return new Number[]{PATTERNS.getInfo(pattern).apply(num)};

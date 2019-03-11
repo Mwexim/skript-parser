@@ -87,12 +87,11 @@ public abstract class Statement implements SyntaxElement {
     /**
      * By default, runs {@link #run(TriggerContext)} ; returns {@link #getNext()} if it returns true, or {@code null} otherwise.
      * Note : if this method is overridden, then the implementation of {@linkplain #run(TriggerContext)} doesn't matter.
-     * @param e the event
+     * @param ctx the event
      * @return the next item to be ran, or {@code null} if this is the last item to be executed
      */
-    @Nullable
-    protected Statement walk(TriggerContext e) {
-        boolean proceed = run(e);
+    protected Statement walk(TriggerContext ctx) {
+        boolean proceed = run(ctx);
         if (proceed) {
             return getNext();   
         } else if (parent != null) {

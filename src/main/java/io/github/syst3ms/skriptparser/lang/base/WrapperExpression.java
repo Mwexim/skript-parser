@@ -56,8 +56,8 @@ public abstract class WrapperExpression<T> implements Expression<T> {
     }
 
     @Override
-    public T[] getValues(TriggerContext e) {
-        return expr.getValues(e);
+    public T[] getValues(TriggerContext ctx) {
+        return expr.getValues(ctx);
     }
 
     @Override

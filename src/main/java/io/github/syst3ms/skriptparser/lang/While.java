@@ -36,8 +36,8 @@ public class While extends CodeSection {
 
     @SuppressWarnings("PointlessBooleanExpression")
     @Override
-    protected Statement walk(TriggerContext e) {
-        Boolean cond = condition.getSingle(e);
+    protected Statement walk(TriggerContext ctx) {
+        Boolean cond = condition.getSingle(ctx);
         if (cond == null) {
             return actualNext;
         } else {

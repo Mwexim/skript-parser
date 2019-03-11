@@ -21,8 +21,8 @@ public class ScriptLoadEvent extends SkriptEvent {
     }
 
     @Override
-    public boolean check(TriggerContext context) {
-        return context instanceof ScriptLoadContext;
+    public boolean check(TriggerContext ctx) {
+        return ctx instanceof ScriptLoadContext;
     }
 
     @Override

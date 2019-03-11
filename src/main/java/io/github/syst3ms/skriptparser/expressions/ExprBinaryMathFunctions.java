@@ -52,9 +52,9 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 	}
 
 	@Override
-	public Number[] getValues(TriggerContext e) {
-		Number f = first.getSingle(e);
-		Number s = second.getSingle(e);
+	public Number[] getValues(TriggerContext ctx) {
+		Number f = first.getSingle(ctx);
+		Number s = second.getSingle(ctx);
 		if (f == null || s == null)
 			return new Number[0];
 		BinaryOperator<Number> operator = PATTERNS.getInfo(pattern);

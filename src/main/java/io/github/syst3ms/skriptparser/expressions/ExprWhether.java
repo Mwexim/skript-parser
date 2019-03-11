@@ -26,8 +26,8 @@ public class ExprWhether implements Expression<Boolean> {
     }
 
     @Override
-    public Boolean[] getValues(TriggerContext e) {
-        return condition.getValues(e);
+    public Boolean[] getValues(TriggerContext ctx) {
+        return condition.getValues(ctx);
     }
 
     @Override

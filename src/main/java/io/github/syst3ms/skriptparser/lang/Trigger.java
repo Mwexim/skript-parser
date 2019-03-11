@@ -23,7 +23,7 @@ public class Trigger extends CodeSection {
     }
 
     @Override
-    protected Statement walk(TriggerContext e) {
+    protected Statement walk(TriggerContext ctx) {
         return getFirst();
     }
 

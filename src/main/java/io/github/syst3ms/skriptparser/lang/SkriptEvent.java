@@ -7,7 +7,7 @@ import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import java.util.List;
 
 public abstract class SkriptEvent implements SyntaxElement {
-    public abstract boolean check(TriggerContext context);
+    public abstract boolean check(TriggerContext ctx);
 
     List<Statement> loadSection(FileSection section) {
         return ScriptLoader.loadItems(section);
