@@ -2,7 +2,7 @@ package io.github.syst3ms.skriptparser.lang.base;
 
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -49,7 +49,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
     }
 
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         throw new UnsupportedOperationException();
     }
 

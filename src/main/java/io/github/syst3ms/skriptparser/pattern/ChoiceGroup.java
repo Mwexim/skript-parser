@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.pattern;
 
-import io.github.syst3ms.skriptparser.parsing.SkriptParser;
+import io.github.syst3ms.skriptparser.parsing.MatchContext;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +40,7 @@ public class ChoiceGroup implements PatternElement {
     }
 
     @Override
-    public int match(String s, int index, SkriptParser parser) {
+    public int match(String s, int index, MatchContext parser) {
         if (parser.getOriginalElement().equals(this))
             parser.advanceInPattern();
         for (ChoiceElement choice : choices) {

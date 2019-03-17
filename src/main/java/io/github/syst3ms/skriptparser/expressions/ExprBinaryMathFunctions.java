@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
@@ -44,7 +44,7 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		pattern = matchedPattern;
 		first = (Expression<Number>) expressions[0];
 		second = (Expression<Number>) expressions[1];

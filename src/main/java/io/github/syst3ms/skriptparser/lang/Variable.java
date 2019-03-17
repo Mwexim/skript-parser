@@ -2,7 +2,7 @@ package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.classes.ChangeMode;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
@@ -46,20 +46,19 @@ public class Variable<T> implements Expression<T> {
         this.supertype = ClassUtils.getCommonSuperclass(this.type);
     }
 
-    @Nullable
-    private Object getRaw(TriggerContext e) {
-        String n = name.toString(e);
+    private Object getRaw(TriggerContext ctx) {
+        String n = name.toString(ctx);
         if (n.endsWith(Variables.LIST_SEPARATOR + "*") != list) // prevents e.g. {%expr%} where "%expr%" ends with "::*" from returning a Map
             return null;
-        Object val = Variables.getVariable(n, e, local);
+        Object val = Variables.getVariable(n, ctx, local);
         if (val == null)
-            return Variables.getVariable((local ? Variables.LOCAL_VARIABLE_TOKEN : "") + name.defaultVariableName(), e, false);
+            return Variables.getVariable((local ? Variables.LOCAL_VARIABLE_TOKEN : "") + name.defaultVariableName(),
+                    ctx, false);
         return val;
     }
 
-    @Nullable
-    private Object get(TriggerContext e) {
-        Object val = getRaw(e);
+    private Object get(TriggerContext ctx) {
+        Object val = getRaw(ctx);
         if (!list)
             return val;
         if (val == null)
@@ -91,17 +90,16 @@ public class Variable<T> implements Expression<T> {
         return one;
     }
 
-    @Nullable
-    private T getConverted(TriggerContext e) {
-        return (T) Converters.convert(get(e), type);
+    private T getConverted(TriggerContext ctx) {
+        return (T) Converters.convert(get(ctx), type);
     }
 
-    private T[] getConvertedArray(TriggerContext e) {
-        return Converters.convertArray((Object[]) get(e), (Class<T>) type, (Class<T>) supertype);
+    private T[] getConvertedArray(TriggerContext ctx) {
+        return Converters.convertArray((Object[]) get(ctx), (Class<T>) type, (Class<T>) supertype);
     }
 
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         throw new UnsupportedOperationException();
     }
 
@@ -119,12 +117,12 @@ public class Variable<T> implements Expression<T> {
         return s.equalsIgnoreCase("index");
     }
 
-    public Iterator<T> iterator(TriggerContext e) {
+    public Iterator<T> iterator(TriggerContext ctx) {
         if (!list)
             throw new SkriptRuntimeException("");
-        String n = this.name.toString(e);
+        String n = this.name.toString(ctx);
         String name = n.substring(0, n.length() - 1);
-        Object val = Variables.getVariable(name + "*", e, local);
+        Object val = Variables.getVariable(name + "*", ctx, local);
         if (val == null)
             return Collections.emptyIterator();
         assert val instanceof TreeMap;
@@ -145,7 +143,7 @@ public class Variable<T> implements Expression<T> {
                 while (keys.hasNext()) {
                     key = keys.next();
                     if (key != null) {
-                        next = (T) Converters.convert(Variables.getVariable(name + key, e, local), type);
+                        next = (T) Converters.convert(Variables.getVariable(name + key, ctx, local), type);
                         if (next != null && !(next instanceof TreeMap))
                             return true;
                     }
@@ -172,16 +170,15 @@ public class Variable<T> implements Expression<T> {
     }
 
     /**
-     * @param e the event
+     * @param ctx the event
      * @return an {@link Iterator} that iterates over pairs of indexes and values
      */
-    @Nullable
-    public Iterator<Pair<String, Object>> variablesIterator(TriggerContext e) {
+    public Iterator<Pair<String, Object>> variablesIterator(TriggerContext ctx) {
         if (!list)
             throw new SkriptRuntimeException("Looping a non-list variable");
-        String n = this.name.toString(e);
+        String n = this.name.toString(ctx);
         String name = n.substring(0, n.length() - 1);
-        Object val = Variables.getVariable(name + "*", e, local);
+        Object val = Variables.getVariable(name + "*", ctx, local);
         if (val == null)
             return Collections.emptyIterator();
         assert val instanceof TreeMap;
@@ -201,7 +198,7 @@ public class Variable<T> implements Expression<T> {
                 while (keys.hasNext()) {
                     key = keys.next();
                     if (key != null) {
-                        next = Variables.getVariable(name + key, e, local) ;
+                        next = Variables.getVariable(name + key, ctx, local) ;
                         if (next != null && !(next instanceof TreeMap))
                             return true;
                     }
@@ -244,15 +241,15 @@ public class Variable<T> implements Expression<T> {
         return new Variable<>(name, local, list, to);
     }
 
-    private void set(TriggerContext e, @Nullable Object value) {
-        Variables.setVariable(name.toString(e), value, e, local);
+    private void set(TriggerContext ctx, @Nullable Object value) {
+        Variables.setVariable(name.toString(ctx), value, ctx, local);
     }
 
-    private void setIndex(TriggerContext e, String index, @Nullable Object value) {
+    private void setIndex(TriggerContext ctx, String index, @Nullable Object value) {
         assert list;
-        String s = name.toString(e);
+        String s = name.toString(ctx);
         assert s.endsWith("::*") : s + "; " + name;
-        Variables.setVariable(s.substring(0, s.length() - 1) + index, value, e, local);
+        Variables.setVariable(s.substring(0, s.length() - 1) + index, value, ctx, local);
     }
 
     @Override
@@ -264,12 +261,12 @@ public class Variable<T> implements Expression<T> {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public void change(TriggerContext e, Object[] changeWith, ChangeMode mode) throws UnsupportedOperationException {
+    public void change(TriggerContext ctx, Object[] changeWith, ChangeMode mode) throws UnsupportedOperationException {
         switch (mode) {
             case DELETE:
                 if (list) {
                     ArrayList<String> rem = new ArrayList<>();
-                    Map<String, Object> o = (Map<String, Object>) getRaw(e);
+                    Map<String, Object> o = (Map<String, Object>) getRaw(ctx);
                     if (o == null)
                         return;
                     for (Map.Entry<String, Object> i : o.entrySet()) {
@@ -279,32 +276,32 @@ public class Variable<T> implements Expression<T> {
                     }
                     for (String r : rem) {
                         assert r != null;
-                        setIndex(e, r, null);
+                        setIndex(ctx, r, null);
                     }
                 }
 
-                set(e, null);
+                set(ctx, null);
                 break;
             case SET:
                 assert changeWith.length > 0;
                 if (list) {
-                    set(e, null);
+                    set(ctx, null);
                     int i = 1;
                     for (Object d : changeWith) {
                         if (d instanceof Object[]) {
                             for (int j = 0; j < ((Object[]) d).length; j++)
-                                setIndex(e, i + Variables.LIST_SEPARATOR + j, ((Object[]) d)[j]);
+                                setIndex(ctx, i + Variables.LIST_SEPARATOR + j, ((Object[]) d)[j]);
                         } else {
-                            setIndex(e, String.valueOf(i), d);
+                            setIndex(ctx, String.valueOf(i), d);
                         }
                         i++;
                     }
                 } else {
-                    set(e, changeWith[0]);
+                    set(ctx, changeWith[0]);
                 }
                 break;
             case RESET:
-                Object x = getRaw(e);
+                Object x = getRaw(ctx);
                 if (x == null)
                     return;
                 for (Object o : x instanceof Map ? ((Map<?, ?>) x).values() : Collections.singletonList(x)) {
@@ -324,7 +321,7 @@ public class Variable<T> implements Expression<T> {
             case REMOVE_ALL:
                 assert changeWith.length > 0;
                 if (list) {
-                    Map<String, Object> o = (Map<String, Object>) getRaw(e);
+                    Map<String, Object> o = (Map<String, Object>) getRaw(ctx);
                     if (mode == ChangeMode.REMOVE) {
                         if (o == null)
                             return;
@@ -339,7 +336,7 @@ public class Variable<T> implements Expression<T> {
                         }
                         for (String r : rem) {
                             assert r != null;
-                            setIndex(e, r, null);
+                            setIndex(ctx, r, null);
                         }
                     } else if (mode == ChangeMode.REMOVE_ALL) {
                         if (o == null)
@@ -353,7 +350,7 @@ public class Variable<T> implements Expression<T> {
                         }
                         for (String r : rem) {
                             assert r != null;
-                            setIndex(e, r, null);
+                            setIndex(ctx, r, null);
                         }
                     } else {
                         assert mode == ChangeMode.ADD;
@@ -362,12 +359,12 @@ public class Variable<T> implements Expression<T> {
                             if (o != null)
                                 while (o.containsKey(String.valueOf(i)))
                                     i++;
-                            setIndex(e, String.valueOf(i), d);
+                            setIndex(ctx, String.valueOf(i), d);
                             i++;
                         }
                     }
                 } else {
-                    Object o = get(e);
+                    Object o = get(ctx);
                     Type<?> type;
                     if (o == null) {
                         type = null;
@@ -401,7 +398,7 @@ public class Variable<T> implements Expression<T> {
                             }
                         }
                         if (changed)
-                            set(e, o);
+                            set(ctx, o);
                     } else if ((changer = type.getDefaultChanger()) != null && (cs = changer.acceptsChange(mode)) != null) {
                         Object[] one = (Object[]) Array.newInstance(o.getClass(), 1);
                         one[0] = o;

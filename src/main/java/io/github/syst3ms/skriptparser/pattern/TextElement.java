@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.pattern;
 
-import io.github.syst3ms.skriptparser.parsing.SkriptParser;
+import io.github.syst3ms.skriptparser.parsing.MatchContext;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -19,11 +19,11 @@ public class TextElement implements PatternElement {
 
     @Override
     public boolean equals(@Nullable Object obj) {
-        return obj != null && obj instanceof TextElement && text.equalsIgnoreCase(((TextElement) obj).text);
+        return obj instanceof TextElement && text.equalsIgnoreCase(((TextElement) obj).text);
     }
 
     @Override
-    public int match(String s, int index, SkriptParser parser) {
+    public int match(String s, int index, MatchContext parser) {
         int i = index;
         if (parser.getOriginalElement().equals(this))
             parser.advanceInPattern();

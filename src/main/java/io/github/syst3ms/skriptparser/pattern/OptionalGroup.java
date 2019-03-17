@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.pattern;
 
-import io.github.syst3ms.skriptparser.parsing.SkriptParser;
+import io.github.syst3ms.skriptparser.parsing.MatchContext;
 
 /**
  * A group containing an optional {@link PatternElement}, that can be omitted
@@ -29,7 +29,7 @@ public class OptionalGroup implements PatternElement {
     }
 
     @Override
-    public int match(String s, int index, SkriptParser parser) {
+    public int match(String s, int index, MatchContext parser) {
         if (parser.getOriginalElement().equals(this))
             parser.advanceInPattern();
         int m = element.match(s, index, parser);

@@ -1,6 +1,0 @@
-# The purpose of this file is to test multiline syntax
-First with \
-no indents
-Opening a section:
-    now with \
-    some indents

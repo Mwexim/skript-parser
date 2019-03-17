@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,8 +42,8 @@ public class LitMathConstants implements Expression<Number> {
     }
 
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
-        pattern = parseResult.getParseMark();
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        pattern = parseContext.getParseMark();
         return true;
     }
 

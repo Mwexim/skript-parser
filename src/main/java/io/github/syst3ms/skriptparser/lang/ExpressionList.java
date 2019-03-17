@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.event.TriggerContext;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,7 +58,7 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         throw new UnsupportedOperationException();
     }
 
@@ -123,12 +123,12 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
-    public Iterator<? extends T> iterator(TriggerContext e) {
+    public Iterator<? extends T> iterator(TriggerContext ctx) {
         if (!and) {
             List<Expression<? extends T>> shuffle = Arrays.asList(expressions);
             Collections.shuffle(shuffle);
             for (Expression<? extends T> expression : shuffle) {
-                Iterator<? extends T> it = expression.iterator(e);
+                Iterator<? extends T> it = expression.iterator(ctx);
                 if (it.hasNext())
                     return it;
             }
@@ -143,7 +143,7 @@ public class ExpressionList<T> implements Expression<T> {
             public boolean hasNext() {
                 Iterator<? extends T> c = current;
                 while (i < expressions.length && (c == null || !c.hasNext()))
-                    current = c = expressions[i++].iterator(e);
+                    current = c = expressions[i++].iterator(ctx);
                 return c != null && c.hasNext();
             }
 

@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.event.TriggerContext;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
@@ -35,7 +35,7 @@ public class SimpleLiteral<T> implements Literal<T> {
 
     @Override
     @Contract("_, _, _ -> fail")
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         throw new UnsupportedOperationException();
     }
 

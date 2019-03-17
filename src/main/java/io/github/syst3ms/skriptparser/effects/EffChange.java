@@ -5,7 +5,7 @@ import io.github.syst3ms.skriptparser.classes.ChangeMode;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
@@ -36,7 +36,7 @@ public class EffChange extends Effect {
     }
 
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         ChangeMode mode = PATTERNS.getInfo(matchedPattern);
         if (mode == ChangeMode.RESET || mode == ChangeMode.DELETE) {
             changed = expressions[0];

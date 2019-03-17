@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
@@ -79,7 +79,7 @@ public class ExprRange implements Expression<Object> {
     }
 
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         from = expressions[0];
         to = expressions[1];
         range = Ranges.getRange(ClassUtils.getCommonSuperclass(from.getReturnType(), to.getReturnType()));

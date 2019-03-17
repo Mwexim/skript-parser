@@ -5,7 +5,7 @@ import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.ExpressionList;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
@@ -48,7 +48,7 @@ public class CondExprCompare extends ConditionalExpression {
 
     @SuppressWarnings("null")
     @Override
-    public boolean init(Expression<?>[] vars, int matchedPattern, ParseResult result) {
+    public boolean init(Expression<?>[] vars, int matchedPattern, ParseContext result) {
         first = vars[0];
         second = vars[1];
         if (vars.length == 3)

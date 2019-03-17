@@ -49,11 +49,11 @@ public interface Expression<T> extends SyntaxElement {
 
     /**
      * Changes this expression with the given values according to the given mode
-     * @param e the event
+     * @param ctx the event
      * @param changeWith the values to change this Expression with
      * @param changeMode the mode of change
      */
-    default void change(TriggerContext e, Object[] changeWith, ChangeMode changeMode) {}
+    default void change(TriggerContext ctx, Object[] changeWith, ChangeMode changeMode) {}
 
     /**
      * Gets a single value out of this Expression
@@ -98,11 +98,11 @@ public interface Expression<T> extends SyntaxElement {
     }
 
     /**
-     * @param e the event
+     * @param ctx the event
      * @return an iterator, used inside of a {@linkplain Loop loop}
      */
-    default Iterator<? extends T> iterator(TriggerContext e) {
-        return CollectionUtils.iterator(getValues(e));
+    default Iterator<? extends T> iterator(TriggerContext ctx) {
+        return CollectionUtils.iterator(getValues(ctx));
     }
 
     /**

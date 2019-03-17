@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.lang;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +29,7 @@ public class Loop extends CodeSection {
 	}
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		expr = expressions[0];
 		if (expr.isSingle()) {
 		    // REMIND error

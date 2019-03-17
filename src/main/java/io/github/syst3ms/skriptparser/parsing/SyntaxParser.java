@@ -3,7 +3,6 @@ package io.github.syst3ms.skriptparser.parsing;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
-import io.github.syst3ms.skriptparser.lang.Conditional;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.ExpressionList;
@@ -33,7 +32,6 @@ import io.github.syst3ms.skriptparser.variables.Variables;
 import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.plaf.nimbus.State;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +43,9 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings("unchecked")
 public class SyntaxParser {
+    public static final int NOT_CONDITIONAL = 0;
+    public static final int MAYBE_CONDITIONAL = 1;
+    public static final int CONDITIONAL = 2;
     public static final Pattern LIST_SPLIT_PATTERN = Pattern.compile("\\s*(,)\\s*|\\s+(and|or)\\s+", Pattern.CASE_INSENSITIVE);
     @SuppressWarnings("ConstantConditions")
     public static final PatternType<Boolean> BOOLEAN_PATTERN_TYPE = new PatternType<>((Type<Boolean>) TypeManager.getByClass(Boolean.class), true);
@@ -106,7 +107,7 @@ public class SyntaxParser {
     }
 
     @Nullable
-    public static Expression<Boolean> parseBooleanExpression(String s, @MagicConstant(intValues = {0, 1, 2}) int conditional) {
+    public static Expression<Boolean> parseBooleanExpression(String s, @MagicConstant(intValues = {NOT_CONDITIONAL, MAYBE_CONDITIONAL, CONDITIONAL}) int conditional) {
         // I swear this is the cleanest way to do it
         if (s.equalsIgnoreCase("true")) {
             return new SimpleLiteral<>(Boolean.class, true);
@@ -183,7 +184,7 @@ public class SyntaxParser {
     public static InlineCondition parseInlineCondition(String s) {
         if (s.isEmpty())
             return null;
-        Expression<Boolean> cond = parseBooleanExpression(s, 2);
+        Expression<Boolean> cond = parseBooleanExpression(s, CONDITIONAL);
         return cond != null ? new InlineCondition(cond) : null;
     }
 
@@ -203,7 +204,7 @@ public class SyntaxParser {
             return null;
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
-            SkriptParser parser = new SkriptParser(element, currentContextss);
+            MatchContext parser = new MatchContext(element, currentContextss);
             if (element.match(s, 0, parser) != -1) {
                 try {
                     Expression<? extends T> expression = (Expression<? extends T>) info.getSyntaxClass().newInstance();
@@ -380,7 +381,7 @@ public class SyntaxParser {
         List<PatternElement> patterns = info.getPatterns();
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
-            SkriptParser parser = new SkriptParser(element, currentContexts);
+            MatchContext parser = new MatchContext(element, currentContexts);
             if (element.match(s, 0, parser) != -1) {
                 try {
                     Effect eff = info.getSyntaxClass().newInstance();
@@ -441,7 +442,7 @@ public class SyntaxParser {
         List<PatternElement> patterns = info.getPatterns();
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
-            SkriptParser parser = new SkriptParser(element, currentContexts);
+            MatchContext parser = new MatchContext(element, currentContexts);
             if (element.match(section.getLineContent(), 0, parser) != -1) {
                 try {
                     CodeSection sec = info.getSyntaxClass().newInstance();
@@ -493,7 +494,7 @@ public class SyntaxParser {
         List<PatternElement> patterns = info.getPatterns();
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
-            SkriptParser parser = new SkriptParser(element, currentContexts);
+            MatchContext parser = new MatchContext(element, currentContexts);
             if (element.match(section.getLineContent(), 0, parser) != -1) {
                 try {
                     SkriptEvent event = info.getSyntaxClass().newInstance();

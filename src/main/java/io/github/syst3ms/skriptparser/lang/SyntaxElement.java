@@ -2,7 +2,7 @@ package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -19,13 +19,13 @@ public interface SyntaxElement {
      *                    to this syntax element. As opposed to Skript, elements of this array can't be {@code null}.
      * @param matchedPattern the index of the pattern that was successfully matched. It corresponds to the order of
      *                       the syntaxes in registration
-     * @param parseResult an object containing additional information about the parsing of this syntax element, like
+     * @param parseContext an object containing additional information about the parsing of this syntax element, like
      *                    regex matches and parse marks
      * @return {@code true} if the syntax element was initialized successfully, {@code false} otherwise.
      * @see io.github.syst3ms.skriptparser.registration.SkriptRegistration
-     * @see ParseResult
+     * @see ParseContext
      */
-    boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult);
+    boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext);
 
     /**
      * @param ctx the event

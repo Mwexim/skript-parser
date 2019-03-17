@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.file.FileParser;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.types.PatternType;
@@ -62,6 +63,10 @@ public class SyntaxParserTest {
         return new PatternType<>(TypeManager.getByClassExact(c), single);
     }
 
+    private <T> Literal<T> literal(T... values) {
+        return new SimpleLiteral<>(values);
+    }
+
     @Test
     public void literalTest() throws Exception {
         PatternType<Number> numberType = getType(Number.class, true);
@@ -84,31 +89,31 @@ public class SyntaxParserTest {
     public void standardExpressionsTest() throws Exception {
         // CondExprCompare
         assertExpressionTrue(
-            parseBooleanExpression("2 > 1", true)
+            parseBooleanExpression("2 > 1", SyntaxParser.MAYBE_CONDITIONAL)
         );
         assertExpressionTrue(
-            parseBooleanExpression("(3^2) - (2^3) = 1", true)
+            parseBooleanExpression("(3^2) - (2^3) = 1", SyntaxParser.MAYBE_CONDITIONAL)
         );
         assertExpressionTrue(
-            parseBooleanExpression("1 is between 0 and 10", true)
+            parseBooleanExpression("1 is between 0 and 10", SyntaxParser.MAYBE_CONDITIONAL)
         );
         // ExprBinaryMathFunctions
         PatternType<Number> numberType = getType(Number.class, true);
         assertExpressionEquals(
-            new SimpleLiteral<>(BigDecimal.class, (BigDecimal) NumberMath.log(new BigDecimal("2.0"), BigDecimal.TEN)),
+            literal((BigDecimal) NumberMath.log(new BigDecimal("2.0"), BigDecimal.TEN)),
             parseExpression("log base 2 of 10", numberType)
         );
         // ExprBooleanOperators
         assertExpressionTrue(
-            parseBooleanExpression("not (false and (false or true))", false)
+            parseBooleanExpression("not (false and (false or true))", SyntaxParser.NOT_CONDITIONAL)
         );
         // ExprNumberArithmetic
         assertExpressionEquals(
-            new SimpleLiteral<>(Number.class, new BigDecimal("251")),
+            literal(new BigDecimal("251")),
             parseExpression("6*(6+6*6)-6/6", numberType)
         );
         assertExpressionEquals(
-            new SimpleLiteral<>(Number.class, BigInteger.valueOf(3435)),
+            literal(BigInteger.valueOf(3435)),
             parseExpression("3^3+4^4+3^3+5^5", numberType)
         );
         // ExprRange
@@ -118,27 +123,27 @@ public class SyntaxParserTest {
             oneThroughTen[i - 1] = BigInteger.valueOf(i);
         }
         assertExpressionEquals(
-            new SimpleLiteral<>(Number.class, oneThroughTen),
+            literal(oneThroughTen),
             parseExpression("range from 1 to 10", objectsType)
         );
         assertExpressionEquals(
-                new SimpleLiteral<>(Number.class, CollectionUtils.reverseArray(oneThroughTen)),
-                parseExpression("range from 10 to 1", objectsType)
+            literal(CollectionUtils.reverseArray(oneThroughTen)),
+            parseExpression("range from 10 to 1", objectsType)
         );
         // ExprUnaryMathFunctions
         assertExpressionEquals(
-            new SimpleLiteral<>(Number.class, new BigInteger("3628800")),
+            literal(new BigInteger("3628800")),
             parseExpression("(round acos cos 10)!", numberType)
         );
         assertExpressionEquals(
-            new SimpleLiteral<>(Number.class, new BigDecimal("4")),
+            literal(new BigDecimal("4")),
             parseExpression("sqrt 16", numberType)
         );
         // ExprWhether is a wrapper, no need to test it
         // LitMathConstants
         assertExpressionEquals(
-                new SimpleLiteral<>(Number.class, BigDecimalMath.E),
-                parseExpression("e", numberType)
+            literal(BigDecimalMath.E),
+            parseExpression("e", numberType)
         );
     }
 
@@ -146,17 +151,21 @@ public class SyntaxParserTest {
     public void sectionTest() throws Exception {
         FileParser fileParser = new FileParser();
         ClassLoader classLoader = getClass().getClassLoader();
+        // While test
         File file = new File(classLoader.getResource("while-test.txt").getFile());
         List<String> lines = FileUtils.readAllLines(file);
         List<FileElement> elements = fileParser.parseFileLines("while-test", lines, 0, 1);
         FileSection sec = (FileSection) elements.get(0);
-        parseSection(sec);
+        CodeSection whileLoop = parseSection(sec);
+        assertTrue("The while loop failed", Statement.runAll(whileLoop, DUMMY));
+        // Loop test
         file = new File(classLoader.getResource("loop-test.txt").getFile());
         lines = FileUtils.readAllLines(file);
         elements = fileParser.parseFileLines("loop-test", lines, 0, 1);
         sec = (FileSection) elements.get(0);
         CodeSection loop = parseSection(sec);
         assertTrue("The loop failed while running", Statement.runAll(loop, DUMMY));
+        // Condition test
         file = new File(classLoader.getResource("conditions.txt").getFile());
         lines = FileUtils.readAllLines(file);
         elements = fileParser.parseFileLines("conditions", lines, 0, 1);

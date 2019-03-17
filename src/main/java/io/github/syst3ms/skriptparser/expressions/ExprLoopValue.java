@@ -6,7 +6,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Loop;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
@@ -38,7 +38,7 @@ public class ExprLoopValue implements Expression<Object> {
 	}
 
 	@Override
-	public boolean init(Expression<?>[] vars, int matchedPattern, ParseResult parser) {
+	public boolean init(Expression<?>[] vars, int matchedPattern, ParseContext parser) {
 		name = parser.getExpressionString();
 		String s = parser.getMatches().get(0).group();
 		int i = -1;
