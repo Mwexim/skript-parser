@@ -7,13 +7,21 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
-public class EffPrintln extends Effect {
+/**
+ * Prints some text to the console
+ *
+ * @name Print
+ * @pattern print %string% [to [the] console]
+ * @since ALPHA
+ * @author Syst3ms
+ */
+public class EffPrint extends Effect {
     private Expression<String> string;
 
     static {
         Main.getMainRegistration().addEffect(
-            EffPrintln.class,
-            "println %string%"
+            EffPrint.class,
+            "print %string% [to [the] console]"
         );
     }
 

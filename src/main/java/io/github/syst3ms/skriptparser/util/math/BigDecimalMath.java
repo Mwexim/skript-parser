@@ -19,6 +19,8 @@ import java.math.RoundingMode;
 public class BigDecimalMath {
 
 	public static final MathContext DEFAULT_CONTEXT = new MathContext(100, RoundingMode.HALF_UP);
+    public static final RoundingMode DEFAULT_ROUNDING_MODE = RoundingMode.HALF_UP;
+
 	/**
 	 * The base of the natural logarithm in a predefined accuracy.
 	 * http://www.cs.arizona.edu/icon/oddsends/e.htm
@@ -141,12 +143,9 @@ public class BigDecimalMath {
 		final BigDecimal half = new BigDecimal("2");
 		MathContext locmc = new MathContext(mc.getPrecision() + 2, mc.getRoundingMode());
 		final double eps = Math.pow(10.0, -mc.getPrecision());
-		for (; ; ) {
-			if (Math.abs(BigDecimal.ONE.subtract(x.divide(s.pow(2, locmc), locmc)).doubleValue()) < eps) {
-				break;
-			}
-			s = s.add(x.divide(s, locmc)).divide(half, locmc);
-		}
+        while (!(Math.abs(BigDecimal.ONE.subtract(x.divide(s.pow(2, locmc), locmc)).doubleValue()) < eps)) {
+            s = s.add(x.divide(s, locmc)).divide(half, locmc);
+        }
 		return s;
 	}
 
@@ -529,7 +528,7 @@ public class BigDecimalMath {
 				return sin(subtractRound(p, res));
 			} else {
 				if (res.multiply(new BigDecimal("4")).compareTo(p) > 0) {
-					return cos(subtractRound(p.divide(new BigDecimal("2")), res));
+					return cos(subtractRound(p.divide(new BigDecimal("2"), DEFAULT_ROUNDING_MODE), res));
 				} else {
 					BigDecimal resul = res;
 					BigDecimal xpowi = res;
@@ -579,7 +578,7 @@ public class BigDecimalMath {
 				return cos(subtractRound(p, res)).negate();
 			} else {
 				if (res.multiply(new BigDecimal("4")).compareTo(p) > 0) {
-					return sin(subtractRound(p.divide(new BigDecimal("2")), res));
+					return sin(subtractRound(p.divide(new BigDecimal("2"), DEFAULT_ROUNDING_MODE), res));
 				} else {
 					BigDecimal resul = BigDecimal.ONE;
 					BigDecimal xpowi = BigDecimal.ONE;
@@ -724,7 +723,7 @@ public class BigDecimalMath {
 		} else if (x.compareTo(BigDecimal.ONE) == 0) {
 			double errpi = Math.sqrt(x.ulp().doubleValue());
 			MathContext mc = new MathContext(err2prec(3.14159, errpi));
-			return pi(mc).divide(new BigDecimal(2));
+			return pi(mc).divide(new BigDecimal(2), DEFAULT_ROUNDING_MODE);
 		} else if (x.compareTo(BigDecimal.ZERO) < 0) {
 			return asin(x.negate()).negate();
 		} else if (x.doubleValue() > 0.7) {
@@ -761,7 +760,7 @@ public class BigDecimalMath {
 			resul = multiplyRound(xpowi, resul);
 
 			MathContext mc = new MathContext(resul.precision());
-			BigDecimal pihalf = pi(mc).divide(new BigDecimal(2));
+			BigDecimal pihalf = pi(mc).divide(new BigDecimal(2), DEFAULT_ROUNDING_MODE);
 
 			mc = new MathContext(err2prec(resul.doubleValue(), eps));
 			return pihalf.subtract(resul, mc);
@@ -809,7 +808,7 @@ public class BigDecimalMath {
 		double eps = resul.ulp().doubleValue() / 2.;
 
 		MathContext mc = new MathContext(err2prec(3.14159, eps));
-		BigDecimal pihalf = pi(mc).divide(new BigDecimal(2));
+		BigDecimal pihalf = pi(mc).divide(new BigDecimal(2), DEFAULT_ROUNDING_MODE);
 		resul = pihalf.subtract(resul);
 		final double xDbl = x.doubleValue();
 		final double xUlpDbl = x.ulp().doubleValue() / 2.;
@@ -864,7 +863,7 @@ public class BigDecimalMath {
 			double eps = x.ulp().doubleValue() / (2.0 * Math.hypot(1.0, x.doubleValue()));
 			MathContext mc = new MathContext(2 + err2prec(3.1416, eps));
 			BigDecimal onepi = pi(mc);
-			BigDecimal resul = onepi.divide(new BigDecimal(2));
+			BigDecimal resul = onepi.divide(new BigDecimal(2), DEFAULT_ROUNDING_MODE);
 
 			final BigDecimal xhighpr = divideRound(-1, scalePrec(x, 2));
 			final BigDecimal xhighprSq = multiplyRound(xhighpr, xhighpr).negate();
@@ -928,7 +927,7 @@ public class BigDecimalMath {
 		}
 		MathContext mc = new MathContext(2 + err2prec(3.1416, errpi));
 		BigDecimal onepi = pi(mc);
-		BigDecimal pihalf = onepi.divide(new BigDecimal(2));
+		BigDecimal pihalf = onepi.divide(new BigDecimal(2), DEFAULT_ROUNDING_MODE);
 		BigDecimal res = x.remainder(onepi);
 		if (res.compareTo(pihalf) > 0) {
 			res = res.subtract(onepi);
@@ -1140,7 +1139,7 @@ public class BigDecimalMath {
 	 * @author Richard J. Mathar
 	 */
 	private static BigDecimal scalePrec(final BigDecimal x, int d) {
-		return x.setScale(d + x.scale());
+		return x.setScale(d + x.scale(), DEFAULT_ROUNDING_MODE);
 	}
 
 	/**

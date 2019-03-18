@@ -12,10 +12,19 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigDecimal;
 import java.util.function.BinaryOperator;
 
+/**
+ * Miscellaneous math functions taking in two arguments.
+ *
+ * @name Binary Math Functions
+ * @pattern log[arithm] [base] %number% of %number%
+ * @pattern root %number% of %number%
+ * @since ALPHA
+ * @author Syst3ms
+ */
 public class ExprBinaryMathFunctions implements Expression<Number> {
 	public static PatternInfos<BinaryOperator<Number>> PATTERNS = new PatternInfos<>(
 		new Object[][] {
-			{"log [base] %number% of %number%", (BinaryOperator<Number>) NumberMath::log},
+			{"log[arithm] [base] %number% of %number%", (BinaryOperator<Number>) NumberMath::log},
 			{"root %number% of %number%", (BinaryOperator<Number>) (n, r) -> {
 					if (r.intValue() == 1) {
 						return n;

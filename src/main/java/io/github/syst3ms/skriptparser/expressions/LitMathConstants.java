@@ -9,6 +9,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 
+/**
+ * Math constants pi, e and phi (golden ratio)
+ *
+ * @name Math Constants
+ * @pattern (pi|e|phi)
+ * @since ALPHA
+ * @author Syst3ms
+ */
 public class LitMathConstants implements Expression<Number> {
     private static final BigDecimal PHI = new BigDecimal(
         "1.61803398874989484820458683436563811772030917980576286213544862270526046281890" +

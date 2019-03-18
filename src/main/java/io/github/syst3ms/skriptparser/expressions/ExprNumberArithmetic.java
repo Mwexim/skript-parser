@@ -14,8 +14,33 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
+/**
+ * Various arithmetic expressions, including addition, subtraction, multiplication, division and exponentiation.
+ * Notes :
+ * <ul>
+ *     <li>All of the operations will accomodate for the type of the two operands.
+ *         <ul>
+ *             <li>Two operands of the same type will yield a result of that type.</li>
+ *             <li>Adding a decimal type to an integer type will yield a decimal result.</li>
+ *             <li>If any of the operands is an arbitrary precision number, the result will be of arbitrary precision</li>
+ *         </ul>
+ *     </li>
+ *     <li>0<sup>0</sup> is defined to be 1</li>
+ *     <li>A division by zero will not return any value and will print an error</li>
+ *     <li>Primitive types will be converted to an arbitrary-precision result in case of overflow/underflow</li>
+ *
+ * </ul>
+ * 
+ * @name Arithmetic Operators
+ * @pattern %number%[ ]+[ ]%number%
+ * @pattern %number%[ ]-[ ]%number%
+ * @pattern %number%[ ]*[ ]%number%
+ * @pattern %number%[ ]/[ ]%number%
+ * @pattern %number%[ ]^[ ]%number%
+ * @since ALPHA
+ * @author Syst3ms
+ */
 public class ExprNumberArithmetic implements Expression<Number> {
-    public static final RoundingMode DEFAULT_ROUDING_MODE = RoundingMode.HALF_UP;
 
     private enum Operator {
         PLUS('+') {
@@ -203,7 +228,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
         }
 
         private static BigInteger pow(BigInteger x, BigInteger y) {
-            BigInteger z = x; // z will successively become x^2, x^4, x^8, x^16, x^32...
+            BigInteger z = x;
             BigInteger result = BigInteger.ONE;
             byte[] bytes = y.toByteArray();
             for (int i = bytes.length - 1; i >= 0; i--) {
@@ -211,7 +236,6 @@ public class ExprNumberArithmetic implements Expression<Number> {
                 for (int j = 0; j < 8; j++) {
                     if ((bits & 1) != 0)
                         result = result.multiply(z);
-                    // short cut out if there are no more bits to handle:
                     if ((bits >>= 1) == 0 && i == 0)
                         return result;
                     z = z.multiply(z);
@@ -271,7 +295,6 @@ public class ExprNumberArithmetic implements Expression<Number> {
         return first.toString(ctx, debug) + " " + op + " " + second.toString(ctx, debug);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public Expression<? extends Number> simplify() {
         if (first instanceof Literal && second instanceof Literal)

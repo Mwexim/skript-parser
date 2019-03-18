@@ -6,6 +6,14 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A wrapper that turns a condition into a boolean expression than can be used anywhere.
+ *
+ * @name Whether
+ * @pattern whether %=boolean%
+ * @since ALPHA
+ * @author Syst3ms
+ */
 public class ExprWhether implements Expression<Boolean> {
     private Expression<Boolean> condition;
 

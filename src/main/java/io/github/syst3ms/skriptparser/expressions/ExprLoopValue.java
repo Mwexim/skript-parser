@@ -19,6 +19,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The currently looped value.
+ *
+ * @name Loop Value
+ * @pattern [the] loop-<.+>
+ * @since ALPHA
+ * @author Syst3ms
+ */
 public class ExprLoopValue implements Expression<Object> {
 	@SuppressWarnings("null")
 	private String name;

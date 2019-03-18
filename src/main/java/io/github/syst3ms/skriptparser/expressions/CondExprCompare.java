@@ -16,6 +16,23 @@ import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A very general condition, it simply compares two values. Usually you can only compare for equality (e.g. text is/isn't &lt;text&gt;),
+ * but some values can also be compared using greater than/less than. In that case you can also test for whether an object is between two others.
+ *
+ * @name Comparison
+ * @type CONDITION
+ * @pattern [neither] %objects% ((is|are)[(n't| not| neither)] (greater|more|higher|bigger|larger|above) [than] or (equal to|the same as)|\\>=) %objects%
+ * @pattern [neither] %objects% ((is|are)[(n't| not| neither)] (less|smaller|below) [than] or (equal to|the same as)|\\<=) %objects%
+ * @pattern [neither] %objects% ((is|are)[(n't| not| neither)] ((greater|more|higher|bigger|larger) than|above)|\\>) %objects%
+ * @pattern [neither] %objects% ((is|are)[(n't| not| neither)] ((less|smaller) than|below)|\\<) %objects%
+ * @pattern [neither] %objects% (is not|are not|isn't|aren't) between %objects% and %objects%
+ * @pattern [neither] %objects% (is|are) between %objects% and %objects%
+ * @pattern [neither] %objects% ((is|are) (not|neither)|isn't|aren't|!=) [equal to] %objects%
+ * @pattern [neither] %objects% (is|are|=) [(equal to|the same as)] %objects%
+ * @since ALPHA
+ * @author Syst3ms
+ */
 public class CondExprCompare extends ConditionalExpression {
     public static final PatternInfos<Relation> PATTERNS = new PatternInfos<>(new Object[][] {
             {"[1¦neither] %objects% ((is|are)[2¦(n't| not|4¦ neither)] (greater|more|higher|bigger|larger|above) [than] or (equal to|the same as)|\\>=) %objects%", Relation.GREATER_OR_EQUAL},

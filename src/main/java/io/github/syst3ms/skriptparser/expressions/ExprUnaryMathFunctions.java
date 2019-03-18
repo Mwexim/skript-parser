@@ -11,6 +11,28 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.UnaryOperator;
 
+/**
+ * Miscellaneous math functions taking in a single argument
+ * 
+ * @name Unary Math Functions
+ * @pattern abs %number%
+ * @pattern \\|%number%\\|
+ * @pattern %number%!
+ * @pattern factorial of %number%
+ * @pattern (sqrt|square root of) %number%
+ * @pattern floor[ed] %number%
+ * @pattern ceil[ing|ed] %number%
+ * @pattern round[ed] %number%
+ * @pattern sin %number%
+ * @pattern cos %number%
+ * @pattern tan %number%
+ * @pattern asin %number%
+ * @pattern acos %number%
+ * @pattern atan %number%
+ * @pattern ln %number%
+ * @since ALPHA
+ * @author Syst3ms
+ */
 public class ExprUnaryMathFunctions implements Expression<Number> {
 	public static final PatternInfos<UnaryOperator<Number>> PATTERNS = new PatternInfos<>(
 		new Object[][]{
@@ -62,8 +84,7 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 	@Override
 	public String toString(@Nullable TriggerContext ctx, boolean debug) {
 		/*
-		 * I know this is dirty as hell, but at least it's better than switching
-		 * over ALL of them
+		 * This is dirty, but at least it's better than switching over all cases
 		 */
 		String pat = PATTERNS.getPatterns()[pattern];
 		String expr = number.toString(ctx, debug);

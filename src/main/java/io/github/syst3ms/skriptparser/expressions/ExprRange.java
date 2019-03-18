@@ -21,6 +21,14 @@ import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
+/**
+ * Returns a range of values between two endpoints. Types supported by default are integers and characters (length 1 strings).
+ *
+ * @name Range
+ * @pattern range from %object% to %object%
+ * @since ALPHA
+ * @author Syst3ms
+ */
 public class ExprRange implements Expression<Object> {
     private Expression<?> from, to;
     private RangeInfo<?, ?> range;

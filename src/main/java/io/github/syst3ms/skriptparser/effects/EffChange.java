@@ -13,6 +13,22 @@ import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ *  A very general effect that can change many expressions. Many expressions can only be set and/or deleted, while some can have things added to or removed from them.
+ *
+ * @name Change: Set/Add/Remove/Delete/Reset
+ * @pattern set %~objects% to %objects%
+ * @pattern %~objects% = %objects%
+ * @pattern add %objects% to %~objects%
+ * @pattern %~objects% += %objects%
+ * @pattern remove %objects% from %~objects%
+ * @pattern %~objects% -= %~objects%
+ * @pattern remove (all|every) %objects% from %~objects%
+ * @pattern (delete|clear) %~objects%
+ * @pattern reset %~objects%
+ * @since ALPHA
+ * @author Syst3ms
+ */
 public class EffChange extends Effect {
     public static final PatternInfos<ChangeMode> PATTERNS = new PatternInfos<>(new Object[][]{
             {"set %~objects% to %objects%", ChangeMode.SET},
@@ -20,7 +36,7 @@ public class EffChange extends Effect {
             {"add %objects% to %~objects%", ChangeMode.ADD},
             {"%~objects% += %objects%", ChangeMode.ADD},
             {"remove %objects% from %~objects%", ChangeMode.REMOVE},
-            {"%~objects% -= %~objects%", ChangeMode.REMOVE},
+            {"%~objects% -= %objects%", ChangeMode.REMOVE},
             {"remove (all|every) %objects% from %~objects%", ChangeMode.REMOVE_ALL},
             {"(delete|clear) %~objects%", ChangeMode.DELETE},
             {"reset %~objects%", ChangeMode.RESET}
