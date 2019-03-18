@@ -1,32 +1,23 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.file.FileElement;
-import io.github.syst3ms.skriptparser.file.FileParser;
-import io.github.syst3ms.skriptparser.file.FileSection;
-import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
-import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
-import io.github.syst3ms.skriptparser.util.FileUtils;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 import org.junit.*;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.List;
 
 import static io.github.syst3ms.skriptparser.event.TriggerContext.DUMMY;
 import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.parseBooleanExpression;
 import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.parseExpression;
 import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.parseLiteral;
-import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.parseSection;
 import static org.junit.Assert.*;
 
 @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -147,6 +138,7 @@ public class SyntaxParserTest {
         );
     }
 
+    /*
     @Test
     public void sectionTest() throws Exception {
         FileParser fileParser = new FileParser();
@@ -173,4 +165,5 @@ public class SyntaxParserTest {
         Statement first = ScriptLoader.loadItems(sec).get(0);
         assertTrue(Statement.runAll(first, DUMMY));
     }
+    */
 }

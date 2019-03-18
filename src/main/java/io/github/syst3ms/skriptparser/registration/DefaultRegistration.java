@@ -167,6 +167,7 @@ public class DefaultRegistration {
                 Number.class,
                 Number.class,
                 new Comparator<Number, Number>(true) {
+                    @SuppressWarnings("unchecked")
                     @Override
                     public Relation apply(Number number, Number number2) {
                         if (number.getClass() == number2.getClass()) {

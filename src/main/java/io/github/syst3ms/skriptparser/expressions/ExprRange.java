@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
@@ -100,11 +101,10 @@ public class ExprRange implements Expression<Object> {
             return new Object[0];
         }
         // This is safe... right ?
-        Object[] range = (Object[]) ((BiFunction) this.range.getFunction()).apply(f, t);
-        if (comparator != null && ((Comparator) comparator).apply(f, t).is(Relation.SMALLER)) {
-            return CollectionUtils.reverseArray(range);
+        if (comparator != null && ((Comparator) comparator).apply(f, t).is(Relation.GREATER)) {
+            return CollectionUtils.reverseArray((Object[]) ((BiFunction) this.range.getFunction()).apply(t, f));
         } else {
-            return range;
+            return (Object[]) ((BiFunction) this.range.getFunction()).apply(f, t);
         }
     }
 
