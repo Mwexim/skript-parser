@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
@@ -44,7 +44,7 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		pattern = matchedPattern;
 		first = (Expression<Number>) expressions[0];
 		second = (Expression<Number>) expressions[1];
@@ -52,9 +52,9 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 	}
 
 	@Override
-	public Number[] getValues(TriggerContext e) {
-		Number f = first.getSingle(e);
-		Number s = second.getSingle(e);
+	public Number[] getValues(TriggerContext ctx) {
+		Number f = first.getSingle(ctx);
+		Number s = second.getSingle(ctx);
 		if (f == null || s == null)
 			return new Number[0];
 		BinaryOperator<Number> operator = PATTERNS.getInfo(pattern);
@@ -62,11 +62,11 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext e, boolean debug) {
+	public String toString(@Nullable TriggerContext ctx, boolean debug) {
 		if (pattern == 0) {
-			return "log " + first.toString(e, debug) + " of " + second.toString(e, debug);
+			return "log " + first.toString(ctx, debug) + " of " + second.toString(ctx, debug);
 		} else {
-			return "root " + first.toString(e, debug) + " of " + second.toString(e, debug);
+			return "root " + first.toString(ctx, debug) + " of " + second.toString(ctx, debug);
 		}
 	}
 }

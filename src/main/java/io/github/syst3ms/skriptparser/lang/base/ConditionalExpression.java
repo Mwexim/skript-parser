@@ -32,9 +32,9 @@ public abstract class ConditionalExpression implements Expression<Boolean> {
     }
 
     @Override
-    public Boolean[] getValues(TriggerContext e) {
-        return new Boolean[]{check(e)};
+    public Boolean[] getValues(TriggerContext ctx) {
+        return new Boolean[]{check(ctx)};
     }
 
-    protected abstract boolean check(TriggerContext e);
+    protected abstract boolean check(TriggerContext ctx);
 }

@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,13 +42,13 @@ public class LitMathConstants implements Expression<Number> {
     }
 
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
-        pattern = parseResult.getParseMark();
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        pattern = parseContext.getParseMark();
         return true;
     }
 
     @Override
-    public Number[] getValues(TriggerContext e) {
+    public Number[] getValues(TriggerContext ctx) {
         if (pattern == 0) {
             return new Number[]{BigDecimalMath.PI};
         } else if (pattern == 1) {
@@ -61,7 +61,7 @@ public class LitMathConstants implements Expression<Number> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
         if (pattern == 0) {
             return "pi";
         } else if (pattern == 1) {

@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
 public class ExprWhether implements Expression<Boolean> {
@@ -20,18 +20,18 @@ public class ExprWhether implements Expression<Boolean> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         condition = (Expression<Boolean>) expressions[0];
         return true;
     }
 
     @Override
-    public Boolean[] getValues(TriggerContext e) {
-        return condition.getValues(e);
+    public Boolean[] getValues(TriggerContext ctx) {
+        return condition.getValues(ctx);
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
-        return "whether " + condition.toString(e, debug);
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        return "whether " + condition.toString(ctx, debug);
     }
 }

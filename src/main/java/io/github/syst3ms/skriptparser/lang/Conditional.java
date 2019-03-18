@@ -2,7 +2,7 @@ package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -36,12 +36,12 @@ public class Conditional extends CodeSection {
     }
 
     @Override
-    protected Effect walk(TriggerContext e) {
+    protected Statement walk(TriggerContext ctx) {
         assert condition != null || mode == ConditionalMode.ELSE;
         if (mode == ConditionalMode.ELSE) {
             return getFirst();
         }
-        Boolean c = condition.getSingle(e);
+        Boolean c = condition.getSingle(ctx);
         if (c != null && c) {
             return getFirst();
         } else if (fallingClause != null){
@@ -64,13 +64,13 @@ public class Conditional extends CodeSection {
     }
 
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         return true;
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
-        return mode + (condition != null ? " " + condition.toString(e, debug) : "");
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        return mode + (condition != null ? " " + condition.toString(ctx, debug) : "");
     }
 
     public enum ConditionalMode {

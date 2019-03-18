@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
 public class ExprBooleanOperators implements Expression<Boolean> {
@@ -26,7 +26,7 @@ public class ExprBooleanOperators implements Expression<Boolean> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         pattern = matchedPattern;
         first = (Expression<Boolean>) expressions[0];
         if (expressions.length > 1) {
@@ -36,15 +36,15 @@ public class ExprBooleanOperators implements Expression<Boolean> {
     }
 
     @Override
-    public Boolean[] getValues(TriggerContext e) {
+    public Boolean[] getValues(TriggerContext ctx) {
         assert pattern > 0 || second == null;
-        Boolean f = first.getSingle(e);
+        Boolean f = first.getSingle(ctx);
         if (f == null)
             return new Boolean[0];
         if (pattern == 0) {
             return new Boolean[]{!f};
         } else {
-            Boolean s = second.getSingle(e);
+            Boolean s = second.getSingle(ctx);
             if (s == null)
                 return new Boolean[0];
             if (pattern == 1) {
@@ -56,15 +56,15 @@ public class ExprBooleanOperators implements Expression<Boolean> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
         if (pattern == 0) {
-            return "not " + first.toString(e, debug);
+            return "not " + first.toString(ctx, debug);
         } else {
             assert second != null;
             if (pattern == 1) {
-                return first.toString(e, debug) + " or " + second.toString(e, debug);
+                return first.toString(ctx, debug) + " or " + second.toString(ctx, debug);
             } else {
-                return first.toString(e, debug) + " and " + second.toString(e, debug);
+                return first.toString(ctx, debug) + " and " + second.toString(ctx, debug);
             }
         }
     }

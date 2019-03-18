@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.pattern;
 
-import io.github.syst3ms.skriptparser.parsing.SkriptParser;
+import io.github.syst3ms.skriptparser.parsing.MatchContext;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -33,11 +33,11 @@ public class RegexGroup implements PatternElement {
     }
 
     @Override
-    public int match(String s, int index, SkriptParser parser) {
+    public int match(String s, int index, MatchContext parser) {
         if (parser.getOriginalElement().equals(this))
             parser.advanceInPattern();
-        List<PatternElement> flattened = parser.flatten(parser.getOriginalElement());
-        List<PatternElement> possibleInputs = parser.getPossibleInputs(flattened.subList(parser.getPatternIndex(), flattened.size()));
+        List<PatternElement> flattened = PatternElement.flatten(parser.getOriginalElement());
+        List<PatternElement> possibleInputs = PatternElement.getPossibleInputs(flattened.subList(parser.getPatternIndex(), flattened.size()));
         for (PatternElement possibleInput : possibleInputs) {
             if (possibleInput instanceof TextElement) {
                 String text = ((TextElement) possibleInput).getText();

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -79,7 +80,6 @@ public class FileUtils {
     }
 
     public static void loadClasses(String basePackage, String... subPackages) throws IOException, URISyntaxException {
-        assert subPackages != null;
         for (int i = 0; i < subPackages.length; i++)
             subPackages[i] = subPackages[i].replace('.', '/') + "/";
         basePackage = basePackage.replace('.', '/') + "/";
@@ -110,7 +110,7 @@ public class FileUtils {
 
     private static File getFile() throws URISyntaxException {
         if (jarFile == null) {
-            jarFile = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            jarFile = new File(Skript.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         }
         return jarFile;
     }

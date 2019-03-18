@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
@@ -45,28 +45,28 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		pattern = matchedPattern;
 		number = (Expression<Number>) expressions[0];
 		return true;
 	}
 
 	@Override
-	public Number[] getValues(TriggerContext e) {
-		Number num = number.getSingle(e);
+	public Number[] getValues(TriggerContext ctx) {
+		Number num = number.getSingle(ctx);
 		if (num == null)
 			return new Number[0];
 		return new Number[]{PATTERNS.getInfo(pattern).apply(num)};
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext e, boolean debug) {
+	public String toString(@Nullable TriggerContext ctx, boolean debug) {
 		/*
 		 * I know this is dirty as hell, but at least it's better than switching
 		 * over ALL of them
 		 */
 		String pat = PATTERNS.getPatterns()[pattern];
-		String expr = number.toString(e, debug);
+		String expr = number.toString(ctx, debug);
 		if (StringUtils.count(pat, "(", "[") == 0) {
 			return pat.replace("%number%", expr);
 		} else {

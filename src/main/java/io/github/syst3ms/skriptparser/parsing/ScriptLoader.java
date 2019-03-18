@@ -5,9 +5,9 @@ import io.github.syst3ms.skriptparser.file.FileParser;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Conditional;
-import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Loop;
+import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 import io.github.syst3ms.skriptparser.util.FileUtils;
@@ -61,10 +61,10 @@ public class ScriptLoader {
     /**
      * Parses all items inside of a given section.
      * @param section the section
-     * @return a list of {@linkplain Effect effects} inside of the section
+     * @return a list of {@linkplain Statement effects} inside of the section
      */
-    public static List<Effect> loadItems(FileSection section) {
-        List<Effect> items = new ArrayList<>();
+    public static List<Statement> loadItems(FileSection section) {
+        List<Statement> items = new ArrayList<>();
         List<FileElement> elements = section.getElements();
         for (FileElement element : elements) {
             if (element instanceof FileSection) {
@@ -72,7 +72,9 @@ public class ScriptLoader {
                 String content = sec.getLineContent();
                 if (content.regionMatches(true, 0, "if ", 0, "if ".length())) {
                     String toParse = content.substring("if ".length());
-                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, true);
+                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse,
+                            SyntaxParser.MAYBE_CONDITIONAL
+                    );
                     if (booleanExpression == null) {
                         continue;
                     }
@@ -85,7 +87,9 @@ public class ScriptLoader {
                     }
 
                     String toParse = content.substring("else if ".length());
-                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, true);
+                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse,
+                            SyntaxParser.MAYBE_CONDITIONAL
+                    );
                     if (booleanExpression == null) {
                         continue;
                     }
@@ -109,7 +113,7 @@ public class ScriptLoader {
                 }
             } else {
                 String content = element.getLineContent();
-                Effect eff = SyntaxParser.parseEffect(content);
+                Statement eff = SyntaxParser.parseStatement(content);
                 if (eff == null) {
                     continue;
                 }

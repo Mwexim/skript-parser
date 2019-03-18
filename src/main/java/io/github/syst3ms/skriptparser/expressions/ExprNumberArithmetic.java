@@ -5,7 +5,7 @@ import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import org.jetbrains.annotations.Nullable;
@@ -244,7 +244,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, ParseResult parseResult) {
+    public boolean init(Expression<?>[] exprs, int matchedPattern, ParseContext parseContext) {
         first = (Expression<? extends Number>) exprs[0];
         second = (Expression<? extends Number>) exprs[1];
         op = PATTERNS.getInfo(matchedPattern);
@@ -252,8 +252,8 @@ public class ExprNumberArithmetic implements Expression<Number> {
     }
 
     @Override
-    public Number[] getValues(TriggerContext e) {
-        Number n1 = first.getSingle(e), n2 = second.getSingle(e);
+    public Number[] getValues(TriggerContext ctx) {
+        Number n1 = first.getSingle(ctx), n2 = second.getSingle(ctx);
         if (n1 == null)
             n1 = 0;
         if (n2 == null)
@@ -267,8 +267,8 @@ public class ExprNumberArithmetic implements Expression<Number> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
-        return first.toString(e, debug) + " " + op + " " + second.toString(e, debug);
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        return first.toString(ctx, debug) + " " + op + " " + second.toString(ctx, debug);
     }
 
     @SuppressWarnings("ConstantConditions")

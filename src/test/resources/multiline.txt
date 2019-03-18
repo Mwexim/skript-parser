@@ -1,0 +1,6 @@
+# Testing multiline syntax
+no \
+indent
+section:
+    with \
+    indent

@@ -1,7 +1,9 @@
 package io.github.syst3ms.skriptparser.parsing;
 
+import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
+import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import org.jetbrains.annotations.Nullable;
@@ -27,29 +29,33 @@ public class VariablesTest {
             fail();
         assertArrayEquals(expected.getValues(DUMMY), actual.getValues(DUMMY));
     }
+    
+    private void run(Effect eff) {
+        Statement.runAll(eff, DUMMY);
+    }
 
     @Test
     public void testVariables() {
-        SyntaxParser.parseEffect("set {variable} to \"test\"").execute(DUMMY);
+        run(SyntaxParser.parseEffect("set {variable} to \"test\""));
         assertExpressionEquals(
                 new SimpleLiteral<>(String.class, "test"),
                 SyntaxParser.parseExpression("{variable}", new PatternType<>(TypeManager.getByClassExact(String.class), true))
         );
-        SyntaxParser.parseEffect("delete {variable}").execute(DUMMY);
+        run(SyntaxParser.parseEffect("delete {variable}"));
         assertExpressionEquals(
                 new SimpleLiteral<>(Object.class),
                 SyntaxParser.parseExpression("{variable}", SyntaxParser.OBJECT_PATTERN_TYPE)
         );
         // Numbers
         PatternType<Number> numberType = new PatternType<>(TypeManager.getByClassExact(Number.class), true);
-        SyntaxParser.parseEffect("set {number} to 5").execute(DUMMY);
+        run(SyntaxParser.parseEffect("set {number} to 5"));
         assertEquals(
                 BigInteger.class,
                 SyntaxParser.parseExpression("{number}", numberType)
                             .getSingle(DUMMY)
                             .getClass()
         );
-        SyntaxParser.parseEffect("set {number} to 5.2").execute(DUMMY);
+        run(SyntaxParser.parseEffect("set {number} to 5.2"));
         assertEquals(
                 BigDecimal.class,
                 SyntaxParser.parseExpression("{number}", numberType)

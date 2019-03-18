@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
@@ -79,7 +80,7 @@ public class ExprRange implements Expression<Object> {
     }
 
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         from = expressions[0];
         to = expressions[1];
         range = Ranges.getRange(ClassUtils.getCommonSuperclass(from.getReturnType(), to.getReturnType()));
@@ -93,18 +94,17 @@ public class ExprRange implements Expression<Object> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Object[] getValues(TriggerContext e) {
-        Object f = from.getSingle(e);
-        Object t = to.getSingle(e);
+    public Object[] getValues(TriggerContext ctx) {
+        Object f = from.getSingle(ctx);
+        Object t = to.getSingle(ctx);
         if (f == null || t == null) {
             return new Object[0];
         }
         // This is safe... right ?
-        Object[] range = (Object[]) ((BiFunction) this.range.getFunction()).apply(f, t);
-        if (comparator != null && ((Comparator) comparator).apply(f, t).is(Relation.SMALLER)) {
-            return CollectionUtils.reverseArray(range);
+        if (comparator != null && ((Comparator) comparator).apply(f, t).is(Relation.GREATER)) {
+            return CollectionUtils.reverseArray((Object[]) ((BiFunction) this.range.getFunction()).apply(t, f));
         } else {
-            return range;
+            return (Object[]) ((BiFunction) this.range.getFunction()).apply(f, t);
         }
     }
 
@@ -114,7 +114,7 @@ public class ExprRange implements Expression<Object> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
-        return "range from " + from.toString(e, debug) + " to " + to.toString(e, debug);
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        return "range from " + from.toString(ctx, debug) + " to " + to.toString(ctx, debug);
     }
 }

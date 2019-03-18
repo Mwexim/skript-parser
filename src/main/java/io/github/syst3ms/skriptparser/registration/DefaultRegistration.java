@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.Skript;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
@@ -168,6 +167,7 @@ public class DefaultRegistration {
                 Number.class,
                 Number.class,
                 new Comparator<Number, Number>(true) {
+                    @SuppressWarnings("unchecked")
                     @Override
                     public Relation apply(Number number, Number number2) {
                         if (number.getClass() == number2.getClass()) {

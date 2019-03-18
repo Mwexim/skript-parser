@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.lang;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 @SuppressWarnings("unchecked")
 public class While extends CodeSection {
     @Nullable
-    private Effect actualNext;
+    private Statement actualNext;
     private Expression<Boolean> condition;
 
     static {
@@ -29,15 +29,15 @@ public class While extends CodeSection {
     }
 
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         condition = (Expression<Boolean>) expressions[0];
         return true;
     }
 
     @SuppressWarnings("PointlessBooleanExpression")
     @Override
-    protected Effect walk(TriggerContext e) {
-        Boolean cond = condition.getSingle(e);
+    protected Statement walk(TriggerContext ctx) {
+        Boolean cond = condition.getSingle(ctx);
         if (cond == null) {
             return actualNext;
         } else {
@@ -46,7 +46,7 @@ public class While extends CodeSection {
     }
 
     @Override
-    public Effect setNext(@Nullable Effect next) {
+    public Statement setNext(@Nullable Statement next) {
         this.actualNext = next;
         return this;
     }
@@ -55,12 +55,12 @@ public class While extends CodeSection {
      * @see Loop#getActualNext()
      */
     @Nullable
-    public Effect getActualNext() {
+    public Statement getActualNext() {
         return actualNext;
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
-        return "while " + condition.toString(e, debug);
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        return "while " + condition.toString(ctx, debug);
     }
 }

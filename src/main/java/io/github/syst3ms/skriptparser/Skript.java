@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser;
 
 import io.github.syst3ms.skriptparser.event.ScriptLoadContext;
-import io.github.syst3ms.skriptparser.lang.Effect;
+import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 
@@ -24,7 +24,7 @@ public class Skript extends SkriptAddon {
     @Override
     public void finishedLoading() {
         for (Trigger trigger : mainTriggers) {
-            Effect.runAll(trigger, new ScriptLoadContext(mainArgs));
+            Statement.runAll(trigger, new ScriptLoadContext(mainArgs));
         }
     }
 }

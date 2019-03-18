@@ -5,7 +5,7 @@ import io.github.syst3ms.skriptparser.classes.ChangeMode;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
@@ -36,7 +36,7 @@ public class EffChange extends Effect {
     }
 
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         ChangeMode mode = PATTERNS.getInfo(matchedPattern);
         if (mode == ChangeMode.RESET || mode == ChangeMode.DELETE) {
             changed = expressions[0];
@@ -51,9 +51,7 @@ public class EffChange extends Effect {
         this.mode = mode;
         if (changeWith == null) {
             assert mode == ChangeMode.DELETE || mode == ChangeMode.RESET;
-            if (changed.acceptsChange(mode) == null) {
-                return false;
-            }
+            return changed.acceptsChange(mode) != null;
         } else {
             Class<?> changeType = changeWith.getReturnType();
             Class<?>[] acceptance = changed.acceptsChange(mode);
@@ -101,9 +99,9 @@ public class EffChange extends Effect {
     private boolean assignment;
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
-        String changedString = changed.toString(e, debug);
-        String changedWithString = changeWith != null ? changeWith.toString(e, debug) : "";
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        String changedString = changed.toString(ctx, debug);
+        String changedWithString = changeWith != null ? changeWith.toString(ctx, debug) : "";
         switch (mode) {
             case SET:
                 if (assignment) {
@@ -135,11 +133,11 @@ public class EffChange extends Effect {
     }
 
     @Override
-    public void execute(TriggerContext e) {
+    public void execute(TriggerContext ctx) {
         if (changeWith == null) {
-            changed.change(e, new Object[0], mode);
+            changed.change(ctx, new Object[0], mode);
         } else {
-            changed.change(e, changeWith.getValues(e), mode);
+            changed.change(ctx, changeWith.getValues(ctx), mode);
         }
     }
 }

@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.event.TriggerContext;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
@@ -118,28 +118,28 @@ public class VariableString implements Expression<String> {
     }
 
     @Override
-    public String[] getValues(TriggerContext e) {
-        return new String[]{toString(e)};
+    public String[] getValues(TriggerContext ctx) {
+        return new String[]{toString(ctx)};
     }
 
     @Override
     @Contract("_, _, _ -> fail")
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * @param e the event
+     * @param ctx the event
      * @return this VariableString represented in the given event. The behaviour of passing {@code null} without
      * checking {@link #isSimple()} is unspecified.
      */
-    public String toString(TriggerContext e) {
+    public String toString(TriggerContext ctx) {
         if (simple)
             return (String) data[0];
         StringBuilder sb = new StringBuilder();
         for (Object o : data) {
             if (o instanceof Expression) {
-                sb.append(TypeManager.toString(((Expression) o).getValues(e)));
+                sb.append(TypeManager.toString(((Expression) o).getValues(ctx)));
             } else {
                 sb.append(o);
             }
@@ -148,13 +148,13 @@ public class VariableString implements Expression<String> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
         if (simple)
             return "\"" + data[0] + "\"";
         StringBuilder sb = new StringBuilder("\"");
         for (Object o : data) {
             if (o instanceof Expression) {
-                sb.append('%').append(((Expression) o).toString(e, debug)).append('%');
+                sb.append('%').append(((Expression) o).toString(ctx, debug)).append('%');
             } else {
                 sb.append(o);
             }

@@ -5,7 +5,7 @@ import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.ExpressionList;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
@@ -48,7 +48,7 @@ public class CondExprCompare extends ConditionalExpression {
 
     @SuppressWarnings("null")
     @Override
-    public boolean init(Expression<?>[] vars, int matchedPattern, ParseResult result) {
+    public boolean init(Expression<?>[] vars, int matchedPattern, ParseContext result) {
         first = vars[0];
         second = vars[1];
         if (vars.length == 3)
@@ -171,12 +171,12 @@ public class CondExprCompare extends ConditionalExpression {
      * neither a nor b # x or y === a !# x or y && b !# x or y			// nor = and
      */
     @Override
-    public boolean check(TriggerContext e) {
+    public boolean check(TriggerContext ctx) {
         Expression<?> third = this.third;
         return first.check(
-            e,
+                ctx,
             o1 -> second.check(
-                e,
+                    ctx,
                 o2 -> {
                     if (third == null) {
                         return relation.is(comp != null ?
@@ -184,7 +184,7 @@ public class CondExprCompare extends ConditionalExpression {
                                                : Comparators.compare(o1, o2));
                     }
                     return third.check(
-                        e,
+                            ctx,
                         o3 -> relation == Relation.NOT_EQUAL ^
                               (Relation.GREATER_OR_EQUAL.is(comp != null
                                                                 ? comp.apply(o1, o2)
@@ -201,13 +201,15 @@ public class CondExprCompare extends ConditionalExpression {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
         String s;
         Expression<?> third = this.third;
         if (third == null) {
-            s = first.toString(e, debug) + " is " + (isNegated() ? "not " : "") + relation + " " + second.toString(e, debug);
+            s = first.toString(ctx, debug) + " is " + (isNegated() ? "not " : "") + relation + " " + second.toString(
+                    ctx, debug);
         } else {
-            s = first.toString(e, debug) + " is " + (isNegated() ? "not " : "") + "between " + second.toString(e, debug) + " and " + third.toString(e, debug);
+            s = first.toString(ctx, debug) + " is " + (isNegated() ? "not " : "") + "between " + second.toString(ctx, debug) + " and " + third.toString(
+                    ctx, debug);
         }
         if (debug) {
             s += " (comparator: " + comp + ")";

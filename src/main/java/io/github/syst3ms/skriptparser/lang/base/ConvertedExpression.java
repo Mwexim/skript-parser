@@ -2,7 +2,7 @@ package io.github.syst3ms.skriptparser.lang.base;
 
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -44,20 +44,20 @@ public class ConvertedExpression<F, T> implements Expression<T> {
     }
 
     @Override
-    public T[] getValues(TriggerContext e) {
-        return Converters.convert(source.getValues(e), to, converter);
+    public T[] getValues(TriggerContext ctx) {
+        return Converters.convert(source.getValues(ctx), to, converter);
     }
 
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String toString(@Nullable TriggerContext e, boolean debug) {
-        if (debug && e == null)
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        if (debug && ctx == null)
             return "(" + source.toString(null, true) + " >> " + converter + ": " + source.getReturnType().getName() + "->" + to.getName() + ")";
-        return source.toString(e, debug);
+        return source.toString(ctx, debug);
     }
 
     @Override

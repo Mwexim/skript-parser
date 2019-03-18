@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.lang;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +19,7 @@ public class Loop extends CodeSection {
 	private transient Map<TriggerContext, Object> current = new WeakHashMap<>();
 	private transient Map<TriggerContext, Iterator<?>> currentIter = new WeakHashMap<>();
 	@Nullable
-	private Effect actualNext;
+	private Statement actualNext;
 
 	static {
 		Main.getMainRegistration().addSection(
@@ -29,7 +29,7 @@ public class Loop extends CodeSection {
 	}
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		expr = expressions[0];
 		if (expr.isSingle()) {
 		    // REMIND error
@@ -47,31 +47,30 @@ public class Loop extends CodeSection {
 	}
 
 	@Override
-	@Nullable
-	protected Effect walk(TriggerContext e) {
-		Iterator<?> iter = currentIter.get(e);
+    protected Statement walk(TriggerContext ctx) {
+		Iterator<?> iter = currentIter.get(ctx);
 		if (iter == null) {
-			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(e) : expr.iterator(e);
+			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(ctx) : expr.iterator(ctx);
 			if (iter != null) {
 				if (iter.hasNext())
-					currentIter.put(e, iter);
+					currentIter.put(ctx, iter);
 				else
 					iter = null;
 			}
 		}
 		if (iter == null || !iter.hasNext()) {
 			if (iter != null)
-				currentIter.remove(e); // a loop inside another loop can be called multiple times in the same event
+				currentIter.remove(ctx); // a loop inside another loop can be called multiple times in the same event
 			return actualNext;
 		} else {
-			current.put(e, iter.next());
+			current.put(ctx, iter.next());
 			return getFirst();
 		}
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext e, boolean debug) {
-		return "loop " + expr.toString(e, debug);
+	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+		return "loop " + expr.toString(ctx, debug);
 	}
 
 	@Nullable
@@ -87,7 +86,7 @@ public class Loop extends CodeSection {
 	}
 
 	@Override
-	public Loop setNext(@Nullable Effect next) {
+	public Loop setNext(@Nullable Statement next) {
 		actualNext = next;
 		return this;
 	}
@@ -99,7 +98,7 @@ public class Loop extends CodeSection {
      * @return the element that is actually after this Loop
      */
 	@Nullable
-	public Effect getActualNext() {
+	public Statement getActualNext() {
 		return actualNext;
 	}
 }

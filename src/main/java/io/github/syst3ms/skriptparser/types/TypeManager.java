@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.types;
 
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
-import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;

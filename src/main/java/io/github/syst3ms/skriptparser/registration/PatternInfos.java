@@ -1,13 +1,13 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.parsing.ParseResult;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 
 /**
  * An object used to retrieve depending on which pattern was matched
  * @param <T> the type of the data to be retrieved
- * @see io.github.syst3ms.skriptparser.lang.SyntaxElement#init(Expression[], int, ParseResult)
+ * @see io.github.syst3ms.skriptparser.lang.SyntaxElement#init(Expression[], int, ParseContext)
  */
 public class PatternInfos<T> {
     private String[] patterns;

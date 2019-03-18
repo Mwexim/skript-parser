@@ -4,7 +4,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
-import io.github.syst3ms.skriptparser.parsing.SkriptParser;
+import io.github.syst3ms.skriptparser.parsing.MatchContext;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.util.StringUtils;
@@ -36,16 +36,17 @@ public class ExpressionElement implements PatternElement {
     }
 
     @Override
-    public int match(String s, int index, SkriptParser parser) {
+    public int match(String s, int index, MatchContext parser) {
         if (parser.getOriginalElement().equals(this))
             parser.advanceInPattern();
         PatternType<?>[] typeArray = types.toArray(new PatternType<?>[0]);
         if (index >= s.length()) {
             return -1;
         }
-        List<PatternElement> flattened = parser.flatten(parser.getOriginalElement());
-        List<PatternElement> possibleInputs = parser.getPossibleInputs(flattened.subList(parser.getPatternIndex(), flattened.size()));
-        for (PatternElement possibleInput : possibleInputs) {
+        List<PatternElement> flattened = PatternElement.flatten(parser.getOriginalElement());
+        // We look at what could possibly be after the expression in the current syntax
+        List<PatternElement> possibleInputs = PatternElement.getPossibleInputs(flattened.subList(parser.getPatternIndex(), flattened.size()));
+        for (PatternElement possibleInput : possibleInputs) {  // We iterate over those possibilities
             if (possibleInput instanceof TextElement) {
                 String text = ((TextElement) possibleInput).getText();
                 if (text.isEmpty())
@@ -89,10 +90,8 @@ public class ExpressionElement implements PatternElement {
                 }
             } else {
                 assert possibleInput instanceof ExpressionElement;
-                List<PatternElement> nextPossibleInputs = parser
-                    .getPossibleInputs(flattened.subList(parser.getPatternIndex() + 1, flattened.size()));
-                if (nextPossibleInputs.stream()
-                                      .anyMatch(pe -> !(pe instanceof TextElement))) { // Let's not get that deep
+                List<PatternElement> nextPossibleInputs = PatternElement.getPossibleInputs(flattened.subList(parser.getPatternIndex() + 1, flattened.size()));
+                if (nextPossibleInputs.stream().anyMatch(pe -> !(pe instanceof TextElement))) {
                     continue;
                 }
                 for (PatternElement nextPossibleInput : nextPossibleInputs) {
@@ -175,7 +174,7 @@ public class ExpressionElement implements PatternElement {
                 // NOTE : conditions call parseBooleanExpression straight away
                 expression = (Expression<? extends T>) SyntaxParser.parseBooleanExpression(
                         s,
-                        acceptsConditional
+                        acceptsConditional ? 1 : 0
                 );
             } else {
                 expression = SyntaxParser.parseExpression(s, (PatternType<T>) type);
