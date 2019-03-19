@@ -26,7 +26,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 /**
- * A mutable object keeping track of everything registered by any source.
+ * A mutable object keeping track of all syntax and types registered by an {@link SkriptAddon addon}
  * Do not forget to call {@link #register()} !
  *
  * @see #getRegisterer()

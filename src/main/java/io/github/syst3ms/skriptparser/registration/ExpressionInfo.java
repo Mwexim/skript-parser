@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
+import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.Type;
@@ -7,8 +8,9 @@ import io.github.syst3ms.skriptparser.types.Type;
 import java.util.List;
 
 /**
- * Represents something that returns something and has PATTERNS which
- * may result it being matched
+ * A class containing info about an {@link Expression} syntax
+ * @param <C> the {@link Expression} class
+ * @param <T> the return type of the {@link Expression}
  */
 public class ExpressionInfo<C, T> extends SyntaxInfo<C> {
     private PatternType<T> returnType;

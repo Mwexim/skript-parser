@@ -1,7 +1,33 @@
 package io.github.syst3ms.skriptparser.types.comparisons;
 
+/**
+ * A relation between two objects
+ */
 public enum Relation {
-    EQUAL(0), NOT_EQUAL(0), GREATER(1), GREATER_OR_EQUAL(1), SMALLER(-1), SMALLER_OR_EQUAL(-1);
+    /**
+     * The two objects are equal
+     */
+    EQUAL(0),
+    /**
+     * The two objects are not equal
+     */
+    NOT_EQUAL(0),
+    /**
+     * The first object is greater than the other one
+     */
+    GREATER(1),
+    /**
+     * The first object is greater or equal to the other one
+     */
+    GREATER_OR_EQUAL(1),
+    /**
+     * The first object is smaller than the other one
+     */
+    SMALLER(-1),
+    /**
+     * The first object is smaller or equal to the other one
+     */
+    SMALLER_OR_EQUAL(-1);
 
     private final int comparison;
 
@@ -12,7 +38,7 @@ public enum Relation {
     /**
      * Returns EQUAL for true or NOT_EQUAL for false
      *
-     * @param b
+     * @param b a boolean
      * @return <tt>b ? Relation.EQUAL : Relation.NOT_EQUAL</tt>
      */
     public static Relation get(boolean b) {
@@ -22,7 +48,7 @@ public enum Relation {
     /**
      * Gets a Relation from a difference: If i is 0, EQUAL is returned, if i is greater than 0, GREATER is returned, otherwise SMALLER.
      *
-     * @param i
+     * @param i an integer
      * @return <tt>i == 0 ? Relation.EQUAL : i > 0 ? Relation.GREATER : Relation.SMALLER</tt>
      */
     public static Relation get(int i) {
@@ -33,7 +59,7 @@ public enum Relation {
      * Gets a Relation from a difference: If d is 0, {@link #EQUAL} is returned, if d is greater than 0, {@link #GREATER} is returned, otherwise {@link #SMALLER}.
      * If d is {@link Double#NaN}, then {@link #NOT_EQUAL} is returned
      *
-     * @param d
+     * @param d a double
      * @return <tt>d == 0 ? Relation.EQUAL : d > 0 ? Relation.GREATER : Relation.SMALLER</tt>, or {@code Relation.NOT_EQUAL} if <tt>Double.isNan(d)</tt>
      */
     public static Relation get(double d) {
@@ -46,7 +72,7 @@ public enum Relation {
      * Test whether this relation is fulfilled if another is, i.e. if the parameter relation fulfils <code>X rel Y</code>, then this relation fulfils <code>X rel Y</code> as
      * well.
      *
-     * @param other
+     * @param other another {@link Relation}
      * @return Whether this relation is part of the given relation, e.g. <code>GREATER_OR_EQUAL.is(EQUAL)</code> returns true.
      */
     public boolean is(Relation other) {
@@ -94,7 +120,7 @@ public enum Relation {
     /**
      * Gets the inverse of this {@link Relation}, i.e if this relation fulfils <code>X rel Y</code>, then the returned relation fulfils <code>!(X rel Y)</code>.
      *
-     * @return !this
+     * @return the opposite of this relation
      */
     public Relation getInverse() {
         switch (this) {

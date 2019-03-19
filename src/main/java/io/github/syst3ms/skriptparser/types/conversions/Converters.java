@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * @author Peter Güttinger
+ * @author Peter Güttinger (Njol)
  */
 public abstract class Converters {
     public static final int ALL_CHAINING = 0;

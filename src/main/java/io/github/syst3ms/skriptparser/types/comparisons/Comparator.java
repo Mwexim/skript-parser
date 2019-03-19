@@ -3,9 +3,9 @@ package io.github.syst3ms.skriptparser.types.comparisons;
 import java.util.function.BiFunction;
 
 /**
- * An interface for comparing two values given types
- * @param <T1> the type of the first value
- * @param <T2> the type of the second value
+ * An interface for comparing values of two given types
+ * @param <T1> the first type
+ * @param <T2> the second value
  * @see Comparators
  */
 public abstract class Comparator<T1, T2> implements BiFunction<T1, T2, Relation> {

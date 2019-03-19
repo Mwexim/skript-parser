@@ -319,7 +319,7 @@ public class Rational implements Cloneable, Comparable<Rational> {
 	 * @author Richard J. Mathar
 	 * @since 2008-10-26
 	 */
-	public BigDecimal BigDecimalValue(MathContext mc) {
+	public BigDecimal bigDecimalValue(MathContext mc) {
 		BigDecimal n = new BigDecimal(a);
 		BigDecimal d = new BigDecimal(b);
 		return BigDecimalMath.scalePrec(n.divide(d, mc), mc);

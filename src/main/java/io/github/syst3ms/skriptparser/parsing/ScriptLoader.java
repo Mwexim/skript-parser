@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Contains the logic for loading, parsing and interpreting entire script files
+ */
 public class ScriptLoader {
     private static final LinkedList<Loop> currentLoops = new LinkedList<>();
     private static MultiMap<String, Trigger> triggerMap = new MultiMap<>();
@@ -27,6 +30,10 @@ public class ScriptLoader {
         return triggerMap;
     }
 
+    /**
+     * Parses and loads the provided script in memory
+     * @param script the script file to load
+     */
     public static void loadScript(File script) {
         FileParser parser = new FileParser();
         List<FileElement> elements;

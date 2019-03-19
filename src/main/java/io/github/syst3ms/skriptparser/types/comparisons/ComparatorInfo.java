@@ -1,5 +1,10 @@
 package io.github.syst3ms.skriptparser.types.comparisons;
 
+/**
+ * A class containing information about a {@link Comparator}
+ * @param <T1> the first type
+ * @param <T2> the second type
+ */
 public class ComparatorInfo<T1, T2> {
     private Class<T1> firstClass;
     private Class<T2> secondClass;

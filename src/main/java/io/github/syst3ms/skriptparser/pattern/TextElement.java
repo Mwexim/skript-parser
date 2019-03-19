@@ -28,6 +28,7 @@ public class TextElement implements PatternElement {
         if (parser.getOriginalElement().equals(this))
             parser.advanceInPattern();
         String trimmed = text.trim();
+        // We advance until we reach the first non-whitespace character in s
         while (i < s.length() && Character.isWhitespace(s.charAt(i)))
             i++;
         if (i + trimmed.length() > s.length()) {

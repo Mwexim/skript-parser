@@ -10,7 +10,8 @@ import java.util.Objects;
 import java.util.function.Function;
 
 /**
- * A basic definition of a type. This doesn't handle number (single/plural), see {@link PatternType} for that purpose
+ * A basic definition of a type. This doesn't handle number (single/plural), unlike {@link PatternType}
+ * @see PatternType
  */
 public class Type<T> {
     private Class<T> typeClass;

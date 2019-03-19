@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.parsing;
 
 /**
- * Is thrown when something pertaining to misusage/unexpected behaviour occurs
+ * An exception thrown when something goes wrong at runtime
  */
 public class SkriptRuntimeException extends RuntimeException {
     public SkriptRuntimeException(String msg) {

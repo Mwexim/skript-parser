@@ -49,8 +49,9 @@ public class Variables {
         name = name.startsWith(LOCAL_VARIABLE_TOKEN) ? name.substring(LOCAL_VARIABLE_TOKEN.length()).trim()
 			: name.trim();
         if (name.startsWith(LIST_SEPARATOR) || name.endsWith(LIST_SEPARATOR)) {
-            if (printErrors)
+            if (printErrors) {
                 // REMIND error
+            }
             return false;
         } else if (name.contains("*") && (name.indexOf("*") != name.length() - 1 || !name.endsWith(LIST_SEPARATOR + "*"))) {
             if (printErrors) {
@@ -58,8 +59,9 @@ public class Variables {
             }
             return false;
         } else if (name.contains(LIST_SEPARATOR + LIST_SEPARATOR)) {
-            if (printErrors)
+            if (printErrors) {
                 // REMIND error
+            }
             return false;
         }
         return true;

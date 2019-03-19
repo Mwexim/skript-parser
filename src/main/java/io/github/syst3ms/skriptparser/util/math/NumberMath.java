@@ -49,7 +49,7 @@ public class NumberMath {
             BigDecimal bd = bigToBigDecimal(n);
             BigDecimal bdBase = bigToBigDecimal(base);
             return BigDecimalMath.log(bd, BigDecimalMath.DEFAULT_CONTEXT)
-                                 .divide(BigDecimalMath.log(bdBase, BigDecimalMath.DEFAULT_CONTEXT), BigDecimalMath.DEFAULT_CONTEXT.getRoundingMode());
+                                 .divide(BigDecimalMath.log(bdBase, BigDecimalMath.DEFAULT_CONTEXT), BigDecimalMath.DEFAULT_ROUNDING_MODE);
         }
     }
 

@@ -5,6 +5,10 @@ import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A top-level section, that is not contained in code.
+ * Usually declares an event.
+ */
 public class Trigger extends CodeSection {
     private final SkriptEvent event;
 

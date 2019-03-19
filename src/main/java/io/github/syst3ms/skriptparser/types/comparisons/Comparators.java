@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
+/**
+ * A class handling registration and usage of {@link Comparator}s
+ */
 public class Comparators {
     public static final Comparator<Object, Object> EQUALS_COMPARATOR = new Comparator<Object, Object>(false) {
         @Override
@@ -77,7 +80,7 @@ public class Comparators {
         }
 
         // same class but no comparator
-        if (s == f && f != Object.class && s != Object.class) {
+        if (s == f && f != Object.class) {
             return EQUALS_COMPARATOR;
         }
 

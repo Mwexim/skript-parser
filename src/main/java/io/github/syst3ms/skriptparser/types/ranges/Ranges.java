@@ -1,9 +1,14 @@
 package io.github.syst3ms.skriptparser.types.ranges;
 
+import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 
+/**
+ * A class handling registration of ranges
+ */
 public class Ranges {
     private static Map<Class<?>, RangeInfo<?, ?>> rangeMap = new HashMap<>();
 

@@ -174,7 +174,7 @@ public class ExpressionElement implements PatternElement {
                 // NOTE : conditions call parseBooleanExpression straight away
                 expression = (Expression<? extends T>) SyntaxParser.parseBooleanExpression(
                         s,
-                        acceptsConditional ? 1 : 0
+                        acceptsConditional ? SyntaxParser.MAYBE_CONDITIONAL : SyntaxParser.NOT_CONDITIONAL
                 );
             } else {
                 expression = SyntaxParser.parseExpression(s, (PatternType<T>) type);

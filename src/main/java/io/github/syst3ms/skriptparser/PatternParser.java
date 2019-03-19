@@ -52,7 +52,7 @@ public class PatternParser {
                 if (m.matches()) {
                     String mark = m.group(1);
                     int markNumber = Integer.parseInt(mark);
-                    String rest = s.substring(mark.length() + 1, s.length());
+                    String rest = s.substring(mark.length() + 1);
                     PatternElement e = parsePattern(rest);
                     if (e == null) {
                         return null;
@@ -82,7 +82,7 @@ public class PatternParser {
                     if (matcher.matches()) {
                         String mark = matcher.group(1);
                         int markNumber = Integer.parseInt(mark);
-                        String rest = choice.substring(mark.length() + 1, choice.length());
+                        String rest = choice.substring(mark.length() + 1);
                         PatternElement choiceContent = parsePattern(rest);
                         if (choiceContent == null) {
                             return null;
@@ -172,7 +172,7 @@ public class PatternParser {
                     if (matcher.matches()) {
                         String mark = matcher.group(1);
                         int markNumber = Integer.parseInt(mark);
-                        String rest = choice.substring(mark.length() + 1, choice.length());
+                        String rest = choice.substring(mark.length() + 1);
                         PatternElement choiceContent = parsePattern(rest);
                         if (choiceContent == null) {
                             return null;

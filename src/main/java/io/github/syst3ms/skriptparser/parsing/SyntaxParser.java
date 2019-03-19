@@ -41,25 +41,70 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Contains the logic for parsing and interpreting statements, sections and expressions inside of a script.
+ */
 @SuppressWarnings("unchecked")
 public class SyntaxParser {
+    /**
+     * Tells {@link #parseBooleanExpression(String, int)} to only return expressions that are not conditional
+     * @see #parseBooleanExpression(String, int)
+     */
     public static final int NOT_CONDITIONAL = 0;
+    /**
+     * Tells {@link #parseBooleanExpression(String, int)} to return any expressions, conditional or not
+     * @see #parseBooleanExpression(String, int)
+     */
     public static final int MAYBE_CONDITIONAL = 1;
+    /**
+     * Tells {@link #parseBooleanExpression(String, int)} to only return conditional expressions
+     * @see #parseBooleanExpression(String, int)
+     */
     public static final int CONDITIONAL = 2;
     public static final Pattern LIST_SPLIT_PATTERN = Pattern.compile("\\s*(,)\\s*|\\s+(and|or)\\s+", Pattern.CASE_INSENSITIVE);
+    /**
+     * The pattern type representing {@link Boolean}
+     */
     @SuppressWarnings("ConstantConditions")
     public static final PatternType<Boolean> BOOLEAN_PATTERN_TYPE = new PatternType<>((Type<Boolean>) TypeManager.getByClass(Boolean.class), true);
-    @SuppressWarnings("ConstantConditions")
+    /**
+     * The pattern type representing {@link Object}
+     */
+    @SuppressWarnings({"ConstantConditions", "RedundantCast"}) // Gradle requires the cast, but IntelliJ considers it redundant
     public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class), true);
 
+    /**
+     * All {@link Effect effects} that are successfully parsed during parsing, in order of last successful parsing
+     */
     private static final RecentElementList<SyntaxInfo<? extends Effect>> recentEffects = new RecentElementList<>();
+    /**
+     * All {@link CodeSection sections} that are successfully parsed during parsing, in order of last successful parsing
+     */
     private static final RecentElementList<SyntaxInfo<? extends CodeSection>> recentSections = new RecentElementList<>();
+    /**
+     * All {@link SkriptEvent events} that are successfully parsed during parsing, in order of last successful parsing
+     */
     private static final RecentElementList<SkriptEventInfo<?>> recentEvents = new RecentElementList<>();
+    /**
+     * All {@link Expression expressions} that are successfully parsed during parsing, in order of last successful parsing
+     */
     private static final RecentElementList<ExpressionInfo<?, ?>> recentExpressions = new RecentElementList<>();
+    /**
+     * All {@link ConditionalExpression conditions} that are successfully parsed during parsing, in order of last successful parsing
+     */
     private static final RecentElementList<ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>> recentConditions = new RecentElementList<>();
 
     private static Class<? extends TriggerContext>[] currentContexts = new Class[]{};
 
+    /**
+     * Parses an {@link Expression} from the given {@linkplain String} and {@link PatternType expected return type}
+     * @param s the string to be parsed as an expression
+     * @param expectedType the expected return type
+     * @param <T> the type of the expression
+     * @return an expression that was successfully parsed, or {@literal null} if the string is empty,
+     * no match was found
+     * or for another reason detailed in an error message.
+     */
     @Nullable
     public static <T> Expression<? extends T> parseExpression(String s, PatternType<T> expectedType) {
         if (s.isEmpty())
@@ -106,6 +151,17 @@ public class SyntaxParser {
         return null;
     }
 
+    /**
+     * Parses a {@link Expression boolean expression} from the given {@linkplain String}
+     * @param s the string to be parsed as an expression
+     * @param conditional a constant describing whether the result can be a {@link ConditionalExpression condition}
+     * @see SyntaxParser#NOT_CONDITIONAL
+     * @see SyntaxParser#MAYBE_CONDITIONAL
+     * @see SyntaxParser#CONDITIONAL
+     * @return a boolean expression that was successfully parsed, or {@literal null} if the string is empty,
+     * no match was found
+     * or for another reason detailed in an error message.
+     */
     @Nullable
     public static Expression<Boolean> parseBooleanExpression(String s, @MagicConstant(intValues = {NOT_CONDITIONAL, MAYBE_CONDITIONAL, CONDITIONAL}) int conditional) {
         // I swear this is the cleanest way to do it
@@ -180,6 +236,13 @@ public class SyntaxParser {
         return null;
     }
 
+    /**
+     * Parses a line of code as an {@link InlineCondition}
+     * @param s the line to be parsed
+     * @return an inline condition that was successfully parsed, or {@literal null} if the string is empty,
+     * no match was found
+     * or for another reason detailed in an error message
+     */
     @Nullable
     public static InlineCondition parseInlineCondition(String s) {
         if (s.isEmpty())
@@ -188,12 +251,6 @@ public class SyntaxParser {
         return cond != null ? new InlineCondition(cond) : null;
     }
 
-    /**
-     * Tries to match an {@link ExpressionInfo} against the given {@link String} expression.
-     * @param <T> The return type of the {@link Expression}
-     * @param currentContextss the current
-     * @return the Expression instance if matching, or {@literal null} otherwise
-     */
     @Nullable
     private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType, Class<? extends TriggerContext>[] currentContextss) {
         List<PatternElement> patterns = info.getPatterns();
@@ -241,6 +298,15 @@ public class SyntaxParser {
         return null;
     }
 
+    /**
+     * Parses a list literal expression (of the form {@code ..., ... and ...}) from the given {@linkplain String}  and {@link PatternType expected return type}
+     * @param s the string to be parsed as a list literal
+     * @param expectedType the expected return type (must be plural)
+     * @param <T> the type of the list literal
+     * @return a list literal that was successfully parsed, or {@literal null} if the string is empty,
+     * no match was found
+     * or for another reason detailed in an error message.
+     */
     @Nullable
     public static <T> Expression<? extends T> parseListLiteral(String s, PatternType<T> expectedType) {
         assert !expectedType.isSingle();
@@ -324,6 +390,15 @@ public class SyntaxParser {
         }
     }
 
+    /**
+     * Parses a literal of a given {@link PatternType type} from the given {@linkplain String}
+     * @param s the string to be parsed as a literal
+     * @param expectedType the expected return type
+     * @param <T> the type of the literal
+     * @return a literal that was successfully parsed, or {@literal null} if the string is empty,
+     * no match was found
+     * or for another reason detailed in an error message.
+     */
     @Nullable
     public static <T> Expression<? extends T> parseLiteral(String s, PatternType<T> expectedType) {
         Map<Class<?>, Type<?>> classToTypeMap = TypeManager.getClassToTypeMap();
@@ -351,6 +426,13 @@ public class SyntaxParser {
         return null;
     }
 
+    /**
+     * Parses a line of code as an {@link Effect}
+     * @param s the line to be parsed
+     * @return an effect that was successfully parsed, or {@literal null} if the string is empty,
+     * no match was found
+     * or for another reason detailed in an error message
+     */
     @Nullable
     public static Effect parseEffect(String s) {
         if (s.isEmpty())
@@ -401,6 +483,13 @@ public class SyntaxParser {
         return null;
     }
 
+    /**
+     * Parses a line of code as a {@link Statement}, either an {@link Effect} or an {@link InlineCondition}
+     * @param s the line to be parsed
+     * @return a statement that was successfully parsed, or {@literal null} if the string is empty,
+     * no match was found
+     * or for another reason detailed in an error message
+     */
     @Nullable
     public static Statement parseStatement(String s) {
         if (s.isEmpty())
@@ -413,6 +502,13 @@ public class SyntaxParser {
         return parseEffect(s); // If that's null, we wanted to return null anyway
     }
 
+    /**
+     * Parses a section of a file as a {@link CodeSection}
+     * @param section the section to be parsed
+     * @return a section that was successfully parsed, or {@literal null} if the section is empty,
+     * no match was found
+     * or for another reason detailed in an error message
+     */
     @Nullable
     public static CodeSection parseSection(FileSection section) {
         if (section.getLineContent().isEmpty())
@@ -463,22 +559,30 @@ public class SyntaxParser {
         return null;
     }
 
-    public static Trigger parseTrigger(FileSection s) {
-        if (s.getLineContent().isEmpty())
+    /**
+     * Parses a section of a file as a {@link Trigger}
+     * @param section the section to be parsed
+     * @return a trigger that was successfully parsed, or {@literal null} if the section is empty,
+     * no match was found
+     * or for another reason detailed in an error message
+     */
+    @Nullable
+    public static Trigger parseTrigger(FileSection section) {
+        if (section.getLineContent().isEmpty())
             return null;
         for (SkriptEventInfo<?> recentEvent : recentEvents) {
-            Trigger trigger = matchEventInfo(s, recentEvent);
+            Trigger trigger = matchEventInfo(section, recentEvent);
             if (trigger != null) {
                 recentEvents.moveToFirst(recentEvent);
                 recentEvent.getRegisterer().handleTrigger(trigger);
                 return trigger;
             }
         }
-        // Let's not loop over the same elements again
+        // Let'section not loop over the same elements again
         List<SkriptEventInfo<?>> remainingEvents = SyntaxManager.getTriggers();
         recentEvents.removeFrom(remainingEvents);
         for (SkriptEventInfo<?> remainingEvent : remainingEvents) {
-            Trigger trigger = matchEventInfo(s, remainingEvent);
+            Trigger trigger = matchEventInfo(section, remainingEvent);
             if (trigger != null) {
                 recentEvents.moveToFirst(remainingEvent);
                 remainingEvent.getRegisterer().handleTrigger(trigger);

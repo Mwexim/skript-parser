@@ -6,6 +6,10 @@ import io.github.syst3ms.skriptparser.pattern.PatternElement;
 
 import java.util.List;
 
+/**
+ * A class containing info about an {@link SkriptEvent event} syntax
+ * @param <E> the {@link SkriptEvent} class
+ */
 public class SkriptEventInfo<E extends SkriptEvent> extends SyntaxInfo<E> {
     private final Class<? extends TriggerContext>[] contexts;
 

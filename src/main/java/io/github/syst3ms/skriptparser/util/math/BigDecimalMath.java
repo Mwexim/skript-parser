@@ -79,27 +79,27 @@ public class BigDecimalMath {
 	 * Natural logarithm of 2.
 	 * http://www.worldwideschool.org/library/books/sci/math/MiscellaneousMathematicalConstants/chap58.html
 	 */
-	private static BigDecimal LOG2 = new BigDecimal("0.693147180559945309417232121458176568075" +
-													"50013436025525412068000949339362196969471560586332699641868754200148102057068573" +
-													"368552023575813055703267075163507596193072757082837143519030703862389167347112335" +
-													"011536449795523912047517268157493206515552473413952588295045300709532636664265410" +
-													"423915781495204374043038550080194417064167151864471283996817178454695702627163106" +
-													"454615025720740248163777338963855069526066834113727387372292895649354702576265209" +
-													"885969320196505855476470330679365443254763274495125040606943814710468994650622016" +
-													"772042452452961268794654619316517468139267250410380254625965686914419287160829380" +
-													"317271436778265487756648508567407764845146443994046142260319309673540257444607030" +
-													"809608504748663852313818167675143866747664789088143714198549423151997354880375165" +
-													"861275352916610007105355824987941472950929311389715599820565439287170007218085761" +
-													"025236889213244971389320378439353088774825970171559107088236836275898425891853530" +
-													"243634214367061189236789192372314672321720534016492568727477823445353476481149418" +
-													"642386776774406069562657379600867076257199184734022651462837904883062033061144630" +
-													"073719489002743643965002580936519443041191150608094879306786515887090060520346842" +
-													"973619384128965255653968602219412292420757432175748909770675268711581705113700915" +
-													"894266547859596489065305846025866838294002283300538207400567705304678700184162404" +
-													"418833232798386349001563121889560650553151272199398332030751408426091479001265168" +
-													"243443893572472788205486271552741877243002489794540196187233980860831664811490930" +
-													"667519339312890431641370681397776498176974868903887789991296503619270710889264105" +
-													"230924783917373501229842420499568935992206602204654941510613").round(DEFAULT_CONTEXT);
+	private static BigDecimal LOG2 = new BigDecimal(
+        "0.69314718055994530941723212145817656807550013436025525412068000949339362196969" +
+        "471560586332699641868754200148102057068573368552023575813055703267075163507596" +
+        "193072757082837143519030703862389167347112335011536449795523912047517268157493" +
+        "206515552473413952588295045300709532636664265410423915781495204374043038550080" +
+        "194417064167151864471283996817178454695702627163106454615025720740248163777338" +
+        "963855069526066834113727387372292895649354702576265209885969320196505855476470" +
+        "330679365443254763274495125040606943814710468994650622016772042452452961268794" +
+        "654619316517468139267250410380254625965686914419287160829380317271436778265487" +
+        "756648508567407764845146443994046142260319309673540257444607030809608504748663" +
+        "852313818167675143866747664789088143714198549423151997354880375165861275352916" +
+        "610007105355824987941472950929311389715599820565439287170007218085761025236889" +
+        "213244971389320378439353088774825970171559107088236836275898425891853530243634" +
+        "214367061189236789192372314672321720534016492568727477823445353476481149418642" +
+        "386776774406069562657379600867076257199184734022651462837904883062033061144630" +
+        "073719489002743643965002580936519443041191150608094879306786515887090060520346" +
+        "842973619384128965255653968602219412292420757432175748909770675268711581705113" +
+        "700915894266547859596489065305846025866838294002283300538207400567705304678700" +
+        "184162404418833232798386349001563121889560650553151272199398332030751408426091" +
+        "479001265168243443893572472788205486271552741877243002489794540196187233980860" +
+        "831664811490930667519339312890431641370681397776498176974868903887789991296503").round(DEFAULT_CONTEXT);
 	/**
 	 * A suggestion for the maximum numter of terms in the Taylor expansion of the exponential.
 	 */
@@ -269,24 +269,7 @@ public class BigDecimalMath {
 		}
 	}
 
-	/**
-	 * The base of the natural logarithm.
-	 *
-	 * @param mc the required precision of the result
-	 * @return exp(1) = 2.71828....
-	 * @author Richard J. Mathar
-	 * @since 2009-05-29
-	 */
-	public static BigDecimal exp(final MathContext mc) {
-		if (mc.getPrecision() < E.precision()) {
-			return E.round(mc);
-		} else {
-			BigDecimal uni = scalePrec(BigDecimal.ONE, mc.getPrecision());
-			return exp(uni);
-		}
-	}
-
-	/**
+    /**
 	 * Power function.
 	 *
 	 * @param x Base of the power.
@@ -358,102 +341,7 @@ public class BigDecimalMath {
 		}
 	}
 
-	/**
-	 * The natural logarithm.
-	 *
-	 * @param n  The main argument, a strictly positive integer.
-	 * @param mc The requirements on the precision.
-	 * @return ln(n).
-	 * @author Richard J. Mathar
-	 * @since 2009-08-08
-	 */
-	private static BigDecimal log(int n, final MathContext mc) {
-		if (n <= 0) {
-			throw new ArithmeticException("Cannot take log of negative " + n);
-		} else if (n == 1) {
-			return BigDecimal.ZERO;
-		} else if (n == 2) {
-			if (mc.getPrecision() < LOG2.precision()) {
-				return LOG2.round(mc);
-			} else {
-				int[] a = {2, -5, -2, -7, -2, -5, 2, -3};
-				BigDecimal S = broadhurstBBP(2, 1, a, new MathContext(1 + mc.getPrecision()));
-				S = S.multiply(new BigDecimal(8));
-				S = root(2, divideRound(S, 3));
-				return S.round(mc);
-			}
-		} else if (n == 3) {
-			int kmax = (int) (mc.getPrecision() / 1.87);
-			MathContext mcloc = new MathContext(mc.getPrecision() + 1 + (int) (Math.log10(kmax * 0.693 / 1.098)));
-			BigDecimal log3 = multiplyRound(log(2, mcloc), 19);
-			double eps = prec2err(1.098, mc.getPrecision()) / kmax;
-			Rational r = new Rational(7153, 524288);
-			Rational pk = new Rational(7153, 524288);
-			for (int k = 1; ; k++) {
-				Rational tmp = pk.divide(k);
-				if (tmp.doubleValue() < eps) {
-					break;
-				}
-				mcloc = new MathContext(err2prec(tmp.doubleValue(), eps));
-				BigDecimal c = pk.divide(k).BigDecimalValue(mcloc);
-				if (k % 2 != 0) {
-					log3 = log3.add(c);
-				} else {
-					log3 = log3.subtract(c);
-				}
-				pk = pk.multiply(r);
-			}
-			log3 = divideRound(log3, 12);
-			return log3.round(mc);
-		} else if (n == 5) {
-			int kmax = (int) (mc.getPrecision() / 1.33);
-			MathContext mcloc = new MathContext(mc.getPrecision() + 1 + (int) (Math.log10(kmax * 0.693 / 1.609)));
-			BigDecimal log5 = multiplyRound(log(2, mcloc), 14);
-			double eps = prec2err(1.6, mc.getPrecision()) / kmax;
-			Rational r = new Rational(759, 16384);
-			Rational pk = new Rational(759, 16384);
-			for (int k = 1; ; k++) {
-				Rational tmp = pk.divide(k);
-				if (tmp.doubleValue() < eps) {
-					break;
-				}
-				mcloc = new MathContext(err2prec(tmp.doubleValue(), eps));
-				BigDecimal c = pk.divide(k).BigDecimalValue(mcloc);
-				log5 = log5.subtract(c);
-				pk = pk.multiply(r);
-			}
-			log5 = divideRound(log5, 6);
-			return log5.round(mc);
-		} else if (n == 7) {
-			int kmax = (int) (mc.getPrecision() / 0.903);
-			MathContext mcloc = new MathContext(mc.getPrecision() + 1 + (int) (Math.log10(kmax * 3 * 0.693 / 1.098)));
-			BigDecimal log7 = multiplyRound(log(2, mcloc), 3);
-			double eps = prec2err(1.9, mc.getPrecision()) / kmax;
-			Rational r = new Rational(1, 8);
-			Rational pk = new Rational(1, 8);
-			for (int k = 1; ; k++) {
-				Rational tmp = pk.divide(k);
-				if (tmp.doubleValue() < eps) {
-					break;
-				}
-				mcloc = new MathContext(err2prec(tmp.doubleValue(), eps));
-				BigDecimal c = pk.divide(k).BigDecimalValue(mcloc);
-				log7 = log7.subtract(c);
-				pk = pk.multiply(r);
-			}
-			return log7.round(mc);
-
-		} else {
-			double res = Math.log((double) n);
-			double eps = prec2err(res, mc.getPrecision());
-			eps *= n;
-			final MathContext mcloc = new MathContext(1 + err2prec((double) n, eps));
-			BigDecimal nb = scalePrec(new BigDecimal(n), mcloc);
-			return log(nb);
-		}
-	}
-
-	/**
+    /**
 	 * The natural logarithm.
 	 *
 	 * @param r  The main argument, a strictly positive value.
@@ -476,34 +364,7 @@ public class BigDecimalMath {
 		}
 	}
 
-	/**
-	 * Raise to an integer power and round.
-	 *
-	 * @param x The base.
-	 * @param n The exponent.
-	 * @return x^n.
-	 * @author Richard J. Mathar
-	 * @since 2009-08-13
-	 * @since 2010-05-26 handle also cases where n is less than zero.
-	 */
-	private static BigDecimal powRound(final BigDecimal x, final int n) {
-		/** Special cases: x^1=x and x^0 = 1
-		 */
-		if (n == 1) {
-			return x;
-		} else if (n == 0) {
-			return BigDecimal.ONE;
-		} else {
-			MathContext mc = new MathContext(x.precision() - (int) Math.log10((double) (Math.abs(n))));
-			if (n > 0) {
-				return x.pow(n, mc);
-			} else {
-				return BigDecimal.ONE.divide(x.pow(-n), mc);
-			}
-		}
-	}
-
-	/**
+    /**
 	 * Trigonometric sine.
 	 *
 	 * @param x The argument in radians.
@@ -973,7 +834,7 @@ public class BigDecimalMath {
 				break;
 			}
 			MathContext mcloc = new MathContext(1 + err2prec(r.doubleValue(), eps));
-			res = res.add(r.BigDecimalValue(mcloc));
+			res = res.add(r.bigDecimalValue(mcloc));
 		}
 		return res.round(mc);
 	}
@@ -1037,7 +898,7 @@ public class BigDecimalMath {
 			return BigDecimal.ZERO;
 		} else {
 			MathContext mc = new MathContext(2 + x.precision());
-			BigDecimal fbd = f.BigDecimalValue(mc);
+			BigDecimal fbd = f.bigDecimalValue(mc);
 			return multiplyRound(x, fbd);
 		}
 	}

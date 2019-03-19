@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 /**
- * Used to chain convertes to build a single converter. This is automatically created when a new converter is added.
+ * Used to chain converters to build a single converter. This is automatically created when a new converter is added.
  *
  * @author Peter Güttinger
  * @param <F> same as Converter's <F> (from)

@@ -2,6 +2,11 @@ package io.github.syst3ms.skriptparser.types.ranges;
 
 import java.util.function.BiFunction;
 
+/**
+ * Information about a range function
+ * @param <B> the type of the two endpoints
+ * @param <T> the type of the range that is returned
+ */
 public class RangeInfo<B, T> {
     private final Class<B> bound;
     private final Class<T> to;

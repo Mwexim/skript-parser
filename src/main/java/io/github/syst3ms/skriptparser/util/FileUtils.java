@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.util;
 
-import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.Skript;
 
 import java.io.BufferedReader;
@@ -10,7 +9,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;

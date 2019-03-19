@@ -24,7 +24,6 @@ public class RecentElementList<T> implements Iterable<T> {
     public RecentElementList() {}
 
     public void moveToFirst(T element) {
-        Set<T> traversed = new HashSet<>();
         Node<T> node = head;
         do {
             if(head == null)
@@ -34,11 +33,6 @@ public class RecentElementList<T> implements Iterable<T> {
                 T nextValue = next.getValue();
                 if (element.equals(nextValue)) {
                     node.setNext(next.getNext()); // How confusing
-                    if (traversed.contains(nextValue)) {
-                        return;
-                    } else {
-                        traversed.add(nextValue);
-                    }
                     head = new Node<>(nextValue, head);
                     return;
                 }

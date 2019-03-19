@@ -27,12 +27,12 @@ public class MatchContext {
         this.currentContext = currentContext;
     }
 
-    public String getOriginalPattern() {
-        return originalPattern;
-    }
-
     public PatternElement getOriginalElement() {
         return originalElement;
+    }
+
+    public String getOriginalPattern() {
+        return originalPattern;
     }
 
     public int getPatternIndex() {
@@ -42,7 +42,6 @@ public class MatchContext {
     public void advanceInPattern() {
         patternIndex++;
     }
-
     public List<Expression<?>> getParsedExpressions() {
         return parsedExpressions;
     }
@@ -63,6 +62,10 @@ public class MatchContext {
         parseMark ^= mark;
     }
 
+    /**
+     * Turns this {@link MatchContext} into a {@link ParseContext} used in {@linkplain io.github.syst3ms.skriptparser.lang.SyntaxElement}s
+     * @return a {@link ParseContext} based on this {@link MatchContext}
+     */
     public ParseContext toParseResult() {
         return new ParseContext(currentContext, originalElement, regexMatches, parseMark, originalPattern);
     }

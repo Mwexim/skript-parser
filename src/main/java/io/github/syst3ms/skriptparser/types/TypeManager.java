@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Manages all different types.
+ * Manages the registration and usage of {@link Type}
  */
 @SuppressWarnings("unchecked")
 public class TypeManager {
@@ -33,7 +33,7 @@ public class TypeManager {
     }
 
     /**
-     * Gets a {@link Type} using {@link Type#pluralForms}, which means this matches any alternate and/or plural form.
+     * Gets a {@link Type} using its plural forms, which means this matches any alternate and/or plural form.
      * @param name the name to get a Type from
      * @return the matching Type, or {@literal null} if nothing matched
      */

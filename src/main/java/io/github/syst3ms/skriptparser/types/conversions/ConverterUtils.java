@@ -2,6 +2,9 @@ package io.github.syst3ms.skriptparser.types.conversions;
 
 import java.util.function.Function;
 
+/**
+ * Utility functions regarding converters
+ */
 @SuppressWarnings("unchecked")
 public class ConverterUtils {
 

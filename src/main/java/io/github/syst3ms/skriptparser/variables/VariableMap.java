@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class VariableMap {
+class VariableMap {
     private static final Pattern listSplitPattern = Pattern.compile(Pattern.quote(Variables.LIST_SEPARATOR));
     private Map<String, Object> map = new HashMap<>(); // Ordering is not important right now
 
