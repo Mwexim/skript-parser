@@ -34,7 +34,6 @@ public class While extends CodeSection {
         return true;
     }
 
-    @SuppressWarnings("PointlessBooleanExpression")
     @Override
     protected Statement walk(TriggerContext ctx) {
         Boolean cond = condition.getSingle(ctx);

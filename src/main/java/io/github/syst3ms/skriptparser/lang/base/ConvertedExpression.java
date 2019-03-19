@@ -65,7 +65,6 @@ public class ConvertedExpression<F, T> implements Expression<T> {
         return source.isSingle();
     }
 
-    @SuppressWarnings("unchecked")
     public Class<T> getReturnType() {
         return to;
     }

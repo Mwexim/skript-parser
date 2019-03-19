@@ -15,13 +15,13 @@ import java.util.Iterator;
 import java.util.function.Predicate;
 
 /**
- * An expression, i.e a {@link SyntaxElement syntax element} representing a value with some type.
+ * An expression, i.e a {@link SyntaxElement} representing a value with some type.
  * @param <T> the type of value this expression returns
  */
 public interface Expression<T> extends SyntaxElement {
     /**
-     * Retrieves all values of this Expression. This should not return null ! Doing so will most likely throw a NPE in
-     * the next few instructions.
+     * Retrieves all values of this Expression. This should never return null ! Doing so will most likely throw a {@linkplain NullPointerException NPE} in
+     * the following instructions.
      * @param ctx the event
      * @return an array of the values
      */
@@ -99,7 +99,7 @@ public interface Expression<T> extends SyntaxElement {
 
     /**
      * @param ctx the event
-     * @return an iterator, used inside of a {@linkplain Loop loop}
+     * @return an iterator, used inside of a {@link Loop loop}
      */
     default Iterator<? extends T> iterator(TriggerContext ctx) {
         return CollectionUtils.iterator(getValues(ctx));
@@ -179,9 +179,7 @@ public interface Expression<T> extends SyntaxElement {
      * @return whether the elements match the given predicate
      */
     @Contract("null, _, _, _ -> false")
-    static <T> boolean check(@Nullable T[] all, Predicate<? super T> predicate, boolean invert, boolean and) {
-        if (all == null)
-            return false;
+    static <T> boolean check(T[] all, Predicate<? super T> predicate, boolean invert, boolean and) {
         boolean hasElement = false;
         for (T t : all) {
             if (t == null)

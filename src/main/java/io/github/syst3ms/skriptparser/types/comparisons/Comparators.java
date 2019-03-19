@@ -35,7 +35,7 @@ public class Comparators {
         comparators.add(new ComparatorInfo<>(t1, t2, c));
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({"unchecked"})
     public static <F, S> Relation compare(@Nullable F o1, @Nullable S o2) {
         if (o1 == null || o2 == null)
             return Relation.NOT_EQUAL;
@@ -125,7 +125,6 @@ public class Comparators {
         @SuppressWarnings("rawtypes")
         private final Comparator c;
         @Nullable
-        @SuppressWarnings("rawtypes")
         private final Function c1, c2;
 
         public ConvertedComparator(Function<? super T1, ?> c1, Comparator<?, ?> c) {

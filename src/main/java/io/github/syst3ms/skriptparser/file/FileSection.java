@@ -14,6 +14,10 @@ public class FileSection extends FileElement {
         this.elements = elements;
     }
 
+    /**
+     * Returns the elements inside of the section
+     * @return the elements inside of the section
+     */
     public List<FileElement> getElements() {
         return elements;
     }

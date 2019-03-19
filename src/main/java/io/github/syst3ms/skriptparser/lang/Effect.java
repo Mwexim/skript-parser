@@ -2,6 +2,11 @@ package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 
+/**
+ * A line of code that is executed before moving on to the next one.
+ *
+ * @see Statement
+ */
 public abstract class Effect extends Statement {
     protected abstract void execute(TriggerContext ctx);
 

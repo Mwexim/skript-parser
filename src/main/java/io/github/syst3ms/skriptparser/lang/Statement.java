@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * The base class for any runnable line of code inside of a script.
  * @see CodeSection
+ * @see Effect
  */
 public abstract class Statement implements SyntaxElement {
     @Nullable
@@ -60,8 +61,8 @@ public abstract class Statement implements SyntaxElement {
     }
 
     /**
-     * @return the Statement after this one in the file. If this is the last effect in the section, returns the item after
-     *         the section. If this effect is the very last item of a trigger, returns {@code null}
+     * @return the Statement after this one in the file. If this Statement is the last item of the section, returns the item after
+     *         said section. If this Statement is the very last item of a trigger, returns {@code null}
      */
     @Nullable
     public final Statement getNext() {

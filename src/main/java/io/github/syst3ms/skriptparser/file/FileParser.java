@@ -7,20 +7,22 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * A class for parsing a plaintext file into a list of {@link FileElement}s representing every line.
+ */
 public class FileParser {
     public static final Pattern LINE_PATTERN = Pattern.compile("^((?:[^#]|##)*)(\\s*#(?!#).*)$"); // Might as well take that from Skript
 
     /**
-     * Parses a {@linkplain List} of strings into one of {@link FileElement}s. This creates {@link FileElement} and
+     * Parses a {@linkplain List} of strings into a list of {@link FileElement}s. This creates {@link FileElement} and
      * {@link FileSection} objects from the lines, effectively structuring the lines into a tree.
-     * This removes comments from each line, and discards it if it is blank afterwards.
+     * This removes comments from each line, and discards any blank lines afterwards.
      * @param fileName the name of the file the lines belong to
      * @param lines the list of lines to parse
      * @param expectedIndentation the indentation level the first line is expected to be at
      * @param lastLine a parameter that keeps track of the line count throughout recursive calls of this method when
      *                 parsing sections
-     * @return a list of {@link FileElement}s organized into a tree. This outputs a list because, for example, multiple
-     * sections can be put at top level, so returning a single element is not possible.
+     * @return a list of {@link FileElement}s
      */
     public List<FileElement> parseFileLines(String fileName, List<String> lines, int expectedIndentation, int lastLine) {
         List<FileElement> elements = new ArrayList<>();

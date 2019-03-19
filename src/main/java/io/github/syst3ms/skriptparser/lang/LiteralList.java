@@ -9,7 +9,6 @@ import org.jetbrains.annotations.Nullable;
  * @param <T> the common supertype of all literals in the list
  * @see Literal
  */
-@SuppressWarnings("ConstantConditions")
 public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
 
     public LiteralList(Literal<? extends T>[] literals, Class<T> returnType, boolean and) {
