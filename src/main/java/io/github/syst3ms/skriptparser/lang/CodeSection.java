@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -30,9 +31,10 @@ public abstract class CodeSection extends Statement {
      * In case an extending class just needs to do some additional operations on top of what the default implementation
      * already does, then call {@code super.loadSection(section)} before any such operations.
      * @param section the {@link FileSection} representing this {@linkplain CodeSection}
+     * @param logger
      */
-    public void loadSection(FileSection section) {
-        setItems(ScriptLoader.loadItems(section));
+    public void loadSection(FileSection section, SkriptLogger logger) {
+        setItems(ScriptLoader.loadItems(section, logger));
     }
 
     @Override

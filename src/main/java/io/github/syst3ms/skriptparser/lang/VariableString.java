@@ -85,7 +85,9 @@ public class VariableString implements Expression<String> {
                     return null;
                 }
                 String toParse = content.replaceAll("\\\\(.)", "$1");
-                Expression<?> expression = SyntaxParser.parseExpression(toParse, SyntaxParser.OBJECT_PATTERN_TYPE);
+                Expression<?> expression = SyntaxParser.parseExpression(toParse, SyntaxParser.OBJECT_PATTERN_TYPE,
+                        logger
+                );
                 if (expression == null) {
                     return null;
                 }

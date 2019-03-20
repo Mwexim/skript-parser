@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public interface SyntaxElement {
     /**
      * Initialises this SyntaxElement before being used. This method is always called before all the others in
-     * an extending class, the only exception being {@link CodeSection#loadSection(FileSection)}.
+     * an extending class, the only exception being {@link CodeSection#loadSection(FileSection, io.github.syst3ms.skriptparser.log.SkriptLogger)}.
      * @param expressions an array of expressions representing all the expressions that are being passed
      *                    to this syntax element. As opposed to Skript, elements of this array can't be {@code null}.
      * @param matchedPattern the index of the pattern that was successfully matched. It corresponds to the order of

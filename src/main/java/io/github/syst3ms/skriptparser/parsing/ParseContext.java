@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 
 import java.util.List;
@@ -16,13 +17,15 @@ public class ParseContext {
     private final String expressionString;
     private final List<MatchResult> matches;
     private final int parseMark;
+    private final SkriptLogger logger;
 
-    public ParseContext(Class<? extends TriggerContext>[] currentContexts, PatternElement element, List<MatchResult> matches, int parseMark, String expressionString) {
+    public ParseContext(Class<? extends TriggerContext>[] currentContexts, PatternElement element, List<MatchResult> matches, int parseMark, String expressionString, SkriptLogger logger) {
         this.currentContexts = currentContexts;
         this.element = element;
         this.expressionString = expressionString;
         this.matches = matches;
         this.parseMark = parseMark;
+        this.logger = logger;
     }
 
     /**
@@ -55,5 +58,9 @@ public class ParseContext {
 
     public Class<? extends TriggerContext>[] getCurrentContexts() {
         return currentContexts;
+    }
+
+    public SkriptLogger getLogger() {
+        return logger;
     }
 }

@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.lang;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import org.jetbrains.annotations.Nullable;
@@ -39,9 +40,9 @@ public class Loop extends CodeSection {
 	}
 
 	@Override
-	public void loadSection(FileSection section) {
+	public void loadSection(FileSection section, SkriptLogger logger) {
 		ScriptLoader.addCurrentLoop(this);
-		setItems(ScriptLoader.loadItems(section));
+		setItems(ScriptLoader.loadItems(section, logger));
 		ScriptLoader.removeCurrentLoop();
 		super.setNext(this);
 	}

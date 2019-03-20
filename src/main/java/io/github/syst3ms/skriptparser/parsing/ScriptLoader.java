@@ -9,6 +9,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Loop;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 import io.github.syst3ms.skriptparser.util.MultiMap;
@@ -25,10 +26,6 @@ import java.util.List;
 public class ScriptLoader {
     private static final LinkedList<Loop> currentLoops = new LinkedList<>();
     private static MultiMap<String, Trigger> triggerMap = new MultiMap<>();
-
-    public static MultiMap<String, Trigger> getTriggerMap() {
-        return triggerMap;
-    }
 
     /**
      * Parses and loads the provided script in memory
@@ -50,17 +47,18 @@ public class ScriptLoader {
             e.printStackTrace();
             return;
         }
+        SkriptLogger logger = new SkriptLogger();
         for (FileElement element : elements) {
             if (element instanceof FileSection) {
-                Trigger trig = SyntaxParser.parseTrigger((FileSection) element);
+                Trigger trig = SyntaxParser.parseTrigger((FileSection) element, logger);
                 if (trig == null) {
-                    // REMIND error
                     continue;
                 }
                 triggerMap.putOne(scriptName, trig);
             } else {
-                // REMIND error
+                logger.error("Can't have code outside of a trigger");
             }
+            logger.logOutput();
         }
         SkriptAddon.getAddons().forEach(SkriptAddon::finishedLoading);
     }
@@ -68,51 +66,50 @@ public class ScriptLoader {
     /**
      * Parses all items inside of a given section.
      * @param section the section
+     * @param logger the logger
      * @return a list of {@linkplain Statement effects} inside of the section
      */
-    public static List<Statement> loadItems(FileSection section) {
+    public static List<Statement> loadItems(FileSection section, SkriptLogger logger) {
         List<Statement> items = new ArrayList<>();
         List<FileElement> elements = section.getElements();
         for (FileElement element : elements) {
+            logger.logOutput();
             if (element instanceof FileSection) {
                 FileSection sec = (FileSection) element;
                 String content = sec.getLineContent();
                 if (content.regionMatches(true, 0, "if ", 0, "if ".length())) {
                     String toParse = content.substring("if ".length());
-                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse,
-                            SyntaxParser.MAYBE_CONDITIONAL
-                    );
+                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, logger);
                     if (booleanExpression == null) {
                         continue;
                     }
-                    items.add(new Conditional(sec, booleanExpression, Conditional.ConditionalMode.IF));
+                    items.add(new Conditional(sec, booleanExpression, Conditional.ConditionalMode.IF, logger));
                 } else if (content.regionMatches(true, 0, "else if ", 0, "else if ".length())) {
                     if (items.size() == 0 ||
                         !(items.get(items.size() - 1) instanceof Conditional) ||
                         ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
+                        logger.error("An 'else if' must be placed after an 'if'");
                         continue;
                     }
 
                     String toParse = content.substring("else if ".length());
-                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse,
-                            SyntaxParser.MAYBE_CONDITIONAL
-                    );
+                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, logger);
                     if (booleanExpression == null) {
                         continue;
                     }
-                    Conditional c = new Conditional(sec, booleanExpression, Conditional.ConditionalMode.ELSE_IF);
+                    Conditional c = new Conditional(sec, booleanExpression, Conditional.ConditionalMode.ELSE_IF, logger);
                     ((Conditional) items.get(items.size() - 1)).setFallingClause(c);
                 } else if (content.equalsIgnoreCase("else")) {
                     if (items.size() == 0 ||
                         !(items.get(items.size() - 1) instanceof Conditional) ||
                         ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
+                        logger.error("An 'else' must be placed after an 'if' or an 'else if'");
                         continue;
                     }
-
-                    Conditional c = new Conditional(sec, null, Conditional.ConditionalMode.ELSE);
+                    Conditional c = new Conditional(sec, null, Conditional.ConditionalMode.ELSE, logger);
                     ((Conditional) items.get(items.size() - 1)).setFallingClause(c);
                 } else {
-                    CodeSection codeSection = SyntaxParser.parseSection(sec);
+                    CodeSection codeSection = SyntaxParser.parseSection(sec, logger);
                     if (codeSection == null) {
                         continue;
                     }
@@ -120,7 +117,7 @@ public class ScriptLoader {
                 }
             } else {
                 String content = element.getLineContent();
-                Statement eff = SyntaxParser.parseStatement(content);
+                Statement eff = SyntaxParser.parseStatement(content, logger);
                 if (eff == null) {
                     continue;
                 }
@@ -147,5 +144,9 @@ public class ScriptLoader {
 
     public static Iterable<Loop> getCurrentLoops() {
         return currentLoops;
+    }
+
+    public static MultiMap<String, Trigger> getTriggerMap() {
+        return triggerMap;
     }
 }

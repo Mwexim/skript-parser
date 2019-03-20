@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.classes.ChangeMode;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.types.Type;
@@ -72,6 +73,7 @@ public class EffChange extends Effect {
             Class<?> changeType = changeWith.getReturnType();
             Class<?>[] acceptance = changed.acceptsChange(mode);
             String changedString = changed.toString(null, false);
+            SkriptLogger logger = parseContext.getLogger();
             if (acceptance == null) {
                 switch (mode) {
                     case SET:

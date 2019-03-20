@@ -297,7 +297,7 @@ public class SkriptRegistration {
             List<PatternElement> elements = new ArrayList<>();
             for (String s : super.patterns) {
                 if (s.startsWith("*")) {
-                    s = s.substring(1,s.length());
+                    s = s.substring(1);
                 } else {
                     s = "[on] " + s;
                 }
