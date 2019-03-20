@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -19,7 +20,7 @@ public class Variables {
     private static Map<TriggerContext, VariableMap> localVariables = new HashMap<>();
 
     @Nullable
-    public static <T> Expression<T> parseVariable(String s, Class<? extends T> types) {
+    public static <T> Expression<T> parseVariable(String s, Class<? extends T> types, SkriptLogger logger) {
         s = s.trim();
         if (REGEX_PATTERN.matcher(s).matches()) {
             s = s.substring(1, s.length() - 1);
@@ -30,7 +31,7 @@ public class Variables {
             return null;
         }
         VariableString vs = VariableString.newInstance(s.startsWith(LOCAL_VARIABLE_TOKEN) ? s.substring(
-            LOCAL_VARIABLE_TOKEN.length()).trim() : s);
+            LOCAL_VARIABLE_TOKEN.length()).trim() : s, logger);
         if (vs == null) {
             return null;
         }

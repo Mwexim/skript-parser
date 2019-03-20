@@ -61,19 +61,20 @@ public class SyntaxParserTest {
 
     @Test
     public void literalTest() throws Exception {
+        SkriptLogger logger = new SkriptLogger();
         PatternType<Number> numberType = getType(Number.class, true);
         assertExpressionTypeEquals(
             BigInteger.class,
-            parseLiteral("1", numberType)
+            parseLiteral("1", numberType, logger)
         );
         assertExpressionTypeEquals(
             BigDecimal.class,
-            parseLiteral("1.0", numberType)
+            parseLiteral("1.0", numberType, logger)
         );
         PatternType<String> stringType = getType(String.class, true);
         assertExpressionEquals(
             new SimpleLiteral<>(String.class, "\\\" ()\"\"'"),
-            parseLiteral("R\"µ(\\\" ()\"\"')µ\"", stringType)
+            parseLiteral("R\"µ(\\\" ()\"\"')µ\"", stringType, logger)
         );
     }
 

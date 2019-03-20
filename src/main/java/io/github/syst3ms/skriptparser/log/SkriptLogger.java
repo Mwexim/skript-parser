@@ -1,12 +1,7 @@
 package io.github.syst3ms.skriptparser.log;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
-import io.github.syst3ms.skriptparser.util.CollectionUtils;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**

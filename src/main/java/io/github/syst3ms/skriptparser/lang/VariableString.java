@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
@@ -35,19 +36,20 @@ public class VariableString implements Expression<String> {
     /**
      * Creates a new instance of a VariableString.
      * @param s the text to create a new instance from, with its surrounding quotes
+     * @param logger
      * @return {@code null} if either:
      * <ul>
      *     <li>The argument isn't quoted correctly</li>
-     *     <li>{@link #newInstance(String)} returned null, which can happen when the string literal is of the form
+     *     <li>{@link #newInstance(String, SkriptLogger)} returned null, which can happen when the string literal is of the form
      *     {@code "..."}</li>
      *     <li>Something went very wrong when parsing a raw literal {@code R"possible delimiter(...)possible delimiter'}
      *     </li>
      * </ul>. Returns a new instance of a VariableString otherwise.
      */
     @Nullable
-    public static VariableString newInstanceWithQuotes(String s) {
+    public static VariableString newInstanceWithQuotes(String s, SkriptLogger logger) {
         if (s.startsWith("\"") && s.endsWith("\"")) {
-            return newInstance(s.substring(1, s.length() - 1));
+            return newInstance(s.substring(1, s.length() - 1), logger);
         } else if (s.startsWith("'") && s.endsWith("'") && StringUtils.nextSimpleCharacterIndex(s, 0) == s.length()) {
             return new VariableString(new String[]{
                 s.substring(1, s.length() - 1).replace("\\'", "'")
@@ -67,10 +69,10 @@ public class VariableString implements Expression<String> {
     /**
      * Creates a new instance of a VariableString from the text inside a string literal.
      * @param s the content of the string literal, without quotes
+     * @param logger
      * @return a new instance of a VariableString, or {@code null} if there are unbalanced {@literal %} symbols
      */
-    @Nullable
-    public static VariableString newInstance(String s) {
+    public static VariableString newInstance(String s, SkriptLogger logger) {
         List<Object> data = new ArrayList<>(StringUtils.count(s, "%"));
         StringBuilder sb = new StringBuilder();
         char[] charArray = s.toCharArray();
@@ -85,9 +87,7 @@ public class VariableString implements Expression<String> {
                     return null;
                 }
                 String toParse = content.replaceAll("\\\\(.)", "$1");
-                Expression<?> expression = SyntaxParser.parseExpression(toParse, SyntaxParser.OBJECT_PATTERN_TYPE,
-                        logger
-                );
+                Expression<?> expression = SyntaxParser.parseExpression(toParse, SyntaxParser.OBJECT_PATTERN_TYPE, logger);
                 if (expression == null) {
                     return null;
                 }

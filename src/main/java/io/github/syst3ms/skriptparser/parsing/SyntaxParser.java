@@ -113,11 +113,11 @@ public class SyntaxParser {
         if (s.startsWith("(") && s.endsWith(")") && StringUtils.findClosingIndex(s, '(', ')', 0) == s.length() - 1) {
             s = s.substring(1, s.length() - 1);
         }
-        Expression<? extends T> literal = parseLiteral(s, expectedType);
+        Expression<? extends T> literal = parseLiteral(s, expectedType, logger);
         if (literal != null) {
             return literal;
         }
-        Variable<? extends T> variable = (Variable<? extends T>) Variables.parseVariable(s, expectedType.getType().getTypeClass());
+        Variable<? extends T> variable = (Variable<? extends T>) Variables.parseVariable(s, expectedType.getType().getTypeClass(), logger);
         if (variable != null) {
             if (!variable.isSingle() && expectedType.isSingle()) {
                 // REMIND error
@@ -148,7 +148,7 @@ public class SyntaxParser {
                 return expr;
             }
         }
-        // REMIND error
+        logger.error("No expression matching '" + s + "'");
         return null;
     }
 
@@ -398,15 +398,15 @@ public class SyntaxParser {
 
     /**
      * Parses a literal of a given {@link PatternType type} from the given {@linkplain String}
+     * @param <T> the type of the literal
      * @param s the string to be parsed as a literal
      * @param expectedType the expected return type
-     * @param <T> the type of the literal
+     * @param logger
      * @return a literal that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
      * or for another reason detailed in an error message.
      */
-    @Nullable
-    public static <T> Expression<? extends T> parseLiteral(String s, PatternType<T> expectedType) {
+    public static <T> Expression<? extends T> parseLiteral(String s, PatternType<T> expectedType, SkriptLogger logger) {
         Map<Class<?>, Type<?>> classToTypeMap = TypeManager.getClassToTypeMap();
         for (Class<?> c : classToTypeMap.keySet()) {
             Class<? extends T> expectedClass = expectedType.getType().getTypeClass();
@@ -422,7 +422,7 @@ public class SyntaxParser {
                         return new SimpleLiteral<>((Class<T>) c, literal).convertExpression(expectedType.getType().getTypeClass());
                     }
                 } else if (expectedClass == String.class || c == String.class) {
-                    VariableString vs = VariableString.newInstanceWithQuotes(s);
+                    VariableString vs = VariableString.newInstanceWithQuotes(s, logger);
                     if (vs != null) {
                         return (Expression<? extends T>) vs;
                     }
