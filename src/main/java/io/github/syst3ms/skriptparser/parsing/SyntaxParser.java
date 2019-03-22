@@ -120,7 +120,7 @@ public class SyntaxParser {
         Variable<? extends T> variable = (Variable<? extends T>) Variables.parseVariable(s, expectedType.getType().getTypeClass(), logger);
         if (variable != null) {
             if (!variable.isSingle() && expectedType.isSingle()) {
-                // REMIND error
+                logger.error("A single value was expected, but '" + s + "' represents multiple values.");
                 return null;
             }
             return variable;
@@ -276,7 +276,7 @@ public class SyntaxParser {
                         continue;
                     }
                     Class<?> expressionReturnType = expression.getReturnType();
-                    if (!expectedTypeClass.isAssignableFrom(expressionReturnType)) {
+                    if (!expectedTypeClass.isAssignableFrom(expressionReturnType)) { // Would only screw up in case of bad dynamic type usage
                         Expression<?> converted = expression.convertExpression(expectedTypeClass);
                         if (converted != null) {
                             return (Expression<? extends T>) converted;
@@ -435,7 +435,7 @@ public class SyntaxParser {
     /**
      * Parses a line of code as an {@link Effect}
      * @param s the line to be parsed
-     * @param logger
+     * @param logger the logger
      * @return an effect that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
      * or for another reason detailed in an error message

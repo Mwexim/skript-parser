@@ -94,7 +94,7 @@ public class ExprRange implements Expression<Object> {
         range = Ranges.getRange(ClassUtils.getCommonSuperclass(from.getReturnType(), to.getReturnType()));
         comparator = Comparators.getComparator(from.getReturnType(), to.getReturnType());
         if (range == null) {
-            // REMIND error
+            parseContext.getLogger().error("Cannot get a range between '" + from.toString(null, false) + "' and '" + from.toString(null, false) + "'");
             return false;
         }
         return true;

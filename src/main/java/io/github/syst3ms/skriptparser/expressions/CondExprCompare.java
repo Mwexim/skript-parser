@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.ExpressionList;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.types.Type;
@@ -70,22 +71,28 @@ public class CondExprCompare extends ConditionalExpression {
         second = vars[1];
         if (vars.length == 3)
             third = vars[2];
+        SkriptLogger logger = result.getLogger();
         relation = PATTERNS.getInfo(matchedPattern);
         if ((result.getParseMark() & 2) != 0) // "not" somewhere in the condition
             setNegated(true);
+
         if ((result.getParseMark() & 1) != 0) // "neither" on the left side
             setNegated(!isNegated());
         if ((result.getParseMark() & 4) != 0) {// "neither" on the right side
-            if (second instanceof ExpressionList)
+            if (second instanceof ExpressionList) {
                 second.setAndList(!second.isAndList());
-            if (third instanceof ExpressionList)
+            }
+            if (third instanceof ExpressionList) {
                 third.setAndList(!second.isAndList());
+            }
         }
         Expression<?> third = this.third;
         if (!initialize()) {
-            if (third == null && first.getReturnType() == Object.class && second.getReturnType() == Object.class) {
+            if (third == null) {
+                logger.error("'" + first.toString(null, false) + "' and '" + second.toString(null, false) + "' cannot be compared");
                 return false;
             } else {
+                logger.error("'" + first.toString(null, false) + "' cannot be compared with '" + second.toString(null, false) + "' and '" + third.toString(null, false) + "'");
                 return false;
             }
         }
@@ -95,7 +102,7 @@ public class CondExprCompare extends ConditionalExpression {
             if (third == null) {
                 return relation.isEqualOrInverse() || comp.supportsOrdering();
             } else if (!comp.supportsOrdering()) {
-                // REMIND error
+                logger.error(errorString(first) + " cannot be ordered between " + errorString(second) + " and " + errorString(third));
                 return false;
             }
         }
@@ -109,14 +116,6 @@ public class CondExprCompare extends ConditionalExpression {
         Type<?> exprType = TypeManager.getByClass(expr.getReturnType());
         assert exprType != null;
         return StringUtils.withIndefiniteArticle(exprType.getBaseName(), !expr.isSingle());
-    }
-
-    public static String toString(Expression<?> e) {
-        if (e.getReturnType() == Object.class)
-            return e.toString(null, false);
-        Type<?> exprType = TypeManager.getByClass(e.getReturnType());
-        assert exprType != null;
-        return exprType.getBaseName();
     }
 
     @SuppressWarnings({"unchecked"})

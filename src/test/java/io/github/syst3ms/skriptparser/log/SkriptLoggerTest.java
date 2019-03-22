@@ -24,5 +24,9 @@ public class SkriptLoggerTest {
         Expression<?> wrongNumber = SyntaxParser.parseExpression("range from 1 to 3", SyntaxParser.OBJECT_PATTERN_TYPE, logger);
         logger.logOutput();
         assertTrue(wrongNumber == null && logger.close().get(0).getMessage().startsWith("A single"));
+        logger = new SkriptLogger();
+        Expression<?> wrongRange = SyntaxParser.parseBooleanExpression("1 is between 'a' and 'b'", SyntaxParser.MAYBE_CONDITIONAL, logger);
+        logger.logOutput();
+        assertTrue(wrongRange == null && logger.close().get(0).getMessage().startsWith("'1' cannot"));
     }
 }

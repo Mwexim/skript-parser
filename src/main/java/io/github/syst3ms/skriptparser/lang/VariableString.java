@@ -60,7 +60,7 @@ public class VariableString implements Expression<String> {
             if (m.matches()) {
                 return new VariableString(new String[]{m.group(2)});
             } else {
-                // REMIND error
+                logger.error("Invalid R literal string");
             }
         }
         return null;

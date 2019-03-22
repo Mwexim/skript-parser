@@ -66,25 +66,26 @@ public class EffChange extends Effect {
             changeWith = expressions[0];
         }
         this.mode = mode;
+
+        String changedString = changed.toString(null, false);
         if (changeWith == null) {
             assert mode == ChangeMode.DELETE || mode == ChangeMode.RESET;
             return changed.acceptsChange(mode) != null;
         } else {
             Class<?> changeType = changeWith.getReturnType();
             Class<?>[] acceptance = changed.acceptsChange(mode);
-            String changedString = changed.toString(null, false);
             SkriptLogger logger = parseContext.getLogger();
             if (acceptance == null) {
                 switch (mode) {
                     case SET:
-                        // REMIND error
+                        logger.error("'" + changedString + "' cannot be set to anything");
                         break;
                     case ADD:
-                        // REMIND error
+                        logger.error("Nothing can be added to '" + changedString + "'");
                         break;
                     case REMOVE_ALL:
                     case REMOVE:
-                        // REMIND error
+                        logger.error("Nothing can be removed from '" + changedString + "'");
                         break;
                 }
                 return false;
@@ -98,14 +99,14 @@ public class EffChange extends Effect {
                 );
                 switch (mode) {
                     case SET:
-                        // REMIND error
+                        logger.error("'" + changedString + "' cannot be set to " + changeTypeName);
                         break;
                     case ADD:
-                        // REMIND error
+                        logger.error(changeTypeName + " cannot be added to '" + changedString + "'");
                         break;
                     case REMOVE_ALL:
                     case REMOVE:
-                        // REMIND error
+                        logger.error(changeTypeName + " cannot be removed from '" + changedString + "'");
                         break;
                 }
                 return false;

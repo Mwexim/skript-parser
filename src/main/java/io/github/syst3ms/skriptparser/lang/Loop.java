@@ -33,7 +33,7 @@ public class Loop extends CodeSection {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		expr = expressions[0];
 		if (expr.isSingle()) {
-		    // REMIND error
+		    parseContext.getLogger().error("Cannot loop a single value");
 			return false;
 		}
 		return true;

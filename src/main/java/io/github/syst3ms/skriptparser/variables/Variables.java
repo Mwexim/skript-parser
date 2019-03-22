@@ -27,7 +27,7 @@ public class Variables {
         } else {
             return null;
         }
-        if (!isValidVariableName(s, true)) {
+        if (!isValidVariableName(s, true, logger)) {
             return null;
         }
         VariableString vs = VariableString.newInstance(s.startsWith(LOCAL_VARIABLE_TOKEN) ? s.substring(
@@ -44,24 +44,25 @@ public class Variables {
      *
      * @param name The name to test
      * @param printErrors Whether to print errors when they are encountered
+     * @param logger
      * @return true if the name is valid, false otherwise.
      */
-    public static boolean isValidVariableName(String name, boolean printErrors) {
+    public static boolean isValidVariableName(String name, boolean printErrors, SkriptLogger logger) {
         name = name.startsWith(LOCAL_VARIABLE_TOKEN) ? name.substring(LOCAL_VARIABLE_TOKEN.length()).trim()
 			: name.trim();
         if (name.startsWith(LIST_SEPARATOR) || name.endsWith(LIST_SEPARATOR)) {
             if (printErrors) {
-                // REMIND error
+                logger.error("A variable name cannot start nor end with the list separator '" + LIST_SEPARATOR + "'");
             }
             return false;
         } else if (name.contains("*") && (name.indexOf("*") != name.length() - 1 || !name.endsWith(LIST_SEPARATOR + "*"))) {
             if (printErrors) {
-                // REMIND error
+                logger.error("A variable name cannot contain an asterisk outside of a list declaration");
             }
             return false;
         } else if (name.contains(LIST_SEPARATOR + LIST_SEPARATOR)) {
             if (printErrors) {
-                // REMIND error
+                logger.error("A variable name cannot contain two list separators stuck together");
             }
             return false;
         }
