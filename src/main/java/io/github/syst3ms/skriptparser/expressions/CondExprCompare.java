@@ -89,10 +89,10 @@ public class CondExprCompare extends ConditionalExpression {
         Expression<?> third = this.third;
         if (!initialize()) {
             if (third == null) {
-                logger.error("'" + first.toString(null, false) + "' and '" + second.toString(null, false) + "' cannot be compared");
+                logger.error(first.toString(null, false) + " and " + second.toString(null, false) + " cannot be compared");
                 return false;
             } else {
-                logger.error("'" + first.toString(null, false) + "' cannot be compared with '" + second.toString(null, false) + "' and '" + third.toString(null, false) + "'");
+                logger.error(first.toString(null, false) + " cannot be compared with " + second.toString(null, false) + " and " + third.toString(null, false));
                 return false;
             }
         }

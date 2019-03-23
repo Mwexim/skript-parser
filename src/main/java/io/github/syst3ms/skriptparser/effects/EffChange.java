@@ -78,14 +78,14 @@ public class EffChange extends Effect {
             if (acceptance == null) {
                 switch (mode) {
                     case SET:
-                        logger.error("'" + changedString + "' cannot be set to anything");
+                        logger.error(changedString + " cannot be set to anything");
                         break;
                     case ADD:
-                        logger.error("Nothing can be added to '" + changedString + "'");
+                        logger.error("Nothing can be added to " + changedString);
                         break;
                     case REMOVE_ALL:
                     case REMOVE:
-                        logger.error("Nothing can be removed from '" + changedString + "'");
+                        logger.error("Nothing can be removed from " + changedString);
                         break;
                 }
                 return false;
@@ -99,14 +99,14 @@ public class EffChange extends Effect {
                 );
                 switch (mode) {
                     case SET:
-                        logger.error("'" + changedString + "' cannot be set to " + changeTypeName);
+                        logger.error(changedString + " cannot be set to " + changeTypeName);
                         break;
                     case ADD:
-                        logger.error(changeTypeName + " cannot be added to '" + changedString + "'");
+                        logger.error(changeTypeName + " cannot be added to " + changedString);
                         break;
                     case REMOVE_ALL:
                     case REMOVE:
-                        logger.error(changeTypeName + " cannot be removed from '" + changedString + "'");
+                        logger.error(changeTypeName + " cannot be removed from " + changedString);
                         break;
                 }
                 return false;

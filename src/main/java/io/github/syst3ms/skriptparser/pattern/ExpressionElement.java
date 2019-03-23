@@ -188,19 +188,19 @@ public class ExpressionElement implements PatternElement {
                     break;
                 case EXPRESSIONS_ONLY:
                     if (expression instanceof Literal ||  expression instanceof VariableString && ((VariableString) expression).isSimple()) {
-                        logger.error("Only expressions are allowed, found literal '" + s + "'");
+                        logger.error("Only expressions are allowed, found literal " + s);
                         return null;
                     }
                     break;
                 case LITERALS_ONLY:
                     if (!(expression instanceof Literal) || expression instanceof VariableString && !((VariableString) expression).isSimple()) {
-                        logger.error("Only literals are allowed, found expression '" + s + "'");
+                        logger.error("Only literals are allowed, found expression " + s);
                         return null;
                     }
                     break;
                 case VARIABLES_ONLY:
                     if (!(expression instanceof Variable)) {
-                        logger.error("Only variables are allowed, found");
+                        logger.error("Only variables are allowed, found " + s);
                         return null;
                     }
                     break;

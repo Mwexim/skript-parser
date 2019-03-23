@@ -52,7 +52,7 @@ public class Variables {
 			: name.trim();
         if (name.startsWith(LIST_SEPARATOR) || name.endsWith(LIST_SEPARATOR)) {
             if (printErrors) {
-                logger.error("A variable name cannot start nor end with the list separator '" + LIST_SEPARATOR + "'");
+                logger.error("A variable name cannot start nor end with the list separator " + LIST_SEPARATOR);
             }
             return false;
         } else if (name.contains("*") && (name.indexOf("*") != name.length() - 1 || !name.endsWith(LIST_SEPARATOR + "*"))) {

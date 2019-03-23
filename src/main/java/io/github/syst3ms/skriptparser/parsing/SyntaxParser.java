@@ -120,7 +120,7 @@ public class SyntaxParser {
         Variable<? extends T> variable = (Variable<? extends T>) Variables.parseVariable(s, expectedType.getType().getTypeClass(), logger);
         if (variable != null) {
             if (!variable.isSingle() && expectedType.isSingle()) {
-                logger.error("A single value was expected, but '" + s + "' represents multiple values.");
+                logger.error("A single value was expected, but " + s + " represents multiple values.");
                 return null;
             }
             return variable;
@@ -148,7 +148,7 @@ public class SyntaxParser {
                 return expr;
             }
         }
-        logger.error("No expression matching '" + s + "'");
+        logger.error("No expression matching " + s);
         return null;
     }
 
@@ -235,7 +235,7 @@ public class SyntaxParser {
                 return expr;
             }
         }
-        logger.error("No expression matching '" + s + "'");
+        logger.error("No expression matching " + s);
         return null;
     }
 
@@ -292,12 +292,12 @@ public class SyntaxParser {
                     }
                     if (!expression.isSingle() &&
                         expectedType.isSingle()) {
-                        logger.error("A single value was expected, but '" + s + "' represents multiple values.");
+                        logger.error("A single value was expected, but " + s + " represents multiple values.");
                         continue;
                     }
                     return expression;
                 } catch (InstantiationException | IllegalAccessException e) {
-                    logger.error("Couldn't instantiate class '" + info.getSyntaxClass() + "'");
+                    logger.error("Couldn't instantiate class " + info.getSyntaxClass().getName());
                 }
             }
         }
@@ -460,7 +460,7 @@ public class SyntaxParser {
                 return eff;
             }
         }
-        logger.error("No effect matching '" + s + "'");
+        logger.error("No effect matching " + s);
         return null;
     }
 
@@ -481,7 +481,7 @@ public class SyntaxParser {
                     }
                     return eff;
                 } catch (InstantiationException | IllegalAccessException e) {
-                    logger.error("Couldn't instantiate class '" + info.getSyntaxClass() + "'");
+                    logger.error("Couldn't instantiate class " + info.getSyntaxClass());
                 }
             }
         }
@@ -535,7 +535,7 @@ public class SyntaxParser {
                 return sec;
             }
         }
-        logger.error("No section matching '" + section.getLineContent() + "'");
+        logger.error("No section matching " + section.getLineContent());
         return null;
     }
 
@@ -558,7 +558,7 @@ public class SyntaxParser {
                     sec.loadSection(section, logger);
                     return sec;
                 } catch (InstantiationException | IllegalAccessException e) {
-                    logger.error("Couldn't instantiate class '" + info.getSyntaxClass() + "'");
+                    logger.error("Couldn't instantiate class " + info.getSyntaxClass());
                 }
             }
         }
@@ -596,7 +596,7 @@ public class SyntaxParser {
                 return trigger;
             }
         }
-        logger.error("No trigger matching '" + section.getLineContent() + "'");
+        logger.error("No trigger matching " + section.getLineContent());
         return null;
     }
 
@@ -621,7 +621,7 @@ public class SyntaxParser {
                     setCurrentContexts(info.getContexts());
                     return trig;
                 } catch (InstantiationException | IllegalAccessException e) {
-                    logger.error("Couldn't instantiate class '" + info.getSyntaxClass() + "'");
+                    logger.error("Couldn't instantiate class " + info.getSyntaxClass());
                 }
             }
         }
