@@ -66,15 +66,14 @@ public class EffChange extends Effect {
             changeWith = expressions[0];
         }
         this.mode = mode;
-
-        String changedString = changed.toString(null, false);
+        SkriptLogger logger = parseContext.getLogger();
+        String changedString = changed.toString(null, logger.isDebug());
         if (changeWith == null) {
             assert mode == ChangeMode.DELETE || mode == ChangeMode.RESET;
             return changed.acceptsChange(mode) != null;
         } else {
             Class<?> changeType = changeWith.getReturnType();
             Class<?>[] acceptance = changed.acceptsChange(mode);
-            SkriptLogger logger = parseContext.getLogger();
             if (acceptance == null) {
                 switch (mode) {
                     case SET:

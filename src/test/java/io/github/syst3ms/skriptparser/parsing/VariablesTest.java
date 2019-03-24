@@ -9,7 +9,7 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import org.jetbrains.annotations.Nullable;
-import org.junit.*;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

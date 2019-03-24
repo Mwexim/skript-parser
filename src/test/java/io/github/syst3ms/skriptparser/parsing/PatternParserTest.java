@@ -2,21 +2,16 @@ package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.PatternParser;
 import io.github.syst3ms.skriptparser.TestRegistration;
-import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
-import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
-import io.github.syst3ms.skriptparser.pattern.CompoundElement;
-import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
-import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
-import io.github.syst3ms.skriptparser.pattern.RegexGroup;
-import io.github.syst3ms.skriptparser.pattern.TextElement;
+import io.github.syst3ms.skriptparser.pattern.*;
 import io.github.syst3ms.skriptparser.types.TypeManager;
-import org.junit.*;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class PatternParserTest {
 

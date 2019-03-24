@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
@@ -15,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
@@ -94,7 +94,8 @@ public class ExprRange implements Expression<Object> {
         range = Ranges.getRange(ClassUtils.getCommonSuperclass(from.getReturnType(), to.getReturnType()));
         comparator = Comparators.getComparator(from.getReturnType(), to.getReturnType());
         if (range == null) {
-            parseContext.getLogger().error("Cannot get a range between '" + from.toString(null, false) + "' and '" + from.toString(null, false) + "'");
+            SkriptLogger logger = parseContext.getLogger();
+            parseContext.getLogger().error("Cannot get a range between " + from.toString(null, logger.isDebug()) + " and " + from.toString(null, logger.isDebug()));
             return false;
         }
         return true;

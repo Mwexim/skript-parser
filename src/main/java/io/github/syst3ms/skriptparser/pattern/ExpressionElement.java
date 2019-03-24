@@ -2,8 +2,6 @@ package io.github.syst3ms.skriptparser.pattern;
 
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
-import io.github.syst3ms.skriptparser.lang.LiteralList;
-import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;

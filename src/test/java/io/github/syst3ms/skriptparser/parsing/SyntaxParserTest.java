@@ -11,16 +11,15 @@ import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
-import org.junit.*;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import static io.github.syst3ms.skriptparser.event.TriggerContext.DUMMY;
-import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.parseBooleanExpression;
-import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.parseExpression;
-import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.parseLiteral;
-import static org.junit.Assert.*;
+import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.fail;
 
 @SuppressWarnings({"unchecked", "ConstantConditions"})
 public class SyntaxParserTest {

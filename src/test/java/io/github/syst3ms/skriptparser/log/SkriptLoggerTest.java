@@ -1,8 +1,8 @@
 package io.github.syst3ms.skriptparser.log;
 
+import io.github.syst3ms.skriptparser.TestRegistration;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
-import io.github.syst3ms.skriptparser.TestRegistration;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

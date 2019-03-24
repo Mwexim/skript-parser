@@ -1,7 +1,5 @@
 package io.github.syst3ms.skriptparser.types.ranges;
 
-import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;

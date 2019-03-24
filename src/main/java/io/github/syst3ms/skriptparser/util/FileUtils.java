@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.util;
 
 import io.github.syst3ms.skriptparser.Skript;
-import io.github.syst3ms.skriptparser.log.SkriptLogger;
 
 import java.io.BufferedReader;
 import java.io.File;

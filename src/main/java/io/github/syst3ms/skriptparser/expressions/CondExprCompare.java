@@ -75,7 +75,6 @@ public class CondExprCompare extends ConditionalExpression {
         relation = PATTERNS.getInfo(matchedPattern);
         if ((result.getParseMark() & 2) != 0) // "not" somewhere in the condition
             setNegated(true);
-
         if ((result.getParseMark() & 1) != 0) // "neither" on the left side
             setNegated(!isNegated());
         if ((result.getParseMark() & 4) != 0) {// "neither" on the right side
@@ -89,10 +88,10 @@ public class CondExprCompare extends ConditionalExpression {
         Expression<?> third = this.third;
         if (!initialize()) {
             if (third == null) {
-                logger.error(first.toString(null, false) + " and " + second.toString(null, false) + " cannot be compared");
+                logger.error(first.toString(null, logger.isDebug()) + " and " + second.toString(null, logger.isDebug()) + " cannot be compared");
                 return false;
             } else {
-                logger.error(first.toString(null, false) + " cannot be compared with " + second.toString(null, false) + " and " + third.toString(null, false));
+                logger.error(first.toString(null, logger.isDebug()) + " cannot be compared with " + second.toString(null, logger.isDebug()) + " and " + third.toString(null, logger.isDebug()));
                 return false;
             }
         }
@@ -102,17 +101,16 @@ public class CondExprCompare extends ConditionalExpression {
             if (third == null) {
                 return relation.isEqualOrInverse() || comp.supportsOrdering();
             } else if (!comp.supportsOrdering()) {
-                logger.error(errorString(first) + " cannot be ordered between " + errorString(second) + " and " + errorString(third));
+                logger.error(errorString(first, logger.isDebug()) + " cannot be ordered between " + errorString(second, logger.isDebug()) + " and " + errorString(third, logger.isDebug()));
                 return false;
             }
         }
         return true;
     }
 
-    @Nullable
-    private String errorString(Expression<?> expr) {
+    private String errorString(Expression<?> expr, boolean debug) {
         if (expr.getReturnType() == Object.class)
-            return expr.toString(null, false);
+            return expr.toString(null, debug);
         Type<?> exprType = TypeManager.getByClass(expr.getReturnType());
         assert exprType != null;
         return StringUtils.withIndefiniteArticle(exprType.getBaseName(), !expr.isSingle());

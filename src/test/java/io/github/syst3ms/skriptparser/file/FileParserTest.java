@@ -2,14 +2,14 @@ package io.github.syst3ms.skriptparser.file;
 
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.util.FileUtils;
-import org.junit.*;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class FileParserTest {
     private FileElement simpleFileLine(String content, int indentation, int line) {

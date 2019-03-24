@@ -1,7 +1,5 @@
 package io.github.syst3ms.skriptparser;
 
-import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.Skript;
 import io.github.syst3ms.skriptparser.registration.DefaultRegistration;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.util.FileUtils;

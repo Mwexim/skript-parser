@@ -5,10 +5,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 /**
  * A bare-bones linked list (despite it doesn't even extend {@link Collection}) putting forth the most recent elements through

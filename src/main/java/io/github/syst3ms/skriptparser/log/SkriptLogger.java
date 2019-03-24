@@ -4,8 +4,6 @@ import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileSection;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -15,7 +13,9 @@ import java.util.stream.Stream;
  */
 public class SkriptLogger {
     public static final String LOG_FORMAT = "%s (line %d: \"%s\", %s)";
+
     private final boolean debug;
+
     private String fileName;
     private List<FileElement> fileElements;
     private int line = -1;
@@ -23,7 +23,6 @@ public class SkriptLogger {
     private List<LogEntry> logged = new ArrayList<>();
     private boolean open = true;
     private boolean hasError = false;
-
     public SkriptLogger(boolean debug) {
         this.debug = debug;
     }
@@ -110,5 +109,9 @@ public class SkriptLogger {
     public List<LogEntry> close() {
         open = false;
         return logged;
+    }
+
+    public boolean isDebug() {
+        return debug;
     }
 }
