@@ -54,7 +54,7 @@ public class ScriptLoader {
             e.printStackTrace();
             return Collections.emptyList();
         }
-        logger.setFileElements(elements);
+        logger.setFileInfo(script.getName(), elements);
         for (FileElement element : elements) {
             logger.nextLine();
             if (element instanceof VoidElement)

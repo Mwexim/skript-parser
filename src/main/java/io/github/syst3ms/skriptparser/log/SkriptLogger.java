@@ -14,8 +14,9 @@ import java.util.stream.Stream;
  * A class managing Skript's I/O messages.
  */
 public class SkriptLogger {
-    public static final String LOG_FORMAT = "%s (line %d: \"%s\")";
+    public static final String LOG_FORMAT = "%s (line %d: \"%s\", %s)";
     private final boolean debug;
+    private String fileName;
     private List<FileElement> fileElements;
     private int line = -1;
     private List<LogEntry> logEntries = new ArrayList<>();
@@ -31,7 +32,8 @@ public class SkriptLogger {
         this(false);
     }
 
-    public void setFileElements(List<FileElement> fileElements) {
+    public void setFileInfo(String fileName, List<FileElement> fileElements) {
+        this.fileName = fileName;
         this.fileElements = flatten(fileElements);
     }
 
@@ -57,7 +59,11 @@ public class SkriptLogger {
 
     private void log(String message, LogType type) {
         if (open) {
-            logEntries.add(new LogEntry(String.format(LOG_FORMAT, message, line + 1, fileElements.get(line).getLineContent()), type));
+            if (line == -1) {
+                logEntries.add(new LogEntry(message, type));
+            } else {
+                logEntries.add(new LogEntry(String.format(LOG_FORMAT, message, line + 1, fileElements.get(line).getLineContent(), fileName), type));
+            }
         }
     }
 

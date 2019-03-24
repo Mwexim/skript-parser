@@ -148,7 +148,7 @@ public class SyntaxParser {
                 return expr;
             }
         }
-        logger.error("No expression matching " + s);
+        logger.error("No expression matching ''" + s + "' was found");
         return null;
     }
 
@@ -235,7 +235,7 @@ public class SyntaxParser {
                 return expr;
             }
         }
-        logger.error("No expression matching " + s);
+        logger.error("No expression matching '" + s + "' was found");
         return null;
     }
 
@@ -460,7 +460,7 @@ public class SyntaxParser {
                 return eff;
             }
         }
-        logger.error("No effect matching " + s);
+        logger.error("No effect matching '" + s + "' was found");
         return null;
     }
 
@@ -535,7 +535,7 @@ public class SyntaxParser {
                 return sec;
             }
         }
-        logger.error("No section matching " + section.getLineContent());
+        logger.error("No section matching '" + section.getLineContent() + "' was found");
         return null;
     }
 
@@ -596,7 +596,7 @@ public class SyntaxParser {
                 return trigger;
             }
         }
-        logger.error("No trigger matching " + section.getLineContent());
+        logger.error("No trigger matching '" + section.getLineContent() + "' was found");
         return null;
     }
 
