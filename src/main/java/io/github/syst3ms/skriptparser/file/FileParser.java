@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.file;
 
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 
 import java.util.ArrayList;
@@ -22,9 +23,10 @@ public class FileParser {
      * @param expectedIndentation the indentation level the first line is expected to be at
      * @param lastLine a parameter that keeps track of the line count throughout recursive calls of this method when
      *                 parsing sections
+     * @param logger
      * @return a list of {@link FileElement}s
      */
-    public List<FileElement> parseFileLines(String fileName, List<String> lines, int expectedIndentation, int lastLine) {
+    public List<FileElement> parseFileLines(String fileName, List<String> lines, int expectedIndentation, int lastLine, SkriptLogger logger) {
         List<FileElement> elements = new ArrayList<>();
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
@@ -36,13 +38,14 @@ public class FileParser {
                 content = line.replace("##", "#").trim();
             }
             if (content.matches("\\s*")) {
+                elements.add(new VoidElement(fileName, lastLine + i, expectedIndentation));
                 continue;
             }
             int lineIndentation = FileUtils.getIndentationLevel(line);
-            if (lineIndentation > expectedIndentation) { // One indentation behind marks the end of a section
-                // REMIND error
-                continue; // Let's ignore it *for now*
-            } else if (lineIndentation < expectedIndentation) { // End of section
+            if (lineIndentation > expectedIndentation) { // The line is indented too much
+                logger.error("The line is indented too much (line " + (lastLine + i) + ": \"" + content + "\")");
+                continue;
+            } else if (lineIndentation < expectedIndentation) { // One indentation behind marks the end of a section
                 return elements;
             }
             if (content.endsWith(":")) {
@@ -52,8 +55,8 @@ public class FileParser {
                     ));
                 } else {
                     List<FileElement> sectionElements = parseFileLines(fileName, lines.subList(i + 1, lines.size()),
-                            expectedIndentation + 1, lastLine + i + 1
-                    );
+                            expectedIndentation + 1, lastLine + i + 1,
+                            logger);
                     elements.add(new FileSection(fileName, lastLine + i, content.substring(0, content.length() - 1),
                             sectionElements, expectedIndentation
                     ));

@@ -1,6 +1,7 @@
-package io.github.syst3ms.skriptparser;
+package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.parsing.TestRegistration;
+import io.github.syst3ms.skriptparser.PatternParser;
+import io.github.syst3ms.skriptparser.TestRegistration;
 import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
 import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
 import io.github.syst3ms.skriptparser.pattern.CompoundElement;

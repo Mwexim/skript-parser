@@ -1,21 +1,63 @@
 package io.github.syst3ms.skriptparser.log;
 
+import io.github.syst3ms.skriptparser.file.FileElement;
+import io.github.syst3ms.skriptparser.file.FileSection;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A class managing Skript's I/O messages.
  */
 public class SkriptLogger {
+    public static final String LOG_FORMAT = "%s (line %d: \"%s\")";
+    private final boolean debug;
+    private List<FileElement> fileElements;
+    private int line = -1;
     private List<LogEntry> logEntries = new ArrayList<>();
     private List<LogEntry> logged = new ArrayList<>();
     private boolean open = true;
     private boolean hasError = false;
 
+    public SkriptLogger(boolean debug) {
+        this.debug = debug;
+    }
+
+    public SkriptLogger() {
+        this(false);
+    }
+
+    public void setFileElements(List<FileElement> fileElements) {
+        this.fileElements = flatten(fileElements);
+    }
+
+    private List<FileElement> flatten(List<FileElement> fileElements) {
+        return fileElements.stream()
+                .flatMap(e -> {
+                    if (e instanceof FileSection) {
+                        FileSection sec = (FileSection) e;
+                        return Stream.concat(
+                                Stream.of(e),
+                                flatten(sec.getElements()).stream()
+                        );
+                    } else {
+                        return Stream.of(e);
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
+    public void nextLine() {
+        line++;
+    }
+
     private void log(String message, LogType type) {
         if (open) {
-            logEntries.add(new LogEntry(message, type));
+            logEntries.add(new LogEntry(String.format(LOG_FORMAT, message, line + 1, fileElements.get(line).getLineContent()), type));
         }
     }
 
@@ -36,7 +78,8 @@ public class SkriptLogger {
     }
 
     public void debug(String message) {
-        log(message, LogType.DEBUG);
+        if (debug)
+            log(message, LogType.DEBUG);
     }
 
     public void clearNotError() {

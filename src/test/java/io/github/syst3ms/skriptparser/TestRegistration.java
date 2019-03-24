@@ -1,4 +1,4 @@
-package io.github.syst3ms.skriptparser.parsing;
+package io.github.syst3ms.skriptparser;
 
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.Skript;
@@ -20,7 +20,7 @@ public class TestRegistration {
             regField.set(null, new SkriptRegistration(new Skript(new String[0])));
             Field jarField = FileUtils.class.getDeclaredField("jarFile");
             jarField.setAccessible(true);
-            jarField.set(null, new File("C:/Users/ARTHUR/Documents/Repos/skript-parser/build/libs", "skript-parser.jar"));
+            jarField.set(null, new File("./build/libs", "skript-parser.jar"));
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }

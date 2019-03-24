@@ -2,11 +2,10 @@ package io.github.syst3ms.skriptparser.log;
 
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
-import io.github.syst3ms.skriptparser.parsing.TestRegistration;
-import io.github.syst3ms.skriptparser.registration.SyntaxManager;
-import org.junit.*;
+import io.github.syst3ms.skriptparser.TestRegistration;
+import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class SkriptLoggerTest {
 

@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.file;
 
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 import org.junit.*;
 
@@ -20,7 +21,7 @@ public class FileParserTest {
     }
 
     private List<FileElement> parseLines(FileParser parser, List<String> lines) {
-        return parser.parseFileLines("unit-tests", lines, 0, 1);
+        return parser.parseFileLines("unit-tests", lines, 0, 1, new SkriptLogger());
     }
 
     @Test

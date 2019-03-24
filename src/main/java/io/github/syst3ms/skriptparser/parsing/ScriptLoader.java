@@ -3,12 +3,14 @@ package io.github.syst3ms.skriptparser.parsing;
 import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileParser;
 import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.file.VoidElement;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Conditional;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Loop;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
+import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 import io.github.syst3ms.skriptparser.util.FileUtils;
@@ -17,6 +19,7 @@ import io.github.syst3ms.skriptparser.util.MultiMap;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,9 +33,11 @@ public class ScriptLoader {
     /**
      * Parses and loads the provided script in memory
      * @param script the script file to load
+     * @param debug
      */
-    public static void loadScript(File script) {
+    public static List<LogEntry> loadScript(File script, boolean debug) {
         FileParser parser = new FileParser();
+        SkriptLogger logger = new SkriptLogger(debug);
         List<FileElement> elements;
         String scriptName;
         try {
@@ -41,14 +46,19 @@ public class ScriptLoader {
             elements = parser.parseFileLines(scriptName,
                     lines,
                     0,
-                    1
+                    1,
+                    logger
             );
+            logger.logOutput();
         } catch (IOException e) {
             e.printStackTrace();
-            return;
+            return Collections.emptyList();
         }
-        SkriptLogger logger = new SkriptLogger();
+        logger.setFileElements(elements);
         for (FileElement element : elements) {
+            logger.nextLine();
+            if (element instanceof VoidElement)
+                continue;
             if (element instanceof FileSection) {
                 Trigger trig = SyntaxParser.parseTrigger((FileSection) element, logger);
                 if (trig == null) {
@@ -61,6 +71,7 @@ public class ScriptLoader {
             logger.logOutput();
         }
         SkriptAddon.getAddons().forEach(SkriptAddon::finishedLoading);
+        return logger.close();
     }
 
     /**
