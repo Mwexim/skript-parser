@@ -113,7 +113,7 @@ public class StringUtils {
                 int closing = findClosingIndex(s, '{', '}', i);
                 if (closing == -1)
                     return null;
-                i = closing;
+                i += closing;
             } else if (c == '%') {
                 return s.substring(start, i);
             } else if (c == '}') { // We normally skip over these, this must be an error

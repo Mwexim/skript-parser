@@ -14,7 +14,7 @@ import java.util.Calendar;
 import java.util.List;
 
 public class Main {
-    public static final String CONSOLE_FORMAT = "[%tT] %s: %s%n";
+    public static final String CONSOLE_FORMAT = "[%tT] %s: %s";
     private static SkriptRegistration registration;
 
     public static void main(String[] args) {
