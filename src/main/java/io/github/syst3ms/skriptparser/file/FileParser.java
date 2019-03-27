@@ -37,7 +37,7 @@ public class FileParser {
             } else {
                 content = line.replace("##", "#").trim();
             }
-            if (content.matches("\\s*")) {
+            if (content.matches("[\\s#]*")) {
                 elements.add(new VoidElement(fileName, lastLine + i, expectedIndentation));
                 continue;
             }
@@ -60,7 +60,7 @@ public class FileParser {
                     elements.add(new FileSection(fileName, lastLine + i, content.substring(0, content.length() - 1),
                             sectionElements, expectedIndentation
                     ));
-                    i += sectionElements.size();
+                    i += count(sectionElements);
                 }
             } else {
                 elements.add(new FileElement(fileName, lastLine + i, content, expectedIndentation));
@@ -69,4 +69,15 @@ public class FileParser {
         return elements;
     }
 
+    private int count(List<FileElement> elements) {
+        int count = 0;
+        for (FileElement element : elements) {
+            if (element instanceof FileSection) {
+                count += count(((FileSection) element).getElements()) + 1;
+            } else {
+                count++;
+            }
+        }
+        return count;
+    }
 }

@@ -44,6 +44,7 @@ public class ExpressionElement implements PatternElement {
             return -1;
         }
         SkriptLogger logger = parser.getLogger();
+        logger.startLogHandle();
         List<PatternElement> flattened = PatternElement.flatten(parser.getOriginalElement());
         // We look at what could possibly be after the expression in the current syntax
         List<PatternElement> possibleInputs = PatternElement.getPossibleInputs(flattened.subList(parser.getPatternIndex(), flattened.size()));
@@ -53,14 +54,18 @@ public class ExpressionElement implements PatternElement {
                 if (text.isEmpty())
                     continue;
                 if (text.equals("\0")) { // End of line
-                    if (index == 0)
+                    if (index == 0) {
+                        logger.closeLogHandle();
                         return -1;
+                    }
                     String toParse = s.substring(index).trim();
                     Expression<?> expression = parse(toParse, typeArray, logger);
                     if (expression != null) {
                         parser.addExpression(expression);
+                        logger.closeLogHandle();
                         return index + toParse.length();
                     }
+                    logger.closeLogHandle();
                     return -1;
                 }
                 int i = StringUtils.indexOfIgnoreCase(s, text, index);
@@ -69,6 +74,7 @@ public class ExpressionElement implements PatternElement {
                     Expression<?> expression = parse(toParse, typeArray, logger);
                     if (expression != null) {
                         parser.addExpression(expression);
+                        logger.closeLogHandle();
                         return index + toParse.length();
                     }
                     i = StringUtils.indexOfIgnoreCase(s, text, i + 1);
@@ -86,6 +92,7 @@ public class ExpressionElement implements PatternElement {
                     Expression<?> expression = parse(toParse, typeArray, logger);
                     if (expression != null) {
                         parser.addExpression(expression);
+                        logger.closeLogHandle();
                         return index + toParse.length();
                     }
                 }
@@ -107,6 +114,7 @@ public class ExpressionElement implements PatternElement {
                                 Expression<?> expression = parse(toParse, typeArray, logger);
                                 if (expression != null) {
                                     parser.addExpression(expression);
+                                    logger.closeLogHandle();
                                     return index + toParse.length();
                                 }
                             }
@@ -126,6 +134,7 @@ public class ExpressionElement implements PatternElement {
                                 Expression<?> expression = parse(toParse, typeArray, logger);
                                 if (expression != null) {
                                     parser.addExpression(expression);
+                                    logger.closeLogHandle();
                                     return index + toParse.length();
                                 }
                             }
@@ -134,6 +143,7 @@ public class ExpressionElement implements PatternElement {
                 }
             }
         }
+        logger.closeLogHandle();
         return -1;
     }
 

@@ -137,6 +137,7 @@ public class SyntaxParser {
                 recentExpressions.moveToFirst(info);
                 return expr;
             }
+            logger.forgetError();
         }
         // Let's not loop over the same elements again
         List<ExpressionInfo<?, ?>> remainingExpressions = SyntaxManager.getAllExpressions();
@@ -147,6 +148,7 @@ public class SyntaxParser {
                 recentExpressions.moveToFirst(info);
                 return expr;
             }
+            logger.forgetError();
         }
         logger.error("No expression matching ''" + s + "' was found");
         return null;
@@ -203,6 +205,7 @@ public class SyntaxParser {
                 recentExpressions.moveToFirst(info);
                 return expr;
             }
+            logger.forgetError();
         }
         // Let's not loop over the same elements again
         List<ExpressionInfo<?, ?>> remainingExpressions = SyntaxManager.getAllExpressions();
@@ -234,25 +237,10 @@ public class SyntaxParser {
                 recentExpressions.moveToFirst(info);
                 return expr;
             }
+            logger.forgetError();
         }
         logger.error("No expression matching '" + s + "' was found");
         return null;
-    }
-
-    /**
-     * Parses a line of code as an {@link InlineCondition}
-     * @param s the line to be parsed
-     * @param logger
-     * @return an inline condition that was successfully parsed, or {@literal null} if the string is empty,
-     * no match was found
-     * or for another reason detailed in an error message
-     */
-    @Nullable
-    public static InlineCondition parseInlineCondition(String s, SkriptLogger logger) {
-        if (s.isEmpty())
-            return null;
-        Expression<Boolean> cond = parseBooleanExpression(s, CONDITIONAL, logger);
-        return cond != null ? new InlineCondition(cond) : null;
     }
 
     private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType, Class<? extends TriggerContext>[] currentContextss, SkriptLogger logger) {
@@ -284,14 +272,14 @@ public class SyntaxParser {
                             Type<?> type = TypeManager.getByClass(expressionReturnType);
                             assert type != null;
                             logger.error(StringUtils.withIndefiniteArticle(expectedType.toString(), false) +
-                                         " was expected, but " +
-                                         StringUtils.withIndefiniteArticle(type.toString(), false) +
-                                         " was found");
+                                    " was expected, but " +
+                                    StringUtils.withIndefiniteArticle(type.toString(), false) +
+                                    " was found");
                             return null;
                         }
                     }
                     if (!expression.isSingle() &&
-                        expectedType.isSingle()) {
+                            expectedType.isSingle()) {
                         logger.error("A single value was expected, but " + s + " represents multiple values.");
                         continue;
                     }
@@ -302,6 +290,22 @@ public class SyntaxParser {
             }
         }
         return null;
+    }
+
+    /**
+     * Parses a line of code as an {@link InlineCondition}
+     * @param s the line to be parsed
+     * @param logger
+     * @return an inline condition that was successfully parsed, or {@literal null} if the string is empty,
+     * no match was found
+     * or for another reason detailed in an error message
+     */
+    @Nullable
+    public static InlineCondition parseInlineCondition(String s, SkriptLogger logger) {
+        if (s.isEmpty())
+            return null;
+        Expression<Boolean> cond = parseBooleanExpression(s, CONDITIONAL, logger);
+        return cond != null ? new InlineCondition(cond) : null;
     }
 
     /**
@@ -449,6 +453,7 @@ public class SyntaxParser {
                 recentEffects.moveToFirst(recentEffect);
                 return eff;
             }
+            logger.forgetError();
         }
         // Let's not loop over the same elements again
         List<SyntaxInfo<? extends Effect>> remainingEffects = SyntaxManager.getEffects();
@@ -459,6 +464,7 @@ public class SyntaxParser {
                 recentEffects.moveToFirst(remainingEffect);
                 return eff;
             }
+            logger.forgetError();
         }
         logger.error("No effect matching '" + s + "' was found");
         return null;
@@ -525,6 +531,7 @@ public class SyntaxParser {
                 recentSections.moveToFirst(recentSection);
                 return sec;
             }
+            logger.forgetError();
         }
         List<SyntaxInfo<? extends CodeSection>> remainingSections = SyntaxManager.getSections();
         recentSections.removeFrom(remainingSections);
@@ -534,6 +541,7 @@ public class SyntaxParser {
                 recentSections.moveToFirst(remainingSection);
                 return sec;
             }
+            logger.forgetError();
         }
         logger.error("No section matching '" + section.getLineContent() + "' was found");
         return null;
@@ -554,7 +562,6 @@ public class SyntaxParser {
                     )) {
                         continue;
                     }
-                    logger.logOutput();
                     sec.loadSection(section, logger);
                     return sec;
                 } catch (InstantiationException | IllegalAccessException e) {
@@ -584,6 +591,7 @@ public class SyntaxParser {
                 recentEvent.getRegisterer().handleTrigger(trigger);
                 return trigger;
             }
+            logger.forgetError();
         }
         // Let's not loop over the same elements again
         List<SkriptEventInfo<?>> remainingEvents = SyntaxManager.getTriggers();
@@ -595,6 +603,7 @@ public class SyntaxParser {
                 remainingEvent.getRegisterer().handleTrigger(trigger);
                 return trigger;
             }
+            logger.forgetError();
         }
         logger.error("No trigger matching '" + section.getLineContent() + "' was found");
         return null;
@@ -615,7 +624,6 @@ public class SyntaxParser {
                     )) {
                         continue;
                     }
-                    logger.logOutput();
                     Trigger trig = new Trigger(event);
                     trig.loadSection(section, logger);
                     setCurrentContexts(info.getContexts());
