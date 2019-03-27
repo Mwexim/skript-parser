@@ -56,6 +56,7 @@ public class ScriptLoader {
         }
         logger.setFileInfo(script.getName(), elements);
         for (FileElement element : elements) {
+            logger.logOutput();
             logger.nextLine();
             if (element instanceof VoidElement)
                 continue;
@@ -68,7 +69,6 @@ public class ScriptLoader {
             } else {
                 logger.error("Can't have code outside of a trigger");
             }
-            logger.logOutput();
         }
         SkriptAddon.getAddons().forEach(SkriptAddon::finishedLoading);
         return logger.close();
@@ -85,6 +85,7 @@ public class ScriptLoader {
         List<FileElement> elements = section.getElements();
         for (FileElement element : elements) {
             logger.logOutput();
+            logger.nextLine();
             if (element instanceof FileSection) {
                 FileSection sec = (FileSection) element;
                 String content = sec.getLineContent();
@@ -138,6 +139,7 @@ public class ScriptLoader {
         for (int i = 0; i + 1 < items.size(); i++) {
             items.get(i).setNext(items.get(i + 1));
         }
+        logger.closeLogHandle();
         return items;
     }
 

@@ -34,6 +34,7 @@ public abstract class CodeSection extends Statement {
      * @param logger
      */
     public void loadSection(FileSection section, SkriptLogger logger) {
+        logger.startLogHandle();
         setItems(ScriptLoader.loadItems(section, logger));
     }
 
