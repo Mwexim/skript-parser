@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.file;
 
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 
@@ -43,7 +44,7 @@ public class FileParser {
             }
             int lineIndentation = FileUtils.getIndentationLevel(line);
             if (lineIndentation > expectedIndentation) { // The line is indented too much
-                logger.error("The line is indented too much (line " + (lastLine + i) + ": \"" + content + "\")");
+                logger.error("The line is indented too much (line " + (lastLine + i) + ": \"" + content + "\")", ErrorType.STRUCTURE_ERROR);
                 continue;
             } else if (lineIndentation < expectedIndentation) { // One indentation behind marks the end of a section
                 return elements;

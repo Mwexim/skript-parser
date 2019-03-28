@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.MatchContext;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
@@ -196,19 +197,19 @@ public class ExpressionElement implements PatternElement {
                     break;
                 case EXPRESSIONS_ONLY:
                     if (expression instanceof Literal ||  expression instanceof VariableString && ((VariableString) expression).isSimple()) {
-                        logger.error("Only expressions are allowed, found literal " + s);
+                        logger.error("Only expressions are allowed, found literal " + s, ErrorType.SEMANTIC_ERROR);
                         return null;
                     }
                     break;
                 case LITERALS_ONLY:
                     if (!(expression instanceof Literal) || expression instanceof VariableString && !((VariableString) expression).isSimple()) {
-                        logger.error("Only literals are allowed, found expression " + s);
+                        logger.error("Only literals are allowed, found expression " + s, ErrorType.SEMANTIC_ERROR);
                         return null;
                     }
                     break;
                 case VARIABLES_ONLY:
                     if (!(expression instanceof Variable)) {
-                        logger.error("Only variables are allowed, found " + s);
+                        logger.error("Only variables are allowed, found " + s, ErrorType.SEMANTIC_ERROR);
                         return null;
                     }
                     break;

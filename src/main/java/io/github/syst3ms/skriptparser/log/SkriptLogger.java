@@ -2,10 +2,10 @@ package io.github.syst3ms.skriptparser.log;
 
 import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileSection;
-import io.github.syst3ms.skriptparser.util.MultiMap;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,6 +14,13 @@ import java.util.stream.Collectors;
  */
 public class SkriptLogger {
     public static final String LOG_FORMAT = "%s (line %d: \"%s\", %s)";
+    private static final Comparator<LogEntry> ERROR_COMPARATOR = (e1, e2) -> {
+        if (e1.getErrorType().ordinal() != e2.getErrorType().ordinal()) {
+            return e2.getErrorType().ordinal() - e1.getErrorType().ordinal();
+        } else {
+            return e2.getRecursion() - e1.getRecursion();
+        }
+    };
     // State
     private final boolean debug;
     private boolean open = true;
@@ -24,7 +31,7 @@ public class SkriptLogger {
     private List<FileElement> fileElements;
     private int line = -1;
     // Logs
-    private MultiMap<Integer, LogEntry> logEntries = new MultiMap<>();
+    private List<LogEntry> logEntries = new ArrayList<>();
     private List<LogEntry> logged = new ArrayList<>();
 
     public SkriptLogger(boolean debug) {
@@ -63,80 +70,58 @@ public class SkriptLogger {
         recursion--;
     }
 
-    private void log(String message, LogType type) {
+    private void log(String message, LogType type, ErrorType error) {
         if (open) {
             if (line == -1) {
-                logEntries.putOne(recursion, new LogEntry(message, type));
+                logEntries.add(new LogEntry(message, type, recursion, error));
             } else {
-                logEntries.putOne(recursion, new LogEntry(String.format(LOG_FORMAT, message, line + 1, fileElements.get(line).getLineContent(), fileName), type));
+                logEntries.add(new LogEntry(String.format(LOG_FORMAT, message, line + 1, fileElements.get(line).getLineContent(), fileName), type, recursion, error));
             }
         }
     }
 
-    public void error(String message) {
+    public void error(String message, ErrorType errorType) {
         if (!hasError) {
             clearNotError();
-            log(message, LogType.ERROR);
+            log(message, LogType.ERROR, errorType);
             hasError = true;
         }
     }
 
     public void warn(String message) {
-        log(message, LogType.WARNING);
+        log(message, LogType.WARNING, null);
     }
 
     public void info(String message) {
-        log(message, LogType.INFO);
+        log(message, LogType.INFO, null);
     }
 
     public void debug(String message) {
         if (debug)
-            log(message, LogType.DEBUG);
-    }
-
-    public void clearNotError() {
-        int i = recursion;
-        while (logEntries.containsKey(i)) {
-            List<LogEntry> previous = logEntries.remove(i);
-            logEntries.put(
-                    i,
-                    previous.stream()
-                            .filter(e -> e.getType() == LogType.ERROR || e.getType() == LogType.DEBUG)
-                            .collect(Collectors.toList())
-            );
-            i++;
-        }
+            log(message, LogType.DEBUG, null);
     }
 
     public void forgetError() {
         hasError = false;
     }
 
+    public void clearNotError() {
+        logEntries.removeIf(entry -> entry.getRecursion() >= recursion && entry.getType() != LogType.ERROR && entry.getType() != LogType.DEBUG);
+    }
+
     public void clearLogs() {
-        int i = recursion;
-        while (logEntries.containsKey(i)) {
-            List<LogEntry> previous = logEntries.remove(i);
-            logEntries.put(
-                    i,
-                    previous.stream()
-                            .filter(e -> e.getType() == LogType.DEBUG)
-                            .collect(Collectors.toList())
-            );
-            i++;
-        }
+        logEntries.removeIf(entry -> entry.getRecursion() >= recursion && entry.getType() != LogType.DEBUG);
         hasError = false;
     }
 
     public void logOutput() {
-        List<LogEntry> flatView = logEntries.entrySet()
-                .stream()
-                .flatMap(e -> e.getValue().stream().sorted((e1, e2) -> e2.getType().ordinal() - e1.getType().ordinal()))
-                .collect(Collectors.toList());
-        boolean hasError = false;
-        for (LogEntry entry : flatView) {
-            if (entry.getType() != LogType.ERROR || !hasError) {
+        logEntries.stream()
+                .filter(e -> e.getType() == LogType.ERROR)
+                .min(ERROR_COMPARATOR)
+                .ifPresent(logged::add);
+        for (LogEntry entry : logEntries) {
+            if (entry.getType() != LogType.ERROR) {
                 logged.add(entry);
-                hasError = entry.getType() == LogType.ERROR;
             }
         }
         clearLogs();

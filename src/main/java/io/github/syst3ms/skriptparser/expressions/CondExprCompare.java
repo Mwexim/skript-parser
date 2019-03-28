@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.ExpressionList;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
@@ -88,10 +89,10 @@ public class CondExprCompare extends ConditionalExpression {
         Expression<?> third = this.third;
         if (!initialize()) {
             if (third == null) {
-                logger.error(first.toString(null, logger.isDebug()) + " and " + second.toString(null, logger.isDebug()) + " cannot be compared");
+                logger.error(first.toString(null, logger.isDebug()) + " and " + second.toString(null, logger.isDebug()) + " cannot be compared", ErrorType.SEMANTIC_ERROR);
                 return false;
             } else {
-                logger.error(first.toString(null, logger.isDebug()) + " cannot be compared with " + second.toString(null, logger.isDebug()) + " and " + third.toString(null, logger.isDebug()));
+                logger.error(first.toString(null, logger.isDebug()) + " cannot be compared with " + second.toString(null, logger.isDebug()) + " and " + third.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
                 return false;
             }
         }
@@ -101,7 +102,7 @@ public class CondExprCompare extends ConditionalExpression {
             if (third == null) {
                 return relation.isEqualOrInverse() || comp.supportsOrdering();
             } else if (!comp.supportsOrdering()) {
-                logger.error(errorString(first, logger.isDebug()) + " cannot be ordered between " + errorString(second, logger.isDebug()) + " and " + errorString(third, logger.isDebug()));
+                logger.error(errorString(first, logger.isDebug()) + " cannot be ordered between " + errorString(second, logger.isDebug()) + " and " + errorString(third, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
                 return false;
             }
         }

@@ -36,7 +36,7 @@ public class Main {
         registration = new SkriptRegistration(skript);
         DefaultRegistration.register();
         try {
-            FileUtils.loadClasses("io.github.syst3ms.skriptparser", "expressions", "effects", "event");
+            FileUtils.loadClasses("io.github.syst3ms.skriptparser", "expressions", "effects", "event", "lang");
         } catch (IOException | URISyntaxException e) {
             System.err.println("Error while loading classes:");
             e.printStackTrace();

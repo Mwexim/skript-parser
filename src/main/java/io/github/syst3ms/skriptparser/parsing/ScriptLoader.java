@@ -10,6 +10,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Loop;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
@@ -67,7 +68,7 @@ public class ScriptLoader {
                 }
                 triggerMap.putOne(scriptName, trig);
             } else {
-                logger.error("Can't have code outside of a trigger");
+                logger.error("Can't have code outside of a trigger", ErrorType.STRUCTURE_ERROR);
             }
         }
         SkriptAddon.getAddons().forEach(SkriptAddon::finishedLoading);
@@ -86,6 +87,8 @@ public class ScriptLoader {
         for (FileElement element : elements) {
             logger.logOutput();
             logger.nextLine();
+            if (element instanceof VoidElement)
+                continue;
             if (element instanceof FileSection) {
                 FileSection sec = (FileSection) element;
                 String content = sec.getLineContent();
@@ -100,7 +103,7 @@ public class ScriptLoader {
                     if (items.size() == 0 ||
                         !(items.get(items.size() - 1) instanceof Conditional) ||
                         ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
-                        logger.error("An 'else if' must be placed after an 'if'");
+                        logger.error("An 'else if' must be placed after an 'if'", ErrorType.STRUCTURE_ERROR);
                         continue;
                     }
 
@@ -115,7 +118,7 @@ public class ScriptLoader {
                     if (items.size() == 0 ||
                         !(items.get(items.size() - 1) instanceof Conditional) ||
                         ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
-                        logger.error("An 'else' must be placed after an 'if' or an 'else if'");
+                        logger.error("An 'else' must be placed after an 'if' or an 'else if'", ErrorType.STRUCTURE_ERROR);
                         continue;
                     }
                     Conditional c = new Conditional(sec, null, Conditional.ConditionalMode.ELSE, logger);

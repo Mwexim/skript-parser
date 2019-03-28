@@ -16,6 +16,7 @@ import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
@@ -120,7 +121,7 @@ public class SyntaxParser {
         Variable<? extends T> variable = (Variable<? extends T>) Variables.parseVariable(s, expectedType.getType().getTypeClass(), logger);
         if (variable != null) {
             if (!variable.isSingle() && expectedType.isSingle()) {
-                logger.error("A single value was expected, but " + s + " represents multiple values.");
+                logger.error("A single value was expected, but " + s + " represents multiple values.", ErrorType.SEMANTIC_ERROR);
                 return null;
             }
             return variable;
@@ -135,6 +136,7 @@ public class SyntaxParser {
             Expression<? extends T> expr = matchExpressionInfo(s, info, expectedType, currentContexts, logger);
             if (expr != null) {
                 recentExpressions.moveToFirst(info);
+                logger.clearLogs();
                 return expr;
             }
             logger.forgetError();
@@ -146,11 +148,12 @@ public class SyntaxParser {
             Expression<? extends T> expr = matchExpressionInfo(s, info, expectedType, currentContexts, logger);
             if (expr != null) {
                 recentExpressions.moveToFirst(info);
+                logger.clearLogs();
                 return expr;
             }
             logger.forgetError();
         }
-        logger.error("No expression matching ''" + s + "' was found");
+        logger.error("No expression matching ''" + s + "' was found", ErrorType.NO_MATCH);
         return null;
     }
 
@@ -186,13 +189,13 @@ public class SyntaxParser {
                 switch (conditional) {
                     case 0: // Can't be conditional
                         if (ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
-                            logger.error("The boolean expression must not be conditional");
+                            logger.error("The boolean expression must not be conditional", ErrorType.SEMANTIC_ERROR);
                             return null;
                         }
                         break;
                     case 2: // Has to be conditional
                         if (!ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
-                            logger.error("The boolean expression must be conditional");
+                            logger.error("The boolean expression must be conditional", ErrorType.SEMANTIC_ERROR);
                             return null;
                         }
                     case 1: // Can be conditional
@@ -203,6 +206,7 @@ public class SyntaxParser {
                         break;
                 }
                 recentExpressions.moveToFirst(info);
+                logger.clearLogs();
                 return expr;
             }
             logger.forgetError();
@@ -218,13 +222,13 @@ public class SyntaxParser {
                 switch (conditional) {
                     case 0: // Can't be conditional
                         if (ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
-                            logger.error("The boolean expression must not be conditional");
+                            logger.error("The boolean expression must not be conditional", ErrorType.SEMANTIC_ERROR);
                             return null;
                         }
                         break;
                     case 2: // Has to be conditional
                         if (!ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
-                            logger.error("The boolean expression must be conditional");
+                            logger.error("The boolean expression must be conditional", ErrorType.SEMANTIC_ERROR);
                             return null;
                         }
                     case 1: // Can be conditional
@@ -235,11 +239,12 @@ public class SyntaxParser {
                         break;
                 }
                 recentExpressions.moveToFirst(info);
+                logger.clearLogs();
                 return expr;
             }
             logger.forgetError();
         }
-        logger.error("No expression matching '" + s + "' was found");
+        logger.error("No expression matching '" + s + "' was found", ErrorType.NO_MATCH);
         return null;
     }
 
@@ -274,18 +279,18 @@ public class SyntaxParser {
                             logger.error(StringUtils.withIndefiniteArticle(expectedType.toString(), false) +
                                     " was expected, but " +
                                     StringUtils.withIndefiniteArticle(type.toString(), false) +
-                                    " was found");
+                                    " was found", ErrorType.SEMANTIC_ERROR);
                             return null;
                         }
                     }
                     if (!expression.isSingle() &&
                             expectedType.isSingle()) {
-                        logger.error("A single value was expected, but " + s + " represents multiple values.");
+                        logger.error("A single value was expected, but " + s + " represents multiple values.", ErrorType.SEMANTIC_ERROR);
                         continue;
                     }
                     return expression;
                 } catch (InstantiationException | IllegalAccessException e) {
-                    logger.error("Couldn't instantiate class " + info.getSyntaxClass().getName());
+                    logger.error("Couldn't instantiate class " + info.getSyntaxClass().getName(), ErrorType.EXCEPTION);
                 }
             }
         }
@@ -451,6 +456,7 @@ public class SyntaxParser {
             Effect eff = matchEffectInfo(s, recentEffect, logger);
             if (eff != null) {
                 recentEffects.moveToFirst(recentEffect);
+                logger.clearLogs();
                 return eff;
             }
             logger.forgetError();
@@ -462,11 +468,12 @@ public class SyntaxParser {
             Effect eff = matchEffectInfo(s, remainingEffect, logger);
             if (eff != null) {
                 recentEffects.moveToFirst(remainingEffect);
+                logger.clearLogs();
                 return eff;
             }
             logger.forgetError();
         }
-        logger.error("No effect matching '" + s + "' was found");
+        logger.error("No effect matching '" + s + "' was found", ErrorType.NO_MATCH);
         return null;
     }
 
@@ -487,7 +494,7 @@ public class SyntaxParser {
                     }
                     return eff;
                 } catch (InstantiationException | IllegalAccessException e) {
-                    logger.error("Couldn't instantiate class " + info.getSyntaxClass());
+                    logger.error("Couldn't instantiate class " + info.getSyntaxClass(), ErrorType.EXCEPTION);
                 }
             }
         }
@@ -529,6 +536,7 @@ public class SyntaxParser {
             CodeSection sec = matchSectionInfo(section, recentSection, logger);
             if (sec != null) {
                 recentSections.moveToFirst(recentSection);
+                logger.clearLogs();
                 return sec;
             }
             logger.forgetError();
@@ -539,11 +547,12 @@ public class SyntaxParser {
             CodeSection sec = matchSectionInfo(section, remainingSection, logger);
             if (sec != null) {
                 recentSections.moveToFirst(remainingSection);
+                logger.clearLogs();
                 return sec;
             }
             logger.forgetError();
         }
-        logger.error("No section matching '" + section.getLineContent() + "' was found");
+        logger.error("No section matching '" + section.getLineContent() + "' was found", ErrorType.NO_MATCH);
         return null;
     }
 
@@ -565,7 +574,7 @@ public class SyntaxParser {
                     sec.loadSection(section, logger);
                     return sec;
                 } catch (InstantiationException | IllegalAccessException e) {
-                    logger.error("Couldn't instantiate class " + info.getSyntaxClass());
+                    logger.error("Couldn't instantiate class " + info.getSyntaxClass(), ErrorType.EXCEPTION);
                 }
             }
         }
@@ -589,6 +598,7 @@ public class SyntaxParser {
             if (trigger != null) {
                 recentEvents.moveToFirst(recentEvent);
                 recentEvent.getRegisterer().handleTrigger(trigger);
+                logger.clearLogs();
                 return trigger;
             }
             logger.forgetError();
@@ -601,11 +611,12 @@ public class SyntaxParser {
             if (trigger != null) {
                 recentEvents.moveToFirst(remainingEvent);
                 remainingEvent.getRegisterer().handleTrigger(trigger);
+                logger.clearLogs();
                 return trigger;
             }
             logger.forgetError();
         }
-        logger.error("No trigger matching '" + section.getLineContent() + "' was found");
+        logger.error("No trigger matching '" + section.getLineContent() + "' was found", ErrorType.NO_MATCH);
         return null;
     }
 
@@ -629,7 +640,7 @@ public class SyntaxParser {
                     setCurrentContexts(info.getContexts());
                     return trig;
                 } catch (InstantiationException | IllegalAccessException e) {
-                    logger.error("Couldn't instantiate class " + info.getSyntaxClass());
+                    logger.error("Couldn't instantiate class " + info.getSyntaxClass(), ErrorType.EXCEPTION);
                 }
             }
         }
