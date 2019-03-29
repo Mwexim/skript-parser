@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
@@ -10,8 +9,11 @@ import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.util.Locale;
 
 public class DefaultRegistration {
+
     public static void register() {
         SkriptRegistration registration = Main.getMainRegistration();
         registration.addType(
@@ -50,14 +52,18 @@ public class DefaultRegistration {
                         return n;
                     })
                     .toStringFunction(o -> {
-                        if (o == null)
-                            return TypeManager.NULL_REPRESENTATION;
-                        if (o instanceof Long) {
+                        if (o instanceof Long || o instanceof BigInteger) {
                             return o.toString();
+                        } else if (o instanceof BigDecimal) {
+                            BigDecimal bd = (BigDecimal) o;
+                            int significantDigits = bd.scale() <= 0
+                                    ? bd.precision() + bd.stripTrailingZeros().scale()
+                                    : bd.precision();
+                            return ((BigDecimal) o).setScale(Math.min(10, significantDigits), RoundingMode.HALF_UP)
+                                                   .stripTrailingZeros()
+                                                   .toPlainString();
                         } else if (o instanceof Double) {
-                            return Double.toString(o.doubleValue());
-                        } else if (o instanceof BigInteger || o instanceof BigDecimal) {
-                            return o.toString(); // Both BigInteger and BigDecimal override toString
+                            return Double.toString((Double) o);
                         }
                         assert false;
                         return null; // Can't happen, so we don't really have to worry about that

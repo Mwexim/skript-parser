@@ -61,6 +61,7 @@ public class Conditional extends CodeSection {
             fallingClause.setFallingClause(conditional);
         } else {
             fallingClause = conditional;
+            fallingClause.setParent(this);
         }
     }
 

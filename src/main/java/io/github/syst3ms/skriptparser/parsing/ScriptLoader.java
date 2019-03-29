@@ -84,6 +84,7 @@ public class ScriptLoader {
     public static List<Statement> loadItems(FileSection section, SkriptLogger logger) {
         List<Statement> items = new ArrayList<>();
         List<FileElement> elements = section.getElements();
+        logger.startLogHandle();
         for (FileElement element : elements) {
             logger.logOutput();
             logger.nextLine();

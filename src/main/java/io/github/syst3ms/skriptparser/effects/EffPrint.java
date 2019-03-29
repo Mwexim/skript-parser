@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
  * @author Syst3ms
  */
 public class EffPrint extends Effect {
+
     private Expression<String> string;
 
     static {

@@ -75,6 +75,9 @@ public class SyntaxParser {
     @SuppressWarnings({"ConstantConditions", "RedundantCast"}) // Gradle requires the cast, but IntelliJ considers it redundant
     public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class), true);
 
+    @SuppressWarnings({"ConstantConditions", "RedundantCast"}) // Gradle requires the cast, but IntelliJ considers it redundant
+    public static final PatternType<Object> OBJECTS_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class), false);
+
     /**
      * All {@link Effect effects} that are successfully parsed during parsing, in order of last successful parsing
      */
@@ -329,33 +332,30 @@ public class SyntaxParser {
             return null;
         List<String> parts = new ArrayList<>();
         Matcher m = LIST_SPLIT_PATTERN.matcher(s);
-        StringBuilder sb = new StringBuilder();
+        int lastIndex = 0;
         for (int i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i + 1)) {
+            if (i == -1)
+                return null;
             char c = s.charAt(i);
             if (c == ' ' || c == ',') {
                 m.region(i, s.length());
                 if (m.lookingAt()) {
-                    if (sb.length() == 0)
+                    if (i == lastIndex)
                         return null;
-                    parts.add(sb.toString());
+                    parts.add(s.substring(lastIndex, i));
                     parts.add(m.group());
-                    sb.setLength(0);
                     i = m.end() - 1;
-                    continue;
+                    lastIndex = i;
                 }
             } else if (c == '(') {
                 String closing = StringUtils.getEnclosedText(s, '(', ')', i);
                 if (closing != null) {
-                    int endIndex = i + closing.length() + 1;
-                    sb.append("(").append(s, i + 1, endIndex).append(")");
-                    i = endIndex;
-                    continue;
+                    i = i + closing.length() + 1;
                 }
             }
-            sb.append(c);
         }
-        if (sb.length() > 0)
-            parts.add(sb.toString());
+        if (lastIndex < s.length() - 1)
+            parts.add(s.substring(lastIndex));
         if (parts.size() == 1)
             return null;
         Boolean isAndList = null; // Hello nullable booleans, it had been a pleasure NOT using you
@@ -374,7 +374,7 @@ public class SyntaxParser {
         boolean isLiteralList = true;
         for (int i = 0; i < parts.size(); i++) {
             if ((i & 1) == 0) { // Even index == element
-                String part = parts.get(i);
+                String part = parts.get(i).trim();
                 Expression<? extends T> expression = parseExpression(part, expectedType, logger);
                 if (expression == null) {
                     return null;

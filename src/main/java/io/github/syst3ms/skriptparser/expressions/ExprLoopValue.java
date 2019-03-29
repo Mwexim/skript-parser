@@ -12,6 +12,7 @@ import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
+import javafx.util.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
@@ -66,9 +67,10 @@ public class ExprLoopValue implements Expression<Object> {
 		Loop loop = null;
 
 		for (final Loop l : ScriptLoader.getCurrentLoops()) {
-			if (c != null && c.isAssignableFrom(l.getLoopedExpression().getReturnType()) ||
-				"value".equals(s) ||
-				l.getLoopedExpression().isLoopOf(s)) {
+            Class<?> loopedType = l.getLoopedExpression().getReturnType();
+            if (c != null && (c.isAssignableFrom(loopedType) || loopedType == Object.class) ||
+                "value".equals(s) ||
+                l.getLoopedExpression().isLoopOf(s)) {
 				if (j < i) {
 					j++;
 					continue;
@@ -115,7 +117,7 @@ public class ExprLoopValue implements Expression<Object> {
 		Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
 		if (isVariableLoop) {
 			@SuppressWarnings("unchecked")
-			final Map.Entry<String, Object> current = (Map.Entry<String, Object>) loop.getCurrent(ctx);
+			final Pair<String, Object> current = (Pair<String, Object>) loop.getCurrent(ctx);
 			if (current == null) {
 				return new Object[0];
 			}

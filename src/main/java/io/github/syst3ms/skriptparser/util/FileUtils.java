@@ -4,9 +4,12 @@ import io.github.syst3ms.skriptparser.Skript;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -23,7 +26,7 @@ public class FileUtils {
 
     public static List<String> readAllLines(File file) throws IOException {
         List<String> lines = new ArrayList<>();
-        FileReader in = new FileReader(file);
+        InputStreamReader in = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
         BufferedReader reader = new BufferedReader(in);
         String line;
         StringBuilder multilineBuilder = new StringBuilder();
