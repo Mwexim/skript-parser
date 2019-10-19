@@ -165,6 +165,7 @@ public class PatternParser {
                     textBuilder.append(chars[++i]);
                 }
             } else if (c == '|') {
+                textBuilder.setLength(0);
                 String[] groups = StringUtils.splitVerticalBars(pattern);
                 List<ChoiceElement> choices = new ArrayList<>();
                 for (String choice : groups) {
@@ -187,6 +188,7 @@ public class PatternParser {
                     }
                 }
                 elements.add(new ChoiceGroup(choices));
+                break;
             } else if (c == ']' || c == ')' || c == '>') { // Closing brackets are skipped over, so this marks an error
                 return null;
             } else {

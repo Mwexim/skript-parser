@@ -24,7 +24,6 @@ public class Trigger extends CodeSection {
 
     @Override
     public void loadSection(FileSection section, SkriptLogger logger) {
-        logger.startLogHandle();
         setItems(event.loadSection(section, logger));
     }
 

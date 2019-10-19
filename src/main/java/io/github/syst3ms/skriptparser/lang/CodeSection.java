@@ -56,8 +56,8 @@ public abstract class CodeSection extends Statement {
         for (Statement item : items) {
             item.setParent(this);
         }
-        first = items.get(0);
-        last = items.get(items.size() - 1).setNext(getNext());
+        first = items.isEmpty() ? null : items.get(0);
+        last = items.isEmpty() ? null : items.get(items.size() - 1).setNext(getNext());
     }
 
     /**

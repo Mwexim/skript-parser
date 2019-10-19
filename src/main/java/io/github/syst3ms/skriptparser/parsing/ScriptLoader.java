@@ -71,6 +71,7 @@ public class ScriptLoader {
                 logger.error("Can't have code outside of a trigger", ErrorType.STRUCTURE_ERROR);
             }
         }
+        logger.logOutput();
         SkriptAddon.getAddons().forEach(SkriptAddon::finishedLoading);
         return logger.close();
     }
@@ -140,6 +141,7 @@ public class ScriptLoader {
                 items.add(eff);
             }
         }
+        logger.logOutput();
         for (int i = 0; i + 1 < items.size(); i++) {
             items.get(i).setNext(items.get(i + 1));
         }
