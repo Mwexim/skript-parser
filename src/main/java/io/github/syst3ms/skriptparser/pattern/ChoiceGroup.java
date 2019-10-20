@@ -40,13 +40,13 @@ public class ChoiceGroup implements PatternElement {
     }
 
     @Override
-    public int match(String s, int index, MatchContext parser) {
-        if (parser.getOriginalElement().equals(this))
-            parser.advanceInPattern();
+    public int match(String s, int index, MatchContext context) {
         for (ChoiceElement choice : choices) {
-            int m = choice.getElement().match(s, index, parser);
+            MatchContext branch = context.branch(choice.getElement());
+            int m = choice.getElement().match(s, index, branch);
             if (m != -1) {
-                parser.addMark(choice.getParseMark());
+                context.merge(branch);
+                context.addMark(choice.getParseMark());
                 return m;
             }
         }

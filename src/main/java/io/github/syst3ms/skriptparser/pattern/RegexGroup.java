@@ -33,11 +33,9 @@ public class RegexGroup implements PatternElement {
     }
 
     @Override
-    public int match(String s, int index, MatchContext parser) {
-        if (parser.getOriginalElement().equals(this))
-            parser.advanceInPattern();
-        List<PatternElement> flattened = PatternElement.flatten(parser.getOriginalElement());
-        List<PatternElement> possibleInputs = PatternElement.getPossibleInputs(flattened.subList(parser.getPatternIndex(), flattened.size()));
+    public int match(String s, int index, MatchContext context) {
+        List<PatternElement> flattened = PatternElement.flatten(context.getOriginalElement());
+        List<PatternElement> possibleInputs = PatternElement.getPossibleInputs(flattened.subList(context.getPatternIndex(), flattened.size()));
         for (PatternElement possibleInput : possibleInputs) {
             if (possibleInput instanceof TextElement) {
                 String text = ((TextElement) possibleInput).getText();
@@ -55,7 +53,7 @@ public class RegexGroup implements PatternElement {
                  */
                 if (!m.matches())
                     continue;
-                parser.addRegexMatch(m.toMatchResult());
+                context.addRegexMatch(m.toMatchResult());
                 String content = m.group();
                 return index + content.length();
             } else {
@@ -70,7 +68,7 @@ public class RegexGroup implements PatternElement {
                      * matches() tries to match against the whole region, and that's what we want
                      */
                     if (m.matches()) {
-                        parser.addRegexMatch(m.toMatchResult());
+                        context.addRegexMatch(m.toMatchResult());
                         String content = m.group();
                         return index + content.length();
                     }

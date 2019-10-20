@@ -34,10 +34,9 @@ import java.util.function.UnaryOperator;
  * @author Syst3ms
  */
 public class ExprUnaryMathFunctions implements Expression<Number> {
-	public static final PatternInfos<UnaryOperator<Number>> PATTERNS = new PatternInfos<>(
+	private static final PatternInfos<UnaryOperator<Number>> PATTERNS = new PatternInfos<>(
 		new Object[][]{
-			{"abs %number%", (UnaryOperator<Number>) NumberMath::abs},
-			{"\\|%number%\\|", (UnaryOperator<Number>) NumberMath::abs},
+			{"abs %number%|\\|%number%\\|", (UnaryOperator<Number>) NumberMath::abs},
 			{"%number%!", (UnaryOperator<Number>) NumberMath::factorial},
 			{"factorial of %number%", (UnaryOperator<Number>) NumberMath::factorial},
 			{"(sqrt|square root of) %number%", (UnaryOperator<Number>) NumberMath::sqrt},
@@ -50,6 +49,9 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 			{"asin %number%", (UnaryOperator<Number>) NumberMath::asin},
 			{"acos %number%", (UnaryOperator<Number>) NumberMath::acos},
 			{"atan %number%", (UnaryOperator<Number>) NumberMath::atan},
+			{"sinh %number%", (UnaryOperator<Number>) NumberMath::sinh},
+			{"cosh %number%", (UnaryOperator<Number>) NumberMath::cosh},
+			{"tanh %number%", (UnaryOperator<Number>) NumberMath::tanh},
 			{"ln %number%", (UnaryOperator<Number>) NumberMath::ln}
 		}
 	);

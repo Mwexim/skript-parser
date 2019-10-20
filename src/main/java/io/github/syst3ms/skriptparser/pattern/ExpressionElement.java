@@ -37,18 +37,16 @@ public class ExpressionElement implements PatternElement {
     }
 
     @Override
-    public int match(String s, int index, MatchContext parser) {
-        if (parser.getOriginalElement().equals(this))
-            parser.advanceInPattern();
+    public int match(String s, int index, MatchContext context) {
         PatternType<?>[] typeArray = types.toArray(new PatternType<?>[0]);
         if (index >= s.length()) {
             return -1;
         }
-        SkriptLogger logger = parser.getLogger();
+        SkriptLogger logger = context.getLogger();
         logger.startLogHandle();
-        List<PatternElement> flattened = PatternElement.flatten(parser.getOriginalElement());
+        List<PatternElement> flattened = PatternElement.flatten(context.getOriginalElement());
         // We look at what could possibly be after the expression in the current syntax
-        List<PatternElement> possibleInputs = PatternElement.getPossibleInputs(flattened.subList(parser.getPatternIndex(), flattened.size()));
+        List<PatternElement> possibleInputs = PatternElement.getPossibleInputs(flattened.subList(context.getPatternIndex(), flattened.size()));
         for (PatternElement possibleInput : possibleInputs) {  // We iterate over those possibilities
             if (possibleInput instanceof TextElement) {
                 String text = ((TextElement) possibleInput).getText();
@@ -62,7 +60,7 @@ public class ExpressionElement implements PatternElement {
                     String toParse = s.substring(index).trim();
                     Expression<?> expression = parse(toParse, typeArray, logger);
                     if (expression != null) {
-                        parser.addExpression(expression);
+                        context.addExpression(expression);
                         logger.closeLogHandle();
                         return index + toParse.length();
                     }
@@ -74,7 +72,7 @@ public class ExpressionElement implements PatternElement {
                     String toParse = s.substring(index, i).trim();
                     Expression<?> expression = parse(toParse, typeArray, logger);
                     if (expression != null) {
-                        parser.addExpression(expression);
+                        context.addExpression(expression);
                         logger.closeLogHandle();
                         return index + toParse.length();
                     }
@@ -88,18 +86,18 @@ public class ExpressionElement implements PatternElement {
                         continue;
                     }
                     String toParse = s.substring(index, i);
-                    if (toParse.length() == parser.getOriginalPattern().length())
+                    if (toParse.length() == context.getOriginalPattern().length())
                         continue;
                     Expression<?> expression = parse(toParse, typeArray, logger);
                     if (expression != null) {
-                        parser.addExpression(expression);
+                        context.addExpression(expression);
                         logger.closeLogHandle();
                         return index + toParse.length();
                     }
                 }
             } else {
                 assert possibleInput instanceof ExpressionElement;
-                List<PatternElement> nextPossibleInputs = PatternElement.getPossibleInputs(flattened.subList(parser.getPatternIndex() + 1, flattened.size()));
+                List<PatternElement> nextPossibleInputs = PatternElement.getPossibleInputs(flattened.subList(context.getPatternIndex() + 1, flattened.size()));
                 if (nextPossibleInputs.stream().anyMatch(pe -> !(pe instanceof TextElement))) {
                     continue;
                 }
@@ -114,7 +112,7 @@ public class ExpressionElement implements PatternElement {
                                 String toParse = s.substring(index, i);
                                 Expression<?> expression = parse(toParse, typeArray, logger);
                                 if (expression != null) {
-                                    parser.addExpression(expression);
+                                    context.addExpression(expression);
                                     logger.closeLogHandle();
                                     return index + toParse.length();
                                 }
@@ -134,7 +132,7 @@ public class ExpressionElement implements PatternElement {
                                 String toParse = s.substring(index, i);
                                 Expression<?> expression = parse(toParse, typeArray, logger);
                                 if (expression != null) {
-                                    parser.addExpression(expression);
+                                    context.addExpression(expression);
                                     logger.closeLogHandle();
                                     return index + toParse.length();
                                 }
@@ -149,14 +147,14 @@ public class ExpressionElement implements PatternElement {
     }
 
     private List<String> splitAtSpaces(String s) {
-        List<String> splitted = new ArrayList<>();
+        List<String> split = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         char[] charArray = s.toCharArray();
         for (int i = 0; i < charArray.length; i++) {
             char c = charArray[i];
             if (c == ' ') {
                 if (sb.length() > 0) {
-                    splitted.add(sb.toString());
+                    split.add(sb.toString());
                     sb.setLength(0);
                 }
             } else if (c == '(') {
@@ -172,9 +170,9 @@ public class ExpressionElement implements PatternElement {
             }
         }
         if (sb.length() > 0) {
-            splitted.add(sb.toString());
+            split.add(sb.toString());
         }
-        return splitted;
+        return split;
     }
 
     @SuppressWarnings("unchecked")

@@ -34,6 +34,13 @@ public class PatternParser {
     public PatternElement parsePattern(String pattern) {
         List<PatternElement> elements = new ArrayList<>();
         StringBuilder textBuilder = new StringBuilder();
+        try {
+            if (StringUtils.splitVerticalBars(pattern).length > 1) {
+                pattern = "(" + pattern + ")";
+            }
+        } catch (SkriptParserException ex) {
+            return null;
+        }
         char[] chars = pattern.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             char c = chars[i];
@@ -164,31 +171,6 @@ public class PatternParser {
                 } else {
                     textBuilder.append(chars[++i]);
                 }
-            } else if (c == '|') {
-                textBuilder.setLength(0);
-                String[] groups = StringUtils.splitVerticalBars(pattern);
-                List<ChoiceElement> choices = new ArrayList<>();
-                for (String choice : groups) {
-                    Matcher matcher = PARSE_MARK_PATTERN.matcher(choice);
-                    if (matcher.matches()) {
-                        String mark = matcher.group(1);
-                        int markNumber = Integer.parseInt(mark);
-                        String rest = choice.substring(mark.length() + 1);
-                        PatternElement choiceContent = parsePattern(rest);
-                        if (choiceContent == null) {
-                            return null;
-                        }
-                        choices.add(new ChoiceElement(choiceContent, markNumber));
-                    } else {
-                        PatternElement choiceContent = parsePattern(choice);
-                        if (choiceContent == null) {
-                            return null;
-                        }
-                        choices.add(new ChoiceElement(choiceContent, 0));
-                    }
-                }
-                elements.add(new ChoiceGroup(choices));
-                break;
             } else if (c == ']' || c == ')' || c == '>') { // Closing brackets are skipped over, so this marks an error
                 return null;
             } else {

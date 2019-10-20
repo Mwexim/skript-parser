@@ -149,6 +149,40 @@ public class NumberMath {
         }
     }
 
+    public static Number sinh(Number n) {
+        if (n instanceof Long || n instanceof Double) {
+            return Math.sinh(n.doubleValue());
+        } else {
+            return BigDecimalMath.exp(bigToBigDecimal(n), BigDecimalMath.DEFAULT_CONTEXT)
+                    .subtract(BigDecimalMath.exp(bigToBigDecimal(n).negate(), BigDecimalMath.DEFAULT_CONTEXT))
+                    .divide(BigDecimal.valueOf(2), BigDecimalMath.DEFAULT_CONTEXT);
+        }
+    }
+
+    public static Number cosh(Number n) {
+        if (n instanceof Long || n instanceof Double) {
+            return Math.cosh(n.doubleValue());
+        } else {
+            return BigDecimalMath.exp(bigToBigDecimal(n), BigDecimalMath.DEFAULT_CONTEXT)
+                    .add(BigDecimalMath.exp(bigToBigDecimal(n).negate(), BigDecimalMath.DEFAULT_CONTEXT))
+                    .divide(BigDecimal.valueOf(2), BigDecimalMath.DEFAULT_CONTEXT);
+        }
+    }
+
+    public static Number tanh(Number n) {
+        if (n instanceof Long || n instanceof Double) {
+            return Math.tanh(n.doubleValue());
+        } else {
+            return BigDecimalMath.exp(bigToBigDecimal(n), BigDecimalMath.DEFAULT_CONTEXT)
+                    .subtract(BigDecimalMath.exp(bigToBigDecimal(n).negate(), BigDecimalMath.DEFAULT_CONTEXT))
+                    .divide(
+                            BigDecimalMath.exp(bigToBigDecimal(n), BigDecimalMath.DEFAULT_CONTEXT)
+                                    .add(BigDecimalMath.exp(bigToBigDecimal(n).negate(), BigDecimalMath.DEFAULT_CONTEXT)),
+                            BigDecimalMath.DEFAULT_CONTEXT
+                    );
+        }
+    }
+
     private static BigDecimal bigToBigDecimal(Number n) {
         return n instanceof BigDecimal ? (BigDecimal) n : new BigDecimal((BigInteger) n);
     }

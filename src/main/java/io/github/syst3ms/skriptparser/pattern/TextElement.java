@@ -23,10 +23,8 @@ public class TextElement implements PatternElement {
     }
 
     @Override
-    public int match(String s, int index, MatchContext parser) {
+    public int match(String s, int index, MatchContext context) {
         int i = index;
-        if (parser.getOriginalElement().equals(this))
-            parser.advanceInPattern();
         String trimmed = text.trim();
         // We advance until we reach the first non-whitespace character in s
         while (i < s.length() && Character.isWhitespace(s.charAt(i)))

@@ -39,12 +39,11 @@ public class CompoundElement implements PatternElement {
     }
 
     @Override
-    public int match(String s, int index, MatchContext parser) {
+    public int match(String s, int index, MatchContext context) {
         int i = index;
         for (PatternElement element : elements) {
-            if (parser.getOriginalElement().equals(this))
-                parser.advanceInPattern();
-            int m = element.match(s, i, parser);
+            context.advanceInPattern();
+            int m = element.match(s, i, context);
             if (m == -1) {
                 return -1;
             }
