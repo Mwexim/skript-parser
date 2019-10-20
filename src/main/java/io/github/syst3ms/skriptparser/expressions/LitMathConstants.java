@@ -58,9 +58,9 @@ public class LitMathConstants implements Expression<Number> {
     @Override
     public Number[] getValues(TriggerContext ctx) {
         if (pattern == 0) {
-            return new Number[]{BigDecimalMath.PI};
+            return new Number[]{BigDecimalMath.pi(BigDecimalMath.DEFAULT_CONTEXT)};
         } else if (pattern == 1) {
-            return new Number[]{BigDecimalMath.E};
+            return new Number[]{BigDecimalMath.e(BigDecimalMath.DEFAULT_CONTEXT)};
         } else if (pattern == 2) {
             return new Number[]{PHI};
         } else {

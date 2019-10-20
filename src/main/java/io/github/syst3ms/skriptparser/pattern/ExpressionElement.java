@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.MatchContext;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
@@ -36,31 +37,34 @@ public class ExpressionElement implements PatternElement {
     }
 
     @Override
-    public int match(String s, int index, MatchContext parser) {
-        if (parser.getOriginalElement().equals(this))
-            parser.advanceInPattern();
+    public int match(String s, int index, MatchContext context) {
         PatternType<?>[] typeArray = types.toArray(new PatternType<?>[0]);
         if (index >= s.length()) {
             return -1;
         }
-        SkriptLogger logger = parser.getLogger();
-        List<PatternElement> flattened = PatternElement.flatten(parser.getOriginalElement());
+        SkriptLogger logger = context.getLogger();
+        logger.startLogHandle();
+        List<PatternElement> flattened = PatternElement.flatten(context.getOriginalElement());
         // We look at what could possibly be after the expression in the current syntax
-        List<PatternElement> possibleInputs = PatternElement.getPossibleInputs(flattened.subList(parser.getPatternIndex(), flattened.size()));
+        List<PatternElement> possibleInputs = PatternElement.getPossibleInputs(flattened.subList(context.getPatternIndex(), flattened.size()));
         for (PatternElement possibleInput : possibleInputs) {  // We iterate over those possibilities
             if (possibleInput instanceof TextElement) {
                 String text = ((TextElement) possibleInput).getText();
                 if (text.isEmpty())
                     continue;
                 if (text.equals("\0")) { // End of line
-                    if (index == 0)
+                    if (index == 0) {
+                        logger.closeLogHandle();
                         return -1;
+                    }
                     String toParse = s.substring(index).trim();
                     Expression<?> expression = parse(toParse, typeArray, logger);
                     if (expression != null) {
-                        parser.addExpression(expression);
+                        context.addExpression(expression);
+                        logger.closeLogHandle();
                         return index + toParse.length();
                     }
+                    logger.closeLogHandle();
                     return -1;
                 }
                 int i = StringUtils.indexOfIgnoreCase(s, text, index);
@@ -68,7 +72,8 @@ public class ExpressionElement implements PatternElement {
                     String toParse = s.substring(index, i).trim();
                     Expression<?> expression = parse(toParse, typeArray, logger);
                     if (expression != null) {
-                        parser.addExpression(expression);
+                        context.addExpression(expression);
+                        logger.closeLogHandle();
                         return index + toParse.length();
                     }
                     i = StringUtils.indexOfIgnoreCase(s, text, i + 1);
@@ -81,17 +86,18 @@ public class ExpressionElement implements PatternElement {
                         continue;
                     }
                     String toParse = s.substring(index, i);
-                    if (toParse.length() == parser.getOriginalPattern().length())
+                    if (toParse.length() == context.getOriginalPattern().length())
                         continue;
                     Expression<?> expression = parse(toParse, typeArray, logger);
                     if (expression != null) {
-                        parser.addExpression(expression);
+                        context.addExpression(expression);
+                        logger.closeLogHandle();
                         return index + toParse.length();
                     }
                 }
             } else {
                 assert possibleInput instanceof ExpressionElement;
-                List<PatternElement> nextPossibleInputs = PatternElement.getPossibleInputs(flattened.subList(parser.getPatternIndex() + 1, flattened.size()));
+                List<PatternElement> nextPossibleInputs = PatternElement.getPossibleInputs(flattened.subList(context.getPatternIndex() + 1, flattened.size()));
                 if (nextPossibleInputs.stream().anyMatch(pe -> !(pe instanceof TextElement))) {
                     continue;
                 }
@@ -106,7 +112,8 @@ public class ExpressionElement implements PatternElement {
                                 String toParse = s.substring(index, i);
                                 Expression<?> expression = parse(toParse, typeArray, logger);
                                 if (expression != null) {
-                                    parser.addExpression(expression);
+                                    context.addExpression(expression);
+                                    logger.closeLogHandle();
                                     return index + toParse.length();
                                 }
                             }
@@ -125,7 +132,8 @@ public class ExpressionElement implements PatternElement {
                                 String toParse = s.substring(index, i);
                                 Expression<?> expression = parse(toParse, typeArray, logger);
                                 if (expression != null) {
-                                    parser.addExpression(expression);
+                                    context.addExpression(expression);
+                                    logger.closeLogHandle();
                                     return index + toParse.length();
                                 }
                             }
@@ -134,18 +142,19 @@ public class ExpressionElement implements PatternElement {
                 }
             }
         }
+        logger.closeLogHandle();
         return -1;
     }
 
     private List<String> splitAtSpaces(String s) {
-        List<String> splitted = new ArrayList<>();
+        List<String> split = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         char[] charArray = s.toCharArray();
         for (int i = 0; i < charArray.length; i++) {
             char c = charArray[i];
             if (c == ' ') {
                 if (sb.length() > 0) {
-                    splitted.add(sb.toString());
+                    split.add(sb.toString());
                     sb.setLength(0);
                 }
             } else if (c == '(') {
@@ -161,9 +170,9 @@ public class ExpressionElement implements PatternElement {
             }
         }
         if (sb.length() > 0) {
-            splitted.add(sb.toString());
+            split.add(sb.toString());
         }
-        return splitted;
+        return split;
     }
 
     @SuppressWarnings("unchecked")
@@ -186,19 +195,19 @@ public class ExpressionElement implements PatternElement {
                     break;
                 case EXPRESSIONS_ONLY:
                     if (expression instanceof Literal ||  expression instanceof VariableString && ((VariableString) expression).isSimple()) {
-                        logger.error("Only expressions are allowed, found literal " + s);
+                        logger.error("Only expressions are allowed, found literal " + s, ErrorType.SEMANTIC_ERROR);
                         return null;
                     }
                     break;
                 case LITERALS_ONLY:
                     if (!(expression instanceof Literal) || expression instanceof VariableString && !((VariableString) expression).isSimple()) {
-                        logger.error("Only literals are allowed, found expression " + s);
+                        logger.error("Only literals are allowed, found expression " + s, ErrorType.SEMANTIC_ERROR);
                         return null;
                     }
                     break;
                 case VARIABLES_ONLY:
                     if (!(expression instanceof Variable)) {
-                        logger.error("Only variables are allowed, found " + s);
+                        logger.error("Only variables are allowed, found " + s, ErrorType.SEMANTIC_ERROR);
                         return null;
                     }
                     break;

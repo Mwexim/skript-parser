@@ -29,10 +29,10 @@ public class OptionalGroup implements PatternElement {
     }
 
     @Override
-    public int match(String s, int index, MatchContext parser) {
-        if (parser.getOriginalElement().equals(this))
-            parser.advanceInPattern();
-        int m = element.match(s, index, parser);
+    public int match(String s, int index, MatchContext context) {
+        MatchContext branch = context.branch(element);
+        int m = element.match(s, index, branch);
+        context.merge(branch);
         return m != -1 ? m : index;
     }
 

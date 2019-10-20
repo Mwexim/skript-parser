@@ -4,1076 +4,1074 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import static java.math.BigDecimal.ONE;
+import static java.math.BigDecimal.TEN;
+import static java.math.BigDecimal.ZERO;
+import static java.math.BigDecimal.valueOf;
 
 /**
- * BigDecimal special functions.
- * <a href="http://arxiv.org/abs/0908.3030">A Java Math.BigDecimal Implementation of Core Mathematical Functions</a>
+ * Provides advanced functions operating on {@link BigDecimal}s.
+ * Taken from <a href="github.com/eobermuhlner/big-math/blob/master/ch.obermuhlner.math.big/src/main/java/ch/obermuhlner/math/big/BigDecimalMath.java">@obermuhlner's Github</a>
  *
- * @author Richard J. Mathar
- * <a href="http://apfloat.org/">apfloat</a>
- * <a href="http://dfp.sourceforge.net/">dfp</a>
- * <a href="http://jscience.org/">JScience</a>
- * @since 2009-05-22
+ * @author @obermuhlner
  */
 public class BigDecimalMath {
 
-	public static final MathContext DEFAULT_CONTEXT = new MathContext(100, RoundingMode.HALF_UP);
     public static final RoundingMode DEFAULT_ROUNDING_MODE = RoundingMode.HALF_UP;
+    public static final MathContext DEFAULT_CONTEXT = new MathContext(20, DEFAULT_ROUNDING_MODE);
+    private static final BigDecimal TWO = valueOf(2);
+    private static final BigDecimal THREE = valueOf(3);
+    private static final BigDecimal MINUS_ONE = valueOf(-1);
+    private static final BigDecimal ONE_HALF = valueOf(0.5);
 
-	/**
-	 * The base of the natural logarithm in a predefined accuracy.
-	 * http://www.cs.arizona.edu/icon/oddsends/e.htm
-	 * The precision of the predefined constant is one less than
-	 * the string's length, taking into account the decimal dot.
-	 * static int E_PRECISION = E.length()-1 ;
-	 */
-	public static BigDecimal E = new BigDecimal(
-		"2.71828182845904523536028747135266249775724709369995957496696762772407663035354" +
-		"759457138217852516642742746639193200305992181741359662904357290033429526059563" +
-		"073813232862794349076323382988075319525101901157383418793070215408914993488416" +
-		"750924476146066808226480016847741185374234544243710753907774499206955170276183" +
-		"860626133138458300075204493382656029760673711320070932870912744374704723069697" +
-		"720931014169283681902551510865746377211125238978442505695369677078544996996794" +
-		"686445490598793163688923009879312773617821542499922957635148220826989519366803" +
-		"318252886939849646510582093923982948879332036250944311730123819706841614039701" +
-		"983767932068328237646480429531180232878250981945581530175671736133206981125099" +
-		"618188159304169035159888851934580727386673858942287922849989208680582574927961" +
-		"048419844436346324496848756023362482704197862320900216099023530436994184914631" +
-		"409343173814364054625315209618369088870701676839642437814059271456354906130310" +
-		"720851038375051011574770417189861068739696552126715468895703503540212340784981" +
-		"933432106817012100562788023519303322474501585390473041995777709350366041699732" +
-		"972508868769664035557071622684471625607988265178713419512466520103059212366771" +
-		"943252786753985589448969709640975459185695638023637016211204774272283648961342" +
-		"251644507818244235294863637214174023889344124796357437026375529444833799801612" +
-		"549227850925778256209262264832627793338656648162772516401910590049164499828931").round(DEFAULT_CONTEXT);
+    private static final BigDecimal DOUBLE_MAX_VALUE = BigDecimal.valueOf(Double.MAX_VALUE);
+    private static final Object log2CacheLock = new Object();
+    private static final Object log3CacheLock = new Object();
+    private static final Object log10CacheLock = new Object();
+    private static final Object piCacheLock = new Object();
+    private static final Object eCacheLock = new Object();
+    private static final BigDecimal ROUGHLY_TWO_PI = new BigDecimal("3.141592653589793").multiply(TWO);
+    private static final int EXPECTED_INITIAL_PRECISION = 15;
+    private static final Map<Integer, List<BigDecimal>> spougeFactorialConstantsCache = new HashMap<>();
+    private static final Object spougeFactorialConstantsCacheLock = new Object();
+    private static volatile BigDecimal log2Cache;
+    private static volatile BigDecimal log3Cache;
+    private static volatile BigDecimal log10Cache;
+    private static volatile BigDecimal piCache;
+    private static BigDecimal[] factorialCache = new BigDecimal[100];
+    private static BigDecimal eCache;
 
-	/**
-	 * Euler's constant Pi.
-	 * http://www.cs.arizona.edu/icon/oddsends/pi.htm
-	 */
-	public static BigDecimal PI = new BigDecimal(
-		"3.14159265358979323846264338327950288419716939937510582097494459230781640628620" +
-		"899862803482534211706798214808651328230664709384460955058223172535940812848111" +
-		"745028410270193852110555964462294895493038196442881097566593344612847564823378" +
-		"678316527120190914564856692346034861045432664821339360726024914127372458700660" +
-		"631558817488152092096282925409171536436789259036001133053054882046652138414695" +
-		"194151160943305727036575959195309218611738193261179310511854807446237996274956" +
-		"735188575272489122793818301194912983367336244065664308602139494639522473719070" +
-		"217986094370277053921717629317675238467481846766940513200056812714526356082778" +
-		"577134275778960917363717872146844090122495343014654958537105079227968925892354" +
-		"201995611212902196086403441815981362977477130996051870721134999999837297804995" +
-		"105973173281609631859502445945534690830264252230825334468503526193118817101000" +
-		"313783875288658753320838142061717766914730359825349042875546873115956286388235" +
-		"378759375195778185778053217122680661300192787661119590921642019893809525720106" +
-		"548586327886593615338182796823030195203530185296899577362259941389124972177528" +
-		"347913151557485724245415069595082953311686172785588907509838175463746493931925" +
-		"506040092770167113900984882401285836160356370766010471018194295559619894676783" +
-		"744944825537977472684710404753464620804668425906949129331367702898915210475216" +
-		"205696602405803815019351125338243003558764024749647326391419927260426992279678" +
-		"235478163600934172164121992458631503028618297455570674983850549458858692699569" +
-		"092721079750930295532116534498720275596023648066549911988183479775356636980742" +
-		"654252786255181841757467289097777279380008164706001614524919217321721477235014").round(DEFAULT_CONTEXT);
-
-	/**
-	 * Natural logarithm of 2.
-	 * http://www.worldwideschool.org/library/books/sci/math/MiscellaneousMathematicalConstants/chap58.html
-	 */
-	private static BigDecimal LOG2 = new BigDecimal(
-        "0.69314718055994530941723212145817656807550013436025525412068000949339362196969" +
-        "471560586332699641868754200148102057068573368552023575813055703267075163507596" +
-        "193072757082837143519030703862389167347112335011536449795523912047517268157493" +
-        "206515552473413952588295045300709532636664265410423915781495204374043038550080" +
-        "194417064167151864471283996817178454695702627163106454615025720740248163777338" +
-        "963855069526066834113727387372292895649354702576265209885969320196505855476470" +
-        "330679365443254763274495125040606943814710468994650622016772042452452961268794" +
-        "654619316517468139267250410380254625965686914419287160829380317271436778265487" +
-        "756648508567407764845146443994046142260319309673540257444607030809608504748663" +
-        "852313818167675143866747664789088143714198549423151997354880375165861275352916" +
-        "610007105355824987941472950929311389715599820565439287170007218085761025236889" +
-        "213244971389320378439353088774825970171559107088236836275898425891853530243634" +
-        "214367061189236789192372314672321720534016492568727477823445353476481149418642" +
-        "386776774406069562657379600867076257199184734022651462837904883062033061144630" +
-        "073719489002743643965002580936519443041191150608094879306786515887090060520346" +
-        "842973619384128965255653968602219412292420757432175748909770675268711581705113" +
-        "700915894266547859596489065305846025866838294002283300538207400567705304678700" +
-        "184162404418833232798386349001563121889560650553151272199398332030751408426091" +
-        "479001265168243443893572472788205486271552741877243002489794540196187233980860" +
-        "831664811490930667519339312890431641370681397776498176974868903887789991296503").round(DEFAULT_CONTEXT);
-	/**
-	 * A suggestion for the maximum numter of terms in the Taylor expansion of the exponential.
-	 */
-	private static int TAYLOR_NTERM = 8;
-
-	/**
-	 * Euler's constant.
-	 *
-	 * @param mc The required precision of the result.
-	 * @return 3.14159...
-	 * @author Richard J. Mathar
-	 * @since 2009-05-29
-	 */
-	private static BigDecimal pi(final MathContext mc) {
-		if (mc.getPrecision() < PI.precision()) {
-			return PI.round(mc);
-		} else {
-			int[] a = {1, 0, 0, -1, -1, -1, 0, 0};
-			BigDecimal S = broadhurstBBP(1, 1, a, mc);
-			return multiplyRound(S, 8);
-		}
-	}
-
-	/**
-	 * The square root.
-	 *
-	 * @param x  the non-negative argument.
-	 * @param mc The required mathematical precision.
-	 * @return the square root of the BigDecimal.
-	 * @author Richard J. Mathar
-	 * @since 2008-10-27
-	 */
-	public static BigDecimal sqrt(final BigDecimal x, final MathContext mc) {
-		if (x.compareTo(BigDecimal.ZERO) < 0) {
-			throw new ArithmeticException("negative argument " + x.toString() + " of square root");
-		}
-		if (x.abs().subtract(new BigDecimal(Math.pow(10., -mc.getPrecision()))).compareTo(BigDecimal.ZERO) < 0) {
-			return BigDecimalMath.scalePrec(BigDecimal.ZERO, mc);
-		}
-		BigDecimal s = new BigDecimal(Math.sqrt(x.doubleValue()), mc);
-		final BigDecimal half = new BigDecimal("2");
-		MathContext locmc = new MathContext(mc.getPrecision() + 2, mc.getRoundingMode());
-		final double eps = Math.pow(10.0, -mc.getPrecision());
-        while (!(Math.abs(BigDecimal.ONE.subtract(x.divide(s.pow(2, locmc), locmc)).doubleValue()) < eps)) {
-            s = s.add(x.divide(s, locmc)).divide(half, locmc);
+    static {
+        BigDecimal result = ONE;
+        factorialCache[0] = result;
+        for (int i = 1; i < factorialCache.length; i++) {
+            result = result.multiply(valueOf(i));
+            factorialCache[i] = result;
         }
-		return s;
-	}
+    }
 
-	/**
-	 * The integer root.
-	 *
-	 * @param n the positive argument.
-	 * @param x the non-negative argument.
-	 * @return The n-th root of the BigDecimal rounded to the precision implied by x, x^(1/n).
-	 * @author Richard J. Mathar
-	 * @since 2009-07-30
-	 */
-	public static BigDecimal root(final int n, final BigDecimal x) {
-		boolean negate = false;
-		if (x.compareTo(BigDecimal.ZERO) <= 0) {
-			if ((n & 1) == 0) {
-				throw new ArithmeticException("Non-positive argument " + x.toString() + " for root " + n);
-			} else {
-				negate = true;
-			}
-		}
-		if (n <= 0) {
-			throw new ArithmeticException("negative power " + n + " of root");
-		}
-
-		if (n == 1) {
-			return x;
-		}
-		BigDecimal s = new BigDecimal(Math.pow(x.doubleValue(), 1.0 / n));
-		final BigDecimal nth = new BigDecimal(n);
-		final BigDecimal xhighpr = scalePrec(x, 2);
-		MathContext mc = new MathContext(2 + x.precision());
-		final double eps = x.ulp().doubleValue() / (2 * n * x.doubleValue());
-		for (; ; ) {
-			BigDecimal c = xhighpr.divide(s.pow(n - 1), mc);
-			c = s.subtract(c);
-			MathContext locmc = new MathContext(c.precision());
-			c = c.divide(nth, locmc);
-			s = s.subtract(c);
-			if (Math.abs(c.doubleValue() / s.doubleValue()) < eps) {
-				break;
-			}
-		}
-		BigDecimal res = s.round(new MathContext(err2prec(eps)));
-		return negate ? res.negate() : res;
-	}
-
-	/**
-	 * The hypotenuse.
-	 *
-	 * @param n the first argument.
-	 * @param x the second argument.
-	 * @return the square root of the sum of the squares of the two arguments, sqrt(n^2+x^2).
-	 * @author Richard J. Mathar
-	 * @since 2009-08-05
-	 */
-	private static BigDecimal hypot(final int n, final BigDecimal x) {
-		BigDecimal z = (new BigDecimal(n)).pow(2).add(x.pow(2));
-		double zerr = x.doubleValue() * x.ulp().doubleValue();
-		MathContext mc = new MathContext(2 + err2prec(z.doubleValue(), zerr));
-		z = root(2, z.round(mc));
-		mc = new MathContext(err2prec(z.doubleValue(), 0.5 * zerr / z.doubleValue()));
-		return z.round(mc);
-	}
-
-	/**
-	 * The exponential function.
-	 *
-	 * @param x the argument.
-	 * @return exp(x).
-	 * The precision of the result is implicitly defined by the precision in the argument.
-	 * In particular this means that "Invalid Operation" errors are thrown if catastrophic
-	 * cancellation of digits causes the result to have no valid digits left.
-	 * @author Richard J. Mathar
-	 * @since 2009-05-29
-	 */
-	private static BigDecimal exp(BigDecimal x) {
-		if (x.compareTo(BigDecimal.ZERO) < 0) {
-			final BigDecimal invx = exp(x.negate());
-			MathContext mc = new MathContext(invx.precision());
-			return BigDecimal.ONE.divide(invx, mc);
-		} else if (x.compareTo(BigDecimal.ZERO) == 0) {
-			return scalePrec(BigDecimal.ONE, -(int) (Math.log10(x.ulp().doubleValue())));
-		} else {
-			final double xDbl = x.doubleValue();
-			final double xUlpDbl = x.ulp().doubleValue();
-			if (Math.pow(xDbl, TAYLOR_NTERM) < TAYLOR_NTERM * (TAYLOR_NTERM - 1.0) * (TAYLOR_NTERM - 2.0) * xUlpDbl) {
-				BigDecimal resul = BigDecimal.ONE;
-				BigDecimal xpowi = BigDecimal.ONE;
-				BigInteger ifac = BigInteger.ONE;
-				MathContext mcTay = new MathContext(err2prec(1., xUlpDbl / TAYLOR_NTERM));
-				for (int i = 1; i <= TAYLOR_NTERM; i++) {
-					ifac = ifac.multiply(new BigInteger(String.valueOf(i)));
-					xpowi = xpowi.multiply(x);
-					final BigDecimal c = xpowi.divide(new BigDecimal(ifac), mcTay);
-					resul = resul.add(c);
-					if (Math.abs(xpowi.doubleValue()) < i && Math.abs(c.doubleValue()) < 0.5 * xUlpDbl) {
-						break;
-					}
-				}
-				MathContext mc = new MathContext(err2prec(xUlpDbl / 2.));
-				return resul.round(mc);
-			} else {
-				int exSc = (int) (1.0 -
-								  Math.log10(TAYLOR_NTERM * (TAYLOR_NTERM - 1.0) * (TAYLOR_NTERM - 2.0) * xUlpDbl /
-											 Math.pow(xDbl, TAYLOR_NTERM)) / (TAYLOR_NTERM - 1.0)
-				);
-				BigDecimal xby10 = x.scaleByPowerOfTen(-exSc);
-				BigDecimal expxby10 = exp(xby10);
-				MathContext mc = new MathContext(expxby10.precision() - exSc);
-				while (exSc > 0) {
-					int exsub = Math.min(8, exSc);
-					exSc -= exsub;
-					MathContext mctmp = new MathContext(expxby10.precision() - exsub + 2);
-					int pex = 1;
-					while (exsub-- > 0) pex *= 10;
-					expxby10 = expxby10.pow(pex, mctmp);
-				}
-				return expxby10.round(mc);
-			}
-		}
-	}
+    private BigDecimalMath() {
+        // prevent instances
+    }
 
     /**
-	 * Power function.
-	 *
-	 * @param x Base of the power.
-	 * @param y Exponent of the power.
-	 * @return x^y.
-	 * The estimation of the relative error in the result is |log(x)*err(y)|+|y*err(x)/x|
-	 * @author Richard J. Mathar
-	 * @since 2009-06-01
-	 */
-	static public BigDecimal pow(final BigDecimal x, final BigDecimal y) {
-		if (x.compareTo(BigDecimal.ZERO) < 0) {
-			throw new ArithmeticException("Cannot power negative " + x.toString());
-		} else if (x.compareTo(BigDecimal.ZERO) == 0) {
-			return BigDecimal.ZERO;
-		} else {
-			BigDecimal logx = log(x);
-			BigDecimal ylogx = y.multiply(logx);
-			BigDecimal resul = exp(ylogx);
-			double errR = Math.abs(logx.doubleValue() * y.ulp().doubleValue() / 2.) +
-						  Math.abs(y.doubleValue() * x.ulp().doubleValue() / 2. / x.doubleValue());
-			MathContext mcR = new MathContext(err2prec(1.0, errR));
-			return resul.round(mcR);
-		}
-	}
-
-	/**
-	 * The natural logarithm.
-	 *
-	 * @param x the argument.
-	 * @return ln(x).
-	 * The precision of the result is implicitly defined by the precision in the argument.
-	 * @author Richard J. Mathar
-	 * @since 2009-05-29
-	 */
-	private static BigDecimal log(BigDecimal x) {
-		if (x.compareTo(BigDecimal.ZERO) < 0) {
-			throw new ArithmeticException("Cannot take log of negative " + x.toString());
-		} else if (x.compareTo(BigDecimal.ONE) == 0) {
-			return scalePrec(BigDecimal.ZERO, x.precision() - 1);
-		} else if (Math.abs(x.doubleValue() - 1.0) <= 0.3) {
-			BigDecimal z = scalePrec(x.subtract(BigDecimal.ONE), 2);
-			BigDecimal zpown = z;
-			double eps = 0.5 * x.ulp().doubleValue() / Math.abs(x.doubleValue());
-			BigDecimal resul = z;
-			for (int k = 2; ; k++) {
-				zpown = multiplyRound(zpown, z);
-				BigDecimal c = divideRound(zpown, k);
-				if (k % 2 == 0) {
-					resul = resul.subtract(c);
-				} else {
-					resul = resul.add(c);
-				}
-				if (Math.abs(c.doubleValue()) < eps) {
-					break;
-				}
-			}
-			MathContext mc = new MathContext(err2prec(resul.doubleValue(), eps));
-			return resul.round(mc);
-		} else {
-			final double xDbl = x.doubleValue();
-			final double xUlpDbl = x.ulp().doubleValue();
-			int r = (int) (Math.log(xDbl) / 0.2);
-			r = Math.max(2, r);
-			BigDecimal xhighpr = scalePrec(x, 2);
-			BigDecimal resul = root(r, xhighpr);
-			resul = log(resul).multiply(new BigDecimal(r));
-			MathContext mc = new MathContext(err2prec(resul.doubleValue(), xUlpDbl / xDbl));
-			return resul.round(mc);
-		}
-	}
+     * Returns whether the specified {@link BigDecimal} value can be represented as <code>int</code>.
+     *
+     * <p>If this returns <code>true</code> you can call {@link BigDecimal#intValueExact()} without fear of an {@link ArithmeticException}.</p>
+     *
+     * @param value the {@link BigDecimal} to check
+     * @return <code>true</code> if the value can be represented as <code>int</code> value
+     */
+    public static boolean isIntValue(BigDecimal value) {
+        // TODO impl isIntValue() without exceptions
+        try {
+            value.intValueExact();
+            return true;
+        } catch (ArithmeticException ex) {
+            // ignored
+        }
+        return false;
+    }
 
     /**
-	 * The natural logarithm.
-	 *
-	 * @param r  The main argument, a strictly positive value.
-	 * @param mc The requirements on the precision.
-	 * @return ln(r).
-	 * @author Richard J. Mathar
-	 * @since 2009-08-09
-	 */
-	public static BigDecimal log(final BigDecimal r, final MathContext mc) {
-		if (r.compareTo(BigDecimal.ZERO) <= 0) {
-			throw new ArithmeticException("Cannot take log of negative " + r.toString());
-		} else if (r.compareTo(BigDecimal.ONE) == 0) {
-			return BigDecimal.ZERO;
-		} else {
-			double eps = prec2err(Math.log(r.doubleValue()), mc.getPrecision());
-
-			final BigDecimal result = log(r.setScale(1 + err2prec(eps), mc.getRoundingMode()));
-
-			return result.round(mc);
-		}
-	}
+     * Returns whether the specified {@link BigDecimal} value can be represented as <code>double</code>.
+     *
+     * <p>If this returns <code>true</code> you can call {@link BigDecimal#doubleValue()}
+     * without fear of getting {@link Double#POSITIVE_INFINITY} or {@link Double#NEGATIVE_INFINITY} as result.</p>
+     *
+     * <p>Example: <code>BigDecimalMath.isDoubleValue(new BigDecimal("1E309"))</code> returns <code>false</code>,
+     * because <code>new BigDecimal("1E309").doubleValue()</code> returns <code>Infinity</code>.</p>
+     *
+     * <p>Note: This method does <strong>not</strong> check for possible loss of precision.</p>
+     *
+     * <p>For example <code>BigDecimalMath.isDoubleValue(new BigDecimal("1.23400000000000000000000000000000001"))</code> will return <code>true</code>,
+     * because <code>new BigDecimal("1.23400000000000000000000000000000001").doubleValue()</code> returns a valid double value,
+     * although it loses precision and returns <code>1.234</code>.</p>
+     *
+     * <p><code>BigDecimalMath.isDoubleValue(new BigDecimal("1E-325"))</code> will return <code>true</code>
+     * although this value is smaller than {@link Double#MIN_VALUE} (and therefore outside the range of values that can be represented as <code>double</code>)
+     * because <code>new BigDecimal("1E-325").doubleValue()</code> returns <code>0</code> which is a legal value with loss of precision.</p>
+     *
+     * @param value the {@link BigDecimal} to check
+     * @return <code>true</code> if the value can be represented as <code>double</code> value
+     */
+    public static boolean isDoubleValue(BigDecimal value) {
+        return value.compareTo(DOUBLE_MAX_VALUE) <= 0 && value.compareTo(DOUBLE_MAX_VALUE.negate()) >= 0;
+    }
 
     /**
-	 * Trigonometric sine.
-	 *
-	 * @param x The argument in radians.
-	 * @return sin(x) in the range -1 to 1.
-	 * @author Richard J. Mathar
-	 * @since 2009-06-01
-	 */
-	public static BigDecimal sin(final BigDecimal x) {
-		if (x.compareTo(BigDecimal.ZERO) < 0) {
-			return sin(x.negate()).negate();
-		} else if (x.compareTo(BigDecimal.ZERO) == 0) {
-			return BigDecimal.ZERO;
-		} else {
-			BigDecimal res = mod2pi(x);
-			double errpi = 0.5 * Math.abs(x.ulp().doubleValue());
-			MathContext mc = new MathContext(2 + err2prec(3.14159, errpi));
-			BigDecimal p = pi(mc);
-			mc = new MathContext(x.precision());
-			if (res.compareTo(p) > 0) {
-				return sin(subtractRound(res, p)).negate();
-			} else if (res.multiply(new BigDecimal("2")).compareTo(p) > 0) {
-				return sin(subtractRound(p, res));
-			} else {
-				if (res.multiply(new BigDecimal("4")).compareTo(p) > 0) {
-					return cos(subtractRound(p.divide(new BigDecimal("2"), DEFAULT_ROUNDING_MODE), res));
-				} else {
-					BigDecimal resul = res;
-					BigDecimal xpowi = res;
-					BigInteger ifac = BigInteger.ONE;
-					double xUlpDbl = res.ulp().doubleValue();
-					int k = (int) (res.precision() / Math.log10(1.0 / res.doubleValue())) / 2;
-					MathContext mcTay = new MathContext(err2prec(res.doubleValue(), xUlpDbl / k));
-					for (int i = 1; ; i++) {
-						ifac = ifac.multiply(new BigInteger(String.valueOf(2 * i)));
-						ifac = ifac.multiply(new BigInteger(String.valueOf(2 * i + 1)));
-						xpowi = xpowi.multiply(res).multiply(res).negate();
-						BigDecimal corr = xpowi.divide(new BigDecimal(ifac), mcTay);
-						resul = resul.add(corr);
-						if (corr.abs().doubleValue() < 0.5 * xUlpDbl) {
-							break;
-						}
-					}
-					mc = new MathContext(res.precision());
-					return resul.round(mc);
-				}
-			}
-		}
-	}
+     * Returns the mantissa of the specified {@link BigDecimal} written as <em>mantissa * 10<sup>exponent</sup></em>.
+     *
+     * <p>The mantissa is defined as having exactly 1 digit before the decimal point.</p>
+     *
+     * @param value the {@link BigDecimal}
+     * @return the mantissa
+     * @see #exponent(BigDecimal)
+     */
+    public static BigDecimal mantissa(BigDecimal value) {
+        int exponent = exponent(value);
+        if (exponent == 0) {
+            return value;
+        }
 
-	/**
-	 * Trigonometric cosine.
-	 *
-	 * @param x The argument in radians.
-	 * @return cos(x) in the range -1 to 1.
-	 * @author Richard J. Mathar
-	 * @since 2009-06-01
-	 */
-	public static BigDecimal cos(final BigDecimal x) {
-		if (x.compareTo(BigDecimal.ZERO) < 0) {
-			return cos(x.negate());
-		} else if (x.compareTo(BigDecimal.ZERO) == 0) {
-			return BigDecimal.ONE;
-		} else {
-			BigDecimal res = mod2pi(x);
-			double errpi = 0.5 * Math.abs(x.ulp().doubleValue());
-			MathContext mc = new MathContext(2 + err2prec(3.14159, errpi));
-			BigDecimal p = pi(mc);
-			mc = new MathContext(x.precision());
-			if (res.compareTo(p) > 0) {
-				return cos(subtractRound(res, p)).negate();
-			} else if (res.multiply(new BigDecimal("2")).compareTo(p) > 0) {
-				return cos(subtractRound(p, res)).negate();
-			} else {
-				if (res.multiply(new BigDecimal("4")).compareTo(p) > 0) {
-					return sin(subtractRound(p.divide(new BigDecimal("2"), DEFAULT_ROUNDING_MODE), res));
-				} else {
-					BigDecimal resul = BigDecimal.ONE;
-					BigDecimal xpowi = BigDecimal.ONE;
-					BigInteger ifac = BigInteger.ONE;
-					double xUlpDbl = 0.5 * res.ulp().doubleValue() * res.doubleValue();
-					int k = (int) (Math.log(xUlpDbl) / Math.log(res.doubleValue())) / 2;
-					MathContext mcTay = new MathContext(err2prec(1., xUlpDbl / k));
-					for (int i = 1; ; i++) {
-						ifac = ifac.multiply(new BigInteger(String.valueOf(2 * i - 1)));
-						ifac = ifac.multiply(new BigInteger(String.valueOf(2 * i)));
-						xpowi = xpowi.multiply(res).multiply(res).negate();
-						BigDecimal corr = xpowi.divide(new BigDecimal(ifac), mcTay);
-						resul = resul.add(corr);
-						if (corr.abs().doubleValue() < 0.5 * xUlpDbl) {
-							break;
-						}
-					}
-					mc = new MathContext(err2prec(resul.doubleValue(), xUlpDbl));
-					return resul.round(mc);
-				}
-			}
-		}
-	}
+        return value.movePointLeft(exponent);
+    }
 
-	/**
-	 * The trigonometric tangent.
-	 *
-	 * @param x the argument in radians.
-	 * @return the tan(x)
-	 * @author Richard J. Mathar
-	 */
-	public static BigDecimal tan(final BigDecimal x) {
-		if (x.compareTo(BigDecimal.ZERO) == 0) {
-			return BigDecimal.ZERO;
-		} else if (x.compareTo(BigDecimal.ZERO) < 0) {
-			return tan(x.negate()).negate();
-		} else {
-			BigDecimal res = modpi(x);
-			final double xDbl = res.doubleValue();
-			final double xUlpDbl = x.ulp().doubleValue() / 2.;
-			final double eps = xUlpDbl / 2. / Math.pow(Math.cos(xDbl), 2.);
+    /**
+     * Returns the exponent of the specified {@link BigDecimal} written as <em>mantissa * 10<sup>exponent</sup></em>.
+     *
+     * <p>The mantissa is defined as having exactly 1 digit before the decimal point.</p>
+     *
+     * @param value the {@link BigDecimal}
+     * @return the exponent
+     * @see #mantissa(BigDecimal)
+     */
+    public static int exponent(BigDecimal value) {
+        return value.precision() - value.scale() - 1;
+    }
 
-			if (xDbl > 0.8) {
-				BigDecimal co = cot(x);
-				MathContext mc = new MathContext(err2prec(1. / co.doubleValue(), eps));
-				return BigDecimal.ONE.divide(co, mc);
-			} else {
-				final BigDecimal xhighpr = scalePrec(res, 2);
-				final BigDecimal xhighprSq = multiplyRound(xhighpr, xhighpr);
+    /**
+     * Returns the integral part of the specified {@link BigDecimal} (left of the decimal point).
+     *
+     * @param value the {@link BigDecimal}
+     * @return the integral part
+     * @see #fractionalPart(BigDecimal)
+     */
+    public static BigDecimal integralPart(BigDecimal value) {
+        return value.setScale(0, BigDecimal.ROUND_DOWN);
+    }
 
-				BigDecimal resul = xhighpr.plus();
-				BigDecimal xpowi = xhighpr;
+    /**
+     * Returns the fractional part of the specified {@link BigDecimal} (right of the decimal point).
+     *
+     * @param value the {@link BigDecimal}
+     * @return the fractional part
+     * @see #integralPart(BigDecimal)
+     */
+    public static BigDecimal fractionalPart(BigDecimal value) {
+        return value.subtract(integralPart(value));
+    }
 
-				Bernoulli b = new Bernoulli();
-				BigInteger fourn = new BigInteger("4");
-				BigInteger fac = new BigInteger("2");
+    /**
+     * Rounds the specified {@link BigDecimal} to the precision of the specified {@link MathContext}.
+     *
+     * <p>This method calls {@link BigDecimal#round(MathContext)}.</p>
+     *
+     * @param value       the {@link BigDecimal} to round
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the rounded {@link BigDecimal} value
+     * @see BigDecimal#round(MathContext)
+     */
+    public static BigDecimal round(BigDecimal value, MathContext mathContext) {
+        return value.round(mathContext);
+    }
 
-				for (int i = 2; ; i++) {
-					Rational f = b.at(2 * i).abs();
-					fourn = fourn.shiftLeft(2);
-					fac = fac.multiply(new BigInteger(String.valueOf(2 * i)))
-							 .multiply(new BigInteger(String.valueOf(2 * i - 1)));
-					f = f.multiply(fourn).multiply(fourn.subtract(BigInteger.ONE)).divide(fac);
-					xpowi = multiplyRound(xpowi, xhighprSq);
-					BigDecimal c = multiplyRound(xpowi, f);
-					resul = resul.add(c);
-					if (Math.abs(c.doubleValue()) < 0.1 * eps) {
-						break;
-					}
-				}
-				MathContext mc = new MathContext(err2prec(resul.doubleValue(), eps));
-				return resul.round(mc);
-			}
-		}
-	}
+    /**
+     * Calculates the reciprocal of the specified {@link BigDecimal}.
+     *
+     * @param x           the {@link BigDecimal}
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the reciprocal {@link BigDecimal}
+     * @throws ArithmeticException if x = 0
+     * @throws ArithmeticException if the result is inexact but the
+     *                             rounding mode is {@code UNNECESSARY} or
+     *                             {@code mc.precision == 0} and the quotient has a
+     *                             non-terminating decimal expansion.
+     */
+    public static BigDecimal reciprocal(BigDecimal x, MathContext mathContext) {
+        return BigDecimal.ONE.divide(x, mathContext);
+    }
 
-	/**
-	 * The trigonometric co-tangent.
-	 *
-	 * @param x the argument in radians.
-	 * @return the cot(x)
-	 * @author Richard J. Mathar
-	 * @since 2009-07-31
-	 */
-	private static BigDecimal cot(final BigDecimal x) {
-		if (x.compareTo(BigDecimal.ZERO) == 0) {
-			throw new ArithmeticException("Cannot take cot of zero " + x.toString());
-		} else if (x.compareTo(BigDecimal.ZERO) < 0) {
-			return cot(x.negate()).negate();
-		} else {
-			BigDecimal res = modpi(x);
-			final double xDbl = res.doubleValue();
-			final double xUlpDbl = x.ulp().doubleValue() / 2.;
-			final double eps = xUlpDbl / 2. / Math.pow(Math.sin(xDbl), 2.);
+    /**
+     * Calculates the factorial of the specified integer argument.
+     *
+     * <p>factorial = 1 * 2 * 3 * ... n</p>
+     *
+     * @param n the {@link BigDecimal}
+     * @return the factorial {@link BigDecimal}
+     * @throws ArithmeticException if x &lt; 0
+     */
+    public static BigDecimal factorial(int n) {
+        if (n < 0) {
+            throw new ArithmeticException("Illegal factorial(n) for n < 0: n = " + n);
+        }
+        if (n < factorialCache.length) {
+            return factorialCache[n];
+        }
 
-			final BigDecimal xhighpr = scalePrec(res, 2);
-			final BigDecimal xhighprSq = multiplyRound(xhighpr, xhighpr);
+        BigDecimal result = factorialCache[factorialCache.length - 1];
+        return result.multiply(factorialRecursion(factorialCache.length, n));
+    }
 
-			MathContext mc = new MathContext(err2prec(xhighpr.doubleValue(), eps));
-			BigDecimal resul = BigDecimal.ONE.divide(xhighpr, mc);
-			BigDecimal xpowi = xhighpr;
+    private static BigDecimal factorialLoop(int n1, final int n2) {
+        final long limit = Long.MAX_VALUE / n2;
+        long accu = 1;
+        BigDecimal result = BigDecimal.ONE;
+        while (n1 <= n2) {
+            if (accu <= limit) {
+                accu *= n1;
+            } else {
+                result = result.multiply(BigDecimal.valueOf(accu));
+                accu = n1;
+            }
+            n1++;
+        }
+        return result.multiply(BigDecimal.valueOf(accu));
+    }
 
-			Bernoulli b = new Bernoulli();
-			BigInteger fourn = new BigInteger("4");
-			BigInteger fac = BigInteger.ONE;
+    private static BigDecimal factorialRecursion(final int n1, final int n2) {
+        int threshold = n1 > 200 ? 80 : 150;
+        if (n2 - n1 < threshold) {
+            return factorialLoop(n1, n2);
+        }
+        final int mid = (n1 + n2) >> 1;
+        return factorialRecursion(mid + 1, n2).multiply(factorialRecursion(n1, mid));
+    }
 
-			for (int i = 1; ; i++) {
-				Rational f = b.at(2 * i);
-				fac = fac.multiply(new BigInteger(String.valueOf(2 * i)))
-						 .multiply(new BigInteger(String.valueOf(2 * i - 1)));
-				f = f.multiply(fourn).divide(fac);
-				BigDecimal c = multiplyRound(xpowi, f);
-				if (i % 2 == 0) {
-					resul = resul.add(c);
-				} else {
-					resul = resul.subtract(c);
-				}
-				if (Math.abs(c.doubleValue()) < 0.1 * eps) {
-					break;
-				}
+    /**
+     * Calculates the factorial of the specified {@link BigDecimal}.
+     *
+     * <p>This implementation uses
+     * <a href="https://en.wikipedia.org/wiki/Spouge%27s_approximation">Spouge's approximation</a>
+     * to calculate the factorial for non-integer values.</p>
+     *
+     * <p>This involves calculating a series of constants that depend on the desired precision.
+     * Since this constant calculation is quite expensive (especially for higher precisions),
+     * the constants for a specific precision will be cached
+     * and subsequent calls to this method with the same precision will be much faster.</p>
+     *
+     * <p>It is therefore recommended to do one call to this method with the standard precision of your application during the startup phase
+     * and to avoid calling it with many different precisions.</p>
+     *
+     * <p>See: <a href="https://en.wikipedia.org/wiki/Factorial#Extension_of_factorial_to_non-integer_values_of_argument">Wikipedia: Factorial - Extension of factorial to non-integer values of argument</a></p>
+     *
+     * @param x           the {@link BigDecimal}
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the factorial {@link BigDecimal}
+     * @throws ArithmeticException           if x is a negative integer value (-1, -2, -3, ...)
+     * @throws UnsupportedOperationException if x is a non-integer value and the {@link MathContext} has unlimited precision
+     * @see #factorial(int)
+     */
+    public static BigDecimal factorial(BigDecimal x, MathContext mathContext) {
+        if (isIntValue(x)) {
+            return round(factorial(x.intValueExact()), mathContext);
+        }
 
-				fourn = fourn.shiftLeft(2);
-				xpowi = multiplyRound(xpowi, xhighprSq);
-			}
-			mc = new MathContext(err2prec(resul.doubleValue(), eps));
-			return resul.round(mc);
-		}
-	}
+        // https://en.wikipedia.org/wiki/Spouge%27s_approximation
+        checkMathContext(mathContext);
+        MathContext mc = new MathContext(mathContext.getPrecision() * 2, mathContext.getRoundingMode());
 
-	/**
-	 * The inverse trigonometric sine.
-	 *
-	 * @param x the argument.
-	 * @return the arcsin(x) in radians.
-	 * @author Richard J. Mathar
-	 */
-	public static BigDecimal asin(final BigDecimal x) {
-		if (x.compareTo(BigDecimal.ONE) > 0 || x.compareTo(BigDecimal.ONE.negate()) < 0) {
-			throw new ArithmeticException("Out of range argument " + x.toString() + " of asin");
-		} else if (x.compareTo(BigDecimal.ZERO) == 0) {
-			return BigDecimal.ZERO;
-		} else if (x.compareTo(BigDecimal.ONE) == 0) {
-			double errpi = Math.sqrt(x.ulp().doubleValue());
-			MathContext mc = new MathContext(err2prec(3.14159, errpi));
-			return pi(mc).divide(new BigDecimal(2), DEFAULT_ROUNDING_MODE);
-		} else if (x.compareTo(BigDecimal.ZERO) < 0) {
-			return asin(x.negate()).negate();
-		} else if (x.doubleValue() > 0.7) {
-			final BigDecimal xCompl = BigDecimal.ONE.subtract(x);
-			final double xDbl = x.doubleValue();
-			final double xUlpDbl = x.ulp().doubleValue() / 2.;
-			final double eps = xUlpDbl / 2. / Math.sqrt(1. - Math.pow(xDbl, 2.));
+        int a = mathContext.getPrecision() * 13 / 10;
+        List<BigDecimal> constants = getSpougeFactorialConstants(a);
 
-			final BigDecimal xhighpr = scalePrec(xCompl, 3);
-			final BigDecimal xhighprV = divideRound(xhighpr, 4);
+        BigDecimal bigA = BigDecimal.valueOf(a);
 
-			BigDecimal resul = BigDecimal.ONE;
-			BigDecimal xpowi = BigDecimal.ONE;
-			BigInteger ifacN = BigInteger.ONE;
-			BigInteger ifacD = BigInteger.ONE;
+        boolean negative = false;
+        BigDecimal factor = constants.get(0);
+        for (int k = 1; k < a; k++) {
+            BigDecimal bigK = BigDecimal.valueOf(k);
+            factor = factor.add(constants.get(k).divide(x.add(bigK), mc), mc);
+            negative = !negative;
+        }
 
-			for (int i = 1; ; i++) {
-				ifacN = ifacN.multiply(new BigInteger(String.valueOf(2 * i - 1)));
-				ifacD = ifacD.multiply(new BigInteger(String.valueOf(i)));
-				if (i == 1) {
-					xpowi = xhighprV;
-				} else {
-					xpowi = multiplyRound(xpowi, xhighprV);
-				}
-				BigDecimal c = divideRound(multiplyRound(xpowi, ifacN),
-										   ifacD.multiply(new BigInteger(String.valueOf(2 * i + 1)))
-				);
-				resul = resul.add(c);
-				if (Math.abs(c.doubleValue()) < xUlpDbl / 120.) {
-					break;
-				}
-			}
-			xpowi = root(2, xhighpr.multiply(new BigDecimal(2)));
-			resul = multiplyRound(xpowi, resul);
+        BigDecimal result = pow(x.add(bigA, mc), x.add(BigDecimal.valueOf(0.5), mc), mc);
+        result = result.multiply(exp(x.negate().subtract(bigA, mc), mc), mc);
+        result = result.multiply(factor, mc);
 
-			MathContext mc = new MathContext(resul.precision());
-			BigDecimal pihalf = pi(mc).divide(new BigDecimal(2), DEFAULT_ROUNDING_MODE);
+        return round(result, mathContext);
+    }
 
-			mc = new MathContext(err2prec(resul.doubleValue(), eps));
-			return pihalf.subtract(resul, mc);
-		} else {
-			final double xDbl = x.doubleValue();
-			final double xUlpDbl = x.ulp().doubleValue() / 2.;
-			final double eps = xUlpDbl / 2. / Math.sqrt(1. - Math.pow(xDbl, 2.));
+    static List<BigDecimal> getSpougeFactorialConstants(int a) {
+        synchronized (spougeFactorialConstantsCacheLock) {
+            return spougeFactorialConstantsCache.computeIfAbsent(a, key -> {
+                List<BigDecimal> constants = new ArrayList<>(a);
+                MathContext mc = new MathContext(a * 15 / 10);
 
-			final BigDecimal xhighpr = scalePrec(x, 2);
-			final BigDecimal xhighprSq = multiplyRound(xhighpr, xhighpr);
+                BigDecimal c0 = sqrt(pi(mc).multiply(TWO, mc), mc);
+                constants.add(c0);
 
-			BigDecimal resul = xhighpr.plus();
-			BigDecimal xpowi = xhighpr;
-			BigInteger ifacN = BigInteger.ONE;
-			BigInteger ifacD = BigInteger.ONE;
+                boolean negative = false;
+                for (int k = 1; k < a; k++) {
+                    BigDecimal bigK = BigDecimal.valueOf(k);
+                    BigDecimal ck = pow(BigDecimal.valueOf(a - k), bigK.subtract(ONE_HALF, mc), mc);
+                    ck = ck.multiply(exp(BigDecimal.valueOf(a - k), mc), mc);
+                    ck = ck.divide(factorial(k - 1), mc);
+                    if (negative) {
+                        ck = ck.negate();
+                    }
+                    constants.add(ck);
 
-			for (int i = 1; ; i++) {
-				ifacN = ifacN.multiply(new BigInteger(String.valueOf(2 * i - 1)));
-				ifacD = ifacD.multiply(new BigInteger(String.valueOf(2 * i)));
-				xpowi = multiplyRound(xpowi, xhighprSq);
-				BigDecimal c = divideRound(multiplyRound(xpowi, ifacN),
-										   ifacD.multiply(new BigInteger(String.valueOf(2 * i + 1)))
-				);
-				resul = resul.add(c);
-				if (Math.abs(c.doubleValue()) < 0.1 * eps) {
-					break;
-				}
-			}
-			MathContext mc = new MathContext(err2prec(resul.doubleValue(), eps));
-			return resul.round(mc);
-		}
-	}
+                    negative = !negative;
+                }
 
-	/**
-	 * The inverse trigonometric cosine.
-	 *
-	 * @param x the argument.
-	 * @return the arccos(x) in radians.
-	 * @author Richard J. Mathar
-	 * @since 2009-09-29
-	 */
-	public static BigDecimal acos(final BigDecimal x) {
-		final BigDecimal xhighpr = scalePrec(x, 2);
-		BigDecimal resul = asin(xhighpr);
-		double eps = resul.ulp().doubleValue() / 2.;
+                return Collections.unmodifiableList(constants);
+            });
+        }
+    }
 
-		MathContext mc = new MathContext(err2prec(3.14159, eps));
-		BigDecimal pihalf = pi(mc).divide(new BigDecimal(2), DEFAULT_ROUNDING_MODE);
-		resul = pihalf.subtract(resul);
-		final double xDbl = x.doubleValue();
-		final double xUlpDbl = x.ulp().doubleValue() / 2.;
-		eps = xUlpDbl / 2. / Math.sqrt(1. - Math.pow(xDbl, 2.));
+    /**
+     * Calculates {@link BigDecimal} x to the power of {@link BigDecimal} y (x<sup>y</sup>).
+     *
+     * @param x           the {@link BigDecimal} value to take to the power
+     * @param y           the {@link BigDecimal} value to serve as exponent
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated x to the power of y with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * @see #pow(BigDecimal, long, MathContext)
+     */
+    public static BigDecimal pow(BigDecimal x, BigDecimal y, MathContext mathContext) {
+        checkMathContext(mathContext);
+        if (x.signum() == 0) {
+            switch (y.signum()) {
+                case 0:
+                    return round(ONE, mathContext);
+                case 1:
+                    return round(ZERO, mathContext);
+            }
+        }
 
-		mc = new MathContext(err2prec(resul.doubleValue(), eps));
-		return resul.round(mc);
+        // TODO optimize y=0, y=1, y=10^k, y=-1, y=-10^k
 
-	}
+        try {
+            long longValue = y.longValueExact();
+            return pow(x, longValue, mathContext);
+        } catch (ArithmeticException ex) {
+            // ignored
+        }
 
-	/**
-	 * The inverse trigonometric tangent.
-	 *
-	 * @param x the argument.
-	 * @return the principal value of arctan(x) in radians in the range -pi/2 to +pi/2.
-	 * @author Richard J. Mathar
-	 * @since 2009-08-03
-	 */
-	public static BigDecimal atan(final BigDecimal x) {
-		if (x.compareTo(BigDecimal.ZERO) < 0) {
-			return atan(x.negate()).negate();
-		} else if (x.compareTo(BigDecimal.ZERO) == 0) {
-			return BigDecimal.ZERO;
-		} else if (x.doubleValue() > 0.7 && x.doubleValue() < 3.0) {
-			BigDecimal y = scalePrec(x, 2);
-			BigDecimal newx = divideRound(hypot(1, y).subtract(BigDecimal.ONE), y);
-			BigDecimal resul = multiplyRound(atan(newx), 2);
-			double eps = x.ulp().doubleValue() / (2.0 * Math.hypot(1.0, x.doubleValue()));
-			MathContext mc = new MathContext(err2prec(resul.doubleValue(), eps));
-			return resul.round(mc);
-		} else if (x.doubleValue() < 0.71) {
+        if (fractionalPart(y).signum() == 0) {
+            return powInteger(x, y, mathContext);
+        }
 
-			final BigDecimal xhighpr = scalePrec(x, 2);
-			final BigDecimal xhighprSq = multiplyRound(xhighpr, xhighpr).negate();
+        // x^y = exp(y*log(x))
+        MathContext mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
+        BigDecimal result = exp(y.multiply(log(x, mc), mc), mc);
 
-			BigDecimal resul = xhighpr.plus();
-			BigDecimal xpowi = xhighpr;
-			double eps = x.ulp().doubleValue() / (2.0 * Math.hypot(1.0, x.doubleValue()));
+        return round(result, mathContext);
+    }
 
-			for (int i = 1; ; i++) {
-				xpowi = multiplyRound(xpowi, xhighprSq);
-				BigDecimal c = divideRound(xpowi, 2 * i + 1);
+    /**
+     * Calculates {@link BigDecimal} x to the power of <code>long</code> y (x<sup>y</sup>).
+     *
+     * <p>The implementation tries to minimize the number of multiplications of {@link BigDecimal x} (using squares whenever possible).</p>
+     *
+     * <p>See: <a href="https://en.wikipedia.org/wiki/Exponentiation#Efficient_computation_with_integer_exponents">Wikipedia: Exponentiation - efficient computation</a></p>
+     *
+     * @param x           the {@link BigDecimal} value to take to the power
+     * @param y           the <code>long</code> value to serve as exponent
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated x to the power of y with the precision specified in the <code>mathContext</code>
+     * @throws ArithmeticException if y is negative and the result is inexact but the
+     *                             rounding mode is {@code UNNECESSARY} or
+     *                             {@code mc.precision == 0} and the quotient has a
+     *                             non-terminating decimal expansion.
+     * @throws ArithmeticException if the rounding mode is
+     *                             {@code UNNECESSARY} and the
+     *                             {@code BigDecimal}  operation would require rounding.
+     */
+    public static BigDecimal pow(BigDecimal x, long y, MathContext mathContext) {
+        MathContext mc = mathContext.getPrecision() == 0
+                ? mathContext
+                : new MathContext(mathContext.getPrecision() + 10, mathContext.getRoundingMode());
 
-				resul = resul.add(c);
-				if (Math.abs(c.doubleValue()) < 0.1 * eps) {
-					break;
-				}
-			}
-			MathContext mc = new MathContext(err2prec(resul.doubleValue(), eps));
-			return resul.round(mc);
-		} else {
-			double eps = x.ulp().doubleValue() / (2.0 * Math.hypot(1.0, x.doubleValue()));
-			MathContext mc = new MathContext(2 + err2prec(3.1416, eps));
-			BigDecimal onepi = pi(mc);
-			BigDecimal resul = onepi.divide(new BigDecimal(2), DEFAULT_ROUNDING_MODE);
+        // TODO optimize y=0, y=1, y=10^k, y=-1, y=-10^k
 
-			final BigDecimal xhighpr = divideRound(-1, scalePrec(x, 2));
-			final BigDecimal xhighprSq = multiplyRound(xhighpr, xhighpr).negate();
-			BigDecimal xpowi = xhighpr;
+        if (y < 0) {
+            BigDecimal value = reciprocal(pow(x, -y, mc), mc);
+            return round(value, mathContext);
+        }
 
-			for (int i = 0; ; i++) {
-				BigDecimal c = divideRound(xpowi, 2 * i + 1);
+        BigDecimal result = ONE;
+        while (y > 0) {
+            if ((y & 1) == 1) {
+                // odd exponent -> multiply result with x
+                result = result.multiply(x, mc);
+                y -= 1;
+            }
 
-				resul = resul.add(c);
-				if (Math.abs(c.doubleValue()) < 0.1 * eps) {
-					break;
-				}
-				xpowi = multiplyRound(xpowi, xhighprSq);
-			}
-			mc = new MathContext(err2prec(resul.doubleValue(), eps));
-			return resul.round(mc);
-		}
-	}
+            if (y > 0) {
+                // even exponent -> square x
+                x = x.multiply(x, mc);
+            }
 
-	/**
-	 * Reduce value to the interval [0,2*Pi].
-	 *
-	 * @param x the original value
-	 * @return the value modulo 2*pi in the interval from 0 to 2*pi.
-	 * @author Richard J. Mathar
-	 * @since 2009-06-01
-	 */
-	private static BigDecimal mod2pi(BigDecimal x) {
-		int k = (int) (0.5 * x.doubleValue() / Math.PI);
-		double err2pi;
-		if (k != 0) {
-			err2pi = 0.25 * Math.abs(x.ulp().doubleValue() / k);
-		} else {
-			err2pi = 0.5 * Math.abs(x.ulp().doubleValue());
-		}
-		MathContext mc = new MathContext(2 + err2prec(6.283, err2pi));
-		BigDecimal twopi = pi(mc).multiply(new BigDecimal(2));
-		BigDecimal res = x.remainder(twopi);
-		if (res.compareTo(BigDecimal.ZERO) < 0) {
-			res = res.add(twopi);
-		}
-		mc = new MathContext(err2prec(res.doubleValue(), x.ulp().doubleValue() / 2.));
-		return res.round(mc);
-	}
+            y >>= 1;
+        }
 
-	/**
-	 * Reduce value to the interval [-Pi/2,Pi/2].
-	 *
-	 * @param x The original value
-	 * @return The value modulo pi, shifted to the interval from -Pi/2 to Pi/2.
-	 * @author Richard J. Mathar
-	 * @since 2009-07-31
-	 */
-	private static BigDecimal modpi(BigDecimal x) {
-		int k = (int) (x.doubleValue() / Math.PI);
-		double errpi;
-		if (k != 0) {
-			errpi = 0.5 * Math.abs(x.ulp().doubleValue() / k);
-		} else {
-			errpi = 0.5 * Math.abs(x.ulp().doubleValue());
-		}
-		MathContext mc = new MathContext(2 + err2prec(3.1416, errpi));
-		BigDecimal onepi = pi(mc);
-		BigDecimal pihalf = onepi.divide(new BigDecimal(2), DEFAULT_ROUNDING_MODE);
-		BigDecimal res = x.remainder(onepi);
-		if (res.compareTo(pihalf) > 0) {
-			res = res.subtract(onepi);
-		} else if (res.compareTo(pihalf.negate()) < 0) {
-			res = res.add(onepi);
-		}
-		mc = new MathContext(err2prec(res.doubleValue(), x.ulp().doubleValue() / 2.));
-		return res.round(mc);
-	}
+        return round(result, mathContext);
+    }
 
+    /**
+     * Calculates {@link BigDecimal} x to the power of the integer value y (x<sup>y</sup>).
+     *
+     * <p>The value y MUST be an integer value.</p>
+     *
+     * @param x           the {@link BigDecimal} value to take to the power
+     * @param integerY    the {@link BigDecimal} <strong>integer</strong> value to serve as exponent
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated x to the power of y with the precision specified in the <code>mathContext</code>
+     * @see #pow(BigDecimal, long, MathContext)
+     */
+    private static BigDecimal powInteger(BigDecimal x, BigDecimal integerY, MathContext mathContext) {
+        if (fractionalPart(integerY).signum() != 0) {
+            throw new IllegalArgumentException("Not integer value: " + integerY);
+        }
 
-	/**
-	 * Broadhurst ladder sequence.
-	 *
-	 * @param n
-	 * @param p
-	 * @param mc Specification of the accuracy of the result
-	 * @return S_(n, p)(a)
-	 * @author Richard J. Mathar
-	 * @since 2009-08-09
-	 * <a href="http://arxiv.org/abs/math/9803067">arXiv:math/9803067</a>
-	 */
-	private static BigDecimal broadhurstBBP(final int n, final int p, final int a[], MathContext mc) {
-		double x = 0.0;
-		for (int k = 1; k < 10; k++)
-			x += a[(k - 1) % 8] / Math.pow(2., p * (k + 1) / 2) / Math.pow((double) k, n);
-		double eps = prec2err(x, mc.getPrecision());
-		int kmax = (int) (6.6 * mc.getPrecision() / p);
-		eps /= kmax;
-		BigDecimal res = BigDecimal.ZERO;
-		for (int c = 0; ; c++) {
-			Rational r = new Rational();
-			for (int k = 0; k < 8; k++) {
-				Rational tmp = new Rational(new BigInteger(String.valueOf(a[k])),
-											(new BigInteger(String.valueOf(1 + 8 * c + k))).pow(n)
-				);
-				int pk1h = p * (2 + 8 * c + k) / 2;
-				tmp = tmp.divide(BigInteger.ONE.shiftLeft(pk1h));
-				r = r.add(tmp);
-			}
+        if (integerY.signum() < 0) {
+            return ONE.divide(powInteger(x, integerY.negate(), mathContext), mathContext);
+        }
 
-			if (Math.abs(r.doubleValue()) < eps) {
-				break;
-			}
-			MathContext mcloc = new MathContext(1 + err2prec(r.doubleValue(), eps));
-			res = res.add(r.bigDecimalValue(mcloc));
-		}
-		return res.round(mc);
-	}
+        MathContext mc = new MathContext(Math.max(mathContext.getPrecision(), -integerY.scale()) + 30,
+                mathContext.getRoundingMode()
+        );
 
+        BigDecimal result = ONE;
+        while (integerY.signum() > 0) {
+            BigDecimal halfY = integerY.divide(TWO, mc);
 
-	/**
-	 * Add a BigDecimal and a BigInteger.
-	 *
-	 * @param x The left summand
-	 * @param y The right summand
-	 * @return The sum x+y.
-	 * @author Richard J. Mathar
-	 * @since 2012-03-02
-	 */
-	public static BigDecimal add(final BigDecimal x, final BigInteger y) {
-		return x.add(new BigDecimal(y));
-	}
+            if (fractionalPart(halfY).signum() != 0) {
+                // odd exponent -> multiply result with x
+                result = result.multiply(x, mc);
+                integerY = integerY.subtract(ONE);
+                halfY = integerY.divide(TWO, mc);
+            }
 
+            if (halfY.signum() > 0) {
+                // even exponent -> square x
+                x = x.multiply(x, mc);
+            }
 
-	/**
-	 * Subtract and round according to the larger of the two ulp's.
-	 *
-	 * @param x The left term.
-	 * @param y The right term.
-	 * @return The difference x-y.
-	 * @since 2009-07-30
-	 */
-	private static BigDecimal subtractRound(final BigDecimal x, final BigDecimal y) {
-		BigDecimal resul = x.subtract(y);
-		double errR = Math.abs(y.ulp().doubleValue() / 2.) + Math.abs(x.ulp().doubleValue() / 2.);
-		MathContext mc = new MathContext(err2prec(resul.doubleValue(), errR));
-		return resul.round(mc);
-	}
+            integerY = halfY;
+        }
 
-	/**
-	 * Multiply and round.
-	 *
-	 * @param x The left factor.
-	 * @param y The right factor.
-	 * @return The product x*y.
-	 * @author Richard J. Mathar
-	 * @since 2009-07-30
-	 */
-	private static BigDecimal multiplyRound(final BigDecimal x, final BigDecimal y) {
-		BigDecimal resul = x.multiply(y);
-		MathContext mc = new MathContext(Math.min(x.precision(), y.precision()));
-		return resul.round(mc);
-	}
+        return round(result, mathContext);
+    }
 
-	/**
-	 * Multiply and round.
-	 *
-	 * @param x The left factor.
-	 * @param f The right factor.
-	 * @return The product x*f.
-	 * @author Richard J. Mathar
-	 * @since 2009-07-30
-	 */
-	private static BigDecimal multiplyRound(final BigDecimal x, final Rational f) {
-		if (f.compareTo(BigInteger.ZERO) == 0) {
-			return BigDecimal.ZERO;
-		} else {
-			MathContext mc = new MathContext(2 + x.precision());
-			BigDecimal fbd = f.bigDecimalValue(mc);
-			return multiplyRound(x, fbd);
-		}
-	}
+    /**
+     * Calculates the square root of {@link BigDecimal} x.
+     *
+     * <p>See <a href="http://en.wikipedia.org/wiki/Square_root">Wikipedia: Square root</a></p>
+     *
+     * @param x           the {@link BigDecimal} value to calculate the square root
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated square root of x with the precision specified in the <code>mathContext</code>
+     * @throws ArithmeticException           if x &lt; 0
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    public static BigDecimal sqrt(BigDecimal x, MathContext mathContext) {
+        checkMathContext(mathContext);
+        switch (x.signum()) {
+            case 0:
+                return ZERO;
+            case -1:
+                throw new ArithmeticException("Illegal sqrt(x) for x < 0: x = " + x);
+        }
 
-	/**
-	 * Multiply and round.
-	 *
-	 * @param x The left factor.
-	 * @param n The right factor.
-	 * @return The product x*n.
-	 * @author Richard J. Mathar
-	 * @since 2009-07-30
-	 */
-	private static BigDecimal multiplyRound(final BigDecimal x, final int n) {
-		BigDecimal resul = x.multiply(new BigDecimal(n));
-		MathContext mc = new MathContext(n != 0 ? x.precision() : 0);
-		return resul.round(mc);
-	}
+        int maxPrecision = mathContext.getPrecision() + 6;
+        BigDecimal acceptableError = ONE.movePointLeft(mathContext.getPrecision() + 1);
 
-	/**
-	 * Multiply and round.
-	 *
-	 * @param x The left factor.
-	 * @param n The right factor.
-	 * @return the product x*n
-	 * @author Richard J. Mathar
-	 * @since 2009-07-30
-	 */
-	private static BigDecimal multiplyRound(final BigDecimal x, final BigInteger n) {
-		BigDecimal resul = x.multiply(new BigDecimal(n));
-		MathContext mc = new MathContext(n.compareTo(BigInteger.ZERO) != 0 ? x.precision() : 0);
-		return resul.round(mc);
-	}
+        BigDecimal result;
+        int adaptivePrecision;
+        if (isDoubleValue(x)) {
+            result = BigDecimal.valueOf(Math.sqrt(x.doubleValue()));
+            adaptivePrecision = EXPECTED_INITIAL_PRECISION;
+        } else {
+            result = x.multiply(ONE_HALF, mathContext);
+            adaptivePrecision = 1;
+        }
 
-	/**
-	 * Divide and round.
-	 *
-	 * @param x The numerator
-	 * @param y The denominator
-	 * @return the divided x/y
-	 * @author Richard J. Mathar
-	 * @since 2009-07-30
-	 */
-	private static BigDecimal divideRound(final BigDecimal x, final BigDecimal y) {
-		MathContext mc = new MathContext(Math.min(x.precision(), y.precision()));
-		BigDecimal resul = x.divide(y, mc);
-		return scalePrec(resul, mc);
-	}
+        BigDecimal last;
 
-	/**
-	 * Divide and round.
-	 *
-	 * @param x The numerator
-	 * @param n The denominator
-	 * @return the divided x/n
-	 * @author Richard J. Mathar
-	 * @since 2009-07-30
-	 */
-	private static BigDecimal divideRound(final BigDecimal x, final int n) {
-		MathContext mc = new MathContext(x.precision());
-		return x.divide(new BigDecimal(n), mc);
-	}
+        if (adaptivePrecision < maxPrecision) {
+            if (result.multiply(result).compareTo(x) == 0) {
+                return round(result, mathContext); // early exit if x is a square number
+            }
 
-	/**
-	 * Divide and round.
-	 *
-	 * @param x The numerator
-	 * @param n The denominator
-	 * @return the divided x/n
-	 * @author Richard J. Mathar
-	 * @since 2009-07-30
-	 */
-	private static BigDecimal divideRound(final BigDecimal x, final BigInteger n) {
-		MathContext mc = new MathContext(x.precision());
-		return x.divide(new BigDecimal(n), mc);
-	}
+            do {
+                last = result;
+                adaptivePrecision = adaptivePrecision * 2;
+                if (adaptivePrecision > maxPrecision) {
+                    adaptivePrecision = maxPrecision;
+                }
+                MathContext mc = new MathContext(adaptivePrecision, mathContext.getRoundingMode());
+                result = x.divide(result, mc).add(last, mc).multiply(ONE_HALF, mc);
+            }
+            while (adaptivePrecision < maxPrecision || result.subtract(last).abs().compareTo(acceptableError) > 0);
+        }
 
-	/**
-	 * Divide and round.
-	 *
-	 * @param n The numerator.
-	 * @param x The denominator.
-	 * @return the divided n/x.
-	 * @author Richard J. Mathar
-	 * @since 2009-08-05
-	 */
-	private static BigDecimal divideRound(final int n, final BigDecimal x) {
-		MathContext mc = new MathContext(x.precision());
-		return new BigDecimal(n).divide(x, mc);
-	}
+        return round(result, mathContext);
+    }
 
-	/**
-	 * Append decimal zeros to the value. This returns a value which appears to have
-	 * a higher precision than the input.
-	 *
-	 * @param x The input value
-	 * @param d The (positive) value of zeros to be added as least significant digits.
-	 * @return The same value as the input but with increased (pseudo) precision.
-	 * @author Richard J. Mathar
-	 */
-	private static BigDecimal scalePrec(final BigDecimal x, int d) {
-		return x.setScale(d + x.scale(), DEFAULT_ROUNDING_MODE);
-	}
+    /**
+     * Calculates the natural logarithm of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Natural_logarithm">Wikipedia: Natural logarithm</a></p>
+     *
+     * @param x           the {@link BigDecimal} to calculate the natural logarithm for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated natural logarithm {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws ArithmeticException           if x &lt;= 0
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    public static BigDecimal log(BigDecimal x, MathContext mathContext) {
+        checkMathContext(mathContext);
+        if (x.signum() <= 0) {
+            throw new ArithmeticException("Illegal log(x) for x <= 0: x = " + x);
+        }
+        if (x.compareTo(ONE) == 0) {
+            return ZERO;
+        }
 
-	/**
-	 * Boost the precision by appending decimal zeros to the value. This returns a value which appears to have
-	 * a higher precision than the input.
-	 *
-	 * @param x  The input value
-	 * @param mc The requirement on the minimum precision on return.
-	 * @return The same value as the input but with increased (pseudo) precision.
-	 * @author Richard J. Mathar
-	 */
-	public static BigDecimal scalePrec(final BigDecimal x, final MathContext mc) {
-		final int diffPr = mc.getPrecision() - x.precision();
-		if (diffPr > 0) {
-			return scalePrec(x, diffPr);
-		} else {
-			return x;
-		}
-	}
+        BigDecimal result;
+        switch (x.compareTo(TEN)) {
+            case 0:
+                result = logTen(mathContext);
+                break;
+            case 1:
+                result = logUsingExponent(x, mathContext);
+                break;
+            default:
+                result = logUsingTwoThree(x, mathContext);
+        }
 
-	/**
-	 * Convert an absolute error to a precision.
-	 *
-	 * @param x    The value of the variable
-	 *             The value returned depends only on the absolute value, not on the sign.
-	 * @param xerr The absolute error in the variable
-	 *             The value returned depends only on the absolute value, not on the sign.
-	 * @return The number of valid digits in x.
-	 * Derived from the representation x+- xerr, as if the error was represented
-	 * in a "half width" (half of the error bar) form.
-	 * The value is rounded down, and on the pessimistic side for that reason.
-	 * @author Richard J. Mathar
-	 * @since 2009-05-30
-	 */
-	private static int err2prec(double x, double xerr) {
-		return 1 + (int) (Math.log10(Math.abs(0.5 * x / xerr)));
-	}
+        return round(result, mathContext);
+    }
 
-	/**
-	 * Convert a relative error to a precision.
-	 *
-	 * @param xerr The relative error in the variable.
-	 *             The value returned depends only on the absolute value, not on the sign.
-	 * @return The number of valid digits in x.
-	 * The value is rounded down, and on the pessimistic side for that reason.
-	 * @author Richard J. Mathar
-	 * @since 2009-08-05
-	 */
-	private static int err2prec(double xerr) {
-		return 1 + (int) (Math.log10(Math.abs(0.5 / xerr)));
-	}
+    /**
+     * Calculates the logarithm of {@link BigDecimal} x to the base 2.
+     *
+     * @param x           the {@link BigDecimal} to calculate the logarithm base 2 for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated natural logarithm {@link BigDecimal} to the base 2 with the precision specified in the <code>mathContext</code>
+     * @throws ArithmeticException           if x &lt;= 0
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    public static BigDecimal log2(BigDecimal x, MathContext mathContext) {
+        checkMathContext(mathContext);
+        MathContext mc = new MathContext(mathContext.getPrecision() + 4, mathContext.getRoundingMode());
 
-	/**
-	 * Convert a precision (relative error) to an absolute error.
-	 * The is the inverse functionality of err2prec().
-	 *
-	 * @param x    The value of the variable
-	 *             The value returned depends only on the absolute value, not on the sign.
-	 * @param prec The number of valid digits of the variable.
-	 * @return the absolute error in x.
-	 * Derived from the an accuracy of one half of the ulp.
-	 * @author Richard J. Mathar
-	 * @since 2009-08-09
-	 */
-	private static double prec2err(final double x, final int prec) {
-		return 5. * Math.abs(x) * Math.pow(10., -prec);
-	}
+        BigDecimal result = log(x, mc).divide(logTwo(mc), mc);
+        return round(result, mathContext);
+    }
 
-	public static BigDecimal getBigDecimal(Number n) {
-		return n instanceof BigDecimal ? (BigDecimal) n : new BigDecimal(n.toString());
-	}
+    /**
+     * Calculates the logarithm of {@link BigDecimal} x to the base 10.
+     *
+     * @param x           the {@link BigDecimal} to calculate the logarithm base 10 for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated natural logarithm {@link BigDecimal} to the base 10 with the precision specified in the <code>mathContext</code>
+     * @throws ArithmeticException           if x &lt;= 0
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    public static BigDecimal log10(BigDecimal x, MathContext mathContext) {
+        checkMathContext(mathContext);
+        MathContext mc = new MathContext(mathContext.getPrecision() + 2, mathContext.getRoundingMode());
 
-	public static BigInteger getBigInteger(Number n) {
-		return n instanceof BigInteger ? (BigInteger) n : BigInteger.valueOf(n.longValue());
-	}
+        BigDecimal result = log(x, mc).divide(logTen(mc), mc);
+        return round(result, mathContext);
+    }
+
+    private static BigDecimal logUsingNewton(BigDecimal x, MathContext mathContext) {
+        // https://en.wikipedia.org/wiki/Natural_logarithm in chapter 'High Precision'
+        // y = y + 2 * (x-exp(y)) / (x+exp(y))
+
+        int maxPrecision = mathContext.getPrecision() + 20;
+        BigDecimal acceptableError = ONE.movePointLeft(mathContext.getPrecision() + 1);
+        //System.out.println("logUsingNewton(" + x + " " + mathContext + ") precision " + maxPrecision);
+
+        BigDecimal result;
+        int adaptivePrecision;
+        double doubleX = x.doubleValue();
+        if (doubleX > 0.0 && isDoubleValue(x)) {
+            result = BigDecimal.valueOf(Math.log(doubleX));
+            adaptivePrecision = EXPECTED_INITIAL_PRECISION;
+        } else {
+            result = x.divide(TWO, mathContext);
+            adaptivePrecision = 1;
+        }
+
+        BigDecimal step;
+
+        do {
+            adaptivePrecision = adaptivePrecision * 3;
+            if (adaptivePrecision > maxPrecision) {
+                adaptivePrecision = maxPrecision;
+            }
+            MathContext mc = new MathContext(adaptivePrecision, mathContext.getRoundingMode());
+
+            BigDecimal expY = BigDecimalMath.exp(result, mc);
+            step = TWO.multiply(x.subtract(expY, mc), mc).divide(x.add(expY, mc), mc);
+            //System.out.println("  step " + step + " adaptivePrecision=" + adaptivePrecision);
+            result = result.add(step);
+        }
+        while (adaptivePrecision < maxPrecision || step.abs().compareTo(acceptableError) > 0);
+
+        return result;
+    }
+
+    private static BigDecimal logUsingExponent(BigDecimal x, MathContext mathContext) {
+        MathContext mcDouble = new MathContext(mathContext.getPrecision() * 2, mathContext.getRoundingMode());
+        MathContext mc = new MathContext(mathContext.getPrecision() + 4, mathContext.getRoundingMode());
+        //System.out.println("logUsingExponent(" + x + " " + mathContext + ") precision " + mc);
+
+        int exponent = exponent(x);
+        BigDecimal mantissa = mantissa(x);
+
+        BigDecimal result = logUsingTwoThree(mantissa, mc);
+        if (exponent != 0) {
+            result = result.add(valueOf(exponent).multiply(logTen(mcDouble), mc), mc);
+        }
+        return result;
+    }
+
+    private static BigDecimal logUsingTwoThree(BigDecimal x, MathContext mathContext) {
+        MathContext mcDouble = new MathContext(mathContext.getPrecision() * 2, mathContext.getRoundingMode());
+        MathContext mc = new MathContext(mathContext.getPrecision() + 4, mathContext.getRoundingMode());
+        //System.out.println("logUsingTwoThree(" + x + " " + mathContext + ") precision " + mc);
+
+        int factorOfTwo = 0;
+        int powerOfTwo = 1;
+        int factorOfThree = 0;
+        int powerOfThree = 1;
+
+        double value = x.doubleValue();
+        if (value < 0.01) {
+            // do nothing
+        } else if (value < 0.1) { // never happens when called by logUsingExponent()
+            while (value < 0.6) {
+                value *= 2;
+                factorOfTwo--;
+                powerOfTwo *= 2;
+            }
+        } else if (value < 0.115) { // (0.1 - 0.11111 - 0.115) -> (0.9 - 1.0 - 1.035)
+            factorOfThree = -2;
+            powerOfThree = 9;
+        } else if (value < 0.14) { // (0.115 - 0.125 - 0.14) -> (0.92 - 1.0 - 1.12)
+            factorOfTwo = -3;
+            powerOfTwo = 8;
+        } else if (value < 0.2) { // (0.14 - 0.16667 - 0.2) - (0.84 - 1.0 - 1.2)
+            factorOfTwo = -1;
+            powerOfTwo = 2;
+            factorOfThree = -1;
+            powerOfThree = 3;
+        } else if (value < 0.3) { // (0.2 - 0.25 - 0.3) -> (0.8 - 1.0 - 1.2)
+            factorOfTwo = -2;
+            powerOfTwo = 4;
+        } else if (value < 0.42) { // (0.3 - 0.33333 - 0.42) -> (0.9 - 1.0 - 1.26)
+            factorOfThree = -1;
+            powerOfThree = 3;
+        } else if (value < 0.7) { // (0.42 - 0.5 - 0.7) -> (0.84 - 1.0 - 1.4)
+            factorOfTwo = -1;
+            powerOfTwo = 2;
+        } else if (value < 1.4) { // (0.7 - 1.0 - 1.4) -> (0.7 - 1.0 - 1.4)
+            // do nothing
+        } else if (value < 2.5) { // (1.4 - 2.0 - 2.5) -> (0.7 - 1.0 - 1.25)
+            factorOfTwo = 1;
+            powerOfTwo = 2;
+        } else if (value < 3.5) { // (2.5 - 3.0 - 3.5) -> (0.833333 - 1.0 - 1.166667)
+            factorOfThree = 1;
+            powerOfThree = 3;
+        } else if (value < 5.0) { // (3.5 - 4.0 - 5.0) -> (0.875 - 1.0 - 1.25)
+            factorOfTwo = 2;
+            powerOfTwo = 4;
+        } else if (value < 7.0) { // (5.0 - 6.0 - 7.0) -> (0.833333 - 1.0 - 1.166667)
+            factorOfThree = 1;
+            powerOfThree = 3;
+            factorOfTwo = 1;
+            powerOfTwo = 2;
+        } else if (value < 8.5) { // (7.0 - 8.0 - 8.5) -> (0.875 - 1.0 - 1.0625)
+            factorOfTwo = 3;
+            powerOfTwo = 8;
+        } else if (value < 10.0) { // (8.5 - 9.0 - 10.0) -> (0.94444 - 1.0 - 1.11111)
+            factorOfThree = 2;
+            powerOfThree = 9;
+        } else {
+            while (value > 1.4) { // never happens when called by logUsingExponent()
+                value /= 2;
+                factorOfTwo++;
+                powerOfTwo *= 2;
+            }
+        }
+
+        BigDecimal correctedX = x;
+        BigDecimal result = ZERO;
+
+        if (factorOfTwo > 0) {
+            correctedX = correctedX.divide(valueOf(powerOfTwo), mc);
+            result = result.add(logTwo(mcDouble).multiply(valueOf(factorOfTwo), mc), mc);
+        } else if (factorOfTwo < 0) {
+            correctedX = correctedX.multiply(valueOf(powerOfTwo), mc);
+            result = result.subtract(logTwo(mcDouble).multiply(valueOf(-factorOfTwo), mc), mc);
+        }
+
+        if (factorOfThree > 0) {
+            correctedX = correctedX.divide(valueOf(powerOfThree), mc);
+            result = result.add(logThree(mcDouble).multiply(valueOf(factorOfThree), mc), mc);
+        } else if (factorOfThree < 0) {
+            correctedX = correctedX.multiply(valueOf(powerOfThree), mc);
+            result = result.subtract(logThree(mcDouble).multiply(valueOf(-factorOfThree), mc), mc);
+        }
+
+        if (x == correctedX && result == ZERO) {
+            return logUsingNewton(x, mathContext);
+        }
+
+        result = result.add(logUsingNewton(correctedX, mc), mc);
+
+        return result;
+    }
+
+    /**
+     * Returns the number e.
+     *
+     * <p>See <a href="https://en.wikipedia.org/wiki/E_(mathematical_constant)">Wikipedia: E (mathematical_constant)</a></p>
+     *
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the number e with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    public static BigDecimal e(MathContext mathContext) {
+        checkMathContext(mathContext);
+        BigDecimal result;
+
+        synchronized (eCacheLock) {
+            if (eCache != null && mathContext.getPrecision() <= eCache.precision()) {
+                result = eCache;
+            } else {
+                eCache = exp(ONE, mathContext);
+                return eCache;
+            }
+        }
+
+        return round(result, mathContext);
+    }
+
+    /**
+     * Returns the number pi.
+     *
+     * <p>See <a href="https://en.wikipedia.org/wiki/Pi">Wikipedia: Pi</a></p>
+     *
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the number pi with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    public static BigDecimal pi(MathContext mathContext) {
+        checkMathContext(mathContext);
+        BigDecimal result;
+
+        synchronized (piCacheLock) {
+            if (piCache != null && mathContext.getPrecision() <= piCache.precision()) {
+                result = piCache;
+            } else {
+                piCache = piChudnovski(mathContext);
+                return piCache;
+            }
+        }
+
+        return round(result, mathContext);
+    }
+
+    private static BigDecimal piChudnovski(MathContext mathContext) {
+        MathContext mc = new MathContext(mathContext.getPrecision() + 10, mathContext.getRoundingMode());
+
+        final BigDecimal value24 = BigDecimal.valueOf(24);
+        final BigDecimal value640320 = BigDecimal.valueOf(640320);
+        final BigDecimal value13591409 = BigDecimal.valueOf(13591409);
+        final BigDecimal value545140134 = BigDecimal.valueOf(545140134);
+        final BigDecimal valueDivisor = value640320.pow(3).divide(value24, mc);
+
+        BigDecimal sumA = BigDecimal.ONE;
+        BigDecimal sumB = BigDecimal.ZERO;
+
+        BigDecimal a = BigDecimal.ONE;
+        long dividendTerm1 = 5; // -(6*k - 5)
+        long dividendTerm2 = -1; // 2*k - 1
+        long dividendTerm3 = -1; // 6*k - 1
+        BigDecimal kPower3;
+
+        long iterationCount = (mc.getPrecision() + 13) / 14;
+        for (long k = 1; k <= iterationCount; k++) {
+            BigDecimal valueK = BigDecimal.valueOf(k);
+            dividendTerm1 += -6;
+            dividendTerm2 += 2;
+            dividendTerm3 += 6;
+            BigDecimal dividend = BigDecimal.valueOf(dividendTerm1).multiply(BigDecimal.valueOf(dividendTerm2))
+                                            .multiply(BigDecimal.valueOf(dividendTerm3));
+            kPower3 = valueK.pow(3);
+            BigDecimal divisor = kPower3.multiply(valueDivisor, mc);
+            a = a.multiply(dividend).divide(divisor, mc);
+            BigDecimal b = valueK.multiply(a, mc);
+
+            sumA = sumA.add(a);
+            sumB = sumB.add(b);
+        }
+
+        final BigDecimal value426880 = BigDecimal.valueOf(426880);
+        final BigDecimal value10005 = BigDecimal.valueOf(10005);
+        final BigDecimal factor = value426880.multiply(sqrt(value10005, mc));
+        BigDecimal pi = factor.divide(value13591409.multiply(sumA, mc).add(value545140134.multiply(sumB, mc)), mc);
+
+        return round(pi, mathContext);
+    }
+
+    private static BigDecimal logTen(MathContext mathContext) {
+        BigDecimal result;
+
+        synchronized (log10CacheLock) {
+            if (log10Cache != null && mathContext.getPrecision() <= log10Cache.precision()) {
+                result = log10Cache;
+            } else {
+                log10Cache = logUsingNewton(BigDecimal.TEN, mathContext);
+                return log10Cache;
+            }
+        }
+
+        return round(result, mathContext);
+    }
+
+    private static BigDecimal logTwo(MathContext mathContext) {
+        BigDecimal result;
+
+        synchronized (log2CacheLock) {
+            if (log2Cache != null && mathContext.getPrecision() <= log2Cache.precision()) {
+                result = log2Cache;
+            } else {
+                log2Cache = logUsingNewton(TWO, mathContext);
+                return log2Cache;
+            }
+        }
+
+        return round(result, mathContext);
+    }
+
+    private static BigDecimal logThree(MathContext mathContext) {
+        BigDecimal result;
+        synchronized (log3CacheLock) {
+            if (log3Cache != null && mathContext.getPrecision() <= log3Cache.precision()) {
+                result = log3Cache;
+            } else {
+                log3Cache = logUsingNewton(THREE, mathContext);
+                return log3Cache;
+            }
+        }
+
+        return round(result, mathContext);
+    }
+
+    /**
+     * Calculates the natural exponent of {@link BigDecimal} x (e<sup>x</sup>).
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Exponent">Wikipedia: Exponent</a></p>
+     *
+     * @param x           the {@link BigDecimal} to calculate the exponent for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated exponent {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    public static BigDecimal exp(BigDecimal x, MathContext mathContext) {
+        checkMathContext(mathContext);
+        if (x.signum() == 0) {
+            return ONE;
+        }
+
+        return expIntegralFractional(x, mathContext);
+    }
+
+    private static BigDecimal expIntegralFractional(BigDecimal x, MathContext mathContext) {
+        BigDecimal integralPart = integralPart(x);
+
+        if (integralPart.signum() == 0) {
+            return expTaylor(x, mathContext);
+        }
+
+        BigDecimal fractionalPart = x.subtract(integralPart);
+
+        MathContext mc = new MathContext(mathContext.getPrecision() + 10, mathContext.getRoundingMode());
+
+        BigDecimal z = ONE.add(fractionalPart.divide(integralPart, mc));
+        BigDecimal t = expTaylor(z, mc);
+
+        BigDecimal result = pow(t, integralPart.intValueExact(), mc);
+
+        return round(result, mathContext);
+    }
+
+    private static BigDecimal expTaylor(BigDecimal x, MathContext mathContext) {
+        MathContext mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
+
+        x = x.divide(valueOf(256), mc);
+
+        BigDecimal result = ExpCalculator.INSTANCE.calculate(x, mc);
+        result = BigDecimalMath.pow(result, 256, mc);
+        return round(result, mathContext);
+    }
+
+    /**
+     * Calculates the sine (sinus) of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Sine">Wikipedia: Sine</a></p>
+     *
+     * @param x           the {@link BigDecimal} to calculate the sine for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated sine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    public static BigDecimal sin(BigDecimal x, MathContext mathContext) {
+        checkMathContext(mathContext);
+        MathContext mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
+
+        if (x.abs().compareTo(ROUGHLY_TWO_PI) > 0) {
+            MathContext mc2 = new MathContext(mc.getPrecision() + 4, mathContext.getRoundingMode());
+            BigDecimal twoPi = TWO.multiply(pi(mc2), mc2);
+            x = x.remainder(twoPi, mc2);
+        }
+
+        BigDecimal result = SinCalculator.INSTANCE.calculate(x, mc);
+        return round(result, mathContext);
+    }
+
+    /**
+     * Calculates the arc sine (inverted sine) of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Arcsine">Wikipedia: Arcsine</a></p>
+     *
+     * @param x           the {@link BigDecimal} to calculate the arc sine for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated arc sine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws ArithmeticException           if x &gt; 1 or x &lt; -1
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    public static BigDecimal asin(BigDecimal x, MathContext mathContext) {
+        checkMathContext(mathContext);
+        if (x.compareTo(ONE) > 0) {
+            throw new ArithmeticException("Illegal asin(x) for x > 1: x = " + x);
+        }
+        if (x.compareTo(MINUS_ONE) < 0) {
+            throw new ArithmeticException("Illegal asin(x) for x < -1: x = " + x);
+        }
+
+        if (x.signum() == -1) {
+            return asin(x.negate(), mathContext).negate();
+        }
+
+        MathContext mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
+
+        if (x.compareTo(BigDecimal.valueOf(0.707107)) >= 0) {
+            BigDecimal xTransformed = sqrt(ONE.subtract(x.multiply(x, mc), mc), mc);
+            return acos(xTransformed, mathContext);
+        }
+
+        BigDecimal result = AsinCalculator.INSTANCE.calculate(x, mc);
+        return round(result, mathContext);
+    }
+
+    /**
+     * Calculates the cosine (cosinus) of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Cosine">Wikipedia: Cosine</a></p>
+     *
+     * @param x           the {@link BigDecimal} to calculate the cosine for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated cosine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    public static BigDecimal cos(BigDecimal x, MathContext mathContext) {
+        checkMathContext(mathContext);
+        MathContext mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
+
+        if (x.abs().compareTo(ROUGHLY_TWO_PI) > 0) {
+            MathContext mc2 = new MathContext(mc.getPrecision() + 4, mathContext.getRoundingMode());
+            BigDecimal twoPi = TWO.multiply(pi(mc2), mc2);
+            x = x.remainder(twoPi, mc2);
+        }
+
+        BigDecimal result = CosCalculator.INSTANCE.calculate(x, mc);
+        return round(result, mathContext);
+    }
+
+    /**
+     * Calculates the arc cosine (inverted cosine) of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Arccosine">Wikipedia: Arccosine</a></p>
+     *
+     * @param x           the {@link BigDecimal} to calculate the arc cosine for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated arc sine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws ArithmeticException           if x &gt; 1 or x &lt; -1
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    public static BigDecimal acos(BigDecimal x, MathContext mathContext) {
+        checkMathContext(mathContext);
+        if (x.compareTo(ONE) > 0) {
+            throw new ArithmeticException("Illegal acos(x) for x > 1: x = " + x);
+        }
+        if (x.compareTo(MINUS_ONE) < 0) {
+            throw new ArithmeticException("Illegal acos(x) for x < -1: x = " + x);
+        }
+
+        MathContext mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
+
+        BigDecimal result = pi(mc).divide(TWO, mc).subtract(asin(x, mc), mc);
+        return round(result, mathContext);
+    }
+
+    /**
+     * Calculates the tangens of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Tangens">Wikipedia: Tangens</a></p>
+     *
+     * @param x           the {@link BigDecimal} to calculate the tangens for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated tangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    public static BigDecimal tan(BigDecimal x, MathContext mathContext) {
+        checkMathContext(mathContext);
+        if (x.signum() == 0) {
+            return ZERO;
+        }
+
+        MathContext mc = new MathContext(mathContext.getPrecision() + 4, mathContext.getRoundingMode());
+        BigDecimal result = sin(x, mc).divide(cos(x, mc), mc);
+        return round(result, mathContext);
+    }
+
+    /**
+     * Calculates the arc tangens (inverted tangens) of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Arctangens">Wikipedia: Arctangens</a></p>
+     *
+     * @param x           the {@link BigDecimal} to calculate the arc tangens for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated arc tangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    public static BigDecimal atan(BigDecimal x, MathContext mathContext) {
+        checkMathContext(mathContext);
+        MathContext mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
+
+        x = x.divide(sqrt(ONE.add(x.multiply(x, mc), mc), mc), mc);
+
+        BigDecimal result = asin(x, mc);
+        return round(result, mathContext);
+    }
+
+    private static void checkMathContext(MathContext mathContext) {
+        if (mathContext.getPrecision() == 0) {
+            throw new UnsupportedOperationException("Unlimited MathContext not supported");
+        }
+    }
+
+    public static BigDecimal getBigDecimal(Number n) {
+        return n instanceof BigDecimal ? (BigDecimal) n : new BigDecimal(n.toString());
+    }
+
+    public static BigInteger getBigInteger(Number n) {
+        return n instanceof BigInteger ? (BigInteger) n : BigInteger.valueOf(n.longValue());
+    }
 }

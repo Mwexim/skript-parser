@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.classes.ChangeMode;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
@@ -77,14 +78,14 @@ public class EffChange extends Effect {
             if (acceptance == null) {
                 switch (mode) {
                     case SET:
-                        logger.error(changedString + " cannot be set to anything");
+                        logger.error(changedString + " cannot be set to anything", ErrorType.SEMANTIC_ERROR);
                         break;
                     case ADD:
-                        logger.error("Nothing can be added to " + changedString);
+                        logger.error("Nothing can be added to " + changedString, ErrorType.SEMANTIC_ERROR);
                         break;
                     case REMOVE_ALL:
                     case REMOVE:
-                        logger.error("Nothing can be removed from " + changedString);
+                        logger.error("Nothing can be removed from " + changedString, ErrorType.SEMANTIC_ERROR);
                         break;
                 }
                 return false;
@@ -98,14 +99,14 @@ public class EffChange extends Effect {
                 );
                 switch (mode) {
                     case SET:
-                        logger.error(changedString + " cannot be set to " + changeTypeName);
+                        logger.error(changedString + " cannot be set to " + changeTypeName, ErrorType.SEMANTIC_ERROR);
                         break;
                     case ADD:
-                        logger.error(changeTypeName + " cannot be added to " + changedString);
+                        logger.error(changeTypeName + " cannot be added to " + changedString, ErrorType.SEMANTIC_ERROR);
                         break;
                     case REMOVE_ALL:
                     case REMOVE:
-                        logger.error(changeTypeName + " cannot be removed from " + changedString);
+                        logger.error(changeTypeName + " cannot be removed from " + changedString, ErrorType.SEMANTIC_ERROR);
                         break;
                 }
                 return false;

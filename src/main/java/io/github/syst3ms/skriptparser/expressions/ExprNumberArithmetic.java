@@ -189,20 +189,20 @@ public class ExprNumberArithmetic implements Expression<Number> {
                         return (long) p;
                     }
                 } else if (left instanceof BigDecimal || right instanceof BigDecimal) {
-                    return BigDecimalMath.pow(BigDecimalMath.getBigDecimal(left), BigDecimalMath.getBigDecimal(right));
+                    return BigDecimalMath.pow(BigDecimalMath.getBigDecimal(left), BigDecimalMath.getBigDecimal(right), BigDecimalMath.DEFAULT_CONTEXT);
                 } else if (left instanceof BigInteger || right instanceof BigInteger) {
                     if (left instanceof BigInteger && right instanceof BigInteger) {
                         return pow((BigInteger) left, (BigInteger) right);
                     } else if (left instanceof Long || right instanceof Long) {
                         return pow(BigDecimalMath.getBigInteger(left), BigDecimalMath.getBigInteger(right));
                     } else {
-                        return BigDecimalMath.pow(BigDecimalMath.getBigDecimal(left), BigDecimalMath.getBigDecimal(right));
+                        return BigDecimalMath.pow(BigDecimalMath.getBigDecimal(left), BigDecimalMath.getBigDecimal(right), BigDecimalMath.DEFAULT_CONTEXT);
                     }
                 } else {
                     // mix of Long and Double
                     double p = Math.pow(left.doubleValue(), right.doubleValue());
                     if (Double.isInfinite(p)) {
-                        return BigDecimalMath.pow(BigDecimalMath.getBigDecimal(left), BigDecimalMath.getBigDecimal(right));
+                        return BigDecimalMath.pow(BigDecimalMath.getBigDecimal(left), BigDecimalMath.getBigDecimal(right), BigDecimalMath.DEFAULT_CONTEXT);
                     } else {
                         return p;
                     }

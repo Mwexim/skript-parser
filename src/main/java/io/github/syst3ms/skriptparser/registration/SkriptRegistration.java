@@ -175,7 +175,7 @@ public class SkriptRegistration {
         }
 
         public TypeRegistrar<C> toStringFunction(Function<? super C, String> toStringFunction) {
-            this.toStringFunction = toStringFunction;
+            this.toStringFunction = c -> c == null ? TypeManager.NULL_REPRESENTATION : toStringFunction.apply(c);
             return this;
         }
 

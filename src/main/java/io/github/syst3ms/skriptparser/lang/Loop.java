@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.lang;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
@@ -33,7 +34,7 @@ public class Loop extends CodeSection {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		expr = expressions[0];
 		if (expr.isSingle()) {
-		    parseContext.getLogger().error("Cannot loop a single value");
+		    parseContext.getLogger().error("Cannot loop a single value", ErrorType.SEMANTIC_ERROR);
 			return false;
 		}
 		return true;

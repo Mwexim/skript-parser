@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,17 +53,17 @@ public class Variables {
 			: name.trim();
         if (name.startsWith(LIST_SEPARATOR) || name.endsWith(LIST_SEPARATOR)) {
             if (printErrors) {
-                logger.error("A variable name cannot start nor end with the list separator " + LIST_SEPARATOR);
+                logger.error("A variable name cannot start nor end with the list separator " + LIST_SEPARATOR, ErrorType.MALFORMED_INPUT);
             }
             return false;
         } else if (name.contains("*") && (name.indexOf("*") != name.length() - 1 || !name.endsWith(LIST_SEPARATOR + "*"))) {
             if (printErrors) {
-                logger.error("A variable name cannot contain an asterisk outside of a list declaration");
+                logger.error("A variable name cannot contain an asterisk outside of a list declaration", ErrorType.MALFORMED_INPUT);
             }
             return false;
         } else if (name.contains(LIST_SEPARATOR + LIST_SEPARATOR)) {
             if (printErrors) {
-                logger.error("A variable name cannot contain two list separators stuck together");
+                logger.error("A variable name cannot contain two list separators stuck together", ErrorType.MALFORMED_INPUT);
             }
             return false;
         }

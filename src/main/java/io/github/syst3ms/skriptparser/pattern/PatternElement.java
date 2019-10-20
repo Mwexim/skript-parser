@@ -19,7 +19,7 @@ public interface PatternElement {
      * @param index the index of the string at which this PatternElement should be matched
      * @return the index at which the matching should continue afterwards if successful. Otherwise, {@literal -1}
      */
-    int match(String s, int index, MatchContext parser);
+    int match(String s, int index, MatchContext context);
 
     static List<PatternElement> flatten(PatternElement element) {
         if (element instanceof CompoundElement) {

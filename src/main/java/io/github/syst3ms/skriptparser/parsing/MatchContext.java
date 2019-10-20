@@ -14,7 +14,7 @@ import java.util.regex.MatchResult;
  */
 public class MatchContext {
     private String originalPattern;
-    public PatternElement originalElement;
+    private PatternElement originalElement;
     // Provided to the syntax's class
     private final Class<? extends TriggerContext>[] currentContext;
     private final SkriptLogger logger;
@@ -45,10 +45,10 @@ public class MatchContext {
     public void advanceInPattern() {
         patternIndex++;
     }
+
     public List<Expression<?>> getParsedExpressions() {
         return parsedExpressions;
     }
-
     public void addExpression(Expression<?> expression) {
         parsedExpressions.add(expression);
     }
@@ -63,6 +63,16 @@ public class MatchContext {
 
     public void addMark(int mark) {
         parseMark ^= mark;
+    }
+
+    public MatchContext branch(PatternElement e) {
+        return new MatchContext(e, currentContext, logger);
+    }
+
+    public void merge(MatchContext branch) {
+        parsedExpressions.addAll(branch.parsedExpressions);
+        regexMatches.addAll(branch.regexMatches);
+        addMark(branch.parseMark);
     }
 
     /**

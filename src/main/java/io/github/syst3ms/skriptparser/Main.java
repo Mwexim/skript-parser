@@ -14,7 +14,7 @@ import java.util.Calendar;
 import java.util.List;
 
 public class Main {
-    public static final String CONSOLE_FORMAT = "[%tT] %s: %s";
+    public static final String CONSOLE_FORMAT = "[%tT] %s: %s%n";
     private static SkriptRegistration registration;
 
     public static void main(String[] args) {
@@ -36,7 +36,7 @@ public class Main {
         registration = new SkriptRegistration(skript);
         DefaultRegistration.register();
         try {
-            FileUtils.loadClasses("io.github.syst3ms.skriptparser", "expressions", "effects", "event");
+            FileUtils.loadClasses("io.github.syst3ms.skriptparser", "expressions", "effects", "event", "lang");
         } catch (IOException | URISyntaxException e) {
             System.err.println("Error while loading classes:");
             e.printStackTrace();

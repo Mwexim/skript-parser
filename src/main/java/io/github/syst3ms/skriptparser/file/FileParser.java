@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.file;
 
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 
@@ -37,13 +38,13 @@ public class FileParser {
             } else {
                 content = line.replace("##", "#").trim();
             }
-            if (content.matches("\\s*")) {
+            if (content.matches("[\\s#]*")) {
                 elements.add(new VoidElement(fileName, lastLine + i, expectedIndentation));
                 continue;
             }
             int lineIndentation = FileUtils.getIndentationLevel(line);
             if (lineIndentation > expectedIndentation) { // The line is indented too much
-                logger.error("The line is indented too much (line " + (lastLine + i) + ": \"" + content + "\")");
+                logger.error("The line is indented too much (line " + (lastLine + i) + ": \"" + content + "\")", ErrorType.STRUCTURE_ERROR);
                 continue;
             } else if (lineIndentation < expectedIndentation) { // One indentation behind marks the end of a section
                 return elements;
@@ -60,7 +61,7 @@ public class FileParser {
                     elements.add(new FileSection(fileName, lastLine + i, content.substring(0, content.length() - 1),
                             sectionElements, expectedIndentation
                     ));
-                    i += sectionElements.size();
+                    i += count(sectionElements);
                 }
             } else {
                 elements.add(new FileElement(fileName, lastLine + i, content, expectedIndentation));
@@ -69,4 +70,15 @@ public class FileParser {
         return elements;
     }
 
+    private int count(List<FileElement> elements) {
+        int count = 0;
+        for (FileElement element : elements) {
+            if (element instanceof FileSection) {
+                count += count(((FileSection) element).getElements()) + 1;
+            } else {
+                count++;
+            }
+        }
+        return count;
+    }
 }

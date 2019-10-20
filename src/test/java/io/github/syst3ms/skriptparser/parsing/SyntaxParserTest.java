@@ -126,17 +126,17 @@ public class SyntaxParserTest {
         );
         // ExprUnaryMathFunctions
         assertExpressionEquals(
-            literal(new BigInteger("3628800")),
+            literal(new BigDecimal("3628800")),
             parseExpression("(round acos cos 10)!", numberType, logger)
         );
         assertExpressionEquals(
-            literal(new BigDecimal("4")),
+            literal(new BigDecimal("4.0")),
             parseExpression("sqrt 16", numberType, logger)
         );
         // ExprWhether is a wrapper, no need to test it
         // LitMathConstants
         assertExpressionEquals(
-            literal(BigDecimalMath.E),
+            literal(BigDecimalMath.e(BigDecimalMath.DEFAULT_CONTEXT)),
             parseExpression("e", numberType, logger)
         );
     }

@@ -85,7 +85,7 @@ public class TypeManager {
             }
             Type<?> type = getByClass(o.getClass());
             if (type == null) {
-                sb.append(Objects.toString(o));
+                sb.append(o);
             } else {
                 sb.append(type.getToStringFunction().apply(o));
             }

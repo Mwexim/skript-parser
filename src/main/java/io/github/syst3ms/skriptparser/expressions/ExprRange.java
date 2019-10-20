@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
@@ -95,7 +96,7 @@ public class ExprRange implements Expression<Object> {
         comparator = Comparators.getComparator(from.getReturnType(), to.getReturnType());
         if (range == null) {
             SkriptLogger logger = parseContext.getLogger();
-            parseContext.getLogger().error("Cannot get a range between " + from.toString(null, logger.isDebug()) + " and " + from.toString(null, logger.isDebug()));
+            parseContext.getLogger().error("Cannot get a range between " + from.toString(null, logger.isDebug()) + " and " + from.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
             return false;
         }
         return true;

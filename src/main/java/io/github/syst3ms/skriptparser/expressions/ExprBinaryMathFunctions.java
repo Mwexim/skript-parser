@@ -33,7 +33,7 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 					} else {
 						BigDecimal a = new BigDecimal(n.toString());
 						BigDecimal b = BigDecimal.ONE.divide(new BigDecimal(r.toString()), BigDecimalMath.DEFAULT_CONTEXT);
-						return BigDecimalMath.pow(a, b);
+						return BigDecimalMath.pow(a, b, BigDecimalMath.DEFAULT_CONTEXT);
 					}
 				}
 			}
