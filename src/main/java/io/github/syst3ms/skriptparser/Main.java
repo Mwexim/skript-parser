@@ -8,10 +8,16 @@ import io.github.syst3ms.skriptparser.util.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 public class Main {
     public static final String CONSOLE_FORMAT = "[%tT] %s: %s%n";
@@ -37,7 +43,30 @@ public class Main {
         DefaultRegistration.register();
         try {
             FileUtils.loadClasses("io.github.syst3ms.skriptparser", "expressions", "effects", "event", "lang");
-        } catch (IOException | URISyntaxException e) {
+            File addonFolder = new File(".", "addons");
+            if (addonFolder.exists() && addonFolder.isDirectory()) {
+                File[] addons = addonFolder.listFiles();
+                if (addons != null) {
+                    for (File addon : addons) {
+                        if (addon.isFile() && addon.getName().endsWith(".jar")) {
+                            URLClassLoader child = new URLClassLoader(
+                                    new URL[] {addon.toURI().toURL()},
+                                    Main.class.getClassLoader()
+                            );
+                            JarFile jar = new JarFile(addon);
+                            Manifest manifest = jar.getManifest();
+                            String main = manifest.getMainAttributes().getValue("Main-Class");
+                            Class<?> mainClass = Class.forName(main, true, child);
+                            try {
+                                Method init = mainClass.getDeclaredMethod("initAddon");
+                                init.invoke(null);
+                            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (IOException | URISyntaxException | ClassNotFoundException e) {
             System.err.println("Error while loading classes:");
             e.printStackTrace();
         }

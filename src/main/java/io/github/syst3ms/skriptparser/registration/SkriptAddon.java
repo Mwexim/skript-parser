@@ -10,7 +10,6 @@ import java.util.List;
  */
 public abstract class SkriptAddon {
     private static List<SkriptAddon> addons = new ArrayList<>();
-
     private String name;
 
     {
