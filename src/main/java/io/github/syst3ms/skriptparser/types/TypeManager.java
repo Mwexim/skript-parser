@@ -13,7 +13,13 @@ import java.util.Objects;
  */
 @SuppressWarnings("unchecked")
 public class TypeManager {
+    /**
+     * The string equivalent of null
+     */
     public static final String NULL_REPRESENTATION = "<none>";
+    /**
+     * The string equivalent of an empty array
+     */
     public static final String EMPTY_REPRESENTATION = "<empty>";
     private static Map<String, Type<?>> nameToType = new HashMap<>();
     private static Map<Class<?>, Type<?>> classToType = new LinkedHashMap<>(); // Ordering is important for stuff like number types

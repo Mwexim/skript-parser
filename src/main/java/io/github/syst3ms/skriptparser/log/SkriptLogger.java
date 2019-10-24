@@ -5,9 +5,7 @@ import io.github.syst3ms.skriptparser.file.FileSection;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A class managing Skript's I/O messages.
@@ -58,14 +56,25 @@ public class SkriptLogger {
         return list;
     }
 
+    /**
+     * Advances in the currently analysed file. Used to properly display errors.
+     */
     public void nextLine() {
         line++;
     }
 
+    /**
+     * Increments the recursion of the logger ; should be called before calling methods that may use SkriptLogger later
+     * in execution.
+     */
     public void startLogHandle() {
         recursion++;
     }
 
+    /**
+     * Decrements the recursion of the logger ; should be called after calling methods that may use SkriptLogger later
+     * in execution.
+     */
     public void closeLogHandle() {
         recursion--;
     }
@@ -80,6 +89,11 @@ public class SkriptLogger {
         }
     }
 
+    /**
+     * Logs an error message
+     * @param message the error message
+     * @param errorType the error type
+     */
     public void error(String message, ErrorType errorType) {
         if (!hasError) {
             clearNotError();
@@ -88,32 +102,58 @@ public class SkriptLogger {
         }
     }
 
+    /**
+     * Logs a warning message
+     * @param message the warning message
+     */
     public void warn(String message) {
         log(message, LogType.WARNING, null);
     }
 
+    /**
+     * Logs an info message
+     * @param message the info message
+     */
     public void info(String message) {
         log(message, LogType.INFO, null);
     }
 
+    /**
+     * Logs a debug message. Will only work if debug mode is enabled.
+     * @param message the debug message
+     */
     public void debug(String message) {
         if (debug)
             log(message, LogType.DEBUG, null);
     }
 
+    /**
+     * Used to "forget" about a previous error, in case it is desirable to take into account multiple errors.
+     * Should only be called by the parser.
+     */
     public void forgetError() {
         hasError = false;
     }
 
+    /**
+     * Clears every log that is not an error or a debug message.
+     */
     public void clearNotError() {
         logEntries.removeIf(entry -> entry.getRecursion() >= recursion && entry.getType() != LogType.ERROR && entry.getType() != LogType.DEBUG);
     }
 
+    /**
+     * Clears every log that is not a debug message.
+     */
     public void clearLogs() {
         logEntries.removeIf(entry -> entry.getRecursion() >= recursion && entry.getType() != LogType.DEBUG);
         hasError = false;
     }
 
+    /**
+     * Finishes a logging process by making some logged entries definitive. All non-error logs are made definitive,
+     * and only the error that has the most priority is made definitive.
+     */
     public void logOutput() {
         logEntries.stream()
                 .filter(e -> e.getType() == LogType.ERROR)
@@ -127,16 +167,18 @@ public class SkriptLogger {
         clearLogs();
     }
 
-    public void logAndClose() {
-        logOutput();
-        closeLogHandle();
-    }
-
+    /**
+     * Finishes this Logger object, making it impossible to edit.
+     * @return the final logged entries
+     */
     public List<LogEntry> close() {
         open = false;
         return logged;
     }
 
+    /**
+     * @return whether this Logger is in debug mode
+     */
     public boolean isDebug() {
         return debug;
     }

@@ -44,7 +44,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Contains the logic for parsing and interpreting statements, sections and expressions inside of a script.
+ * Contains the logic for parsing and interpreting single statements, sections and expressions inside of a script.
  */
 @SuppressWarnings("unchecked")
 public class SyntaxParser {
@@ -604,7 +604,7 @@ public class SyntaxParser {
             logger.forgetError();
         }
         // Let's not loop over the same elements again
-        List<SkriptEventInfo<?>> remainingEvents = SyntaxManager.getTriggers();
+        List<SkriptEventInfo<?>> remainingEvents = SyntaxManager.getEvents();
         recentEvents.removeFrom(remainingEvents);
         for (SkriptEventInfo<?> remainingEvent : remainingEvents) {
             Trigger trigger = matchEventInfo(section, remainingEvent, logger);

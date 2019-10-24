@@ -8,6 +8,9 @@ import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The {@link SkriptAddon} representing Skript itself
+ */
 public class Skript extends SkriptAddon {
     private final String[] mainArgs;
     private List<Trigger> mainTriggers = new ArrayList<>();

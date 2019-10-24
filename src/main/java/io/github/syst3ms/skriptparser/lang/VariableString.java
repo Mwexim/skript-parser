@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A string that possibly contains expressions inside it, meaning that its value may be unknown at runtime
+ * A string that possibly contains expressions inside it, meaning that its value may be unknown at parse time
  */
 public class VariableString implements Expression<String> {
     public static final Pattern R_LITERAL_CONTENT_PATTERN = Pattern.compile("^(.+?)\\((.+)\\)\\1$"); // It's actually rare to be able to use '.+' raw like this

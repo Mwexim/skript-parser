@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 
@@ -10,6 +11,7 @@ import java.util.regex.MatchResult;
 /**
  * An object that stores data about how an object was parsed.
  * By opposition to {@link MatchContext}, this object is immutable.
+ * @see Expression#init(Expression[], int, ParseContext)
  */
 public class ParseContext {
     private final Class<? extends TriggerContext>[] currentContexts;

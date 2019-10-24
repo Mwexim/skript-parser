@@ -12,6 +12,9 @@ import static java.math.BigDecimal.ONE;
  * Utility class to calculate taylor series efficiently until the maximum error (as defined by the precision in the {@link MathContext} is reached.
  * 
  * <p>Stores the factors of the taylor series terms so that future calculations will be faster.</p>
+ *
+ * I do not claim ownership of this code, it is the intellectual property of <a href="github.com/eobermuhlner">@obermuhlner</a>.
+ * @author @obermuhlner
  */
 public abstract class SeriesCalculator {
 

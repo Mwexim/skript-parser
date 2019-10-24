@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
-import io.github.syst3ms.skriptparser.PatternParser;
+import io.github.syst3ms.skriptparser.pattern.PatternParser;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
@@ -45,101 +45,225 @@ public class SkriptRegistration {
         this.patternParser = new PatternParser();
     }
 
+    /**
+     * @return all currently registered events
+     */
     public List<SkriptEventInfo<?>> getEvents() {
         return events;
     }
 
+    /**
+     * @return all currently registered sections
+     */
     public List<SyntaxInfo<? extends CodeSection>> getSections() {
         return sections;
     }
 
+    /**
+     * @return all currently registered types
+     */
     public List<Type<?>> getTypes() {
         return types;
     }
 
+    /**
+     * @return all currently registered expressions
+     */
     public MultiMap<Class<?>, ExpressionInfo<?, ?>> getExpressions() {
         return expressions;
     }
 
+    /**
+     * @return all currently registered effects
+     */
     public List<SyntaxInfo<? extends Effect>> getEffects() {
         return effects;
     }
 
     /**
-     * @return the name of what is registering everything
+     * @return the addon handling this registration (may be Skript itself)
      */
     public SkriptAddon getRegisterer() {
         return registerer;
     }
 
+    /**
+     * @return all currently registered converters
+     */
     public List<Converters.ConverterInfo<?, ?>> getConverters() {
         return converters;
     }
 
+    /**
+     * Starts a registration process for an {@link Expression}
+     * @param c the Expression's class
+     * @param returnType the Expression's return type
+     * @param isSingle whether the Expression is a single value
+     * @param patterns the Expression's patterns
+     * @param <C> the Expression
+     * @param <T> the Expression's return type
+     * @return an {@link ExpressionRegistrar} to continue the registration process
+     */
     public <C extends Expression<T>, T> ExpressionRegistrar<C, T> newExpression(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
         return new ExpressionRegistrar<>(c, returnType, isSingle, patterns);
     }
 
+    /**
+     * Registers an {@link Expression}
+     * @param c the Expression's class
+     * @param returnType the Expression's return type
+     * @param isSingle whether the Expression is a single value
+     * @param patterns the Expression's patterns
+     * @param <C> the Expression
+     * @param <T> the Expression's return type
+     */
     public <C extends Expression<T>, T> void addExpression(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
         new ExpressionRegistrar<>(c, returnType, isSingle).addPatterns(patterns)
                 .register();
     }
 
+    /**
+     * Registers an {@link Expression}
+     * @param c the Expression's class
+     * @param returnType the Expression's return type
+     * @param isSingle whether the Expression is a single value
+     * @param priority the parsing priority this Expression has. 5 by default, a lower number means higher priority
+     * @param patterns the Expression's patterns
+     * @param <C> the Expression
+     * @param <T> the Expression's return type
+     */
     public <C extends Expression<T>, T> void addExpression(Class<C> c, Class<T> returnType, boolean isSingle, int priority, String... patterns) {
         new ExpressionRegistrar<>(c, returnType, isSingle).addPatterns(patterns)
                 .setPriority(priority)
                 .register();
     }
 
+    /**
+     * Starts a registration process for an {@link Effect}
+     * @param c the Effect's class
+     * @param patterns the Effect's patterns
+     * @param <C> the Effect
+     * @return an {@link EffectRegistrar}
+     */
     public <C extends Effect> EffectRegistrar<C> newEffect(Class<C> c, String... patterns) {
         return new EffectRegistrar<>(c, patterns);
     }
 
+    /**
+     * Registers an {@link Effect}
+     * @param c the Effect's class
+     * @param patterns the Effect's patterns
+     * @param <C> the Effect
+     */
     public <C extends Effect> void addEffect(Class<C> c, String... patterns) {
         new EffectRegistrar<>(c, patterns).register();
     }
 
+    /**
+     * Registers an {@link Effect}
+     * @param c the Effect's class
+     * @param priority the parsing priority this Effect has. 5 by default, a lower number means higher priority
+     * @param patterns the Effect's patterns
+     * @param <C> the Effect
+     */
     public <C extends Effect> void addEffect(Class<C> c, int priority, String... patterns) {
         new EffectRegistrar<>(c, patterns).setPriority(priority)
                 .register();
     }
 
+    /**
+     * Registers a {@link CodeSection}
+     * @param c the CodeSection's class
+     * @param patterns the CodeSection's patterns
+     */
     public void addSection(Class<? extends CodeSection> c, String... patterns) {
         new SectionRegistrar<>(c, patterns).register();
     }
 
+    /**
+     * Registers a {@link CodeSection}
+     * @param c the CodeSection's class
+     * @param priority the parsing priority this CodeSection has. 5 by default, a lower number means higher priority
+     * @param patterns the CodeSection's patterns
+     */
     public void addSection(Class<? extends CodeSection> c, int priority, String... patterns) {
         new SectionRegistrar<>(c, patterns).setPriority(priority).register();
-    }
-
-    public void addEvent(Class<? extends SkriptEvent> c, Class<? extends TriggerContext>[] handledContexts, String... patterns) {
-        new EventRegistrar<>(c, patterns).setHandledContexts(handledContexts).register();
-    }
-
-    public void addEvent(Class<? extends SkriptEvent> c, Class<? extends TriggerContext>[] handledContexts, int priority, String... patterns) {
-        new EventRegistrar<>(c, patterns).setHandledContexts(handledContexts).setPriority(priority).register();
     }
 
     public <E extends SkriptEvent> EventRegistrar<E> newEvent(Class<E> c, String... patterns) {
         return new EventRegistrar<>(c, patterns);
     }
 
+    /**
+     * Registers a {@link SkriptEvent}
+     * @param c the SkriptEvent's class
+     * @param handledContexts the {@link TriggerContext}s this SkriptEvent can handle
+     * @param patterns the SkriptEvent's patterns
+     */
+    public void addEvent(Class<? extends SkriptEvent> c, Class<? extends TriggerContext>[] handledContexts, String... patterns) {
+        new EventRegistrar<>(c, patterns).setHandledContexts(handledContexts).register();
+    }
+
+    /**
+     * Registers a {@link SkriptEvent}
+     * @param c the SkriptEvent's class
+     * @param handledContexts the {@link TriggerContext}s this SkriptEvent can handle
+     * @param priority the parsing priority this SkriptEvent has. 5 by default, a lower number means higher priority
+     * @param patterns the SkriptEvent's patterns
+     */
+    public void addEvent(Class<? extends SkriptEvent> c, Class<? extends TriggerContext>[] handledContexts, int priority, String... patterns) {
+        new EventRegistrar<>(c, patterns).setHandledContexts(handledContexts).setPriority(priority).register();
+    }
+
+    /**
+     * Registers a {@link Type}
+     * @param c the class the Type represents
+     * @param pattern the Type's pattern
+     * @param <T> the represented class
+     */
     public <T> void addType(Class<T> c, String name, String pattern) {
         new TypeRegistrar<>(c, name, pattern).register();
     }
 
+    /**
+     * Starts a registration process for a {@link Type}
+     * @param c the class the Type represents
+     * @param pattern the Type's pattern
+     * @param <T> the represented class
+     * @return an {@link TypeRegistrar}
+     */
     public <T> TypeRegistrar<T> newType(Class<T> c, String name, String pattern) {
         return new TypeRegistrar<>(c, name, pattern);
     }
 
+    /**
+     * Registers a converter
+     * @param from the class it converts from
+     * @param to the class it converts to
+     * @param converter the converter
+     * @param <F> from
+     * @param <T> to
+     */
     public <F, T> void addConverter(Class<F> from, Class<T> to, Function<? super F, ? extends T> converter) {
         converters.add(new Converters.ConverterInfo<>(from, to, converter));
     }
 
+    /**
+     * Registers a converter
+     * @param from the class it converts from
+     * @param to the class it converts to
+     * @param converter the converter
+     * @param options see {@link Converters}
+     * @param <F> from
+     * @param <T> to
+     */
     public <F, T> void addConverter(Class<F> from, Class<T> to, Function<? super F, ? extends T> converter, int options) {
         converters.add(new Converters.ConverterInfo<>(from, to, converter, options));
     }
 
+    /**
+     * Adds all currently registered syntaxes to Skript's usable database.
+     */
     public void register() {
         SyntaxManager.register(this);
         TypeManager.register(this);
@@ -151,6 +275,10 @@ public class SkriptRegistration {
         void register();
     }
 
+    /**
+     * A class for registering types.
+     * @param <C> the represented class
+     */
     public class TypeRegistrar<C> implements Registrar {
         private final Class<C> c;
         private final String baseName;
@@ -169,26 +297,45 @@ public class SkriptRegistration {
             this.pattern = pattern;
         }
 
+        /**
+         * @param literalParser a function interpreting a string as an instance of the type
+         * @return the registrar
+         */
         public TypeRegistrar<C> literalParser(Function<String, ? extends C> literalParser) {
             this.literalParser = literalParser;
             return this;
         }
 
+        /**
+         * @param toStringFunction a function converting an instance of the type to a String
+         * @return the registrar
+         */
         public TypeRegistrar<C> toStringFunction(Function<? super C, String> toStringFunction) {
             this.toStringFunction = c -> c == null ? TypeManager.NULL_REPRESENTATION : toStringFunction.apply(c);
             return this;
         }
 
+        /**
+         * @param defaultChanger a default {@link Changer} for this type
+         * @return the registrar
+         */
         public TypeRegistrar<C> defaultChanger(Changer<? super C> defaultChanger) {
             this.defaultChanger = defaultChanger;
             return this;
         }
 
+        /**
+         * @param arithmetic a default {@link Arithmetic} for this type
+         * @return the registrar
+         */
         public <R> TypeRegistrar<C> arithmetic(Arithmetic<C, R> arithmetic) {
             this.arithmetic = arithmetic;
             return this;
         }
 
+        /**
+         * Adds this type to the list of currently registered syntaxes
+         */
         @Override
         public void register() {
             types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic));

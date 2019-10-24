@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
+import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.MatchContext;
@@ -21,8 +22,12 @@ import java.util.regex.Matcher;
  * <ul>
  * <li>a {@link List} of {@link PatternType}</li>
  * <li>a field determining what type of values this expression accepts : literals, expressions or both ({@literal %*type%}, {@literal %~type%} and {@literal %type%} respectively)</li>
- * <li>whether the expression resorts to default expressions or not, defaulting to {@literal null} instead</li>
+ * <li>a flag determining whether the expression resorts to default expressions or not, defaulting to {@literal null} instead</li>
+ * <li>a flag determining whether the expression accepts condition expressions or not</li>
  * </ul>
+ * @see PatternType
+ * @see Literal
+ * @see ConditionalExpression
  */
 public class ExpressionElement implements PatternElement {
     private List<PatternType<?>> types;

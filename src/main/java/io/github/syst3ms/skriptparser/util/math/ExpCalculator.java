@@ -10,6 +10,9 @@ import java.math.MathContext;
  * 
  * <p>No argument checking or optimizations are done.
  * This implementation is <strong>not</strong> intended to be called directly.</p>
+ *
+ * I do not claim ownership of this code, it is the intellectual property of <a href="github.com/eobermuhlner">@obermuhlner</a>.
+ * @author @obermuhlner
  */
 public class ExpCalculator extends SeriesCalculator {
 

@@ -1,5 +1,8 @@
 package io.github.syst3ms.skriptparser.util;
 
+/**
+ * Utility functions for Class objects
+ */
 public class ClassUtils {
 
     /**

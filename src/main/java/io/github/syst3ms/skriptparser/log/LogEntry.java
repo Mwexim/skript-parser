@@ -2,6 +2,9 @@ package io.github.syst3ms.skriptparser.log;
 
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An entry in Skript's log.
+ */
 public class LogEntry {
     private final LogType type;
     private final String message;

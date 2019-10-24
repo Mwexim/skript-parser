@@ -25,11 +25,19 @@ public class PatternInfos<T> {
         }
     }
 
+    /**
+     * The data corresponding to the pattern index
+     * @param pattern the pattern index
+     * @return the corresponding data
+     */
     @SuppressWarnings("unchecked")
     public T getInfo(int pattern) {
         return (T) data[pattern];
     }
 
+    /**
+     * @return a list of all patterns
+     */
     public String[] getPatterns() {
         return patterns;
     }

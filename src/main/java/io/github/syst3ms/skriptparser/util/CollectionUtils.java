@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 
+/**
+ * Utility functions for Collection objects
+ */
 public class CollectionUtils {
     private static final Random rnd = new Random();
 

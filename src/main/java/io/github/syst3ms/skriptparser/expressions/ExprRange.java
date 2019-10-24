@@ -43,6 +43,7 @@ public class ExprRange implements Expression<Object> {
                 false,
                 "range from %object% to %object%"
         );
+        // Range between Longs
         Ranges.registerRange(
                 Long.class,
                 Long.class,
@@ -56,6 +57,7 @@ public class ExprRange implements Expression<Object> {
                     }
                 }
         );
+        // Range between BigIntegers
         Ranges.registerRange(
                 BigInteger.class,
                 BigInteger.class,
@@ -73,7 +75,7 @@ public class ExprRange implements Expression<Object> {
                     }
                 }
         );
-        // It's actually a character range
+        // Actually a character range
         Ranges.registerRange(
                 String.class,
                 String.class,

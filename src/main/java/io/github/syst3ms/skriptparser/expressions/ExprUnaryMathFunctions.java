@@ -29,6 +29,9 @@ import java.util.function.UnaryOperator;
  * @pattern asin %number%
  * @pattern acos %number%
  * @pattern atan %number%
+ * @pattern sinh %number%
+ * @pattern cosh %number%
+ * @pattern tanh %number%
  * @pattern ln %number%
  * @since ALPHA
  * @author Syst3ms

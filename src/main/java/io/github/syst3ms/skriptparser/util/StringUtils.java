@@ -10,10 +10,19 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Utility functions for strings
+ */
 public class StringUtils {
     public static final Pattern R_LITERAL_CONTENT_PATTERN = Pattern.compile("(.+?)\\((.+)\\)\\1"); // It's actually rare to be able to use '.+' raw like this
     private static final String osName = System.getProperty("os.name");
 
+    /**
+     * Counts combined occurences of one or more strings in another
+     * @param s the string to find occurences in
+     * @param toFind the strings to find occurences of
+     * @return the amount of total occurences
+     */
     public static int count(String s, String... toFind) {
         int count = 0;
         for (String sequence : toFind) {
@@ -23,6 +32,12 @@ public class StringUtils {
         return count;
     }
 
+    /**
+     * Simply repeats the given string the given amount of times
+     * @param str the string
+     * @param times the amount of times to be repeated
+     * @return the repeated string
+     */
     public static String repeat(String str, int times) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < times; i++) {
@@ -31,6 +46,14 @@ public class StringUtils {
         return sb.toString();
     }
 
+    /**
+     * Find where a given pair of braces closes.
+     * @param pattern the string to look in
+     * @param opening the opening brace
+     * @param closing the closing brace
+     * @param start where the brace pair starts
+     * @return the index at which the brace pair closes
+     */
     public static int findClosingIndex(String pattern, char opening, char closing, int start) {
         int n = 0;
         for (int i = start; i < pattern.length(); i++) {
@@ -49,6 +72,14 @@ public class StringUtils {
         return -1;
     }
 
+    /**
+     * Similar to {@link #findClosingIndex(String, char, char, int)}, but returns the enclosed text
+     * @param pattern the string to look in
+     * @param opening the opening brace
+     * @param closing the closing brace
+     * @param start where the brace pair starts
+     * @return the enclosed text
+     */
     @Nullable
     public static String getEnclosedText(String pattern, char opening, char closing, int start) {
         int closingBracket = findClosingIndex(pattern, opening, closing, start);
@@ -60,7 +91,7 @@ public class StringUtils {
     }
 
     /**
-     * Returns the next character in the string, skipping over brackets and string literals
+     * Returns the next character in the string, skipping over curly braces and string literals
      * @param s the string  to search
      * @param index the current index
      * @return the index of the next "simple" character, or -1 if the end of the string has been reached
@@ -103,6 +134,12 @@ public class StringUtils {
         return s.length();
     }
 
+    /**
+     * Finds the contents of an expression between %%
+     * @param s the string containing the percents
+     * @param start where the pair begins
+     * @return the content between %%
+     */
     @Nullable
     public static String getPercentContent(String s, int start) {
         for (int i = start; i < s.length(); i++) {
@@ -123,8 +160,12 @@ public class StringUtils {
         return null; // There were no percents (unclosed percent is handled by VariableString already)
     }
 
-    /*
-     * Does not allocate heap memory, so much better for this purpose
+    /**
+     * Find the first occurence of a string in another one, ignoring case
+     * @param haystack the string to look in
+     * @param needle the string to look for
+     * @param start where to look from
+     * @return the index of the first occurence
      */
     public static int indexOfIgnoreCase(String haystack,
                                         String needle,
@@ -160,6 +201,11 @@ public class StringUtils {
         return -1;
     }
 
+    /**
+     * Split a pattern at pipe characters, properly accounting for brackets and escapes
+     * @param s the string to split
+     * @return the split string
+     */
     public static String[] splitVerticalBars(String s) {
         List<String> split = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
@@ -189,6 +235,11 @@ public class StringUtils {
         return split.toArray(new String[0]);
     }
 
+    /**
+     * Fixes a potential encoding issue on Windows systems
+     * @param s the string
+     * @return the (potentially) fixed string
+     */
     public static String fixEncoding(String s) {
         if (osName.contains("Windows"))
             return new String(s.getBytes(Charset.defaultCharset()), StandardCharsets.UTF_8);
@@ -226,19 +277,30 @@ public class StringUtils {
         return trimAll(pluralized);
     }
 
+    /**
+     * Trims all strings in the array
+     * @param strings the strings
+     * @return the array with all of its contents trimmed
+     */
     private static String[] trimAll(String[] strings) {
         for (int i = 0; i < strings.length; i++)
             strings[i] = strings[i].trim();
         return strings;
     }
 
-    public static String withIndefiniteArticle(String name, boolean plural) {
-        name = name.trim();
-        if (name.isEmpty())
+    /**
+     * Adds a proper English indefinite article to a string
+     * @param noun the string
+     * @param plural whether it is plural or not
+     * @return the string with its proper indefinite article
+     */
+    public static String withIndefiniteArticle(String noun, boolean plural) {
+        noun = noun.trim();
+        if (noun.isEmpty())
             return "";
         else if (plural)
-            return name;
-        char first = Character.toLowerCase(name.charAt(0));
+            return noun;
+        char first = Character.toLowerCase(noun.charAt(0));
         switch (first) {
             case 'a':
             case 'e':
@@ -246,9 +308,9 @@ public class StringUtils {
             case 'o':
             case 'u':
             case 'y':
-                return "an " + name;
+                return "an " + noun;
             default:
-                return "a " + name;
+                return "a " + noun;
         }
     }
 }

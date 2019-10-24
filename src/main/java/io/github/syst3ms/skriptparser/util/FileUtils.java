@@ -1,12 +1,10 @@
 package io.github.syst3ms.skriptparser.util;
 
 import io.github.syst3ms.skriptparser.Skript;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
@@ -20,6 +18,9 @@ import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Utility functions for file parsing
+ */
 public class FileUtils {
     public static final Pattern LEADING_WHITESPACE_PATTERN = Pattern.compile("(\\s+)\\S.*");
     public static final String MULTILINE_SYNTAX_TOKEN = "\\";

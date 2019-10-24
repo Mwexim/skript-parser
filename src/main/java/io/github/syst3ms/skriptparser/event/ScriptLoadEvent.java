@@ -6,6 +6,15 @@ import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The script loading event.
+ *
+ * @name On Script Load
+ * @type EVENT
+ * @pattern [on] script load[ing]
+ * @since ALPHA
+ * @author Syst3ms
+ */
 public class ScriptLoadEvent extends SkriptEvent {
 
     static {

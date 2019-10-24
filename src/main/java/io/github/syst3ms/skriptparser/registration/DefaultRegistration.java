@@ -10,8 +10,10 @@ import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.util.Locale;
 
+/**
+ * A class registering features such as types and comparators at startup.
+ */
 public class DefaultRegistration {
 
     public static void register() {

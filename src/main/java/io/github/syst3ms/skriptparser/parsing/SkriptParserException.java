@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.parsing;
 
 /**
- * An exception thrown whenever something goes wrong at parsetime.
+ * An exception thrown whenever something goes wrong at parse time.
  */
 public class SkriptParserException extends RuntimeException {
     private static final long serialVersionUID = 0L;

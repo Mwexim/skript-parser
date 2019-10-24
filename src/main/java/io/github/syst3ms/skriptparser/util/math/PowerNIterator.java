@@ -5,6 +5,9 @@ import java.math.MathContext;
 
 /**
  * {@link PowerIterator} to calculate x<sup>n</sup>.
+ *
+ * I do not claim ownership of this code, it is the intellectual property of <a href="github.com/eobermuhlner">@obermuhlner</a>.
+ * @author @obermuhlner
  */
 public class PowerNIterator implements PowerIterator {
 

@@ -5,10 +5,13 @@ import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import org.jetbrains.annotations.Nullable;
+import sun.rmi.runtime.Log;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -18,7 +21,7 @@ import java.math.RoundingMode;
  * Various arithmetic expressions, including addition, subtraction, multiplication, division and exponentiation.
  * Notes :
  * <ul>
- *     <li>All of the operations will accomodate for the type of the two operands.
+ *     <li>All of the operations will accommodate for the type of the two operands.
  *         <ul>
  *             <li>Two operands of the same type will yield a result of that type.</li>
  *             <li>Adding a decimal type to an integer type will yield a decimal result.</li>
@@ -161,8 +164,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
             @Override
             public Number calculate(Number left, Number right) {
                 if (isZero(right)) {
-                    // REMIND error : division by 0
-                    return null;
+                    throw new SkriptRuntimeException("Cannot divide by 0 !");
                 }
                 if ((left instanceof Long || right instanceof Long) && (left instanceof Double || right instanceof Double)) {
                     return left.doubleValue() / right.doubleValue();
@@ -175,8 +177,12 @@ public class ExprNumberArithmetic implements Expression<Number> {
             @Override
             public Number calculate(Number left, Number right) {
                 if (isZero(right)) {
-                    if ((left instanceof Long || right instanceof Long) && (left instanceof Double || right instanceof Double)) {
-                        return 1.0;
+                    if ((left instanceof Long || left instanceof Double) && (right instanceof Long || right instanceof Double)) {
+                        if (left instanceof Long && right instanceof Long) {
+                            return 1L;
+                        } else {
+                            return 1.0;
+                        }
                     } else {
                         return BigDecimal.ONE;
                     }
@@ -272,6 +278,13 @@ public class ExprNumberArithmetic implements Expression<Number> {
         first = (Expression<? extends Number>) exprs[0];
         second = (Expression<? extends Number>) exprs[1];
         op = PATTERNS.getInfo(matchedPattern);
+        if (second instanceof Literal) {
+            Number value = ((Literal<? extends Number>) second).getSingle();
+            if (value != null && Operator.isZero(value)) {
+                parseContext.getLogger().error("Cannot divide by 0 !", ErrorType.SEMANTIC_ERROR);
+                return false;
+            }
+        }
         return true;
     }
 

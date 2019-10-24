@@ -18,6 +18,9 @@ public class SkriptEventInfo<E extends SkriptEvent> extends SyntaxInfo<E> {
         this.contexts = handledContexts;
     }
 
+    /**
+     * @return the list of all {@link TriggerContext}s this event is able to handle.
+     */
     public Class<? extends TriggerContext>[] getContexts() {
         return contexts;
     }

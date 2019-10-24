@@ -6,6 +6,9 @@ import java.math.RoundingMode;
 
 /**
  * Utilities for various math operations using the generic {@link Number} type
+ *
+ * I do not claim ownership of this code, it is the intellectual property of <a href="github.com/eobermuhlner">@obermuhlner</a>.
+ * @author @obermuhlner
  */
 public class NumberMath {
     private static final BigDecimal RADIANS_TO_DEGREES = new BigDecimal(180).divide(BigDecimalMath.pi(BigDecimalMath.DEFAULT_CONTEXT), BigDecimalMath.DEFAULT_CONTEXT);

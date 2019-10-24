@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
  *     <li>An "else" condition, that does not include any condition</li>
  * </ul>
  * This "mode" is described by a {@link ConditionalMode} value, accessible through {@link #getMode()}.
+ * This is the only syntax element to be understood natively by the parser.
  * @see ConditionalMode
  */
 public class Conditional extends CodeSection {

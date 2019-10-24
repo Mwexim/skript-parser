@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+/**
+ * A class handling operations on variables
+ */
 public class Variables {
     public static final String LIST_SEPARATOR = "::";
     public static final String LOCAL_VARIABLE_TOKEN = "_";

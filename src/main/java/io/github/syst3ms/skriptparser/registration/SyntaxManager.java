@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 public class SyntaxManager {
+    /**
+     * The ordering describing the order in which syntaxes should be tested during parsing
+     */
     public static final Comparator<? super SyntaxInfo<?>> INFO_COMPARATOR = (i, i2) -> {
         if (i.getPriority() != i2.getPriority()) {
             return i2.getPriority() - i.getPriority();
@@ -24,11 +27,7 @@ public class SyntaxManager {
     private static List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
     private static List<SkriptEventInfo<?>> triggers = new ArrayList<>();
 
-    public static List<SyntaxInfo<? extends CodeSection>> getSections() {
-        return sections;
-    }
-
-    public static void register(SkriptRegistration reg) {
+    static void register(SkriptRegistration reg) {
         effects.addAll(reg.getEffects());
         effects.sort(INFO_COMPARATOR);
         sections.addAll(reg.getSections());
@@ -44,12 +43,21 @@ public class SyntaxManager {
         }
     }
 
+    /**
+     * @return a list of all currently registered expressions
+     */
     public static List<ExpressionInfo<?, ?>> getAllExpressions() {
         List<ExpressionInfo<?, ?>> expressionInfos = expressions.getAllValues();
         expressionInfos.sort(INFO_COMPARATOR);
         return expressionInfos;
     }
 
+    /**
+     * @param expr the expression instance
+     * @param <E> the expression class
+     * @param <T> the expression return type
+     * @return the {@link ExpressionInfo} corresponding to the given {@link Expression} instance
+     */
     @SuppressWarnings("unchecked")
     @Nullable
     public static <E extends Expression<T>, T> ExpressionInfo<E, T> getExpressionExact(Expression<T> expr) {
@@ -62,11 +70,24 @@ public class SyntaxManager {
         return null;
     }
 
+    /**
+     * @return a list of all currently registered sections
+     */
+    public static List<SyntaxInfo<? extends CodeSection>> getSections() {
+        return sections;
+    }
+
+    /**
+     * @return a list of all currently registered effects
+     */
     public static List<SyntaxInfo<? extends Effect>> getEffects() {
         return effects;
     }
 
-    public static List<SkriptEventInfo<?>> getTriggers() {
+    /**
+     * @return a list of all currently registered events
+     */
+    public static List<SkriptEventInfo<?>> getEvents() {
         return triggers;
     }
 }

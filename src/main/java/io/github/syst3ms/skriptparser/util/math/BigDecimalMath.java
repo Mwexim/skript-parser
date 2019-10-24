@@ -19,6 +19,7 @@ import static java.math.BigDecimal.valueOf;
  * Provides advanced functions operating on {@link BigDecimal}s.
  * Taken from <a href="github.com/eobermuhlner/big-math/blob/master/ch.obermuhlner.math.big/src/main/java/ch/obermuhlner/math/big/BigDecimalMath.java">@obermuhlner's Github</a>
  *
+ * I do not claim ownership of this code, it is the intellectual property of <a href="github.com/eobermuhlner">@obermuhlner</a>.
  * @author @obermuhlner
  */
 public class BigDecimalMath {

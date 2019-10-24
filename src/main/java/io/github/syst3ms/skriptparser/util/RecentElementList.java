@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.util;
 
+import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,10 +10,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * A bare-bones linked list (despite it doesn't even extend {@link Collection}) putting forth the most recent elements through
+ * A bare-bones linked list (despite it not even extending {@link Collection}) putting forth the most recent elements through
  * {@link #moveToFirst(Object)}. This has been created to avoid {@linkplain ConcurrentModificationException}s in the
- * situation where an {@link io.github.syst3ms.skriptparser.registration.ExpressionInfo} should be moved to the front,
- * while parsing another expression.
+ * situation where an {@link ExpressionInfo} should be moved to the front while parsing another expression.
  * @param <T> the type of the elements
  */
 public class RecentElementList<T> implements Iterable<T> {

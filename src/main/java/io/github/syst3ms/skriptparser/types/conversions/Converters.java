@@ -38,9 +38,21 @@ import java.util.function.Function;
  * @author Peter Güttinger (Njol)
  */
 public abstract class Converters {
+    /**
+     * A flag declaring a converter may freely be part of a {@link ChainedConverter}
+     */
     public static final int ALL_CHAINING = 0;
+    /**
+     * A flag declaring a converter may only be the first part of a {@link ChainedConverter}
+     */
     public static final int NO_LEFT_CHAINING = 1;
+    /**
+     * A flag declaring a converter may only be the second part of a {@link ChainedConverter}
+     */
     public static final int NO_RIGHT_CHAINING = 2;
+    /**
+     * A flag declaring a converter may not be part of a {@link ChainedConverter}
+     */
     public static final int NO_CHAINING = NO_LEFT_CHAINING | NO_RIGHT_CHAINING;
 
     private static List<ConverterInfo<?, ?>> converters = new ArrayList<>(50);
@@ -53,17 +65,17 @@ public abstract class Converters {
         private final Class<F> from;
         private final Class<T> to;
         private final Function<? super F, ? extends T> converter;
-        private final int options;
+        private final int flags;
 
         public ConverterInfo(Class<F> from, Class<T> to, Function<? super F, ? extends T> converter) {
             this(from, to, converter, ALL_CHAINING);
         }
 
-        public ConverterInfo(Class<F> from, Class<T> to, Function<? super F, ? extends T> converter, @MagicConstant(intValues = {ALL_CHAINING, NO_LEFT_CHAINING, NO_RIGHT_CHAINING, NO_CHAINING}) int options) {
+        public ConverterInfo(Class<F> from, Class<T> to, Function<? super F, ? extends T> converter, @MagicConstant(intValues = {ALL_CHAINING, NO_LEFT_CHAINING, NO_RIGHT_CHAINING, NO_CHAINING}) int flags) {
             this.from = from;
             this.to = to;
             this.converter = converter;
-            this.options = options;
+            this.flags = flags;
         }
 
         public Class<F> getFrom() {
@@ -78,8 +90,8 @@ public abstract class Converters {
             return converter;
         }
 
-        public int getOptions() {
-            return options;
+        public int getFlags() {
+            return flags;
         }
     }
 
@@ -87,7 +99,7 @@ public abstract class Converters {
     public static <F, T> void registerConverters(SkriptRegistration registration) {
         for (ConverterInfo<?, ?> info : registration.getConverters()) {
             // Well, this is... fun
-            registerConverter((Class<F>) info.from, (Class<T>) info.to, (Function<F, T>) info.converter, info.options);
+            registerConverter((Class<F>) info.from, (Class<T>) info.to, (Function<F, T>) info.converter, info.flags);
         }
     }
 
@@ -116,15 +128,18 @@ public abstract class Converters {
         converters.add(info);
     }
 
+    /**
+     * Adds all possible {@link ChainedConverter}s to the current converters
+     */
     public static void createMissingConverters() {
         for (int i = 0; i < converters.size(); i++) {
             ConverterInfo<?, ?> info = converters.get(i);
             for (int j = 0; j < converters.size(); j++) { // not from j = i+1 since new converters get added during the loops
                 ConverterInfo<?, ?> info2 = converters.get(j);
-                if ((info.options & NO_RIGHT_CHAINING) == 0 && (info2.options & NO_LEFT_CHAINING) == 0
+                if ((info.getFlags() & NO_RIGHT_CHAINING) == 0 && (info2.getFlags() & NO_LEFT_CHAINING) == 0
                     && info2.from.isAssignableFrom(info.to) && !converterExistsSlow(info.from, info2.to)) {
                     converters.add(createChainedConverter(info, info2));
-                } else if ((info.options & NO_LEFT_CHAINING) == 0 && (info2.options & NO_RIGHT_CHAINING) == 0
+                } else if ((info.getFlags() & NO_LEFT_CHAINING) == 0 && (info2.getFlags() & NO_RIGHT_CHAINING) == 0
                     && info.from.isAssignableFrom(info2.to) && !converterExistsSlow(info2.from, info.to)) {
                     converters.add(createChainedConverter(info2, info));
                 }
@@ -143,7 +158,7 @@ public abstract class Converters {
 
     @SuppressWarnings("unchecked")
     private static <F, M, T> ConverterInfo<F, T> createChainedConverter(ConverterInfo<?, ?> first, ConverterInfo<?, ?> second) {
-        return new ConverterInfo<>((Class<F>) first.from, (Class<T>) second.to, new ChainedConverter<>((Function<F, M>) first.converter, (Function<M, T>) second.converter), first.options | second.options);
+        return new ConverterInfo<>((Class<F>) first.from, (Class<T>) second.to, new ChainedConverter<>((Function<F, M>) first.converter, (Function<M, T>) second.converter), first.flags | second.flags);
     }
 
     /**

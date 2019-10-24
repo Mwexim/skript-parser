@@ -18,8 +18,7 @@ import java.util.NoSuchElementException;
  * @param <T> the common supertype of all expressions in this list
  */
 @SuppressWarnings("unchecked")
-public class
-ExpressionList<T> implements Expression<T> {
+public class ExpressionList<T> implements Expression<T> {
     protected final boolean single;
     protected boolean and;
     protected Expression<? extends T>[] expressions;

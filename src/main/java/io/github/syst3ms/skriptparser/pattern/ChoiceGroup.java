@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 /**
- * A group of multiple choices, consisting of multiple {@linkplain ChoiceElement}s
+ * A group of multiple choices, represented by {@linkplain ChoiceElement}s
  */
 public class ChoiceGroup implements PatternElement {
     private List<ChoiceElement> choices;
