@@ -138,7 +138,7 @@ public class SyntaxParser {
         for (ExpressionInfo<?, ?> info : recentExpressions) {
             Expression<? extends T> expr = matchExpressionInfo(s, info, expectedType, currentContexts, logger);
             if (expr != null) {
-                recentExpressions.moveToFirst(info);
+                recentExpressions.acknowledge(info);
                 logger.clearLogs();
                 return expr;
             }
@@ -150,7 +150,7 @@ public class SyntaxParser {
         for (ExpressionInfo<?, ?> info : remainingExpressions) {
             Expression<? extends T> expr = matchExpressionInfo(s, info, expectedType, currentContexts, logger);
             if (expr != null) {
-                recentExpressions.moveToFirst(info);
+                recentExpressions.acknowledge(info);
                 logger.clearLogs();
                 return expr;
             }
@@ -203,12 +203,12 @@ public class SyntaxParser {
                         }
                     case 1: // Can be conditional
                         if (ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
-                            recentConditions.moveToFirst((ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>) info);
+                            recentConditions.acknowledge((ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>) info);
                         }
                     default: // You just want me dead, don't you ?
                         break;
                 }
-                recentExpressions.moveToFirst(info);
+                recentExpressions.acknowledge(info);
                 logger.clearLogs();
                 return expr;
             }
@@ -236,12 +236,12 @@ public class SyntaxParser {
                         }
                     case 1: // Can be conditional
                         if (ConditionalExpression.class.isAssignableFrom(expr.getClass())) {
-                            recentConditions.moveToFirst((ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>) info);
+                            recentConditions.acknowledge((ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>) info);
                         }
                     default: // You just want me dead, don't you ?
                         break;
                 }
-                recentExpressions.moveToFirst(info);
+                recentExpressions.acknowledge(info);
                 logger.clearLogs();
                 return expr;
             }
@@ -455,7 +455,7 @@ public class SyntaxParser {
         for (SyntaxInfo<? extends Effect> recentEffect : recentEffects) {
             Effect eff = matchEffectInfo(s, recentEffect, logger);
             if (eff != null) {
-                recentEffects.moveToFirst(recentEffect);
+                recentEffects.acknowledge(recentEffect);
                 logger.clearLogs();
                 return eff;
             }
@@ -467,7 +467,7 @@ public class SyntaxParser {
         for (SyntaxInfo<? extends Effect> remainingEffect : remainingEffects) {
             Effect eff = matchEffectInfo(s, remainingEffect, logger);
             if (eff != null) {
-                recentEffects.moveToFirst(remainingEffect);
+                recentEffects.acknowledge(remainingEffect);
                 logger.clearLogs();
                 return eff;
             }
@@ -535,7 +535,7 @@ public class SyntaxParser {
         for (SyntaxInfo<? extends CodeSection> recentSection : recentSections) {
             CodeSection sec = matchSectionInfo(section, recentSection, logger);
             if (sec != null) {
-                recentSections.moveToFirst(recentSection);
+                recentSections.acknowledge(recentSection);
                 logger.clearLogs();
                 return sec;
             }
@@ -546,7 +546,7 @@ public class SyntaxParser {
         for (SyntaxInfo<? extends CodeSection> remainingSection : remainingSections) {
             CodeSection sec = matchSectionInfo(section, remainingSection, logger);
             if (sec != null) {
-                recentSections.moveToFirst(remainingSection);
+                recentSections.acknowledge(remainingSection);
                 logger.clearLogs();
                 return sec;
             }
@@ -596,7 +596,7 @@ public class SyntaxParser {
         for (SkriptEventInfo<?> recentEvent : recentEvents) {
             Trigger trigger = matchEventInfo(section, recentEvent, logger);
             if (trigger != null) {
-                recentEvents.moveToFirst(recentEvent);
+                recentEvents.acknowledge(recentEvent);
                 recentEvent.getRegisterer().handleTrigger(trigger);
                 logger.clearLogs();
                 return trigger;
@@ -609,7 +609,7 @@ public class SyntaxParser {
         for (SkriptEventInfo<?> remainingEvent : remainingEvents) {
             Trigger trigger = matchEventInfo(section, remainingEvent, logger);
             if (trigger != null) {
-                recentEvents.moveToFirst(remainingEvent);
+                recentEvents.acknowledge(remainingEvent);
                 remainingEvent.getRegisterer().handleTrigger(trigger);
                 logger.clearLogs();
                 return trigger;
