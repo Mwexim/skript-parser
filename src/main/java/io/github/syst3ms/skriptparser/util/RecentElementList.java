@@ -20,6 +20,17 @@ import java.util.NoSuchElementException;
  * @param <T> the type of {@link SyntaxInfo}
  */
 public class RecentElementList<T> implements Iterable<T> {
+    /**
+     * Suppose you use a bunch of different syntaxes in your script : they all get sorted properly in the frequency
+     * hierarchy, and the "recent syntaxes" check works fine. But if there are many syntaxes in that list, then if one
+     * wants to use a syntax one hasn't used before, it would take a lot of time to actually match the pattern against
+     * it, since there's all the previously used syntaxes to check beforehand.
+     *
+     * Hence, the maximum number of recent elements is capped.
+     */
+    // Ideally this would be properly configurable. I'll let it be a constant for now.
+    public static final int MAX_LIST_SIZE = 10;
+
     // Sorts entries by their value in decreasing order
     private static final Comparator<Map.Entry<?, Integer>> ENTRY_COMPARATOR = (f, s) -> s.getValue() - f.getValue();
 
@@ -35,6 +46,8 @@ public class RecentElementList<T> implements Iterable<T> {
      */
     public void acknowledge(T element) {
         if (!occurrences.contains(element)) {
+            if (occurrences.size() >= MAX_LIST_SIZE)
+                return;
             occurrences.add(element);
             backing.add(new AbstractMap.SimpleEntry<>(element, 1));
         } else {
