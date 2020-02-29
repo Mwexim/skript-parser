@@ -39,6 +39,7 @@ public class SkriptRegistration {
     private List<Type<?>> types = new ArrayList<>();
     private List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
     private PatternParser patternParser;
+    private boolean newTypes = false;
 
     public SkriptRegistration(SkriptAddon registerer) {
         this.registerer = registerer;
@@ -127,7 +128,7 @@ public class SkriptRegistration {
      * @param c the Expression's class
      * @param returnType the Expression's return type
      * @param isSingle whether the Expression is a single value
-     * @param priority the parsing priority this Expression has. 5 by default, a lower number means higher priority
+     * @param priority the parsing priority this Expression has. 5 by default, a lower number means lower priority
      * @param patterns the Expression's patterns
      * @param <C> the Expression
      * @param <T> the Expression's return type
@@ -162,7 +163,7 @@ public class SkriptRegistration {
     /**
      * Registers an {@link Effect}
      * @param c the Effect's class
-     * @param priority the parsing priority this Effect has. 5 by default, a lower number means higher priority
+     * @param priority the parsing priority this Effect has. 5 by default, a lower number means lower priority
      * @param patterns the Effect's patterns
      * @param <C> the Effect
      */
@@ -183,7 +184,7 @@ public class SkriptRegistration {
     /**
      * Registers a {@link CodeSection}
      * @param c the CodeSection's class
-     * @param priority the parsing priority this CodeSection has. 5 by default, a lower number means higher priority
+     * @param priority the parsing priority this CodeSection has. 5 by default, a lower number means lower priority
      * @param patterns the CodeSection's patterns
      */
     public void addSection(Class<? extends CodeSection> c, int priority, String... patterns) {
@@ -208,7 +209,7 @@ public class SkriptRegistration {
      * Registers a {@link SkriptEvent}
      * @param c the SkriptEvent's class
      * @param handledContexts the {@link TriggerContext}s this SkriptEvent can handle
-     * @param priority the parsing priority this SkriptEvent has. 5 by default, a lower number means higher priority
+     * @param priority the parsing priority this SkriptEvent has. 5 by default, a lower number means lower priority
      * @param patterns the SkriptEvent's patterns
      */
     public void addEvent(Class<? extends SkriptEvent> c, Class<? extends TriggerContext>[] handledContexts, int priority, String... patterns) {
@@ -338,6 +339,7 @@ public class SkriptRegistration {
          */
         @Override
         public void register() {
+            newTypes = true;
             types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic));
         }
     }
@@ -349,6 +351,7 @@ public class SkriptRegistration {
 
         SyntaxRegistrar(Class<C> c, String... patterns) {
             this(c, 5, patterns);
+            typeCheck();
         }
 
         SyntaxRegistrar(Class<C> c, int priority, String... patterns) {
@@ -376,6 +379,7 @@ public class SkriptRegistration {
 
         ExpressionRegistrar(Class<C> c, Class<T> returnType, boolean isSingle) {
             this(c, returnType, isSingle, new String[0]);
+            typeCheck();
         }
 
         ExpressionRegistrar(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
@@ -402,6 +406,7 @@ public class SkriptRegistration {
 
         EffectRegistrar(Class<C> c, String... patterns) {
             super(c, patterns);
+            typeCheck();
         }
 
         public void register() {
@@ -418,6 +423,7 @@ public class SkriptRegistration {
 
         SectionRegistrar(Class<C> c, String... patterns) {
             super(c, patterns);
+            typeCheck();
         }
 
         @Override
@@ -436,6 +442,7 @@ public class SkriptRegistration {
 
         EventRegistrar(Class<T> c, String... patterns) {
             super(c, patterns);
+            typeCheck();
         }
 
         @Override
@@ -457,6 +464,13 @@ public class SkriptRegistration {
         public final EventRegistrar<T> setHandledContexts(Class<? extends TriggerContext>... contexts) {
             this.handledContexts = contexts;
             return this;
+        }
+    }
+
+    private void typeCheck() {
+        if (newTypes) {
+            TypeManager.register(this);
+            newTypes = false;
         }
     }
 }
