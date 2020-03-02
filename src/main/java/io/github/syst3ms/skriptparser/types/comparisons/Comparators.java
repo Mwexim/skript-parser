@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.types.comparisons;
 
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
-import javafx.util.Pair;
+import io.github.syst3ms.skriptparser.util.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -123,9 +123,8 @@ public class Comparators {
         return null;
     }
 
+    @SuppressWarnings("rawtypes")
     private final static class ConvertedComparator<T1, T2> extends Comparator<T1, T2> {
-
-        @SuppressWarnings("rawtypes")
         private final Comparator c;
         @Nullable
         private final Function c1, c2;
@@ -151,7 +150,7 @@ public class Comparators {
             this.c2 = c2;
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
+        @SuppressWarnings("unchecked")
         @Override
         public Relation apply(@Nullable T1 o1, @Nullable T2 o2) {
             Function c1 = this.c1;
