@@ -38,29 +38,54 @@ public class Main {
             scriptName = args[0];
             programArgs = Arrays.copyOfRange(args, 1, args.length);
         }
+        init(scriptName, programArgs, new String[0], new String[0], debug, true);
+    }
+
+    /**
+     * Starts the parser.
+     * @param scriptName the name of the script to load
+     * @param mainPackages packages inside which all subpackages containing classes to load may be present. Doesn't need
+     *                     to contain Skript's own main packages.
+     * @param subPackages the subpackages inside which classes to load may be present. Doesn't need to contain Skript's
+     *                    own subpackages.
+     * @param programArgs any other program arguments (typically from the command line)
+     * @param debug whether to active debug mode or not
+     * @param standalone whether the parser tries to load addons (standalone) or not (library)
+     */
+    public static void init(String scriptName, String[] mainPackages, String[] subPackages, String[] programArgs, boolean debug, boolean standalone) {
         Skript skript = new Skript(programArgs);
         registration = new SkriptRegistration(skript);
         DefaultRegistration.register();
+        // Make sure Skript loads properly no matter what
+        mainPackages = Arrays.copyOf(mainPackages, mainPackages.length + 1);
+        mainPackages[mainPackages.length - 1] = "io.github.syst3ms.skriptparser";
+        List<String> sub = Arrays.asList(subPackages);
+        sub.addAll(Arrays.asList("expressions", "effects", "event", "lang"));
+        subPackages = sub.toArray(new String[0]);
         try {
-            FileUtils.loadClasses("io.github.syst3ms.skriptparser", "expressions", "effects", "event", "lang");
-            File addonFolder = new File(".", "addons");
-            if (addonFolder.exists() && addonFolder.isDirectory()) {
-                File[] addons = addonFolder.listFiles();
-                if (addons != null) {
-                    for (File addon : addons) {
-                        if (addon.isFile() && addon.getName().endsWith(".jar")) {
-                            URLClassLoader child = new URLClassLoader(
-                                    new URL[] {addon.toURI().toURL()},
-                                    Main.class.getClassLoader()
-                            );
-                            JarFile jar = new JarFile(addon);
-                            Manifest manifest = jar.getManifest();
-                            String main = manifest.getMainAttributes().getValue("Main-Class");
-                            Class<?> mainClass = Class.forName(main, true, child);
-                            try {
-                                Method init = mainClass.getDeclaredMethod("initAddon");
-                                init.invoke(null);
-                            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
+            for (String mainPackage : mainPackages) {
+                FileUtils.loadClasses(mainPackage, subPackages);
+            }
+            if (standalone) {
+                File addonFolder = new File(".", "addons");
+                if (addonFolder.exists() && addonFolder.isDirectory()) {
+                    File[] addons = addonFolder.listFiles();
+                    if (addons != null) {
+                        for (File addon : addons) {
+                            if (addon.isFile() && addon.getName().endsWith(".jar")) {
+                                URLClassLoader child = new URLClassLoader(
+                                        new URL[]{addon.toURI().toURL()},
+                                        Main.class.getClassLoader()
+                                );
+                                JarFile jar = new JarFile(addon);
+                                Manifest manifest = jar.getManifest();
+                                String main = manifest.getMainAttributes().getValue("Main-Class");
+                                Class<?> mainClass = Class.forName(main, true, child);
+                                try {
+                                    Method init = mainClass.getDeclaredMethod("initAddon");
+                                    init.invoke(null);
+                                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
+                                }
                             }
                         }
                     }
