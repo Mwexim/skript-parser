@@ -142,7 +142,7 @@ public class VariableString implements Expression<String> {
         StringBuilder sb = new StringBuilder();
         for (Object o : data) {
             if (o instanceof Expression) {
-                sb.append(TypeManager.toString(((Expression) o).getValues(ctx)));
+                sb.append(TypeManager.toString(((Expression<?>) o).getValues(ctx)));
             } else {
                 sb.append(o);
             }
@@ -157,7 +157,7 @@ public class VariableString implements Expression<String> {
         StringBuilder sb = new StringBuilder("\"");
         for (Object o : data) {
             if (o instanceof Expression) {
-                sb.append('%').append(((Expression) o).toString(ctx, debug)).append('%');
+                sb.append('%').append(((Expression<?>) o).toString(ctx, debug)).append('%');
             } else {
                 sb.append(o);
             }
