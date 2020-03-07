@@ -49,7 +49,7 @@ public class PatternParserTest {
                 new ChoiceGroup(
                         new ChoiceElement(new TextElement("parse mark"), 1)
                 ),
-                parser.parsePattern("(1\u00a6parse mark)")
+                parser.parsePattern("(1:parse mark)")
         );
         assertEquals(
                 new ChoiceGroup(
@@ -63,7 +63,7 @@ public class PatternParserTest {
                         new ChoiceElement(new TextElement("first mark"), 0),
                         new ChoiceElement(new TextElement("second mark"), 1)
                 ),
-                parser.parsePattern("(first mark|1\u00a6second mark)")
+                parser.parsePattern("(first mark|1:second mark)")
         );
         assertEquals(
                 new OptionalGroup(
@@ -75,7 +75,7 @@ public class PatternParserTest {
                                 )
                         )
                 ),
-                parser.parsePattern("[optional (first choice|1\u00a6second choice)]")
+                parser.parsePattern("[optional (first choice|1:second choice)]")
         );
         assertEquals(
                 new RegexGroup(Pattern.compile(".+")),

@@ -254,7 +254,7 @@ public class StringUtils {
         pluralizable = fixEncoding(pluralizable);
         List<String[]> words = new ArrayList<>();
         for (String s : pluralizable.split("\\s+")) {
-            String[] split = s.split("\\xa6");
+            String[] split = s.split("@");
             switch (split.length) {
                 case 1:
                     words.add(new String[]{s, s});

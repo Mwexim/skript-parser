@@ -25,7 +25,7 @@ import java.util.regex.PatternSyntaxException;
  * A class for parsing syntaxes in string form into parser-usable objects
  */
 public class PatternParser {
-    private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(\\d+?)\\xa6.*");
+    private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(\\d+?):.*");
     private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*~])?(=)?(?<types>[\\w/]+)?");
 
     /**

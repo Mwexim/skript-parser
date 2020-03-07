@@ -21,9 +21,9 @@ public class DefaultRegistration {
         registration.addType(
                 Object.class,
                 "object",
-                "object¦s"
+                "object@s"
         );
-        registration.newType(Number.class,"number", "number¦s")
+        registration.newType(Number.class,"number", "number@s")
                     .literalParser(s -> {
                         Number n;
                         if (s.endsWith("L") || s.endsWith("l")) {
@@ -156,9 +156,9 @@ public class DefaultRegistration {
         registration.addType(
                 String.class,
                 "string",
-                "string¦s"
+                "string@s"
         );
-        registration.newType(Boolean.class, "boolean", "boolean¦s")
+        registration.newType(Boolean.class, "boolean", "boolean@s")
                     .literalParser(s -> {
                         if (s.equalsIgnoreCase("true")) {
                             return true;

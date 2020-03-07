@@ -41,7 +41,7 @@ public class ExprLoopValue implements Expression<Object> {
 			ExprLoopValue.class,
 			Object.class,
 			true,
-			6,
+			1,
 			"[the] loop-<.+>"
 		);
 	}

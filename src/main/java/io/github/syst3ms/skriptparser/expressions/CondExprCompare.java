@@ -37,14 +37,14 @@ import org.jetbrains.annotations.Nullable;
  */
 public class CondExprCompare extends ConditionalExpression {
     public static final PatternInfos<Relation> PATTERNS = new PatternInfos<>(new Object[][] {
-            {"[1¦neither] %objects% ((is|are)[2¦(n't| not|4¦ neither)] (greater|more|higher|bigger|larger|above) [than] or (equal to|the same as)|\\>=) %objects%", Relation.GREATER_OR_EQUAL},
-            {"[1¦neither] %objects% ((is|are)[2¦(n't| not|4¦ neither)] (less|smaller|below) [than] or (equal to|the same as)|\\<=) %objects%", Relation.SMALLER_OR_EQUAL},
-            {"[1¦neither] %objects% ((is|are)[2¦(n't| not|4¦ neither)] ((greater|more|higher|bigger|larger) than|above)|\\>) %objects%", Relation.GREATER},
-            {"[1¦neither] %objects% ((is|are)[2¦(n't| not|4¦ neither)] ((less|smaller) than|below)|\\<) %objects%", Relation.SMALLER},
-            {"[1¦neither] %objects% [2¦](is not|are not|isn't|aren't) between %objects% and %objects%", Relation.EQUAL},
-            {"[1¦neither] %objects% (is|are) between %objects% and %objects%", Relation.EQUAL},
-            {"[1¦neither] %objects% [2¦]((is|are) (not|4¦neither)|isn't|aren't|!=) [equal to] %objects%", Relation.EQUAL},
-            {"[1¦neither] %objects% (is|are|=) [(equal to|the same as)] %objects%", Relation.EQUAL}
+            {"[1:neither] %objects% ((is|are)[2:(n't| not|4: neither)] (greater|more|higher|bigger|larger|above) [than] or (equal to|the same as)|\\>=) %objects%", Relation.GREATER_OR_EQUAL},
+            {"[1:neither] %objects% ((is|are)[2:(n't| not|4: neither)] (less|smaller|below) [than] or (equal to|the same as)|\\<=) %objects%", Relation.SMALLER_OR_EQUAL},
+            {"[1:neither] %objects% ((is|are)[2:(n't| not|4: neither)] ((greater|more|higher|bigger|larger) than|above)|\\>) %objects%", Relation.GREATER},
+            {"[1:neither] %objects% ((is|are)[2:(n't| not|4: neither)] ((less|smaller) than|below)|\\<) %objects%", Relation.SMALLER},
+            {"[1:neither] %objects% [2:](is not|are not|isn't|aren't) between %objects% and %objects%", Relation.EQUAL},
+            {"[1:neither] %objects% (is|are) between %objects% and %objects%", Relation.EQUAL},
+            {"[1:neither] %objects% [2:]((is|are) (not|4:neither)|isn't|aren't|!=) [equal to] %objects%", Relation.EQUAL},
+            {"[1:neither] %objects% (is|are|=) [(equal to|the same as)] %objects%", Relation.EQUAL}
         }
     );
 
@@ -53,7 +53,7 @@ public class CondExprCompare extends ConditionalExpression {
                 CondExprCompare.class,
                 Boolean.class,
                 true,
-                1,
+                2,
                 PATTERNS.getPatterns()
         );
     }

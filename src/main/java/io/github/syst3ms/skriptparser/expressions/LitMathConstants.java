@@ -45,7 +45,7 @@ public class LitMathConstants implements Expression<Number> {
                 LitMathConstants.class,
                 Number.class,
                 true,
-                "(0¦pi|1¦e|2¦phi)"
+                "(0:pi|1:e|2:phi)"
         );
     }
 
