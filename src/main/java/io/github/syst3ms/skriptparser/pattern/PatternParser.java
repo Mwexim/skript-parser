@@ -1,14 +1,6 @@
 package io.github.syst3ms.skriptparser.pattern;
 
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
-import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
-import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
-import io.github.syst3ms.skriptparser.pattern.CompoundElement;
-import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
-import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
-import io.github.syst3ms.skriptparser.pattern.PatternElement;
-import io.github.syst3ms.skriptparser.pattern.RegexGroup;
-import io.github.syst3ms.skriptparser.pattern.TextElement;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.StringUtils;
@@ -25,7 +17,7 @@ import java.util.regex.PatternSyntaxException;
  * A class for parsing syntaxes in string form into parser-usable objects
  */
 public class PatternParser {
-    private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(\\d+?):.*");
+    private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(\\d+?)([bf])?:(.*)");
     private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*~])?(=)?(?<types>[\\w/]+)?");
 
     /**
@@ -57,12 +49,26 @@ public class PatternParser {
                     textBuilder = new StringBuilder();
                 }
                 i += s.length() + 1; // sets i to the closing bracket, for loop does the rest
-                Matcher m = PARSE_MARK_PATTERN.matcher(s);
+                Matcher matcher = PARSE_MARK_PATTERN.matcher(s);
                 PatternElement content;
-                if (m.matches()) {
-                    String mark = m.group(1);
-                    int markNumber = Integer.parseInt(mark);
-                    String rest = s.substring(mark.length() + 1);
+                if (matcher.matches()) {
+                    String mark = matcher.group(1);
+                    String base = matcher.group(2);
+                    int markNumber;
+                    try {
+                        if (base == null) {
+                            markNumber = Integer.parseInt(mark);
+                        } else if (base.equals("b")) {
+                            markNumber = Integer.parseInt(s, 2);
+                        } else if (base.equals("f")) {
+                            markNumber = Integer.parseInt(s, 16);
+                        } else {
+                            return null;
+                        }
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+                    String rest = matcher.group(3);
                     PatternElement e = parsePattern(rest);
                     if (e == null) {
                         return null;
@@ -91,8 +97,22 @@ public class PatternParser {
                     Matcher matcher = PARSE_MARK_PATTERN.matcher(choice);
                     if (matcher.matches()) {
                         String mark = matcher.group(1);
-                        int markNumber = Integer.parseInt(mark);
-                        String rest = choice.substring(mark.length() + 1);
+                        String base = matcher.group(2);
+                        int markNumber;
+                        try {
+                            if (base == null) {
+                                markNumber = Integer.parseInt(mark);
+                            } else if (base.equals("b")) {
+                                markNumber = Integer.parseInt(s, 2);
+                            } else if (base.equals("f")) {
+                                markNumber = Integer.parseInt(s, 16);
+                            } else {
+                                return null;
+                            }
+                        } catch (NumberFormatException e) {
+                            return null;
+                        }
+                        String rest = matcher.group(3);
                         PatternElement choiceContent = parsePattern(rest);
                         if (choiceContent == null) {
                             return null;

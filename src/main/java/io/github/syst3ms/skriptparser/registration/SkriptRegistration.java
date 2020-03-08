@@ -391,7 +391,7 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             for (String s : super.patterns) {
-                elements.add(patternParser.parsePattern(StringUtils.fixEncoding(s)));
+                elements.add(patternParser.parsePattern(s));
             }
             Type<T> type = TypeManager.getByClassExact(returnType);
             if (type == null) {
@@ -412,7 +412,7 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             for (String s : super.patterns) {
-                elements.add(patternParser.parsePattern(StringUtils.fixEncoding(s)));
+                elements.add(patternParser.parsePattern(s));
             }
             SyntaxInfo<C> info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
             effects.add(info);
@@ -430,7 +430,7 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             for (String s : super.patterns) {
-                elements.add(patternParser.parsePattern(StringUtils.fixEncoding(s)));
+                elements.add(patternParser.parsePattern(s));
             }
             SyntaxInfo<C> info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
             sections.add(info);
@@ -454,7 +454,7 @@ public class SkriptRegistration {
                 } else {
                     s = "[on] " + s;
                 }
-                elements.add(patternParser.parsePattern(StringUtils.fixEncoding(s)));
+                elements.add(patternParser.parsePattern(s));
             }
             SkriptEventInfo<T> info = new SkriptEventInfo<>(super.c, handledContexts, elements, super.priority, registerer);
             events.add(info);

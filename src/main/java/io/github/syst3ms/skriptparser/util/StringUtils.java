@@ -3,8 +3,6 @@ package io.github.syst3ms.skriptparser.util;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import org.jetbrains.annotations.Nullable;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -15,7 +13,6 @@ import java.util.regex.Pattern;
  */
 public class StringUtils {
     public static final Pattern R_LITERAL_CONTENT_PATTERN = Pattern.compile("(.+?)\\((.+)\\)\\1"); // It's actually rare to be able to use '.+' raw like this
-    private static final String osName = System.getProperty("os.name");
 
     /**
      * Counts combined occurences of one or more strings in another
@@ -236,22 +233,10 @@ public class StringUtils {
     }
 
     /**
-     * Fixes a potential encoding issue on Windows systems
-     * @param s the string
-     * @return the (potentially) fixed string
-     */
-    public static String fixEncoding(String s) {
-        if (osName.contains("Windows"))
-            return new String(s.getBytes(Charset.defaultCharset()), StandardCharsets.UTF_8);
-        return s;
-    }
-
-    /**
      * Returns an array of two elements, containing the plural and singular forms of the
      * given pluralizable expression. Does not support escaping.
      */
     public static String[] getForms(String pluralizable) {
-        pluralizable = fixEncoding(pluralizable);
         List<String[]> words = new ArrayList<>();
         for (String s : pluralizable.split("\\s+")) {
             String[] split = s.split("@");

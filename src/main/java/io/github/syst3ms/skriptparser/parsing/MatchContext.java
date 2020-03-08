@@ -62,7 +62,7 @@ public class MatchContext {
     }
 
     public void addMark(int mark) {
-        parseMark ^= mark;
+        parseMark |= mark;
     }
 
     public MatchContext branch(PatternElement e) {
