@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.event.TriggerContext;
 import org.jetbrains.annotations.Nullable;
 
 /**

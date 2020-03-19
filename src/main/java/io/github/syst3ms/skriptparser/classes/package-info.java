@@ -7,6 +7,6 @@
  * {@linkplain io.github.syst3ms.skriptparser.lang lang package}.
  */
 @ParametersAreNonnullByDefault
-package io.github.syst3ms.skriptparser.event;
+package io.github.syst3ms.skriptparser.classes;
 
 import javax.annotation.ParametersAreNonnullByDefault;

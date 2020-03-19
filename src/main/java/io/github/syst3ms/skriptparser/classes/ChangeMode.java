@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.classes;
 
-import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 
 /**
  * An enum representing how an expression <em>could</em> be changed

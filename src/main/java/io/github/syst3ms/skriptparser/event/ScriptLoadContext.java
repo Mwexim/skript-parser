@@ -1,5 +1,7 @@
 package io.github.syst3ms.skriptparser.event;
 
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
+
 /**
  * The script loading context, equivalent to
  * {@code public static void main(String[] args)} in Java

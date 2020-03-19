@@ -1,7 +1,5 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
@@ -22,13 +20,6 @@ public class Loop extends CodeSection {
 	private transient Map<TriggerContext, Iterator<?>> currentIter = new WeakHashMap<>();
 	@Nullable
 	private Statement actualNext;
-
-	static {
-		Main.getMainRegistration().addSection(
-			Loop.class,
-			"loop %objects%"
-		);
-	}
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {

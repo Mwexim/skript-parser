@@ -3,9 +3,7 @@ package io.github.syst3ms.skriptparser.log;
 import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileSection;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * A class managing Skript's I/O messages.
