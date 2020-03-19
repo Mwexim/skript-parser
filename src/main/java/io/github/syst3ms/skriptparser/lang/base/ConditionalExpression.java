@@ -9,16 +9,11 @@ import io.github.syst3ms.skriptparser.lang.Expression;
  * Instead, they can only be used either in :
  * <ol>
  *     <li>Conditions ({@literal if} and {@literal else if})</li>
- *     <li>While loops</li>
  *     <li>Expression whose boolean parameters are declared as {@literal %=boolean%} inside their syntax.</li>
  * </ol>
- * The simplest way to use a value of a conditional expression as if it were a regular boolean expression is to use
- * the {@code whether %=boolean%} expression.
  *
  * Other, non-conditional boolean expressions should implement {@link Expression<Boolean>}
- * @see io.github.syst3ms.skriptparser.expressions.ExprWhether
  * @see io.github.syst3ms.skriptparser.lang.Conditional
- * @see io.github.syst3ms.skriptparser.lang.While
  */
 public abstract class ConditionalExpression implements Expression<Boolean> {
     private boolean negated = false;

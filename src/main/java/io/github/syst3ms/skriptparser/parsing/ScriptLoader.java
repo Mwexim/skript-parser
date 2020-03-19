@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.file.VoidElement;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Conditional;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.Loop;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.log.ErrorType;
@@ -28,7 +27,6 @@ import java.util.List;
  * Contains the logic for loading, parsing and interpreting entire script files
  */
 public class ScriptLoader {
-    private static final LinkedList<Loop> currentLoops = new LinkedList<>();
     private static MultiMap<String, Trigger> triggerMap = new MultiMap<>();
 
     /**
@@ -147,22 +145,6 @@ public class ScriptLoader {
         }
         logger.closeLogHandle();
         return items;
-    }
-
-    public static void addCurrentLoop(Loop loop) {
-        currentLoops.addLast(loop);
-    }
-
-    public static Loop getCurrentLoop() {
-        return currentLoops.getLast();
-    }
-
-    public static void removeCurrentLoop() {
-        currentLoops.removeLast();
-    }
-
-    public static Iterable<Loop> getCurrentLoops() {
-        return currentLoops;
     }
 
     public static MultiMap<String, Trigger> getTriggerMap() {
