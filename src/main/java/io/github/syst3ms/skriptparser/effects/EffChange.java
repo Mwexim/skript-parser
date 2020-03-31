@@ -87,6 +87,9 @@ public class EffChange extends Effect {
                     case REMOVE:
                         logger.error("Nothing can be removed from " + changedString, ErrorType.SEMANTIC_ERROR);
                         break;
+                    case DELETE:
+                    case RESET:
+                    	assert false;
                 }
                 return false;
             } else if (!ClassUtils.containsSuperclass(acceptance, changeType)) {
@@ -108,6 +111,9 @@ public class EffChange extends Effect {
                     case REMOVE:
                         logger.error(changeTypeName + " cannot be removed from " + changedString, ErrorType.SEMANTIC_ERROR);
                         break;
+                    case DELETE:
+                    case RESET:
+                    	assert false;
                 }
                 return false;
             }

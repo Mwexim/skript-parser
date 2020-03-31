@@ -20,7 +20,7 @@
 package io.github.syst3ms.skriptparser.types.conversions;
 
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
-import javafx.util.Pair;
+import io.github.syst3ms.skriptparser.util.Pair;
 import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;

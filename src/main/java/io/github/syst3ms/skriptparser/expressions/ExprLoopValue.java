@@ -12,7 +12,7 @@ import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
-import javafx.util.Pair;
+import io.github.syst3ms.skriptparser.util.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
@@ -122,9 +122,9 @@ public class ExprLoopValue implements Expression<Object> {
 				return new Object[0];
 			}
 			if (isIndex) {
-				return new String[] {current.getKey()};
+				return new String[] {current.getFirst()};
 			}
-			one[0] = current.getValue();
+			one[0] = current.getSecond();
 			return one;
 		}
 		one[0] = loop.getCurrent(ctx);

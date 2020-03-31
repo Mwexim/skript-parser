@@ -113,10 +113,10 @@ public class ExprRange implements Expression<Object> {
             return new Object[0];
         }
         // This is safe... right ?
-        if (comparator != null && ((Comparator) comparator).apply(f, t).is(Relation.GREATER)) {
-            return CollectionUtils.reverseArray((Object[]) ((BiFunction) this.range.getFunction()).apply(t, f));
+        if (comparator != null && ((Comparator<Object, Object>) comparator).apply(f, t).is(Relation.GREATER)) {
+            return CollectionUtils.reverseArray((Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.getFunction()).apply(t, f));
         } else {
-            return (Object[]) ((BiFunction) this.range.getFunction()).apply(f, t);
+            return (Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.getFunction()).apply(f, t);
         }
     }
 
