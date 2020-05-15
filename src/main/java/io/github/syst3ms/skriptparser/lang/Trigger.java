@@ -36,4 +36,8 @@ public class Trigger extends CodeSection {
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
         return event.toString(ctx, debug);
     }
+
+    public SkriptEvent getEvent() {
+        return event;
+    }
 }

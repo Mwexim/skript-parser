@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.registration;
 
-import io.github.syst3ms.skriptparser.pattern.PatternParser;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
@@ -9,13 +8,13 @@ import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
+import io.github.syst3ms.skriptparser.pattern.PatternParser;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.changers.Changer;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.MultiMap;
-import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -345,7 +344,7 @@ public class SkriptRegistration {
     }
 
     public abstract class SyntaxRegistrar<C extends SyntaxElement> implements Registrar {
-        private final Class<C> c;
+        protected final Class<C> c;
         private List<String> patterns = new ArrayList<>();
         private int priority = 5;
 
@@ -458,6 +457,7 @@ public class SkriptRegistration {
             }
             SkriptEventInfo<T> info = new SkriptEventInfo<>(super.c, handledContexts, elements, super.priority, registerer);
             events.add(info);
+            registerer.addHandledEvent(this.c);
         }
 
         @SafeVarargs
