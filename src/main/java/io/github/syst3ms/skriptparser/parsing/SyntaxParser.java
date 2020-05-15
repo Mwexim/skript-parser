@@ -155,7 +155,7 @@ public class SyntaxParser {
                 return expr;
             }
             logger.forgetError();
-        }
+         }
         logger.error("No expression matching ''" + s + "' was found", ErrorType.NO_MATCH);
         return null;
     }
