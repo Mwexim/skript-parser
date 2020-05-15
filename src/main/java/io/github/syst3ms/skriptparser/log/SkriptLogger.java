@@ -14,9 +14,9 @@ public class SkriptLogger {
     public static final String LOG_FORMAT = "%s (line %d: \"%s\", %s)";
     private static final Comparator<LogEntry> ERROR_COMPARATOR = (e1, e2) -> {
         if (e1.getErrorType().ordinal() != e2.getErrorType().ordinal()) {
-            return e2.getErrorType().ordinal() - e1.getErrorType().ordinal();
+            return e1.getErrorType().ordinal() - e2.getErrorType().ordinal();
         } else {
-            return e2.getRecursion() - e1.getRecursion();
+            return e1.getRecursion() - e2.getRecursion();
         }
     };
     // State
@@ -157,7 +157,7 @@ public class SkriptLogger {
     public void logOutput() {
         logEntries.stream()
                 .filter(e -> e.getType() == LogType.ERROR)
-                .min(ERROR_COMPARATOR)
+                .max(ERROR_COMPARATOR)
                 .ifPresent(logged::add);
         for (LogEntry entry : logEntries) {
             if (entry.getType() != LogType.ERROR) {
