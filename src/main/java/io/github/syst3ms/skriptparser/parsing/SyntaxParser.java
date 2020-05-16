@@ -635,9 +635,9 @@ public class SyntaxParser {
                     )) {
                         continue;
                     }
+                    setCurrentContexts(info.getContexts());
                     Trigger trig = new Trigger(event);
                     trig.loadSection(section, logger);
-                    setCurrentContexts(info.getContexts());
                     return trig;
                 } catch (InstantiationException | IllegalAccessException e) {
                     logger.error("Couldn't instantiate class " + info.getSyntaxClass(), ErrorType.EXCEPTION);
