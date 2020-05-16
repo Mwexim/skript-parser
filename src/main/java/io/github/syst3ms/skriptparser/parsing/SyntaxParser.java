@@ -251,7 +251,7 @@ public class SyntaxParser {
         return null;
     }
 
-    private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType, Class<? extends TriggerContext>[] currentContextss, SkriptLogger logger) {
+    private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType, Class<? extends TriggerContext>[] currentContexts, SkriptLogger logger) {
         List<PatternElement> patterns = info.getPatterns();
         PatternType<?> infoType = info.getReturnType();
         Class<?> infoTypeClass = infoType.getType().getTypeClass();
@@ -260,7 +260,7 @@ public class SyntaxParser {
             return null;
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
-            MatchContext parser = new MatchContext(element, currentContextss, logger);
+            MatchContext parser = new MatchContext(element, currentContexts, logger);
             if (element.match(s, 0, parser) != -1) {
                 try {
                     Expression<? extends T> expression = (Expression<? extends T>) info.getSyntaxClass().newInstance();
@@ -635,9 +635,9 @@ public class SyntaxParser {
                     )) {
                         continue;
                     }
+                    setCurrentContexts(info.getContexts());
                     Trigger trig = new Trigger(event);
                     trig.loadSection(section, logger);
-                    setCurrentContexts(info.getContexts());
                     return trig;
                 } catch (InstantiationException | IllegalAccessException e) {
                     logger.error("Couldn't instantiate class " + info.getSyntaxClass(), ErrorType.EXCEPTION);

@@ -39,7 +39,7 @@ public class Main {
             scriptName = args[0];
             programArgs = Arrays.copyOfRange(args, 1, args.length);
         }
-        init(scriptName, programArgs, new String[0], new String[0], debug, true);
+        init(scriptName, new String[0], new String[0], programArgs, debug, true);
     }
 
     /**
