@@ -333,9 +333,13 @@ public class SyntaxParser {
         List<String> parts = new ArrayList<>();
         Matcher m = LIST_SPLIT_PATTERN.matcher(s);
         int lastIndex = 0;
-        for (int i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i + 1)) {
-            if (i == -1)
+        for (int i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i+1)) {
+            if (i == -1) {
                 return null;
+            } else if (StringUtils.nextSimpleCharacterIndex(s, i) > i) { // We are currently at the start of something we need to skip over
+                i = StringUtils.nextSimpleCharacterIndex(s, i) - 1;
+                continue;
+            }
             char c = s.charAt(i);
             if (c == ' ' || c == ',') {
                 m.region(i, s.length());
@@ -379,15 +383,23 @@ public class SyntaxParser {
                 if (expression == null) {
                     return null;
                 }
-                isLiteralList &= expression instanceof Literal;
+                isLiteralList &= Literal.isLiteral(expression);
                 expressions.add(expression);
             }
         }
         if (expressions.size() == 1)
             return expressions.get(0);
         if (isLiteralList) {
-            //noinspection SuspiciousToArrayCall
-            Literal[] literals = expressions.toArray(new Literal[0]);
+            Literal[] literals = new Literal[expressions.size()];
+            for (int i = 0; i < expressions.size(); i++) {
+                Expression<? extends T> exp = expressions.get(i);
+                if (exp instanceof Literal) {
+                    literals[i] = (Literal) exp;
+                } else {
+                    assert exp instanceof VariableString;
+                    literals[i] = new SimpleLiteral(String.class, exp.getSingle(TriggerContext.DUMMY));
+                }
+            }
             Class<?> returnType = ClassUtils.getCommonSuperclass(Arrays.stream(literals).map(Literal::getReturnType).toArray(Class[]::new));
             return new LiteralList<>(
                 literals,

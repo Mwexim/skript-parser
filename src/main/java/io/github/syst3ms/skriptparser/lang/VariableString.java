@@ -49,7 +49,7 @@ public class VariableString implements Expression<String> {
      */
     @Nullable
     public static VariableString newInstanceWithQuotes(String s, SkriptLogger logger) {
-        if (s.startsWith("\"") && s.endsWith("\"")) {
+        if (s.startsWith("\"") && s.endsWith("\"") && StringUtils.nextSimpleCharacterIndex(s, 0) == s.length()) {
             return newInstance(s.substring(1, s.length() - 1), logger);
         } else if (s.startsWith("'") && s.endsWith("'") && StringUtils.nextSimpleCharacterIndex(s, 0) == s.length()) {
             return new VariableString(new String[]{

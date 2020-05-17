@@ -199,13 +199,13 @@ public class ExpressionElement implements PatternElement {
                 case ALL:
                     break;
                 case EXPRESSIONS_ONLY:
-                    if (expression instanceof Literal ||  expression instanceof VariableString && ((VariableString) expression).isSimple()) {
+                    if (Literal.isLiteral(expression)) {
                         logger.error("Only expressions are allowed, found literal " + s, ErrorType.SEMANTIC_ERROR);
                         return null;
                     }
                     break;
                 case LITERALS_ONLY:
-                    if (!(expression instanceof Literal) || expression instanceof VariableString && !((VariableString) expression).isSimple()) {
+                    if (!Literal.isLiteral(expression)) {
                         logger.error("Only literals are allowed, found expression " + s, ErrorType.SEMANTIC_ERROR);
                         return null;
                     }
