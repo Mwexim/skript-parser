@@ -6,6 +6,9 @@ import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
+import io.github.syst3ms.skriptparser.log.ErrorType;
+import io.github.syst3ms.skriptparser.log.LogEntry;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.PatternParser;
@@ -31,13 +34,14 @@ import java.util.function.Function;
  */
 public class SkriptRegistration {
     private SkriptAddon registerer;
+    private PatternParser patternParser;
+    private SkriptLogger logger = new SkriptLogger();
     private MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
     private List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
     private List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
     private List<SkriptEventInfo<?>> events = new ArrayList<>();
     private List<Type<?>> types = new ArrayList<>();
     private List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
-    private PatternParser patternParser;
     private boolean newTypes = false;
 
     public SkriptRegistration(SkriptAddon registerer) {
@@ -264,11 +268,12 @@ public class SkriptRegistration {
     /**
      * Adds all currently registered syntaxes to Skript's usable database.
      */
-    public void register() {
+    public List<LogEntry> register() {
         SyntaxManager.register(this);
         TypeManager.register(this);
         Converters.registerConverters(this);
         Converters.createMissingConverters();
+        return logger.close();
     }
 
     public interface Registrar {
@@ -390,11 +395,15 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             for (String s : super.patterns) {
-                elements.add(patternParser.parsePattern(s));
+                PatternElement e = patternParser.parsePattern(s, logger);
+                if (e != null) {
+                    elements.add(e);
+                }
             }
             Type<T> type = TypeManager.getByClassExact(returnType);
             if (type == null) {
-                throw new SkriptParserException("Couldn't figure out the return type corresponding to " + returnType.getName());
+                logger.error("Couldn't find a type corresponding to the class '" + returnType.getName() + "'", ErrorType.NO_MATCH);
+                return;
             }
             ExpressionInfo<C, T> info = new ExpressionInfo<>(super.c, elements, registerer, type, isSingle, super.priority);
             expressions.putOne(super.c, info);
@@ -411,7 +420,7 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             for (String s : super.patterns) {
-                elements.add(patternParser.parsePattern(s));
+                elements.add(patternParser.parsePattern(s, logger));
             }
             SyntaxInfo<C> info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
             effects.add(info);
@@ -429,7 +438,10 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             for (String s : super.patterns) {
-                elements.add(patternParser.parsePattern(s));
+                PatternElement e = patternParser.parsePattern(s, logger);
+                if (e != null) {
+                    elements.add(e);
+                }
             }
             SyntaxInfo<C> info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
             sections.add(info);
@@ -453,7 +465,10 @@ public class SkriptRegistration {
                 } else {
                     s = "[on] " + s;
                 }
-                elements.add(patternParser.parsePattern(s));
+                PatternElement e = patternParser.parsePattern(s, logger);
+                if (e != null) {
+                    elements.add(e);
+                }
             }
             SkriptEventInfo<T> info = new SkriptEventInfo<>(super.c, handledContexts, elements, super.priority, registerer);
             events.add(info);

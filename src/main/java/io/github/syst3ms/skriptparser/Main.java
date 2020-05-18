@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import io.github.syst3ms.skriptparser.registration.DefaultRegistration;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.util.FileUtils;
+import sun.rmi.runtime.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -99,10 +100,15 @@ public class Main {
             System.err.println("Error while loading classes:");
             e.printStackTrace();
         }
-        registration.register();
-        File script = new File(scriptName);
-        List<LogEntry> logs = ScriptLoader.loadScript(script, debug);
         Calendar time = Calendar.getInstance();
+        List<LogEntry> logs = registration.register();
+        printLogs(logs, time);
+        File script = new File(scriptName);
+        logs = ScriptLoader.loadScript(script, debug);
+        printLogs(logs, time);
+    }
+
+    private static void printLogs(List<LogEntry> logs, Calendar time) {
         for (LogEntry log : logs) {
             System.out.printf(CONSOLE_FORMAT, time, log.getType().name(), log.getMessage());
         }

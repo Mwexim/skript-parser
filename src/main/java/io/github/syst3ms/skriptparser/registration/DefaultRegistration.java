@@ -170,7 +170,6 @@ public class DefaultRegistration {
                     })
                     .toStringFunction(String::valueOf)
                     .register();
-        registration.register();
         Comparators.registerComparator(
                 Number.class,
                 Number.class,
@@ -200,6 +199,6 @@ public class DefaultRegistration {
                     }
                 }
         );
-        registration.register();
+        registration.register(); // Ignoring logs here, we control the input
     }
 }
