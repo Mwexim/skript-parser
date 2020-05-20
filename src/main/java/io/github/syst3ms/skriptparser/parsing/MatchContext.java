@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,16 +19,22 @@ public class MatchContext {
     // Provided to the syntax's class
     private final Class<? extends TriggerContext>[] currentContexts;
     private final SkriptLogger logger;
+    private final MatchContext source;
     private List<Expression<?>> parsedExpressions = new ArrayList<>();
     private List<MatchResult> regexMatches = new ArrayList<>();
     private int patternIndex = 0;
     private int parseMark = 0;
 
     public MatchContext(PatternElement e, Class<? extends TriggerContext>[] currentContexts, SkriptLogger logger) {
+        this(e, currentContexts, logger, null);
+    }
+
+    public MatchContext(PatternElement e, Class<? extends TriggerContext>[] currentContexts, SkriptLogger logger, @Nullable MatchContext source) {
         this.originalPattern = e.toString();
         this.originalElement = e;
         this.currentContexts = currentContexts;
         this.logger = logger;
+        this.source = source;
     }
 
     public PatternElement getOriginalElement() {
@@ -65,8 +72,13 @@ public class MatchContext {
         parseMark |= mark;
     }
 
+    @Nullable
+    public MatchContext getSource() {
+        return source;
+    }
+
     public MatchContext branch(PatternElement e) {
-        return new MatchContext(e, currentContexts, logger);
+        return new MatchContext(e, currentContexts, logger, this);
     }
 
     public void merge(MatchContext branch) {

@@ -102,9 +102,20 @@ public class Main {
         }
         Calendar time = Calendar.getInstance();
         List<LogEntry> logs = registration.register();
+        if (!logs.isEmpty()) {
+            System.out.println("Registration log :");
+            System.out.println("---");
+        }
         printLogs(logs, time);
+        if (!logs.isEmpty()) {
+            System.out.println();
+        }
         File script = new File(scriptName);
         logs = ScriptLoader.loadScript(script, debug);
+        if (!logs.isEmpty()) {
+            System.out.println("Parsing log :");
+            System.out.println("---");
+        }
         printLogs(logs, time);
     }
 
