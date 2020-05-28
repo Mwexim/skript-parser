@@ -1,0 +1,8 @@
+if true:
+    set {_v} to 1337
+    if {_v} = 0:
+        println "0"
+    else if {_v} = 1:
+        println "1"
+    else:
+        println "otherwise"

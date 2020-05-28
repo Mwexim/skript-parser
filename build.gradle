@@ -1,62 +1,32 @@
-import org.apache.tools.ant.filters.ReplaceTokens
-
-//plugins {
-//    id "com.github.hierynomus.license" version "0.13.1"
-//}
-
 apply plugin: 'java'
-apply plugin: 'maven-publish'
+apply plugin: 'application'
+
+mainClassName = "io.github.syst3ms.skriptparser.Main"
+
+sourceCompatibility = 1.8
 
 repositories {
-	jcenter()
+    mavenCentral()
+    jcenter()
+}
+
+test {
+    useJUnitPlatform()
 }
 
 dependencies {
-	testCompile 'junit:junit:4.12'
-    //testCompile 'org.easymock:easymock:3.4'
-
-	//compile fileTree(dir: 'lib', include: '*.jar')
+    compile 'org.jetbrains:annotations:15.0'
+    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+    testCompile "junit:junit:4.12"
+    testRuntime "org.junit.vintage:junit-vintage-engine:5.4.1"
+    testCompile "org.junit.jupiter:junit-jupiter-api:5.4.1"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:5.4.1"
 }
 
-processResources {
-	filter ReplaceTokens, tokens: [
-		"version" : project.property("version")
-	]
-}
-
-//license {
-//    header file('licenseheader.txt')
-//}
-
-task sourceJar(type: Jar) {
-    from sourceSets.main.allJava
-}
-
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			groupId "ch.njol"
-			artifactId "skript"
-			version project.property("version")
-
-			from components.java
-
-			artifact sourceJar {
-    			classifier "sources"
-			}
-		}
-	}
-	
-	repositories {
-		maven {
-			url "file:///itemapi_repo/"
-		}
-	}
-}
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
+jar {
+    manifest {
+        attributes("Main-Class": mainClassName,
+                "Implementation-Title": "skript-parser",
+                "Implementation-Version": "alpha")
     }
 }

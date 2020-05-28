@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.pattern;
 
-import io.github.syst3ms.skriptparser.classes.SkriptParser;
+import io.github.syst3ms.skriptparser.parsing.MatchContext;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +28,9 @@ public class CompoundElement implements PatternElement {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof CompoundElement)) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof CompoundElement)) {
             return false;
         } else {
             List<PatternElement> elems = ((CompoundElement) obj).elements;
@@ -36,13 +38,12 @@ public class CompoundElement implements PatternElement {
         }
     }
 
-	@Override
-	public int match(String s, int index, SkriptParser parser) {
+    @Override
+    public int match(String s, int index, MatchContext context) {
         int i = index;
         for (PatternElement element : elements) {
-            if (parser.getElement().equals(this))
-                parser.advanceInPattern();
-            int m = element.match(s, i, parser);
+            context.advanceInPattern();
+            int m = element.match(s, i, context);
             if (m == -1) {
                 return -1;
             }

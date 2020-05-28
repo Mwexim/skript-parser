@@ -1,0 +1,4 @@
+@ParametersAreNonnullByDefault
+package io.github.syst3ms.skriptparser.registration;
+
+import javax.annotation.ParametersAreNonnullByDefault;

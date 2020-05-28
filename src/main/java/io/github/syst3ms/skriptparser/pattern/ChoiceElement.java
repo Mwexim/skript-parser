@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.pattern;
 /**
  * An element of a choice group.
  * Consists of a {@link PatternElement} and a parse mark (defaults to 0)
+ * @see ChoiceGroup
  */
 public class ChoiceElement {
     private PatternElement element;
@@ -23,7 +24,9 @@ public class ChoiceElement {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof ChoiceElement)) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof ChoiceElement)) {
             return false;
         } else {
             ChoiceElement other = (ChoiceElement) obj;
