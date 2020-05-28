@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.pattern;
 
-import io.github.syst3ms.skriptparser.parsing.MatchContext;
-import org.jetbrains.annotations.Nullable;
+import io.github.syst3ms.skriptparser.classes.SkriptParser;
 
 /**
  * Text inside of a pattern. Is case and whitespace insensitive.
@@ -18,30 +17,24 @@ public class TextElement implements PatternElement {
     }
 
     @Override
-    public boolean equals(@Nullable Object obj) {
-        return obj instanceof TextElement && text.equalsIgnoreCase(((TextElement) obj).text);
+    public boolean equals(Object obj) {
+        return obj != null && obj instanceof TextElement && text.equalsIgnoreCase(((TextElement) obj).text);
     }
 
     @Override
-    public int match(String s, int index, MatchContext context) {
-        int start = 0;
-        int end = 0;
-        if (Character.isWhitespace(text.charAt(0))) {
-            while (index + start < s.length() && Character.isWhitespace(s.charAt(index + start)))
-                start++;
-        }
+    public int match(String s, int index, SkriptParser parser) {
+        if (parser.getElement().equals(this))
+            parser.advanceInPattern();
         String trimmed = text.trim();
-        if (index + start + trimmed.length() > s.length()) {
-            return -1;
-        }
-        if (trimmed.isEmpty()) {
-            return index + start;
-        } else if (s.regionMatches(true, index + start, trimmed, 0, trimmed.length())) {
-            if (Character.isWhitespace(text.charAt(text.length() - 1))) {
-                while (end < s.length() && Character.isWhitespace(s.charAt(index + start + trimmed.length() - end)))
-                    end++;
-            }
-            return index + start + trimmed.length() + end; // Adjusting for some of the whitespace we ignored
+		while (index < s.length() && s.charAt(index) == ' ') {// Hopefully fix some spacing issues
+			index++;
+		}
+        if (index + trimmed.length() > s.length()) {
+        	return -1;
+		}
+        String substr = s.substring(index, index + trimmed.length());
+        if (substr.equalsIgnoreCase(trimmed)) {
+            return index + text.length(); // Let's not forget the spaces we removed earlier
         } else {
             return -1;
         }
