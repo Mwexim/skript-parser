@@ -1,5 +1,7 @@
 package io.github.syst3ms.skriptparser.util;
 
+import io.github.syst3ms.skriptparser.log.ErrorType;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import org.jetbrains.annotations.Nullable;
 
@@ -201,9 +203,10 @@ public class StringUtils {
     /**
      * Split a pattern at pipe characters, properly accounting for brackets and escapes
      * @param s the string to split
+     * @param logger
      * @return the split string
      */
-    public static String[] splitVerticalBars(String s) {
+    public static String[] splitVerticalBars(String s, SkriptLogger logger) {
         List<String> split = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         char[] chars = s.toCharArray();
@@ -217,8 +220,10 @@ public class StringUtils {
             } else if (c == '(' || c == '[') {
                 char closing = c == '(' ? ')' : ']';
                 String text = getEnclosedText(s, c, closing, i);
-                if (text == null)
-                    throw new SkriptParserException("Couldn't find a closing '" + c + "' bracket at index " + i);
+                if (text == null) {
+                    logger.error("Unmatched bracket : '" + s.substring(i) + "'", ErrorType.MALFORMED_INPUT);
+                    return null;
+                }
                 sb.append(c).append(text).append(closing);
                 i += text.length() + 1;
             } else if (c == '|') {

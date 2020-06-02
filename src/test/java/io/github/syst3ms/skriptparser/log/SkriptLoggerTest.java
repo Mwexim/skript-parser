@@ -28,6 +28,6 @@ public class SkriptLoggerTest {
         logger = new SkriptLogger();
         Expression<?> wrongRange = SyntaxParser.parseBooleanExpression("1 is between 'a' and 'b'", SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
         logger.logOutput();
-        assertTrue(wrongRange == null && logger.close().get(0).getMessage().startsWith("1 cannot"));
+        assertTrue(wrongRange == null && logger.close().get(0).getMessage().startsWith("Only expressions"));
     }
 }

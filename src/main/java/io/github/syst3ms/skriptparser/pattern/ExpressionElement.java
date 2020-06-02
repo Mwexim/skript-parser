@@ -3,7 +3,6 @@ package io.github.syst3ms.skriptparser.pattern;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.Variable;
-import io.github.syst3ms.skriptparser.lang.VariableString;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
@@ -49,9 +48,14 @@ public class ExpressionElement implements PatternElement {
             return -1;
         }
         SkriptLogger logger = context.getLogger();
+        int possibilityIndex = context.getPatternIndex();
         List<PatternElement> flattened = PatternElement.flatten(context.getOriginalElement());
+        if (context.getSource() != null && possibilityIndex >= flattened.size()) {
+            flattened = PatternElement.flatten(context.getSource().getOriginalElement());
+            possibilityIndex = context.getSource().getPatternIndex();
+        }
         // We look at what could possibly be after the expression in the current syntax
-        List<PatternElement> possibleInputs = PatternElement.getPossibleInputs(flattened.subList(context.getPatternIndex(), flattened.size()));
+        List<PatternElement> possibleInputs = PatternElement.getPossibleInputs(flattened.subList(possibilityIndex, flattened.size()));
         for (PatternElement possibleInput : possibleInputs) {  // We iterate over those possibilities
             if (possibleInput instanceof TextElement) {
                 String text = ((TextElement) possibleInput).getText();
@@ -194,13 +198,13 @@ public class ExpressionElement implements PatternElement {
                 case ALL:
                     break;
                 case EXPRESSIONS_ONLY:
-                    if (expression instanceof Literal ||  expression instanceof VariableString && ((VariableString) expression).isSimple()) {
+                    if (Literal.isLiteral(expression)) {
                         logger.error("Only expressions are allowed, found literal " + s, ErrorType.SEMANTIC_ERROR);
                         return null;
                     }
                     break;
                 case LITERALS_ONLY:
-                    if (!(expression instanceof Literal) || expression instanceof VariableString && !((VariableString) expression).isSimple()) {
+                    if (!Literal.isLiteral(expression)) {
                         logger.error("Only literals are allowed, found expression " + s, ErrorType.SEMANTIC_ERROR);
                         return null;
                     }

@@ -39,7 +39,7 @@ public class While extends CodeSection {
     @Override
     protected Statement walk(TriggerContext ctx) {
         Boolean cond = condition.getSingle(ctx);
-        if (cond == null) {
+        if (cond == null || !cond) {
             return actualNext;
         } else {
             return getFirst();

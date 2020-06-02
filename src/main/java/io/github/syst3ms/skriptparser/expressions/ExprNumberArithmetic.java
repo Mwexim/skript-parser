@@ -11,7 +11,6 @@ import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import org.jetbrains.annotations.Nullable;
-import sun.rmi.runtime.Log;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

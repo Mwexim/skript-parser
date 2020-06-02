@@ -19,4 +19,8 @@ public interface Literal<T> extends Expression<T> {
     default T[] getValues(TriggerContext ctx) {
         return getValues();
     }
+
+    static boolean isLiteral(Expression<?> exp) {
+        return exp instanceof Literal || exp instanceof VariableString && ((VariableString) exp).isSimple();
+    }
 }

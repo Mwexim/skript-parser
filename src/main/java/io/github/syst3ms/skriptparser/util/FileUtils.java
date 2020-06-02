@@ -113,7 +113,7 @@ public class FileUtils {
 
     private static File getFile() throws URISyntaxException {
         if (jarFile == null) {
-            jarFile = new File(Skript.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            jarFile = new File(FileUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         }
         return jarFile;
     }

@@ -24,18 +24,24 @@ public class TextElement implements PatternElement {
 
     @Override
     public int match(String s, int index, MatchContext context) {
-        int i = index;
+        int start = 0;
+        int end = 0;
+        if (Character.isWhitespace(text.charAt(0))) {
+            while (index + start < s.length() && Character.isWhitespace(s.charAt(index + start)))
+                start++;
+        }
         String trimmed = text.trim();
-        // We advance until we reach the first non-whitespace character in s
-        while (i < s.length() && Character.isWhitespace(s.charAt(i)))
-            i++;
-        if (i + trimmed.length() > s.length()) {
+        if (index + start + trimmed.length() > s.length()) {
             return -1;
         }
         if (trimmed.isEmpty()) {
-            return i;
-        } else if (s.regionMatches(true, i, trimmed, 0, trimmed.length())) {
-            return index + text.length(); // Let's not forget the spaces we removed earlier
+            return index + start;
+        } else if (s.regionMatches(true, index + start, trimmed, 0, trimmed.length())) {
+            if (Character.isWhitespace(text.charAt(text.length() - 1))) {
+                while (end < s.length() && Character.isWhitespace(s.charAt(index + start + trimmed.length() - end)))
+                    end++;
+            }
+            return index + start + trimmed.length() + end; // Adjusting for some of the whitespace we ignored
         } else {
             return -1;
         }

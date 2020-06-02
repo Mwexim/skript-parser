@@ -41,12 +41,12 @@ public class RegexGroup implements PatternElement {
                 String text = ((TextElement) possibleInput).getText();
                 Matcher m;
                 if (text.equals("\0")) { // End of line
-                    m = pattern.matcher(s).region(index - 1, s.length());
+                    m = pattern.matcher(s).region(index, s.length());
                 } else {
                     int i = s.indexOf(text, index);
                     if (i == -1)
                         continue;
-                    m = pattern.matcher(s).region(index - 1, i + 1);
+                    m = pattern.matcher(s).region(index, i + 1);
                 }
                 /*
                  * matches() tries to match against the whole region, and that's what we want

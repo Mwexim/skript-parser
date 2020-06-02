@@ -121,7 +121,6 @@ public class Variable<T> implements Expression<T> {
             return Collections.emptyIterator();
         assert val instanceof TreeMap;
         // temporary list to prevent CMEs
-        @SuppressWarnings("unchecked")
         Iterator<String> keys = new ArrayList<>(((Map<String, Object>) val).keySet()).iterator();
         return new Iterator<T>() {
             @Nullable
@@ -129,7 +128,6 @@ public class Variable<T> implements Expression<T> {
             @Nullable
             private T next;
 
-            @SuppressWarnings({"unchecked"})
             @Override
             public boolean hasNext() {
                 if (next != null)
@@ -177,7 +175,6 @@ public class Variable<T> implements Expression<T> {
             return Collections.emptyIterator();
         assert val instanceof TreeMap;
         // temporary list to prevent CMEs
-        @SuppressWarnings("unchecked")
         Iterator<String> keys = new ArrayList<>(((Map<String, Object>) val).keySet()).iterator();
         return new Iterator<Pair<String, Object>>() {
             @Nullable
@@ -253,7 +250,7 @@ public class Variable<T> implements Expression<T> {
         return new Class[]{Object[].class};
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings("rawtypes")
     @Override
     public void change(TriggerContext ctx, Object[] changeWith, ChangeMode mode) throws UnsupportedOperationException {
         switch (mode) {

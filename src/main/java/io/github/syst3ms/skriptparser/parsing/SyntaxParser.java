@@ -141,8 +141,12 @@ public class SyntaxParser {
                 return expr;
             }
             logger.forgetError();
+<<<<<<< HEAD
         }
         logger.setContext(ErrorContext.NO_MATCH);
+=======
+         }
+>>>>>>> 8618ee46b560d8b6d70f5ee05501424a4e5cb65c
         logger.error("No expression matching ''" + s + "' was found", ErrorType.NO_MATCH);
         return null;
     }
@@ -246,7 +250,11 @@ public class SyntaxParser {
         return null;
     }
 
+<<<<<<< HEAD
     private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType, ParserState parserState, SkriptLogger logger) {
+=======
+    private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType, Class<? extends TriggerContext>[] currentContexts, SkriptLogger logger) {
+>>>>>>> 8618ee46b560d8b6d70f5ee05501424a4e5cb65c
         List<PatternElement> patterns = info.getPatterns();
         PatternType<?> infoType = info.getReturnType();
         Class<?> infoTypeClass = infoType.getType().getTypeClass();
@@ -255,8 +263,12 @@ public class SyntaxParser {
             return null;
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
+<<<<<<< HEAD
             logger.setContext(ErrorContext.MATCHING);
             MatchContext parser = new MatchContext(element, parserState, logger);
+=======
+            MatchContext parser = new MatchContext(element, currentContexts, logger);
+>>>>>>> 8618ee46b560d8b6d70f5ee05501424a4e5cb65c
             if (element.match(s, 0, parser) != -1) {
                 try {
                     Expression<? extends T> expression = (Expression<? extends T>) info.getSyntaxClass().newInstance();
@@ -337,9 +349,13 @@ public class SyntaxParser {
         List<String> parts = new ArrayList<>();
         Matcher m = LIST_SPLIT_PATTERN.matcher(s);
         int lastIndex = 0;
-        for (int i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i + 1)) {
-            if (i == -1)
+        for (int i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i+1)) {
+            if (i == -1) {
                 return null;
+            } else if (StringUtils.nextSimpleCharacterIndex(s, i) > i) { // We are currently at the start of something we need to skip over
+                i = StringUtils.nextSimpleCharacterIndex(s, i) - 1;
+                continue;
+            }
             char c = s.charAt(i);
             if (c == ' ' || c == ',') {
                 m.region(i, s.length());
@@ -385,15 +401,23 @@ public class SyntaxParser {
                 if (expression == null) {
                     return null;
                 }
-                isLiteralList &= expression instanceof Literal;
+                isLiteralList &= Literal.isLiteral(expression);
                 expressions.add(expression);
             }
         }
         if (expressions.size() == 1)
             return expressions.get(0);
         if (isLiteralList) {
-            //noinspection SuspiciousToArrayCall
-            Literal[] literals = expressions.toArray(new Literal[0]);
+            Literal[] literals = new Literal[expressions.size()];
+            for (int i = 0; i < expressions.size(); i++) {
+                Expression<? extends T> exp = expressions.get(i);
+                if (exp instanceof Literal) {
+                    literals[i] = (Literal) exp;
+                } else {
+                    assert exp instanceof VariableString;
+                    literals[i] = new SimpleLiteral(String.class, exp.getSingle(TriggerContext.DUMMY));
+                }
+            }
             Class<?> returnType = ClassUtils.getCommonSuperclass(Arrays.stream(literals).map(Literal::getReturnType).toArray(Class[]::new));
             return new LiteralList<>(
                 literals,
@@ -668,9 +692,14 @@ public class SyntaxParser {
                     )) {
                         continue;
                     }
+                    setCurrentContexts(info.getContexts());
                     Trigger trig = new Trigger(event);
+<<<<<<< HEAD
                     parserState.setCurrentContexts(info.getContexts());
                     trig.loadSection(section, parserState, logger);
+=======
+                    trig.loadSection(section, logger);
+>>>>>>> 8618ee46b560d8b6d70f5ee05501424a4e5cb65c
                     return trig;
                 } catch (InstantiationException | IllegalAccessException e) {
                     logger.error("Couldn't instantiate class " + info.getSyntaxClass(), ErrorType.EXCEPTION);

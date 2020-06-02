@@ -50,7 +50,7 @@ public class VariableString implements Expression<String> {
      */
     @Nullable
     public static VariableString newInstanceWithQuotes(String s, ParserState parserState, SkriptLogger logger) {
-        if (s.startsWith("\"") && s.endsWith("\"")) {
+        if (s.startsWith("\"") && s.endsWith("\"") && StringUtils.nextSimpleCharacterIndex(s, 0) == s.length()) {
             return newInstance(s.substring(1, s.length() - 1), parserState, logger);
         } else if (s.startsWith("'") && s.endsWith("'") && StringUtils.nextSimpleCharacterIndex(s, 0) == s.length()) {
             return new VariableString(new String[]{
@@ -146,7 +146,7 @@ public class VariableString implements Expression<String> {
         StringBuilder sb = new StringBuilder();
         for (Object o : data) {
             if (o instanceof Expression) {
-                sb.append(TypeManager.toString(((Expression) o).getValues(ctx)));
+                sb.append(TypeManager.toString(((Expression<?>) o).getValues(ctx)));
             } else {
                 sb.append(o);
             }
@@ -161,7 +161,7 @@ public class VariableString implements Expression<String> {
         StringBuilder sb = new StringBuilder("\"");
         for (Object o : data) {
             if (o instanceof Expression) {
-                sb.append('%').append(((Expression) o).toString(ctx, debug)).append('%');
+                sb.append('%').append(((Expression<?>) o).toString(ctx, debug)).append('%');
             } else {
                 sb.append(o);
             }

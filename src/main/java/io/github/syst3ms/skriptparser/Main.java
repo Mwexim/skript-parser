@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import io.github.syst3ms.skriptparser.registration.DefaultRegistration;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.util.FileUtils;
+import sun.rmi.runtime.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -38,7 +40,7 @@ public class Main {
             scriptName = args[0];
             programArgs = Arrays.copyOfRange(args, 1, args.length);
         }
-        init(scriptName, programArgs, new String[0], new String[0], debug, true);
+        init(scriptName, new String[0], new String[0], programArgs, debug, true);
     }
 
     /**
@@ -59,7 +61,8 @@ public class Main {
         // Make sure Skript loads properly no matter what
         mainPackages = Arrays.copyOf(mainPackages, mainPackages.length + 1);
         mainPackages[mainPackages.length - 1] = "io.github.syst3ms.skriptparser";
-        List<String> sub = Arrays.asList(subPackages);
+        List<String> sub = new ArrayList<String>();
+        sub.addAll(Arrays.asList(subPackages));
         sub.addAll(Arrays.asList("expressions", "effects", "event", "lang"));
         subPackages = sub.toArray(new String[0]);
         try {
@@ -85,6 +88,8 @@ public class Main {
                                     Method init = mainClass.getDeclaredMethod("initAddon");
                                     init.invoke(null);
                                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
+                                } finally {
+                                	jar.close();
                                 }
                             }
                         }
@@ -95,10 +100,26 @@ public class Main {
             System.err.println("Error while loading classes:");
             e.printStackTrace();
         }
-        registration.register();
-        File script = new File(scriptName);
-        List<LogEntry> logs = ScriptLoader.loadScript(script, debug);
         Calendar time = Calendar.getInstance();
+        List<LogEntry> logs = registration.register();
+        if (!logs.isEmpty()) {
+            System.out.println("Registration log :");
+            System.out.println("---");
+        }
+        printLogs(logs, time);
+        if (!logs.isEmpty()) {
+            System.out.println();
+        }
+        File script = new File(scriptName);
+        logs = ScriptLoader.loadScript(script, debug);
+        if (!logs.isEmpty()) {
+            System.out.println("Parsing log :");
+            System.out.println("---");
+        }
+        printLogs(logs, time);
+    }
+
+    private static void printLogs(List<LogEntry> logs, Calendar time) {
         for (LogEntry log : logs) {
             System.out.printf(CONSOLE_FORMAT, time, log.getType().name(), log.getMessage());
         }
