@@ -175,7 +175,7 @@ public class SkriptLogger {
     public void logOutput() {
         logEntries.stream()
                 .filter(e -> e.getType() == LogType.ERROR)
-                .max(ERROR_COMPARATOR)
+                .min(ERROR_COMPARATOR)
                 .ifPresent(logged::add);
         for (LogEntry entry : logEntries) {
             if (entry.getType() != LogType.ERROR) {

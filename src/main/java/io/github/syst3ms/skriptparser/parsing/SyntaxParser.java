@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.parsing;
 
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
@@ -141,12 +142,8 @@ public class SyntaxParser {
                 return expr;
             }
             logger.forgetError();
-<<<<<<< HEAD
         }
         logger.setContext(ErrorContext.NO_MATCH);
-=======
-         }
->>>>>>> 8618ee46b560d8b6d70f5ee05501424a4e5cb65c
         logger.error("No expression matching ''" + s + "' was found", ErrorType.NO_MATCH);
         return null;
     }
@@ -250,11 +247,7 @@ public class SyntaxParser {
         return null;
     }
 
-<<<<<<< HEAD
     private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType, ParserState parserState, SkriptLogger logger) {
-=======
-    private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType, Class<? extends TriggerContext>[] currentContexts, SkriptLogger logger) {
->>>>>>> 8618ee46b560d8b6d70f5ee05501424a4e5cb65c
         List<PatternElement> patterns = info.getPatterns();
         PatternType<?> infoType = info.getReturnType();
         Class<?> infoTypeClass = infoType.getType().getTypeClass();
@@ -263,12 +256,8 @@ public class SyntaxParser {
             return null;
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
-<<<<<<< HEAD
             logger.setContext(ErrorContext.MATCHING);
             MatchContext parser = new MatchContext(element, parserState, logger);
-=======
-            MatchContext parser = new MatchContext(element, currentContexts, logger);
->>>>>>> 8618ee46b560d8b6d70f5ee05501424a4e5cb65c
             if (element.match(s, 0, parser) != -1) {
                 try {
                     Expression<? extends T> expression = (Expression<? extends T>) info.getSyntaxClass().newInstance();
@@ -692,14 +681,9 @@ public class SyntaxParser {
                     )) {
                         continue;
                     }
-                    setCurrentContexts(info.getContexts());
                     Trigger trig = new Trigger(event);
-<<<<<<< HEAD
                     parserState.setCurrentContexts(info.getContexts());
                     trig.loadSection(section, parserState, logger);
-=======
-                    trig.loadSection(section, logger);
->>>>>>> 8618ee46b560d8b6d70f5ee05501424a4e5cb65c
                     return trig;
                 } catch (InstantiationException | IllegalAccessException e) {
                     logger.error("Couldn't instantiate class " + info.getSyntaxClass(), ErrorType.EXCEPTION);
