@@ -2,8 +2,8 @@ package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
+import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,6 +11,8 @@ import java.util.List;
 public class ParserState {
     private Class<? extends TriggerContext>[] currentContexts;
     private LinkedList<CodeSection> currentSections = new LinkedList<>();
+    private List<Class<? extends SyntaxElement>> allowedSyntaxes;
+    private boolean restrictingExpressions = false;
 
     public Class<? extends TriggerContext>[] getCurrentContexts() {
         return currentContexts;
@@ -30,5 +32,23 @@ public class ParserState {
 
     public void removeCurrentSection() {
         currentSections.removeFirst();
+    }
+
+    public void setSyntaxRestrictions(List<Class<? extends SyntaxElement>> allowedSyntaxes, boolean restrictingExpressions) {
+        this.allowedSyntaxes = allowedSyntaxes;
+        this.restrictingExpressions = restrictingExpressions;
+    }
+
+    public void clearSyntaxRestrictions() {
+        allowedSyntaxes = null;
+        restrictingExpressions = false;
+    }
+
+    public boolean forbidsSyntax(Class<? extends SyntaxElement> c) {
+        return allowedSyntaxes != null && !allowedSyntaxes.contains(c);
+    }
+
+    public boolean isRestrictingExpressions() {
+        return restrictingExpressions;
     }
 }

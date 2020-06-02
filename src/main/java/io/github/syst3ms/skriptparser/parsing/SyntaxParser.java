@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
@@ -23,7 +22,6 @@ import io.github.syst3ms.skriptparser.variables.Variables;
 import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.text.html.parser.Parser;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -291,6 +289,11 @@ public class SyntaxParser {
                         logger.error("A single value was expected, but '" + s + "' represents multiple values.", ErrorType.SEMANTIC_ERROR);
                         continue;
                     }
+                    if (parserState.isRestrictingExpressions() && parserState.forbidsSyntax(expression.getClass())) {
+                        logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+                        logger.error("The enclosing section does not allow the use of this expression : " + expression.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+                        continue;
+                    }
                     return expression;
                 } catch (InstantiationException | IllegalAccessException e) {
                     logger.error("Couldn't instantiate class '" + info.getSyntaxClass().getName() + "'", ErrorType.EXCEPTION);
@@ -523,10 +526,24 @@ public class SyntaxParser {
             return null;
         if (s.regionMatches(true, 0, "continue if ", 0, "continue if ".length())) { // startsWithIgnoreCase
             InlineCondition cond = parseInlineCondition(s.substring("continue if ".length()), parserState, logger);
-            if (cond != null)
+            if (parserState.forbidsSyntax(InlineCondition.class)) {
+                logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+                logger.error("Inline conditions are not allowed in this section", ErrorType.SEMANTIC_ERROR);
+                return null;
+            } else if (cond != null) {
                 return cond;
+            }
         }
-        return parseEffect(s, parserState, logger); // If that's null, we wanted to return null anyway
+        Effect eff = parseEffect(s, parserState, logger);
+        if (eff == null) {
+            return null;
+        } else if (parserState.forbidsSyntax(eff.getClass())) {
+            logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+            logger.error("The enclosing section does not allow the use of this effect : " + eff.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+            return null;
+        } else {
+            return eff;
+        }
     }
 
     /**

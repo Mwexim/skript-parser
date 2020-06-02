@@ -10,6 +10,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Loop;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
+import io.github.syst3ms.skriptparser.log.ErrorContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
@@ -99,6 +100,10 @@ public class ScriptLoader {
                     Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
                     if (booleanExpression == null) {
                         continue;
+                    } else if (parserState.forbidsSyntax(Conditional.class)) {
+                        logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+                        logger.error("Conditionals are not allowed in this section", ErrorType.SEMANTIC_ERROR);
+                        continue;
                     }
                     items.add(new Conditional(sec, booleanExpression, Conditional.ConditionalMode.IF, parserState, logger));
                 } else if (content.regionMatches(true, 0, "else if ", 0, "else if ".length())) {
@@ -113,6 +118,10 @@ public class ScriptLoader {
                     Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
                     if (booleanExpression == null) {
                         continue;
+                    } else if (parserState.forbidsSyntax(Conditional.class)) {
+                        logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+                        logger.error("Conditionals are not allowed in this section", ErrorType.SEMANTIC_ERROR);
+                        continue;
                     }
                     Conditional c = new Conditional(sec, booleanExpression, Conditional.ConditionalMode.ELSE_IF, parserState, logger);
                     ((Conditional) items.get(items.size() - 1)).setFallingClause(c);
@@ -122,12 +131,20 @@ public class ScriptLoader {
                         ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
                         logger.error("An 'else' must be placed after an 'if' or an 'else if'", ErrorType.STRUCTURE_ERROR);
                         continue;
+                    } else if (parserState.forbidsSyntax(Conditional.class)) {
+                        logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+                        logger.error("Conditionals are not allowed in this section", ErrorType.SEMANTIC_ERROR);
+                        continue;
                     }
                     Conditional c = new Conditional(sec, null, Conditional.ConditionalMode.ELSE, parserState, logger);
                     ((Conditional) items.get(items.size() - 1)).setFallingClause(c);
                 } else {
                     CodeSection codeSection = SyntaxParser.parseSection(sec, parserState, logger);
                     if (codeSection == null) {
+                        continue;
+                    } else if (parserState.forbidsSyntax(codeSection.getClass())) {
+                        logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+                        logger.error("The enclosing section does not allow the use of this section : " + codeSection.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
                         continue;
                     }
                     items.add(codeSection);
