@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.lang;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
+import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public abstract class SkriptEvent implements SyntaxElement {
      */
     public abstract boolean check(TriggerContext ctx);
 
-    List<Statement> loadSection(FileSection section, SkriptLogger logger) {
-        return ScriptLoader.loadItems(section, logger);
+    List<Statement> loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+        return ScriptLoader.loadItems(section, parserState, logger);
     }
 }

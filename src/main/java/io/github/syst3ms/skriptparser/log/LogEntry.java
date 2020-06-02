@@ -2,19 +2,21 @@ package io.github.syst3ms.skriptparser.log;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 /**
  * An entry in Skript's log.
  */
 public class LogEntry {
     private final LogType type;
     private final String message;
-    private final int recursion;
+    private final List<ErrorContext> errorContext;
     private final ErrorType errorType;
 
-    public LogEntry(String message, LogType verbosity, int recursion, @Nullable ErrorType errorType) {
+    public LogEntry(String message, LogType verbosity, List<ErrorContext> errorContext, @Nullable ErrorType errorType) {
         this.type = verbosity;
         this.message = message;
-        this.recursion = recursion;
+        this.errorContext = errorContext;
         this.errorType = errorType;
     }
 
@@ -26,8 +28,8 @@ public class LogEntry {
         return type;
     }
 
-    int getRecursion() {
-        return recursion;
+    List<ErrorContext> getErrorContext() {
+        return errorContext;
     }
 
     ErrorType getErrorType() {

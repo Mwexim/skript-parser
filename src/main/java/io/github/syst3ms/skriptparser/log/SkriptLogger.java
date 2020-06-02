@@ -3,9 +3,8 @@ package io.github.syst3ms.skriptparser.log;
 import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileSection;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A class managing Skript's I/O messages.
@@ -13,17 +12,25 @@ import java.util.List;
 public class SkriptLogger {
     public static final String LOG_FORMAT = "%s (line %d: \"%s\", %s)";
     private static final Comparator<LogEntry> ERROR_COMPARATOR = (e1, e2) -> {
-        if (e1.getErrorType().ordinal() != e2.getErrorType().ordinal()) {
-            return e2.getErrorType().ordinal() - e1.getErrorType().ordinal();
+        List<ErrorContext> c1 = e1.getErrorContext(),
+                c2 = e2.getErrorContext();
+        if (!c1.equals(c2)) {
+            String s1 = c1.stream()
+                    .map(c -> Integer.toString(c.ordinal()))
+                    .collect(Collectors.joining());
+            String s2 = c2.stream()
+                    .map(c -> Integer.toString(c.ordinal()))
+                    .collect(Collectors.joining());
+            return s1.compareTo(s2);
         } else {
-            return e2.getRecursion() - e1.getRecursion();
+            return e1.getErrorType().ordinal() - e2.getErrorType().ordinal();
         }
     };
     // State
     private final boolean debug;
     private boolean open = true;
     private boolean hasError = false;
-    private int recursion = 1;
+    private LinkedList<ErrorContext> errorContext = new LinkedList<>();
     // File
     private String fileName;
     private List<FileElement> fileElements;
@@ -34,6 +41,7 @@ public class SkriptLogger {
 
     public SkriptLogger(boolean debug) {
         this.debug = debug;
+        errorContext.addLast(ErrorContext.MATCHING);
     }
 
     public SkriptLogger() {
@@ -67,24 +75,34 @@ public class SkriptLogger {
      * Increments the recursion of the logger ; should be called before calling methods that may use SkriptLogger later
      * in execution.
      */
-    public void startLogHandle() {
-        recursion++;
+    public void recurse() {
+        errorContext.addLast(ErrorContext.MATCHING);
     }
 
     /**
      * Decrements the recursion of the logger ; should be called after calling methods that may use SkriptLogger later
      * in execution.
      */
-    public void closeLogHandle() {
-        recursion--;
+    public void callback() {
+        errorContext.removeLast();
+    }
+
+    /**
+     * Updates the error context, which matters for establishing which errors are the most important
+     * @param context the new error context
+     */
+    public void setContext(ErrorContext context) {
+        errorContext.removeLast();
+        errorContext.addLast(context);
     }
 
     private void log(String message, LogType type, ErrorType error) {
         if (open) {
+            List<ErrorContext> ctx = new ArrayList<>(errorContext);
             if (line == -1) {
-                logEntries.add(new LogEntry(message, type, recursion, error));
+                logEntries.add(new LogEntry(message, type, ctx, error));
             } else {
-                logEntries.add(new LogEntry(String.format(LOG_FORMAT, message, line + 1, fileElements.get(line).getLineContent(), fileName), type, recursion, error));
+                logEntries.add(new LogEntry(String.format(LOG_FORMAT, message, line + 1, fileElements.get(line).getLineContent(), fileName), type, ctx, error));
             }
         }
     }
@@ -139,14 +157,14 @@ public class SkriptLogger {
      * Clears every log that is not an error or a debug message.
      */
     public void clearNotError() {
-        logEntries.removeIf(entry -> entry.getRecursion() >= recursion && entry.getType() != LogType.ERROR && entry.getType() != LogType.DEBUG);
+        logEntries.removeIf(entry -> entry.getErrorContext().size() >= errorContext.size() && entry.getType() != LogType.ERROR && entry.getType() != LogType.DEBUG);
     }
 
     /**
      * Clears every log that is not a debug message.
      */
     public void clearLogs() {
-        logEntries.removeIf(entry -> entry.getRecursion() >= recursion && entry.getType() != LogType.DEBUG);
+        logEntries.removeIf(entry -> entry.getErrorContext().size() >= errorContext.size() && entry.getType() != LogType.DEBUG);
         hasError = false;
     }
 

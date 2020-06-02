@@ -13,6 +13,7 @@ import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
+import javax.swing.text.html.parser.Parser;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -62,53 +63,55 @@ public class SyntaxParserTest {
     @Test
     public void literalTest() throws Exception {
         SkriptLogger logger = new SkriptLogger();
+        ParserState parserState = new ParserState();
         PatternType<Number> numberType = getType(Number.class, true);
         assertExpressionTypeEquals(
             BigInteger.class,
-            parseLiteral("1", numberType, logger)
+            parseLiteral("1", numberType, parserState, logger)
         );
         assertExpressionTypeEquals(
             BigDecimal.class,
-            parseLiteral("1.0", numberType, logger)
+            parseLiteral("1.0", numberType, parserState, logger)
         );
         PatternType<String> stringType = getType(String.class, true);
         assertExpressionEquals(
             new SimpleLiteral<>(String.class, "\\\" ()\"\"'"),
-            parseLiteral("R\"µ(\\\" ()\"\"')µ\"", stringType, logger)
+            parseLiteral("R\"µ(\\\" ()\"\"')µ\"", stringType, parserState, logger)
         );
     }
 
     @Test
     public void standardExpressionsTest() throws Exception {
         SkriptLogger logger = new SkriptLogger();
+        ParserState parserState = new ParserState();
         // CondExprCompare
         assertExpressionTrue(
-            parseBooleanExpression("2 > 1", SyntaxParser.MAYBE_CONDITIONAL, logger)
+            parseBooleanExpression("2 > 1", SyntaxParser.MAYBE_CONDITIONAL, parserState, logger)
         );
         assertExpressionTrue(
-            parseBooleanExpression("(3^2) - (2^3) = 1", SyntaxParser.MAYBE_CONDITIONAL, logger)
+            parseBooleanExpression("(3^2) - (2^3) = 1", SyntaxParser.MAYBE_CONDITIONAL, parserState, logger)
         );
         assertExpressionTrue(
-            parseBooleanExpression("1 is between 0 and 10", SyntaxParser.MAYBE_CONDITIONAL, logger)
+            parseBooleanExpression("1 is between 0 and 10", SyntaxParser.MAYBE_CONDITIONAL, parserState, logger)
         );
         // ExprBinaryMathFunctions
         PatternType<Number> numberType = getType(Number.class, true);
         assertExpressionEquals(
             literal((BigDecimal) NumberMath.log(new BigDecimal("2.0"), BigDecimal.TEN)),
-            parseExpression("log base 2 of 10", numberType, logger)
+            parseExpression("log base 2 of 10", numberType, parserState, logger)
         );
         // ExprBooleanOperators
         assertExpressionTrue(
-            parseBooleanExpression("not (false and (false or true))", SyntaxParser.NOT_CONDITIONAL, logger)
+            parseBooleanExpression("not (false and (false or true))", SyntaxParser.NOT_CONDITIONAL, parserState, logger)
         );
         // ExprNumberArithmetic
         assertExpressionEquals(
             literal(new BigDecimal("251")),
-            parseExpression("6*(6+6*6)-6/6", numberType, logger)
+            parseExpression("6*(6+6*6)-6/6", numberType, parserState, logger)
         );
         assertExpressionEquals(
             literal(BigInteger.valueOf(3435)),
-            parseExpression("3^3+4^4+3^3+5^5", numberType, logger)
+            parseExpression("3^3+4^4+3^3+5^5", numberType, parserState, logger)
         );
         // ExprRange
         PatternType<Object> objectsType = getType(Object.class, false);
@@ -118,26 +121,26 @@ public class SyntaxParserTest {
         }
         assertExpressionEquals(
             literal(oneThroughTen),
-            parseExpression("range from 1 to 10", objectsType, logger)
+            parseExpression("range from 1 to 10", objectsType, parserState, logger)
         );
         assertExpressionEquals(
             literal(CollectionUtils.reverseArray(oneThroughTen)),
-            parseExpression("range from 10 to 1", objectsType, logger)
+            parseExpression("range from 10 to 1", objectsType, parserState, logger)
         );
         // ExprUnaryMathFunctions
         assertExpressionEquals(
             literal(new BigDecimal("3628800")),
-            parseExpression("(round acos cos 10)!", numberType, logger)
+            parseExpression("(round acos cos 10)!", numberType, parserState, logger)
         );
         assertExpressionEquals(
             literal(new BigDecimal("4.0")),
-            parseExpression("sqrt 16", numberType, logger)
+            parseExpression("sqrt 16", numberType, parserState, logger)
         );
         // ExprWhether is a wrapper, no need to test it
         // LitMathConstants
         assertExpressionEquals(
             literal(BigDecimalMath.e(BigDecimalMath.DEFAULT_CONTEXT)),
-            parseExpression("e", numberType, logger)
+            parseExpression("e", numberType, parserState, logger)
         );
     }
 

@@ -19,4 +19,12 @@ public class Pair<T, U> {
         return first.equals(pair.first) &&
                 second.equals(pair.second);
     }
+
+    public T getFirst() {
+        return first;
+    }
+
+    public U getSecond() {
+        return second;
+    }
 }

@@ -82,10 +82,10 @@ public class ScriptLoader {
      * @param logger the logger
      * @return a list of {@linkplain Statement effects} inside of the section
      */
-    public static List<Statement> loadItems(FileSection section, SkriptLogger logger) {
+    public static List<Statement> loadItems(FileSection section, ParserState parserState, SkriptLogger logger) {
         List<Statement> items = new ArrayList<>();
         List<FileElement> elements = section.getElements();
-        logger.startLogHandle();
+        logger.recurse();
         for (FileElement element : elements) {
             logger.logOutput();
             logger.nextLine();
@@ -96,11 +96,11 @@ public class ScriptLoader {
                 String content = sec.getLineContent();
                 if (content.regionMatches(true, 0, "if ", 0, "if ".length())) {
                     String toParse = content.substring("if ".length());
-                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, logger);
+                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
                     if (booleanExpression == null) {
                         continue;
                     }
-                    items.add(new Conditional(sec, booleanExpression, Conditional.ConditionalMode.IF, logger));
+                    items.add(new Conditional(sec, booleanExpression, Conditional.ConditionalMode.IF, parserState, logger));
                 } else if (content.regionMatches(true, 0, "else if ", 0, "else if ".length())) {
                     if (items.size() == 0 ||
                         !(items.get(items.size() - 1) instanceof Conditional) ||
@@ -110,11 +110,11 @@ public class ScriptLoader {
                     }
 
                     String toParse = content.substring("else if ".length());
-                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, logger);
+                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
                     if (booleanExpression == null) {
                         continue;
                     }
-                    Conditional c = new Conditional(sec, booleanExpression, Conditional.ConditionalMode.ELSE_IF, logger);
+                    Conditional c = new Conditional(sec, booleanExpression, Conditional.ConditionalMode.ELSE_IF, parserState, logger);
                     ((Conditional) items.get(items.size() - 1)).setFallingClause(c);
                 } else if (content.equalsIgnoreCase("else")) {
                     if (items.size() == 0 ||
@@ -123,10 +123,10 @@ public class ScriptLoader {
                         logger.error("An 'else' must be placed after an 'if' or an 'else if'", ErrorType.STRUCTURE_ERROR);
                         continue;
                     }
-                    Conditional c = new Conditional(sec, null, Conditional.ConditionalMode.ELSE, logger);
+                    Conditional c = new Conditional(sec, null, Conditional.ConditionalMode.ELSE, parserState, logger);
                     ((Conditional) items.get(items.size() - 1)).setFallingClause(c);
                 } else {
-                    CodeSection codeSection = SyntaxParser.parseSection(sec, logger);
+                    CodeSection codeSection = SyntaxParser.parseSection(sec, parserState, logger);
                     if (codeSection == null) {
                         continue;
                     }
@@ -134,7 +134,7 @@ public class ScriptLoader {
                 }
             } else {
                 String content = element.getLineContent();
-                Statement eff = SyntaxParser.parseStatement(content, logger);
+                Statement eff = SyntaxParser.parseStatement(content, parserState, logger);
                 if (eff == null) {
                     continue;
                 }
@@ -145,24 +145,8 @@ public class ScriptLoader {
         for (int i = 0; i + 1 < items.size(); i++) {
             items.get(i).setNext(items.get(i + 1));
         }
-        logger.closeLogHandle();
+        logger.callback();
         return items;
-    }
-
-    public static void addCurrentLoop(Loop loop) {
-        currentLoops.addLast(loop);
-    }
-
-    public static Loop getCurrentLoop() {
-        return currentLoops.getLast();
-    }
-
-    public static void removeCurrentLoop() {
-        currentLoops.removeLast();
-    }
-
-    public static Iterable<Loop> getCurrentLoops() {
-        return currentLoops;
     }
 
     public static MultiMap<String, Trigger> getTriggerMap() {

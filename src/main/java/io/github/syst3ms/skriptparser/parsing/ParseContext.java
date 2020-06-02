@@ -14,15 +14,15 @@ import java.util.regex.MatchResult;
  * @see Expression#init(Expression[], int, ParseContext)
  */
 public class ParseContext {
-    private final Class<? extends TriggerContext>[] currentContexts;
+    private final ParserState parserState;
     private final PatternElement element;
     private final String expressionString;
     private final List<MatchResult> matches;
     private final int parseMark;
     private final SkriptLogger logger;
 
-    public ParseContext(Class<? extends TriggerContext>[] currentContexts, PatternElement element, List<MatchResult> matches, int parseMark, String expressionString, SkriptLogger logger) {
-        this.currentContexts = currentContexts;
+    public ParseContext(ParserState parserState, PatternElement element, List<MatchResult> matches, int parseMark, String expressionString, SkriptLogger logger) {
+        this.parserState = parserState;
         this.element = element;
         this.expressionString = expressionString;
         this.matches = matches;
@@ -58,8 +58,8 @@ public class ParseContext {
         return expressionString;
     }
 
-    public Class<? extends TriggerContext>[] getCurrentContexts() {
-        return currentContexts;
+    public ParserState getParserState() {
+        return parserState;
     }
 
     public SkriptLogger getLogger() {

@@ -98,7 +98,7 @@ public class ExprRange implements Expression<Object> {
         comparator = Comparators.getComparator(from.getReturnType(), to.getReturnType());
         if (range == null) {
             SkriptLogger logger = parseContext.getLogger();
-            parseContext.getLogger().error("Cannot get a range between " + from.toString(null, logger.isDebug()) + " and " + from.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+            logger.error("Cannot get a range between " + from.toString(null, logger.isDebug()) + " and " + from.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
             return false;
         }
         return true;

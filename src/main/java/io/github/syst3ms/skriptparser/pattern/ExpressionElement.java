@@ -8,6 +8,7 @@ import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.MatchContext;
+import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.util.StringUtils;
@@ -48,7 +49,6 @@ public class ExpressionElement implements PatternElement {
             return -1;
         }
         SkriptLogger logger = context.getLogger();
-        logger.startLogHandle();
         List<PatternElement> flattened = PatternElement.flatten(context.getOriginalElement());
         // We look at what could possibly be after the expression in the current syntax
         List<PatternElement> possibleInputs = PatternElement.getPossibleInputs(flattened.subList(context.getPatternIndex(), flattened.size()));
@@ -59,26 +59,22 @@ public class ExpressionElement implements PatternElement {
                     continue;
                 if (text.equals("\0")) { // End of line
                     if (index == 0) {
-                        logger.closeLogHandle();
                         return -1;
                     }
                     String toParse = s.substring(index).trim();
-                    Expression<?> expression = parse(toParse, typeArray, logger);
+                    Expression<?> expression = parse(toParse, typeArray, context.getParserState(), logger);
                     if (expression != null) {
                         context.addExpression(expression);
-                        logger.closeLogHandle();
                         return index + toParse.length();
                     }
-                    logger.closeLogHandle();
                     return -1;
                 }
                 int i = StringUtils.indexOfIgnoreCase(s, text, index);
                 while (i != -1) {
                     String toParse = s.substring(index, i).trim();
-                    Expression<?> expression = parse(toParse, typeArray, logger);
+                    Expression<?> expression = parse(toParse, typeArray, context.getParserState(), logger);
                     if (expression != null) {
                         context.addExpression(expression);
-                        logger.closeLogHandle();
                         return index + toParse.length();
                     }
                     i = StringUtils.indexOfIgnoreCase(s, text, i + 1);
@@ -93,10 +89,9 @@ public class ExpressionElement implements PatternElement {
                     String toParse = s.substring(index, i);
                     if (toParse.length() == context.getOriginalPattern().length())
                         continue;
-                    Expression<?> expression = parse(toParse, typeArray, logger);
+                    Expression<?> expression = parse(toParse, typeArray, context.getParserState(), logger);
                     if (expression != null) {
                         context.addExpression(expression);
-                        logger.closeLogHandle();
                         return index + toParse.length();
                     }
                 }
@@ -115,10 +110,9 @@ public class ExpressionElement implements PatternElement {
                             int i = StringUtils.indexOfIgnoreCase(s, split, index);
                             if (i != -1) {
                                 String toParse = s.substring(index, i);
-                                Expression<?> expression = parse(toParse, typeArray, logger);
+                                Expression<?> expression = parse(toParse, typeArray, context.getParserState(), logger);
                                 if (expression != null) {
                                     context.addExpression(expression);
-                                    logger.closeLogHandle();
                                     return index + toParse.length();
                                 }
                             }
@@ -135,10 +129,9 @@ public class ExpressionElement implements PatternElement {
                             int i = StringUtils.indexOfIgnoreCase(s, split, index);
                             if (i != -1) {
                                 String toParse = s.substring(index, i);
-                                Expression<?> expression = parse(toParse, typeArray, logger);
+                                Expression<?> expression = parse(toParse, typeArray, context.getParserState(), logger);
                                 if (expression != null) {
                                     context.addExpression(expression);
-                                    logger.closeLogHandle();
                                     return index + toParse.length();
                                 }
                             }
@@ -147,7 +140,6 @@ public class ExpressionElement implements PatternElement {
                 }
             }
         }
-        logger.closeLogHandle();
         return -1;
     }
 
@@ -181,18 +173,21 @@ public class ExpressionElement implements PatternElement {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Expression<? extends T> parse(String s, PatternType<?>[] types, SkriptLogger logger) {
+    private <T> Expression<? extends T> parse(String s, PatternType<?>[] types, ParserState parserState, SkriptLogger logger) {
         for (PatternType<?> type : types) {
             Expression<? extends T> expression;
+            logger.recurse();
             if (type.equals(SyntaxParser.BOOLEAN_PATTERN_TYPE)) {
                 // NOTE : conditions call parseBooleanExpression straight away
                 expression = (Expression<? extends T>) SyntaxParser.parseBooleanExpression(
                         s,
-                        acceptsConditional ? SyntaxParser.MAYBE_CONDITIONAL : SyntaxParser.NOT_CONDITIONAL, logger
-                );
+                        acceptsConditional ? SyntaxParser.MAYBE_CONDITIONAL : SyntaxParser.NOT_CONDITIONAL,
+                        parserState,
+                        logger);
             } else {
-                expression = SyntaxParser.parseExpression(s, (PatternType<T>) type, logger);
+                expression = SyntaxParser.parseExpression(s, (PatternType<T>) type, parserState, logger);
             }
+            logger.callback();
             if (expression == null)
                 continue;
             switch (acceptance) {

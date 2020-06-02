@@ -16,17 +16,17 @@ public class MatchContext {
     private String originalPattern;
     private PatternElement originalElement;
     // Provided to the syntax's class
-    private final Class<? extends TriggerContext>[] currentContext;
+    private final ParserState parserState;
     private final SkriptLogger logger;
     private List<Expression<?>> parsedExpressions = new ArrayList<>();
     private List<MatchResult> regexMatches = new ArrayList<>();
     private int patternIndex = 0;
     private int parseMark = 0;
 
-    public MatchContext(PatternElement e, Class<? extends TriggerContext>[] currentContext, SkriptLogger logger) {
+    public MatchContext(PatternElement e, ParserState parserState, SkriptLogger logger) {
         this.originalPattern = e.toString();
         this.originalElement = e;
-        this.currentContext = currentContext;
+        this.parserState = parserState;
         this.logger = logger;
     }
 
@@ -66,7 +66,7 @@ public class MatchContext {
     }
 
     public MatchContext branch(PatternElement e) {
-        return new MatchContext(e, currentContext, logger);
+        return new MatchContext(e, parserState, logger);
     }
 
     public void merge(MatchContext branch) {
@@ -80,7 +80,11 @@ public class MatchContext {
      * @return a {@link ParseContext} based on this {@link MatchContext}
      */
     public ParseContext toParseResult() {
-        return new ParseContext(currentContext, originalElement, regexMatches, parseMark, originalPattern, logger);
+        return new ParseContext(parserState, originalElement, regexMatches, parseMark, originalPattern, logger);
+    }
+
+    public ParserState getParserState() {
+        return parserState;
     }
 
     public SkriptLogger getLogger() {

@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.parsing.ParserState;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -23,8 +24,8 @@ public class Conditional extends CodeSection {
     private Expression<Boolean> condition;
     private Conditional fallingClause;
 
-    public Conditional(FileSection section, @Nullable Expression<Boolean> condition, ConditionalMode mode, SkriptLogger logger) {
-        super.loadSection(section, logger);
+    public Conditional(FileSection section, @Nullable Expression<Boolean> condition, ConditionalMode mode, ParserState parserState, SkriptLogger logger) {
+        super.loadSection(section, parserState, logger);
         this.condition = condition;
         this.mode = mode;
     }

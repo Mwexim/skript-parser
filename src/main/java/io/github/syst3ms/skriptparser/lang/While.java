@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.parsing.ParserState;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -24,8 +25,8 @@ public class While extends CodeSection {
     }
 
     @Override
-    public void loadSection(FileSection section, SkriptLogger logger) {
-        super.loadSection(section, logger);
+    public void loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+        super.loadSection(section, parserState, logger);
         super.setNext(this);
     }
 

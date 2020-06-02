@@ -2,17 +2,17 @@ package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Loop;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
-import javafx.util.Pair;
+import io.github.syst3ms.skriptparser.util.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
@@ -65,8 +65,10 @@ public class ExprLoopValue implements Expression<Object> {
 		}
 		int j = 1;
 		Loop loop = null;
-
-		for (final Loop l : ScriptLoader.getCurrentLoops()) {
+		for (final CodeSection sec : parser.getParserState().getCurrentSections()) {
+			if (!(sec instanceof Loop))
+				continue;
+			final Loop l = (Loop) sec;
             Class<?> loopedType = l.getLoopedExpression().getReturnType();
             if (c != null && (c.isAssignableFrom(loopedType) || loopedType == Object.class) ||
                 "value".equals(s) ||
@@ -122,9 +124,9 @@ public class ExprLoopValue implements Expression<Object> {
 				return new Object[0];
 			}
 			if (isIndex) {
-				return new String[] {current.getKey()};
+				return new String[] {current.getFirst()};
 			}
-			one[0] = current.getValue();
+			one[0] = current.getSecond();
 			return one;
 		}
 		one[0] = loop.getCurrent(ctx);
