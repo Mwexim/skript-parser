@@ -2,7 +2,7 @@ package io.github.syst3ms.skriptparser.lang;
 
 /**
  * A context under which a trigger may be run.
- * A simpler version of Bukkit's Event class.
+ * A parallel to Bukkit's own Event class.
  */
 public interface TriggerContext {
     /**

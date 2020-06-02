@@ -1,5 +1,7 @@
 package io.github.syst3ms.skriptparser.util;
 
+import io.github.syst3ms.skriptparser.log.ErrorType;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import org.jetbrains.annotations.Nullable;
 
@@ -161,15 +163,13 @@ public class StringUtils {
     }
 
     /**
-     * Find the first occurence of a string in another one, ignoring case
+     * Find the first occurrence of a string in another one, ignoring case
      * @param haystack the string to look in
      * @param needle the string to look for
      * @param start where to look from
-     * @return the index of the first occurence
+     * @return the index of the first occurrence
      */
-    public static int indexOfIgnoreCase(String haystack,
-                                        String needle,
-                                        int start) {
+    public static int indexOfIgnoreCase(String haystack, String needle, int start) {
         if (needle.isEmpty() || haystack.isEmpty()) {
             // Fallback to legacy behavior.
             return haystack.indexOf(needle);
@@ -182,18 +182,18 @@ public class StringUtils {
 
             // Attempt to match substring starting at position i of haystack.
             int j = 0;
-            int ii = i;
-            while (ii < haystack.length() && j < needle.length()) {
-                char c = Character.toLowerCase(haystack.charAt(ii));
+            int k = i;
+            while (k < haystack.length() && j < needle.length()) {
+                char c = Character.toLowerCase(haystack.charAt(k));
                 char c2 = Character.toLowerCase(needle.charAt(j));
                 if (c != c2) {
                     break;
                 }
                 j++;
-                ii++;
+                k++;
             }
             // Walked all the way to the end of the needle, return the start
-            // position that this was found.
+            // position that this was found at.
             if (j == needle.length()) {
                 return i;
             }
@@ -204,9 +204,10 @@ public class StringUtils {
     /**
      * Split a pattern at pipe characters, properly accounting for brackets and escapes
      * @param s the string to split
+     * @param logger the logger
      * @return the split string
      */
-    public static String[] splitVerticalBars(String s) {
+    public static String[] splitVerticalBars(String s, SkriptLogger logger) {
         List<String> split = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         char[] chars = s.toCharArray();
@@ -220,8 +221,10 @@ public class StringUtils {
             } else if (c == '(' || c == '[') {
                 char closing = c == '(' ? ')' : ']';
                 String text = getEnclosedText(s, c, closing, i);
-                if (text == null)
-                    throw new SkriptParserException("Couldn't find a closing '" + c + "' bracket at index " + i);
+                if (text == null) {
+                    logger.error("Unmatched bracket : '" + s.substring(i) + "'", ErrorType.MALFORMED_INPUT);
+                    return null;
+                }
                 sb.append(c).append(text).append(closing);
                 i += text.length() + 1;
             } else if (c == '|') {

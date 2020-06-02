@@ -3,19 +3,13 @@ package io.github.syst3ms.skriptparser.util;
 import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * A simple list that is only meant to keep track of which syntaxes are used frequently, in order to preemptively check
  * them against a string that's being parsed.
  *
- * To illustrate the behaviour of this class, imagine you use some syntax A 10 times, then use syntax B once. The very
+ * To illustrate the behaviour of this class, imagine you use some syntax A 8 times, then use syntax B once. The very
  * next time the parser does the "recent syntaxes" check, it will check syntax A first, because it was used more than syntax B.
  * @param <T> the type of {@link SyntaxInfo}
  */
@@ -34,8 +28,8 @@ public class RecentElementList<T> implements Iterable<T> {
     // Sorts entries by their value in decreasing order
     private static final Comparator<Map.Entry<?, Integer>> ENTRY_COMPARATOR = (f, s) -> s.getValue() - f.getValue();
 
-    private List<Map.Entry<T, Integer>> backing = new ArrayList<>();
-    private List<T> occurrences = new ArrayList<>();
+    private final List<Map.Entry<T, Integer>> backing = new ArrayList<>();
+    private final List<T> occurrences = new ArrayList<>();
 
     public RecentElementList() {}
 
@@ -78,12 +72,12 @@ public class RecentElementList<T> implements Iterable<T> {
     public Iterator<T> iterator() {
         backing.sort(ENTRY_COMPARATOR);
         /*
-         Anonymous class because usual Iterator implementations check for concurrent modification, which we don't really
-         care about here. This shouldn't cause issues even if parallel parsing is implemented, because any reasonable
-         implementation would not use one RecentElementList across multiple threads. At least I hope so...
-          */
+         * Anonymous class because usual Iterator implementations check for concurrent modification, which we don't really
+         * care about here. This shouldn't cause issues even if parallel parsing is implemented, because any reasonable
+         * implementation would not use one RecentElementList across multiple threads. At least I hope so...
+         */
         return new Iterator<T>() {
-            private List<Map.Entry<T, Integer>> b = backing;
+            private final List<Map.Entry<T, Integer>> b = backing;
             private int index = 0;
 
             @Override

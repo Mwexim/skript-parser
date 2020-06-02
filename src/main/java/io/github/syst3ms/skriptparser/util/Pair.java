@@ -1,5 +1,10 @@
 package io.github.syst3ms.skriptparser.util;
 
+/**
+ * A simple pair of two values.
+ * @param <T> type of the first value
+ * @param <U> type of the second value
+ */
 public class Pair<T, U> {
     private final T first;
     private final U second;
@@ -18,5 +23,21 @@ public class Pair<T, U> {
         Pair<?, ?> pair = (Pair<?, ?>) o;
         return first.equals(pair.first) &&
                 second.equals(pair.second);
+    }
+
+    /**
+     * Retrieves the first element
+     * @return the first element
+     */
+    public T getFirst() {
+        return first;
+    }
+
+    /**
+     * Retrieves the second element
+     * @return the second element
+     */
+    public U getSecond() {
+        return second;
     }
 }

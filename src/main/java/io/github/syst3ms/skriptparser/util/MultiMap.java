@@ -13,8 +13,8 @@ import java.util.List;
 // I know classes like this are out there but the ones available to me didn't work
 public class MultiMap<K, V> extends HashMap<K, List<V>> {
     /**
-     * Looks for a list that is mapped to the given key. If there is not one then a new one is created
-     * mapped and has the value added to it.
+     * Looks for a list that is mapped to the given key. If there is one, then the given value is added to that list.
+     * If there isn't, then a new entry is created and has the value added to it..
      *
      * @param key the key
      * @param value the value
@@ -29,6 +29,9 @@ public class MultiMap<K, V> extends HashMap<K, List<V>> {
         }
     }
 
+    /**
+     * @return all values of all keys of this MultiMap
+     */
     public List<V> getAllValues() {
         List<V> values = new ArrayList<>();
         for (Iterable<V> v : values()) {

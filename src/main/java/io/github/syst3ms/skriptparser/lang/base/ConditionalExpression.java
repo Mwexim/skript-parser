@@ -1,7 +1,8 @@
 package io.github.syst3ms.skriptparser.lang.base;
 
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.Conditional;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 
 /**
  * A base class for all boolean expressions (i.e {@linkplain Expression<Boolean>}) that should be treated as
@@ -13,7 +14,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
  * </ol>
  *
  * Other, non-conditional boolean expressions should implement {@link Expression<Boolean>}
- * @see io.github.syst3ms.skriptparser.lang.Conditional
+ * @see Conditional
  */
 public abstract class ConditionalExpression implements Expression<Boolean> {
     private boolean negated = false;

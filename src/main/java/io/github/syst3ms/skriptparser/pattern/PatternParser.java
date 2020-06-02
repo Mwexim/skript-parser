@@ -1,14 +1,7 @@
 package io.github.syst3ms.skriptparser.pattern;
 
-import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
-import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
-import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
-import io.github.syst3ms.skriptparser.pattern.CompoundElement;
-import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
-import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
-import io.github.syst3ms.skriptparser.pattern.PatternElement;
-import io.github.syst3ms.skriptparser.pattern.RegexGroup;
-import io.github.syst3ms.skriptparser.pattern.TextElement;
+import io.github.syst3ms.skriptparser.log.ErrorType;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.StringUtils;
@@ -34,22 +27,23 @@ public class PatternParser {
      * @return the parsed PatternElement, or {@literal null} if something went wrong.
      */
     @Nullable
-    public PatternElement parsePattern(String pattern) {
+    public PatternElement parsePattern(String pattern, SkriptLogger logger) {
         List<PatternElement> elements = new ArrayList<>();
         StringBuilder textBuilder = new StringBuilder();
-        try {
-            if (StringUtils.splitVerticalBars(pattern).length > 1) {
-                pattern = "(" + pattern + ")";
-            }
-        } catch (SkriptParserException ex) {
+        String[] parts = StringUtils.splitVerticalBars(pattern, logger);
+        if (parts == null) {
             return null;
+        } else if (parts.length > 1) {
+            pattern = "(" + pattern + ")";
         }
         char[] chars = pattern.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             char c = chars[i];
+            int initialPos = i;
             if (c == '[') {
                 String s = StringUtils.getEnclosedText(pattern, '[', ']', i);
                 if (s == null) {
+                    logger.error("Unmatched square bracket (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
                     return null;
                 }
                 if (textBuilder.length() != 0) {
@@ -61,15 +55,30 @@ public class PatternParser {
                 PatternElement content;
                 if (m.matches()) {
                     String mark = m.group(1);
-                    int markNumber = Integer.parseInt(mark);
+                    String base = m.group(2);
+                    int markNumber;
+                    try {
+                        if (base == null) {
+                            markNumber = Integer.parseInt(mark);
+                        } else if (base.equals("b")) {
+                            markNumber = Integer.parseInt(s, 2);
+                        } else if (base.equals("f")) {
+                            markNumber = Integer.parseInt(s, 16);
+                        } else {
+                            logger.error("Invalid parse mark (index " + initialPos + ") : '" + mark + base + "'", ErrorType.MALFORMED_INPUT);
+                            return null;
+                        }
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
                     String rest = s.substring(mark.length() + 1);
-                    PatternElement e = parsePattern(rest);
+                    PatternElement e = parsePattern(rest, logger);
                     if (e == null) {
                         return null;
                     }
                     content = new ChoiceGroup(Collections.singletonList(new ChoiceElement(e, markNumber))); // I said I would keep the other constructor for unit tests
                 } else {
-                    content = parsePattern(s);
+                    content = parsePattern(s, logger);
                     if (content == null) {
                         return null;
                     }
@@ -78,6 +87,7 @@ public class PatternParser {
             } else if (c == '(') {
                 String s = StringUtils.getEnclosedText(pattern, '(', ')', i);
                 if (s == null) {
+                    logger.error("Unmatched parenthesis (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
                     return null;
                 }
                 if (textBuilder.length() != 0) {
@@ -85,21 +95,39 @@ public class PatternParser {
                     textBuilder = new StringBuilder();
                 }
                 i += s.length() + 1;
-                String[] choices = StringUtils.splitVerticalBars(s);
+                String[] choices = StringUtils.splitVerticalBars(s, logger);
+                if (choices == null) {
+                    return null;
+                }
                 List<ChoiceElement> choiceElements = new ArrayList<>();
                 for (String choice : choices) {
                     Matcher matcher = PARSE_MARK_PATTERN.matcher(choice);
                     if (matcher.matches()) {
                         String mark = matcher.group(1);
-                        int markNumber = Integer.parseInt(mark);
+                        String base = matcher.group(2);
+                        int markNumber;
+                        try {
+                            if (base == null) {
+                                markNumber = Integer.parseInt(mark);
+                            } else if (base.equals("b")) {
+                                markNumber = Integer.parseInt(s, 2);
+                            } else if (base.equals("f")) {
+                                markNumber = Integer.parseInt(s, 16);
+                            } else {
+                                logger.error("Invalid parse mark (index " + initialPos + ") : '" + mark + base + "'", ErrorType.MALFORMED_INPUT);
+                                return null;
+                            }
+                        } catch (NumberFormatException e) {
+                            return null;
+                        }
                         String rest = choice.substring(mark.length() + 1);
-                        PatternElement choiceContent = parsePattern(rest);
+                        PatternElement choiceContent = parsePattern(rest, logger);
                         if (choiceContent == null) {
                             return null;
                         }
                         choiceElements.add(new ChoiceElement(choiceContent, markNumber));
                     } else {
-                        PatternElement choiceContent = parsePattern(choice);
+                        PatternElement choiceContent = parsePattern(choice, logger);
                         if (choiceContent == null) {
                             return null;
                         }
@@ -110,6 +138,7 @@ public class PatternParser {
             } else if (c == '<') {
                 String s = StringUtils.getEnclosedText(pattern, '<', '>', i);
                 if (s == null) {
+                    logger.error("Unmatched angle bracket (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
                     return null;
                 }
                 if (textBuilder.length() != 0) {
@@ -121,6 +150,7 @@ public class PatternParser {
                 try {
                     pat = Pattern.compile(s);
                 } catch (PatternSyntaxException e) {
+                    logger.error("Invalid regex pattern (index " + initialPos + ") : '" + s + "'", ErrorType.MALFORMED_INPUT);
                     return null;
                 }
                 elements.add(new RegexGroup(pat));
@@ -131,6 +161,7 @@ public class PatternParser {
                  */
                 int nextIndex = pattern.indexOf('%', i + 1);
                 if (nextIndex == -1) {
+                    logger.error("Unmatched percent (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
                     return null;
                 }
                 if (textBuilder.length() != 0) {
@@ -141,6 +172,7 @@ public class PatternParser {
                 i = nextIndex;
                 Matcher m = VARIABLE_PATTERN.matcher(s);
                 if (!m.matches()) {
+                    logger.error("Invalid expression element (index " + initialPos + ") : '" + s + "'", ErrorType.MALFORMED_INPUT);
                     return null;
                 } else {
                     boolean nullable = m.group(1) != null;
@@ -159,22 +191,26 @@ public class PatternParser {
                     for (String type : types) {
                         PatternType<?> t = TypeManager.getPatternType(type);
                         if (t == null) {
+                            logger.error("Unknown type (index " + initialPos + ") : '" + type + "'", ErrorType.NO_MATCH);
                             return null;
                         }
                         patternTypes.add(t);
                     }
                     boolean acceptConditional = m.group(3) != null;
-                    if (acceptConditional && patternTypes.stream().noneMatch(t -> t.getType().getTypeClass() == Boolean.class))
-                        throw new SkriptParserException("Can't use the '=' flag on non-boolean types");
+                    if (acceptConditional && patternTypes.stream().noneMatch(t -> t.getType().getTypeClass() == Boolean.class)) {
+                        logger.error("Can't use the '=' flag on non-boolean types (index " + initialPos + ")", ErrorType.SEMANTIC_ERROR);
+                    }
                     elements.add(new ExpressionElement(patternTypes, acceptance, nullable, acceptConditional));
                 }
             } else if (c == '\\') {
                 if (i == pattern.length() - 1) {
+                    logger.error("Invalid backslash at the end of the string", ErrorType.MALFORMED_INPUT);
                     return null;
                 } else {
                     textBuilder.append(chars[++i]);
                 }
             } else if (c == ']' || c == ')' || c == '>') { // Closing brackets are skipped over, so this marks an error
+                logger.error("Unmatched closing bracket (index " + initialPos + ") : '" + pattern.substring(0, initialPos + 1) + "'", ErrorType.MALFORMED_INPUT);
                 return null;
             } else {
                 textBuilder.append(c);

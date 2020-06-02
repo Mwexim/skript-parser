@@ -8,7 +8,7 @@ import java.util.function.Function;
 @SuppressWarnings("unchecked")
 public class ConverterUtils {
 
-    public static <F, T> Function<?, ? extends T> createInstanceofConverter(Converters.ConverterInfo<F, T> conv) {
+    public static <F, T> Function<?, ? extends T> createInstanceofConverter(ConverterInfo<F, T> conv) {
         return createInstanceofConverter(conv.getFrom(), (Function<F, T>) conv.getConverter());
     }
 
@@ -29,7 +29,7 @@ public class ConverterUtils {
         };
     }
 
-    public static <F, T> Function<?, ? extends T> createDoubleInstanceofConverter(Converters.ConverterInfo<F, ?> conv, Class<T> to) {
+    public static <F, T> Function<?, ? extends T> createDoubleInstanceofConverter(ConverterInfo<F, ?> conv, Class<T> to) {
         return createDoubleInstanceofConverter(conv.getFrom(), (Function<F, ?>) conv.getConverter(), to);
     }
 

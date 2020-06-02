@@ -1,13 +1,13 @@
-package io.github.syst3ms.skriptparser.classes;
+package io.github.syst3ms.skriptparser.types.changers;
 
+import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 
 /**
  * An enum representing how an expression <em>could</em> be changed
  *
- * @see io.github.syst3ms.skriptparser.effects.EffChange
- * @see io.github.syst3ms.skriptparser.lang.Expression#acceptsChange(ChangeMode)
- * @see io.github.syst3ms.skriptparser.lang.Expression#change(TriggerContext, Object[], ChangeMode)
+ * @see Expression#acceptsChange(ChangeMode)
+ * @see Expression#change(TriggerContext, Object[], ChangeMode)
  */
 public enum ChangeMode {
 

@@ -5,12 +5,7 @@ import io.github.syst3ms.skriptparser.util.ClassUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * A list of expressions
@@ -21,9 +16,9 @@ public class ExpressionList<T> implements Expression<T> {
     protected final boolean single;
     protected boolean and;
     protected Expression<? extends T>[] expressions;
-    private Class<T> returnType;
+    private final Class<T> returnType;
     @Nullable
-    private ExpressionList<?> source;
+    private final ExpressionList<?> source;
 
     public ExpressionList(Expression<? extends T>[] expressions, Class<T> returnType, boolean and) {
         this(expressions, returnType, and, null);

@@ -7,7 +7,7 @@ import java.util.List;
  * were indented after it. "all the lines" doesn't exclude sections.
  */
 public class FileSection extends FileElement {
-    private List<FileElement> elements;
+    private final List<FileElement> elements;
 
     public FileSection(String fileName, int line, String content, List<FileElement> elements, int indentation) {
         super(fileName, line, content, indentation);

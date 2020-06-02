@@ -1,11 +1,12 @@
 package io.github.syst3ms.skriptparser.variables;
 
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
+import io.github.syst3ms.skriptparser.parsing.ParserState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -19,12 +20,12 @@ public class Variables {
     public static final String LIST_SEPARATOR = "::";
     public static final String LOCAL_VARIABLE_TOKEN = "_";
     public static final Pattern REGEX_PATTERN = Pattern.compile("\\{([^{}]|%\\{|}%)+}");
-    private static VariableMap variableMap = new VariableMap();
+    private static final VariableMap variableMap = new VariableMap();
     // Yes, I know it should be trigger-specific, but I haven't got to that part yet, ok ? TODO make the change
-    private static Map<TriggerContext, VariableMap> localVariables = new HashMap<>();
+    private static final Map<TriggerContext, VariableMap> localVariables = new HashMap<>();
 
     @Nullable
-    public static <T> Expression<T> parseVariable(String s, Class<? extends T> types, SkriptLogger logger) {
+    public static <T> Expression<T> parseVariable(String s, Class<? extends T> types, ParserState parserState, SkriptLogger logger) {
         s = s.trim();
         if (REGEX_PATTERN.matcher(s).matches()) {
             s = s.substring(1, s.length() - 1);
@@ -34,8 +35,11 @@ public class Variables {
         if (!isValidVariableName(s, true, logger)) {
             return null;
         }
-        VariableString vs = VariableString.newInstance(s.startsWith(LOCAL_VARIABLE_TOKEN) ? s.substring(
-            LOCAL_VARIABLE_TOKEN.length()).trim() : s, logger);
+        VariableString vs = VariableString.newInstance(
+                s.startsWith(LOCAL_VARIABLE_TOKEN) ? s.substring(LOCAL_VARIABLE_TOKEN.length()).trim() : s,
+                parserState,
+                logger
+        );
         if (vs == null) {
             return null;
         }

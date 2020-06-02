@@ -38,6 +38,12 @@ public class ClassUtils {
         return r;
     }
 
+    /**
+     * Checks whether an array of classes contains a superclass of the second class argument
+     * @param haystack the array of classes to check
+     * @param needle the class which may have a superclass inside of the array
+     * @return whether the first argument contains a superclass of the second argument
+     */
     public static boolean containsSuperclass(Class<?>[] haystack, Class<?> needle) {
         for (Class<?> c : haystack) {
             if (c.isArray())

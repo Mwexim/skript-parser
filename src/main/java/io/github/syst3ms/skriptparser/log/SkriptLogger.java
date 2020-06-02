@@ -3,41 +3,79 @@ package io.github.syst3ms.skriptparser.log;
 import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileSection;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * A class managing Skript's I/O messages.
+ * An object through which Skript can keep track of errors, warnings and other useful information to the one that writes
+ * Skript code.
  */
 public class SkriptLogger {
     public static final String LOG_FORMAT = "%s (line %d: \"%s\", %s)";
+    /*
+     * In decreasing order of priority :
+     * ErrorContext.RESTRICTED_SYNTAXES
+     * ErrorContext.CONSTRAINT_CHECKING
+     * ErrorContext.INITIALIZATION
+     * ErrorContext.MATCHING
+     * ErrorContext.MATCHING + ErrorContext.RESTRICTED_SYNTAXES
+     * ErrorContext.MATCHING + ErrorContext.CONSTRAINT_CHECKING
+     * ErrorContext.MATCHING + ErrorContext.INITIALIZATION
+     * ErrorContext.MATCHING + ErrorContext.MATCHING
+     * ErrorContext.MATCHING + ErrorContext.MATCHING + ErrorContext.RESTRICTED_SYNTAXES
+     * ErrorContext.MATCHING + ErrorContext.MATCHING + ErrorContext.CONSTRAINT_CHECKING
+     * ErrorContext.MATCHING + ErrorContext.MATCHING + ErrorContext.INITIALIZATION
+     * ErrorContext.MATCHING + ErrorContext.MATCHING + ErrorContext.MATCHING
+     * ...
+     * ErrorContext.MATCHING + ErrorContext.MATCHING + ErrorContext.NO_MATCH
+     * ErrorContext.MATCHING + ErrorContext.NO_MATCH
+     * ErrorContext.NO_MATCH
+     */
     private static final Comparator<LogEntry> ERROR_COMPARATOR = (e1, e2) -> {
-        if (e1.getErrorType().ordinal() != e2.getErrorType().ordinal()) {
-            return e1.getErrorType().ordinal() - e2.getErrorType().ordinal();
+        List<ErrorContext> c1 = e1.getErrorContext(),
+                c2 = e2.getErrorContext();
+        if (!c1.equals(c2)) {
+            String s1 = c1.stream()
+                    .map(c -> Integer.toString(c.ordinal()))
+                    .collect(Collectors.joining());
+            String s2 = c2.stream()
+                    .map(c -> Integer.toString(c.ordinal()))
+                    .collect(Collectors.joining());
+            return s1.compareTo(s2);
         } else {
-            return e1.getRecursion() - e2.getRecursion();
+            return e1.getErrorType().ordinal() - e2.getErrorType().ordinal();
         }
     };
     // State
     private final boolean debug;
     private boolean open = true;
     private boolean hasError = false;
-    private int recursion = 1;
+    private final LinkedList<ErrorContext> errorContext = new LinkedList<>();
     // File
     private String fileName;
     private List<FileElement> fileElements;
     private int line = -1;
     // Logs
-    private List<LogEntry> logEntries = new ArrayList<>();
-    private List<LogEntry> logged = new ArrayList<>();
+    private final List<LogEntry> logEntries = new ArrayList<>();
+    private final List<LogEntry> logged = new ArrayList<>();
 
     public SkriptLogger(boolean debug) {
         this.debug = debug;
+        errorContext.addLast(ErrorContext.MATCHING);
     }
 
     public SkriptLogger() {
         this(false);
     }
 
+    /**
+     * Provides the logger information about the file it's currently parsing
+     * @param fileName the file name
+     * @param fileElements the {@link FileElement}s of the current file
+     */
     public void setFileInfo(String fileName, List<FileElement> fileElements) {
         this.fileName = fileName;
         this.fileElements = flatten(fileElements);
@@ -62,27 +100,53 @@ public class SkriptLogger {
     }
 
     /**
+     * Like {@link #setLine(int)}, is only used for the purposes of the trigger loading priority system.
+     * @return the current line
+     */
+    public int getLine() {
+        return line;
+    }
+
+    /**
+     * Like {@link #getLine()}, is only used for the purposes of the trigger loading priority system.
+     * @param line the new line number
+     */
+    public void setLine(int line) {
+        this.line = line;
+    }
+
+    /**
      * Increments the recursion of the logger ; should be called before calling methods that may use SkriptLogger later
      * in execution.
      */
-    public void startLogHandle() {
-        recursion++;
+    public void recurse() {
+        errorContext.addLast(ErrorContext.MATCHING);
     }
 
     /**
      * Decrements the recursion of the logger ; should be called after calling methods that may use SkriptLogger later
      * in execution.
      */
-    public void closeLogHandle() {
-        recursion--;
+    public void callback() {
+        errorContext.removeLast();
+    }
+
+    /**
+     * Updates the error context, which matters for establishing which errors are the most important
+     * @param context the new error context
+     */
+    public void setContext(ErrorContext context) {
+        errorContext.removeLast();
+        errorContext.addLast(context);
     }
 
     private void log(String message, LogType type, ErrorType error) {
         if (open) {
+            List<ErrorContext> ctx = new ArrayList<>(errorContext);
             if (line == -1) {
-                logEntries.add(new LogEntry(message, type, recursion, error));
+                logEntries.add(new LogEntry(message, type, line, ctx, error));
             } else {
-                logEntries.add(new LogEntry(String.format(LOG_FORMAT, message, line + 1, fileElements.get(line).getLineContent(), fileName), type, recursion, error));
+                logEntries.add(new LogEntry(String.format(LOG_FORMAT, message, line + 1, fileElements.get(line).getLineContent(), fileName), type, line, ctx, error));
             }
         }
     }
@@ -94,7 +158,7 @@ public class SkriptLogger {
      */
     public void error(String message, ErrorType errorType) {
         if (!hasError) {
-            clearNotError();
+            clearNotError(); // Errors take priority over everything (except DEBUG), so we just delete all other logs
             log(message, LogType.ERROR, errorType);
             hasError = true;
         }
@@ -137,14 +201,14 @@ public class SkriptLogger {
      * Clears every log that is not an error or a debug message.
      */
     public void clearNotError() {
-        logEntries.removeIf(entry -> entry.getRecursion() >= recursion && entry.getType() != LogType.ERROR && entry.getType() != LogType.DEBUG);
+        logEntries.removeIf(entry -> entry.getErrorContext().size() >= errorContext.size() && entry.getType() != LogType.ERROR && entry.getType() != LogType.DEBUG);
     }
 
     /**
      * Clears every log that is not a debug message.
      */
     public void clearLogs() {
-        logEntries.removeIf(entry -> entry.getRecursion() >= recursion && entry.getType() != LogType.DEBUG);
+        logEntries.removeIf(entry -> entry.getErrorContext().size() >= errorContext.size() && entry.getType() != LogType.DEBUG);
         hasError = false;
     }
 
@@ -155,9 +219,9 @@ public class SkriptLogger {
     public void logOutput() {
         logEntries.stream()
                 .filter(e -> e.getType() == LogType.ERROR)
-                .max(ERROR_COMPARATOR)
+                .min(ERROR_COMPARATOR)
                 .ifPresent(logged::add);
-        for (LogEntry entry : logEntries) {
+        for (LogEntry entry : logEntries) { // If no errors have been logged, then all other LogTypes get logged here, DEBUG being the special case
             if (entry.getType() != LogType.ERROR) {
                 logged.add(entry);
             }
@@ -171,6 +235,11 @@ public class SkriptLogger {
      */
     public List<LogEntry> close() {
         open = false;
+        logged.sort((e1, e2) -> { // Due to the load priority system, entries might not be ordered like their corresponding lines
+            if (e1.getLine() == -1 || e2.getLine() == -1)
+                return 0;
+            return e1.getLine() - e2.getLine();
+        });
         return logged;
     }
 

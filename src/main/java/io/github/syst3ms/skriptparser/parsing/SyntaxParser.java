@@ -1,21 +1,9 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
-import io.github.syst3ms.skriptparser.lang.CodeSection;
-import io.github.syst3ms.skriptparser.lang.Effect;
-import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.ExpressionList;
-import io.github.syst3ms.skriptparser.lang.InlineCondition;
-import io.github.syst3ms.skriptparser.lang.Literal;
-import io.github.syst3ms.skriptparser.lang.LiteralList;
-import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
-import io.github.syst3ms.skriptparser.lang.SkriptEvent;
-import io.github.syst3ms.skriptparser.lang.Statement;
-import io.github.syst3ms.skriptparser.lang.Trigger;
-import io.github.syst3ms.skriptparser.lang.Variable;
-import io.github.syst3ms.skriptparser.lang.VariableString;
+import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
+import io.github.syst3ms.skriptparser.log.ErrorContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
@@ -49,18 +37,18 @@ import java.util.regex.Pattern;
 @SuppressWarnings("unchecked")
 public class SyntaxParser {
     /**
-     * Tells {@link #parseBooleanExpression(String, int, SkriptLogger)} to only return expressions that are not conditional
-     * @see #parseBooleanExpression(String, int, SkriptLogger)
+     * Tells {@link #parseBooleanExpression(String, int, ParserState, SkriptLogger)} to only return expressions that are not conditional
+     * @see #parseBooleanExpression(String, int, ParserState, SkriptLogger)
      */
     public static final int NOT_CONDITIONAL = 0;
     /**
-     * Tells {@link #parseBooleanExpression(String, int, SkriptLogger)} to return any expressions, conditional or not
-     * @see #parseBooleanExpression(String, int, SkriptLogger)
+     * Tells {@link #parseBooleanExpression(String, int, ParserState, SkriptLogger)} to return any expressions, conditional or not
+     * @see #parseBooleanExpression(String, int, ParserState, SkriptLogger)
      */
     public static final int MAYBE_CONDITIONAL = 1;
     /**
-     * Tells {@link #parseBooleanExpression(String, int, SkriptLogger)} to only return conditional expressions
-     * @see #parseBooleanExpression(String, int, SkriptLogger)
+     * Tells {@link #parseBooleanExpression(String, int, ParserState, SkriptLogger)} to only return conditional expressions
+     * @see #parseBooleanExpression(String, int, ParserState, SkriptLogger)
      */
     public static final int CONDITIONAL = 2;
     public static final Pattern LIST_SPLIT_PATTERN = Pattern.compile("\\s*(,)\\s*|\\s+(and|or)\\s+", Pattern.CASE_INSENSITIVE);
@@ -99,8 +87,6 @@ public class SyntaxParser {
      */
     private static final RecentElementList<ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>> recentConditions = new RecentElementList<>();
 
-    private static Class<? extends TriggerContext>[] currentContexts = new Class[]{};
-
     /**
      * Parses an {@link Expression} from the given {@linkplain String} and {@link PatternType expected return type}
      * @param <T> the type of the expression
@@ -111,17 +97,17 @@ public class SyntaxParser {
      * no match was found
      * or for another reason detailed in an error message.
      */
-    public static <T> Expression<? extends T> parseExpression(String s, PatternType<T> expectedType, SkriptLogger logger) {
+    public static <T> Expression<? extends T> parseExpression(String s, PatternType<T> expectedType, ParserState parserState, SkriptLogger logger) {
         if (s.isEmpty())
             return null;
         if (s.startsWith("(") && s.endsWith(")") && StringUtils.findClosingIndex(s, '(', ')', 0) == s.length() - 1) {
             s = s.substring(1, s.length() - 1);
         }
-        Expression<? extends T> literal = parseLiteral(s, expectedType, logger);
+        Expression<? extends T> literal = parseLiteral(s, expectedType, parserState, logger);
         if (literal != null) {
             return literal;
         }
-        Variable<? extends T> variable = (Variable<? extends T>) Variables.parseVariable(s, expectedType.getType().getTypeClass(), logger);
+        Variable<? extends T> variable = (Variable<? extends T>) Variables.parseVariable(s, expectedType.getType().getTypeClass(), parserState, logger);
         if (variable != null) {
             if (!variable.isSingle() && expectedType.isSingle()) {
                 logger.error("A single value was expected, but " + s + " represents multiple values.", ErrorType.SEMANTIC_ERROR);
@@ -130,13 +116,13 @@ public class SyntaxParser {
             return variable;
         }
         if (!expectedType.isSingle()) {
-            Expression<? extends T> listLiteral = parseListLiteral(s, expectedType, logger);
+            Expression<? extends T> listLiteral = parseListLiteral(s, expectedType, parserState, logger);
             if (listLiteral != null) {
                 return listLiteral;
             }
         }
         for (ExpressionInfo<?, ?> info : recentExpressions) {
-            Expression<? extends T> expr = matchExpressionInfo(s, info, expectedType, currentContexts, logger);
+            Expression<? extends T> expr = matchExpressionInfo(s, info, expectedType, parserState, logger);
             if (expr != null) {
                 recentExpressions.acknowledge(info);
                 logger.clearLogs();
@@ -148,7 +134,7 @@ public class SyntaxParser {
         List<ExpressionInfo<?, ?>> remainingExpressions = SyntaxManager.getAllExpressions();
         recentExpressions.removeFrom(remainingExpressions);
         for (ExpressionInfo<?, ?> info : remainingExpressions) {
-            Expression<? extends T> expr = matchExpressionInfo(s, info, expectedType, currentContexts, logger);
+            Expression<? extends T> expr = matchExpressionInfo(s, info, expectedType, parserState, logger);
             if (expr != null) {
                 recentExpressions.acknowledge(info);
                 logger.clearLogs();
@@ -156,6 +142,7 @@ public class SyntaxParser {
             }
             logger.forgetError();
         }
+        logger.setContext(ErrorContext.NO_MATCH);
         logger.error("No expression matching ''" + s + "' was found", ErrorType.NO_MATCH);
         return null;
     }
@@ -164,6 +151,7 @@ public class SyntaxParser {
      * Parses a {@link Expression boolean expression} from the given {@linkplain String}
      * @param s the string to be parsed as an expression
      * @param conditional a constant describing whether the result can be a {@link ConditionalExpression condition}
+     * @param parserState
      * @param logger
      * @see SyntaxParser#NOT_CONDITIONAL
      * @see SyntaxParser#MAYBE_CONDITIONAL
@@ -172,22 +160,28 @@ public class SyntaxParser {
      * no match was found
      * or for another reason detailed in an error message.
      */
-    public static Expression<Boolean> parseBooleanExpression(String s, @MagicConstant(intValues = {NOT_CONDITIONAL, MAYBE_CONDITIONAL, CONDITIONAL}) int conditional, SkriptLogger logger) {
+    public static Expression<Boolean> parseBooleanExpression(String s, @MagicConstant(intValues = {NOT_CONDITIONAL, MAYBE_CONDITIONAL, CONDITIONAL}) int conditional, ParserState parserState, SkriptLogger logger) {
         // I swear this is the cleanest way to do it
+        if (s.startsWith("(") && s.endsWith(")") && StringUtils.findClosingIndex(s, '(', ')', 0) == s.length() - 1) {
+            s = s.substring(1, s.length() - 1);
+        }
         if (s.equalsIgnoreCase("true")) {
             return new SimpleLiteral<>(Boolean.class, true);
         } else if (s.equalsIgnoreCase("false")) {
             return new SimpleLiteral<>(Boolean.class, false);
         }
-        if (s.startsWith("(") && s.endsWith(")") && StringUtils.findClosingIndex(s, '(', ')', 0) == s.length() - 1) {
-            s = s.substring(1, s.length() - 1);
+        Variable<Boolean> variable = (Variable<Boolean>) Variables.parseVariable(s, Boolean.class, parserState, logger);
+        if (variable != null) {
+            if (!variable.isSingle()) {
+                logger.error("A single value was expected, but " + s + " represents multiple values.", ErrorType.SEMANTIC_ERROR);
+                return null;
+            }
+            return variable;
         }
         for (ExpressionInfo<?, ?> info : recentExpressions) {
             if (info.getReturnType().getType().getTypeClass() != Boolean.class)
                 continue;
-            Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE, currentContexts,
-                    logger
-            );
+            Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE, parserState, logger);
             if (expr != null) {
                 switch (conditional) {
                     case 0: // Can't be conditional
@@ -220,7 +214,7 @@ public class SyntaxParser {
         for (ExpressionInfo<?, ?> info : remainingExpressions) {
             if (info.getReturnType().getType().getTypeClass() != Boolean.class)
                 continue;
-            Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE, currentContexts, logger);
+            Expression<Boolean> expr = (Expression<Boolean>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE, parserState, logger);
             if (expr != null) {
                 switch (conditional) {
                     case 0: // Can't be conditional
@@ -247,11 +241,12 @@ public class SyntaxParser {
             }
             logger.forgetError();
         }
+        logger.setContext(ErrorContext.NO_MATCH);
         logger.error("No expression matching '" + s + "' was found", ErrorType.NO_MATCH);
         return null;
     }
 
-    private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType, Class<? extends TriggerContext>[] currentContextss, SkriptLogger logger) {
+    private static <T> Expression<? extends T> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType, ParserState parserState, SkriptLogger logger) {
         List<PatternElement> patterns = info.getPatterns();
         PatternType<?> infoType = info.getReturnType();
         Class<?> infoTypeClass = infoType.getType().getTypeClass();
@@ -260,10 +255,12 @@ public class SyntaxParser {
             return null;
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
-            MatchContext parser = new MatchContext(element, currentContextss, logger);
+            logger.setContext(ErrorContext.MATCHING);
+            MatchContext parser = new MatchContext(element, parserState, logger);
             if (element.match(s, 0, parser) != -1) {
                 try {
                     Expression<? extends T> expression = (Expression<? extends T>) info.getSyntaxClass().newInstance();
+                    logger.setContext(ErrorContext.INITIALIZATION);
                     if (!expression.init(
                             parser.getParsedExpressions().toArray(new Expression[0]),
                             i,
@@ -271,6 +268,7 @@ public class SyntaxParser {
                     )) {
                         continue;
                     }
+                    logger.setContext(ErrorContext.CONSTRAINT_CHECKING);
                     Class<?> expressionReturnType = expression.getReturnType();
                     if (!expectedTypeClass.isAssignableFrom(expressionReturnType)) { // Would only screw up in case of bad dynamic type usage
                         Expression<?> converted = expression.convertExpression(expectedTypeClass);
@@ -288,12 +286,17 @@ public class SyntaxParser {
                     }
                     if (!expression.isSingle() &&
                             expectedType.isSingle()) {
-                        logger.error("A single value was expected, but " + s + " represents multiple values.", ErrorType.SEMANTIC_ERROR);
+                        logger.error("A single value was expected, but '" + s + "' represents multiple values.", ErrorType.SEMANTIC_ERROR);
+                        continue;
+                    }
+                    if (parserState.isRestrictingExpressions() && parserState.forbidsSyntax(expression.getClass())) {
+                        logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+                        logger.error("The enclosing section does not allow the use of this expression : " + expression.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
                         continue;
                     }
                     return expression;
                 } catch (InstantiationException | IllegalAccessException e) {
-                    logger.error("Couldn't instantiate class " + info.getSyntaxClass().getName(), ErrorType.EXCEPTION);
+                    logger.error("Couldn't instantiate class '" + info.getSyntaxClass().getName() + "'", ErrorType.EXCEPTION);
                 }
             }
         }
@@ -303,16 +306,17 @@ public class SyntaxParser {
     /**
      * Parses a line of code as an {@link InlineCondition}
      * @param s the line to be parsed
+     * @param parserState
      * @param logger
      * @return an inline condition that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
      * or for another reason detailed in an error message
      */
     @Nullable
-    public static InlineCondition parseInlineCondition(String s, SkriptLogger logger) {
+    public static InlineCondition parseInlineCondition(String s, ParserState parserState, SkriptLogger logger) {
         if (s.isEmpty())
             return null;
-        Expression<Boolean> cond = parseBooleanExpression(s, CONDITIONAL, logger);
+        Expression<Boolean> cond = parseBooleanExpression(s, CONDITIONAL, parserState, logger);
         return cond != null ? new InlineCondition(cond) : null;
     }
 
@@ -326,16 +330,20 @@ public class SyntaxParser {
      * no match was found
      * or for another reason detailed in an error message.
      */
-    public static <T> Expression<? extends T> parseListLiteral(String s, PatternType<T> expectedType, SkriptLogger logger) {
+    public static <T> Expression<? extends T> parseListLiteral(String s, PatternType<T> expectedType, ParserState parserState, SkriptLogger logger) {
         assert !expectedType.isSingle();
         if (!s.contains(",") && !s.contains("and") && !s.contains("nor") && !s.contains("or"))
             return null;
         List<String> parts = new ArrayList<>();
         Matcher m = LIST_SPLIT_PATTERN.matcher(s);
         int lastIndex = 0;
-        for (int i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i + 1)) {
-            if (i == -1)
+        for (int i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i+1)) {
+            if (i == -1) {
                 return null;
+            } else if (StringUtils.nextSimpleCharacterIndex(s, i) > i) { // We are currently at the start of something we need to skip over
+                i = StringUtils.nextSimpleCharacterIndex(s, i) - 1;
+                continue;
+            }
             char c = s.charAt(i);
             if (c == ' ' || c == ',') {
                 m.region(i, s.length());
@@ -375,19 +383,29 @@ public class SyntaxParser {
         for (int i = 0; i < parts.size(); i++) {
             if ((i & 1) == 0) { // Even index == element
                 String part = parts.get(i).trim();
-                Expression<? extends T> expression = parseExpression(part, expectedType, logger);
+                logger.recurse();
+                Expression<? extends T> expression = parseExpression(part, expectedType, parserState, logger);
+                logger.callback();
                 if (expression == null) {
                     return null;
                 }
-                isLiteralList &= expression instanceof Literal;
+                isLiteralList &= Literal.isLiteral(expression);
                 expressions.add(expression);
             }
         }
         if (expressions.size() == 1)
             return expressions.get(0);
         if (isLiteralList) {
-            //noinspection SuspiciousToArrayCall
-            Literal[] literals = expressions.toArray(new Literal[0]);
+            Literal[] literals = new Literal[expressions.size()];
+            for (int i = 0; i < expressions.size(); i++) {
+                Expression<? extends T> exp = expressions.get(i);
+                if (exp instanceof Literal) {
+                    literals[i] = (Literal) exp;
+                } else {
+                    assert exp instanceof VariableString;
+                    literals[i] = new SimpleLiteral(String.class, exp.getSingle(TriggerContext.DUMMY));
+                }
+            }
             Class<?> returnType = ClassUtils.getCommonSuperclass(Arrays.stream(literals).map(Literal::getReturnType).toArray(Class[]::new));
             return new LiteralList<>(
                 literals,
@@ -415,7 +433,7 @@ public class SyntaxParser {
      * no match was found
      * or for another reason detailed in an error message.
      */
-    public static <T> Expression<? extends T> parseLiteral(String s, PatternType<T> expectedType, SkriptLogger logger) {
+    public static <T> Expression<? extends T> parseLiteral(String s, PatternType<T> expectedType, ParserState parserState, SkriptLogger logger) {
         Map<Class<?>, Type<?>> classToTypeMap = TypeManager.getClassToTypeMap();
         for (Class<?> c : classToTypeMap.keySet()) {
             Class<? extends T> expectedClass = expectedType.getType().getTypeClass();
@@ -431,7 +449,7 @@ public class SyntaxParser {
                         return new SimpleLiteral<>((Class<T>) c, literal).convertExpression(expectedType.getType().getTypeClass());
                     }
                 } else if (expectedClass == String.class || c == String.class) {
-                    VariableString vs = VariableString.newInstanceWithQuotes(s, logger);
+                    VariableString vs = VariableString.newInstanceWithQuotes(s, parserState, logger);
                     if (vs != null) {
                         return (Expression<? extends T>) vs;
                     }
@@ -444,16 +462,17 @@ public class SyntaxParser {
     /**
      * Parses a line of code as an {@link Effect}
      * @param s the line to be parsed
+     * @param parserState
      * @param logger the logger
      * @return an effect that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
      * or for another reason detailed in an error message
      */
-    public static Effect parseEffect(String s, SkriptLogger logger) {
+    public static Effect parseEffect(String s, ParserState parserState, SkriptLogger logger) {
         if (s.isEmpty())
             return null;
         for (SyntaxInfo<? extends Effect> recentEffect : recentEffects) {
-            Effect eff = matchEffectInfo(s, recentEffect, logger);
+            Effect eff = matchEffectInfo(s, recentEffect, parserState, logger);
             if (eff != null) {
                 recentEffects.acknowledge(recentEffect);
                 logger.clearLogs();
@@ -465,7 +484,7 @@ public class SyntaxParser {
         List<SyntaxInfo<? extends Effect>> remainingEffects = SyntaxManager.getEffects();
         recentEffects.removeFrom(remainingEffects);
         for (SyntaxInfo<? extends Effect> remainingEffect : remainingEffects) {
-            Effect eff = matchEffectInfo(s, remainingEffect, logger);
+            Effect eff = matchEffectInfo(s, remainingEffect, parserState, logger);
             if (eff != null) {
                 recentEffects.acknowledge(remainingEffect);
                 logger.clearLogs();
@@ -473,18 +492,21 @@ public class SyntaxParser {
             }
             logger.forgetError();
         }
+        logger.setContext(ErrorContext.NO_MATCH);
         logger.error("No effect matching '" + s + "' was found", ErrorType.NO_MATCH);
         return null;
     }
 
-    private static Effect matchEffectInfo(String s, SyntaxInfo<? extends Effect> info, SkriptLogger logger) {
+    private static Effect matchEffectInfo(String s, SyntaxInfo<? extends Effect> info, ParserState parserState, SkriptLogger logger) {
         List<PatternElement> patterns = info.getPatterns();
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
-            MatchContext parser = new MatchContext(element, currentContexts, logger);
+            logger.setContext(ErrorContext.MATCHING);
+            MatchContext parser = new MatchContext(element, parserState, logger);
             if (element.match(s, 0, parser) != -1) {
                 try {
                     Effect eff = info.getSyntaxClass().newInstance();
+                    logger.setContext(ErrorContext.INITIALIZATION);
                     if (!eff.init(
                         parser.getParsedExpressions().toArray(new Expression[0]),
                         i,
@@ -504,36 +526,52 @@ public class SyntaxParser {
     /**
      * Parses a line of code as a {@link Statement}, either an {@link Effect} or an {@link InlineCondition}
      * @param s the line to be parsed
+     * @param parserState
      * @param logger the logger
      * @return a statement that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
      * or for another reason detailed in an error message
      */
     @Nullable
-    public static Statement parseStatement(String s, SkriptLogger logger) {
+    public static Statement parseStatement(String s, ParserState parserState, SkriptLogger logger) {
         if (s.isEmpty())
             return null;
         if (s.regionMatches(true, 0, "continue if ", 0, "continue if ".length())) { // startsWithIgnoreCase
-            InlineCondition cond = parseInlineCondition(s.substring("continue if ".length()), logger);
-            if (cond != null)
+            InlineCondition cond = parseInlineCondition(s.substring("continue if ".length()), parserState, logger);
+            if (parserState.forbidsSyntax(InlineCondition.class)) {
+                logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+                logger.error("Inline conditions are not allowed in this section", ErrorType.SEMANTIC_ERROR);
+                return null;
+            } else if (cond != null) {
                 return cond;
+            }
         }
-        return parseEffect(s, logger); // If that's null, we wanted to return null anyway
+        Effect eff = parseEffect(s, parserState, logger);
+        if (eff == null) {
+            return null;
+        } else if (parserState.forbidsSyntax(eff.getClass())) {
+            logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+            logger.error("The enclosing section does not allow the use of this effect : " + eff.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+            return null;
+        } else {
+            return eff;
+        }
     }
 
     /**
      * Parses a section of a file as a {@link CodeSection}
      * @param section the section to be parsed
+     * @param parserState
      * @param logger the logger
      * @return a section that was successfully parsed, or {@literal null} if the section is empty,
      * no match was found
      * or for another reason detailed in an error message
      */
-    public static CodeSection parseSection(FileSection section, SkriptLogger logger) {
+    public static CodeSection parseSection(FileSection section, ParserState parserState, SkriptLogger logger) {
         if (section.getLineContent().isEmpty())
             return null;
         for (SyntaxInfo<? extends CodeSection> recentSection : recentSections) {
-            CodeSection sec = matchSectionInfo(section, recentSection, logger);
+            CodeSection sec = matchSectionInfo(section, recentSection, parserState, logger);
             if (sec != null) {
                 recentSections.acknowledge(recentSection);
                 logger.clearLogs();
@@ -544,7 +582,7 @@ public class SyntaxParser {
         List<SyntaxInfo<? extends CodeSection>> remainingSections = SyntaxManager.getSections();
         recentSections.removeFrom(remainingSections);
         for (SyntaxInfo<? extends CodeSection> remainingSection : remainingSections) {
-            CodeSection sec = matchSectionInfo(section, remainingSection, logger);
+            CodeSection sec = matchSectionInfo(section, remainingSection, parserState, logger);
             if (sec != null) {
                 recentSections.acknowledge(remainingSection);
                 logger.clearLogs();
@@ -552,18 +590,21 @@ public class SyntaxParser {
             }
             logger.forgetError();
         }
+        logger.setContext(ErrorContext.NO_MATCH);
         logger.error("No section matching '" + section.getLineContent() + "' was found", ErrorType.NO_MATCH);
         return null;
     }
 
-    private static CodeSection matchSectionInfo(FileSection section, SyntaxInfo<? extends CodeSection> info, SkriptLogger logger) {
+    private static CodeSection matchSectionInfo(FileSection section, SyntaxInfo<? extends CodeSection> info, ParserState parserState, SkriptLogger logger) {
         List<PatternElement> patterns = info.getPatterns();
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
-            MatchContext parser = new MatchContext(element, currentContexts, logger);
+            logger.setContext(ErrorContext.MATCHING);
+            MatchContext parser = new MatchContext(element, parserState, logger);
             if (element.match(section.getLineContent(), 0, parser) != -1) {
                 try {
                     CodeSection sec = info.getSyntaxClass().newInstance();
+                    logger.setContext(ErrorContext.INITIALIZATION);
                     if (!sec.init(
                             parser.getParsedExpressions().toArray(new Expression[0]),
                             i,
@@ -571,7 +612,7 @@ public class SyntaxParser {
                     )) {
                         continue;
                     }
-                    sec.loadSection(section, logger);
+                    sec.loadSection(section, parserState, logger);
                     return sec;
                 } catch (InstantiationException | IllegalAccessException e) {
                     logger.error("Couldn't instantiate class " + info.getSyntaxClass(), ErrorType.EXCEPTION);
@@ -590,14 +631,13 @@ public class SyntaxParser {
      * or for another reason detailed in an error message
      */
     @Nullable
-    public static Trigger parseTrigger(FileSection section, SkriptLogger logger) {
+    public static UnloadedTrigger parseTrigger(FileSection section, SkriptLogger logger) {
         if (section.getLineContent().isEmpty())
             return null;
         for (SkriptEventInfo<?> recentEvent : recentEvents) {
-            Trigger trigger = matchEventInfo(section, recentEvent, logger);
+            UnloadedTrigger trigger = matchEventInfo(section, recentEvent, logger);
             if (trigger != null) {
                 recentEvents.acknowledge(recentEvent);
-                recentEvent.getRegisterer().handleTrigger(trigger);
                 logger.clearLogs();
                 return trigger;
             }
@@ -607,27 +647,30 @@ public class SyntaxParser {
         List<SkriptEventInfo<?>> remainingEvents = SyntaxManager.getEvents();
         recentEvents.removeFrom(remainingEvents);
         for (SkriptEventInfo<?> remainingEvent : remainingEvents) {
-            Trigger trigger = matchEventInfo(section, remainingEvent, logger);
+            UnloadedTrigger trigger = matchEventInfo(section, remainingEvent, logger);
             if (trigger != null) {
                 recentEvents.acknowledge(remainingEvent);
-                remainingEvent.getRegisterer().handleTrigger(trigger);
                 logger.clearLogs();
                 return trigger;
             }
             logger.forgetError();
         }
+        logger.setContext(ErrorContext.NO_MATCH);
         logger.error("No trigger matching '" + section.getLineContent() + "' was found", ErrorType.NO_MATCH);
         return null;
     }
 
-    private static Trigger matchEventInfo(FileSection section, SkriptEventInfo<?> info, SkriptLogger logger) {
+    private static UnloadedTrigger matchEventInfo(FileSection section, SkriptEventInfo<?> info, SkriptLogger logger) {
         List<PatternElement> patterns = info.getPatterns();
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
-            MatchContext parser = new MatchContext(element, currentContexts, logger);
+            ParserState parserState = new ParserState();
+            logger.setContext(ErrorContext.MATCHING);
+            MatchContext parser = new MatchContext(element, parserState, logger);
             if (element.match(section.getLineContent(), 0, parser) != -1) {
                 try {
                     SkriptEvent event = info.getSyntaxClass().newInstance();
+                    logger.setContext(ErrorContext.INITIALIZATION);
                     if (!event.init(
                             parser.getParsedExpressions().toArray(new Expression[0]),
                             i,
@@ -635,19 +678,17 @@ public class SyntaxParser {
                     )) {
                         continue;
                     }
-                    setCurrentContexts(info.getContexts());
                     Trigger trig = new Trigger(event);
-                    trig.loadSection(section, logger);
-                    return trig;
+                    parserState.setCurrentContexts(info.getContexts());
+                    /*
+                     * We don't actually load the trigger here, that will be left to the loading priority system
+                     */
+                    return new UnloadedTrigger(trig, section, logger.getLine(), info, parserState);
                 } catch (InstantiationException | IllegalAccessException e) {
                     logger.error("Couldn't instantiate class " + info.getSyntaxClass(), ErrorType.EXCEPTION);
                 }
             }
         }
         return null;
-    }
-
-    static void setCurrentContexts(Class<? extends TriggerContext>[] currentContexts) {
-        SyntaxParser.currentContexts = currentContexts;
     }
 }

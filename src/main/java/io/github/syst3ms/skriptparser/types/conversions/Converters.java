@@ -21,7 +21,6 @@ package io.github.syst3ms.skriptparser.types.conversions;
 
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.util.Pair;
-import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,51 +49,18 @@ public abstract class Converters {
      */
     public static final int NO_CHAINING = NO_LEFT_CHAINING | NO_RIGHT_CHAINING;
 
-    private static List<ConverterInfo<?, ?>> converters = new ArrayList<>(50);
+    private static final List<ConverterInfo<?, ?>> converters = new ArrayList<>(50);
 
 
     public static List<ConverterInfo<?, ?>> getConverters() {
         return Collections.unmodifiableList(converters);
-    }
-    public final static class ConverterInfo<F, T> {
-        private final Class<F> from;
-        private final Class<T> to;
-        private final Function<? super F, ? extends T> converter;
-        private final int flags;
-
-        public ConverterInfo(Class<F> from, Class<T> to, Function<? super F, ? extends T> converter) {
-            this(from, to, converter, ALL_CHAINING);
-        }
-
-        public ConverterInfo(Class<F> from, Class<T> to, Function<? super F, ? extends T> converter, @MagicConstant(intValues = {ALL_CHAINING, NO_LEFT_CHAINING, NO_RIGHT_CHAINING, NO_CHAINING}) int flags) {
-            this.from = from;
-            this.to = to;
-            this.converter = converter;
-            this.flags = flags;
-        }
-
-        public Class<F> getFrom() {
-            return from;
-        }
-
-        public Class<T> getTo() {
-            return to;
-        }
-
-        public Function<? super F, ? extends T> getConverter() {
-            return converter;
-        }
-
-        public int getFlags() {
-            return flags;
-        }
     }
 
     @SuppressWarnings("unchecked")
     public static <F, T> void registerConverters(SkriptRegistration registration) {
         for (ConverterInfo<?, ?> info : registration.getConverters()) {
             // Well, this is... fun
-            registerConverter((Class<F>) info.from, (Class<T>) info.to, (Function<F, T>) info.converter, info.flags);
+            registerConverter((Class<F>) info.getFrom(), (Class<T>) info.getTo(), (Function<F, T>) info.getConverter(), info.getFlags());
         }
     }
 
@@ -115,7 +81,7 @@ public abstract class Converters {
         ConverterInfo<F, T> info = new ConverterInfo<>(from, to, converter, options);
         for (int i = 0; i < converters.size(); i++) {
             ConverterInfo<?, ?> info2 = converters.get(i);
-            if (info2.from.isAssignableFrom(from) && to.isAssignableFrom(info2.to)) {
+            if (info2.getFrom().isAssignableFrom(from) && to.isAssignableFrom(info2.getTo())) {
                 converters.add(i, info);
                 return;
             }
@@ -132,10 +98,10 @@ public abstract class Converters {
             for (int j = 0; j < converters.size(); j++) { // not from j = i+1 since new converters get added during the loops
                 ConverterInfo<?, ?> info2 = converters.get(j);
                 if ((info.getFlags() & NO_RIGHT_CHAINING) == 0 && (info2.getFlags() & NO_LEFT_CHAINING) == 0
-                    && info2.from.isAssignableFrom(info.to) && !converterExistsSlow(info.from, info2.to)) {
+                    && info2.getFrom().isAssignableFrom(info.getTo()) && !converterExistsSlow(info.getFrom(), info2.getTo())) {
                     converters.add(createChainedConverter(info, info2));
                 } else if ((info.getFlags() & NO_LEFT_CHAINING) == 0 && (info2.getFlags() & NO_RIGHT_CHAINING) == 0
-                    && info.from.isAssignableFrom(info2.to) && !converterExistsSlow(info2.from, info.to)) {
+                    && info.getFrom().isAssignableFrom(info2.getTo()) && !converterExistsSlow(info2.getFrom(), info.getTo())) {
                     converters.add(createChainedConverter(info2, info));
                 }
             }
@@ -144,16 +110,16 @@ public abstract class Converters {
 
     private static boolean converterExistsSlow(Class<?> from, Class<?> to) {
         for (ConverterInfo<?, ?> i : converters) {
-            if ((i.from.isAssignableFrom(from) || from.isAssignableFrom(i.from)) && (i.to.isAssignableFrom(to) || to.isAssignableFrom(i.to))) {
+            if ((i.getFrom().isAssignableFrom(from) || from.isAssignableFrom(i.getFrom())) && (i.getTo().isAssignableFrom(to) || to.isAssignableFrom(i.getTo()))) {
                 return true;
             }
         }
         return false;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "MagicConstant"})
     private static <F, M, T> ConverterInfo<F, T> createChainedConverter(ConverterInfo<?, ?> first, ConverterInfo<?, ?> second) {
-        return new ConverterInfo<>((Class<F>) first.from, (Class<T>) second.to, new ChainedConverter<>((Function<F, M>) first.converter, (Function<M, T>) second.converter), first.flags | second.flags);
+        return new ConverterInfo<>((Class<F>) first.getFrom(), (Class<T>) second.getTo(), ChainedConverter.newInstance((Function<F, M>) first.getConverter(), (Function<M, T>) second.getConverter()), first.getFlags() | second.getFlags());
     }
 
     /**
@@ -299,18 +265,18 @@ public abstract class Converters {
     @Nullable
     private static <F, T> Function<? super F, ? extends T> getConverter_i(Class<F> from, Class<T> to) {
         for (ConverterInfo<?, ?> conv : converters) {
-            if (conv.from.isAssignableFrom(from) && to.isAssignableFrom(conv.to))
-                return (Function<? super F, ? extends T>) conv.converter;
+            if (conv.getFrom().isAssignableFrom(from) && to.isAssignableFrom(conv.getTo()))
+                return (Function<? super F, ? extends T>) conv.getConverter();
         }
         for (ConverterInfo<?, ?> conv : converters) {
-            if (conv.from.isAssignableFrom(from) && conv.to.isAssignableFrom(to)) {
-                return (Function<? super F, ? extends T>) ConverterUtils.createInstanceofConverter(conv.converter, to);
-            } else if (from.isAssignableFrom(conv.from) && to.isAssignableFrom(conv.to)) {
+            if (conv.getFrom().isAssignableFrom(from) && conv.getTo().isAssignableFrom(to)) {
+                return (Function<? super F, ? extends T>) ConverterUtils.createInstanceofConverter(conv.getConverter(), to);
+            } else if (from.isAssignableFrom(conv.getFrom()) && to.isAssignableFrom(conv.getTo())) {
                 return (Function<? super F, ? extends T>) ConverterUtils.createInstanceofConverter(conv);
             }
         }
         for (ConverterInfo<?, ?> conv : converters) {
-            if (from.isAssignableFrom(conv.from) && conv.to.isAssignableFrom(to)) {
+            if (from.isAssignableFrom(conv.getFrom()) && conv.getTo().isAssignableFrom(to)) {
                 return (Function<? super F, ? extends T>) ConverterUtils.createDoubleInstanceofConverter(conv, to);
             }
         }

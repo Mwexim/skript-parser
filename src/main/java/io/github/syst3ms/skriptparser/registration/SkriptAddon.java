@@ -10,9 +10,9 @@ import java.util.List;
  * The base for all addons, modules that hook into the API to register syntax and handle triggers.
  */
 public abstract class SkriptAddon {
-    private static List<SkriptAddon> addons = new ArrayList<>();
+    private static final List<SkriptAddon> addons = new ArrayList<>();
     private String name;
-    private List<Class<? extends SkriptEvent>> handledEvents = new ArrayList<>();
+    private final List<Class<? extends SkriptEvent>> handledEvents = new ArrayList<>();
 
     {
         addons.add(this);

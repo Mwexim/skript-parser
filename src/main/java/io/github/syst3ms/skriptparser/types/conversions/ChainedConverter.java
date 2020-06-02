@@ -41,9 +41,8 @@ public final class ChainedConverter<F, M, T> implements Function<F, T> {
         this.second = second;
     }
 
-    @SuppressWarnings("unchecked")
-    public static <F, M, T> ChainedConverter<F, M, T> newInstance(Function<? super F, ?> first, Function<?, ? extends T> second) {
-        return new ChainedConverter<>((Function<? super F, ? extends M>) first, (Function<? super M, ? extends T>) second);
+    public static <F, M, T> ChainedConverter<F, M, T> newInstance(Function<? super F, ? extends M> first, Function<? super M, ? extends T> second) {
+        return new ChainedConverter<>(first, second);
     }
 
     @Override

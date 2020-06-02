@@ -6,7 +6,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Manages the registration and usage of {@link Type}
@@ -21,8 +20,8 @@ public class TypeManager {
      * The string equivalent of an empty array
      */
     public static final String EMPTY_REPRESENTATION = "<empty>";
-    private static Map<String, Type<?>> nameToType = new HashMap<>();
-    private static Map<Class<?>, Type<?>> classToType = new LinkedHashMap<>(); // Ordering is important for stuff like number types
+    private static final Map<String, Type<?>> nameToType = new HashMap<>();
+    private static final Map<Class<?>, Type<?>> classToType = new LinkedHashMap<>(); // Ordering is important for stuff like number types
 
     public static Map<Class<?>, Type<?>> getClassToTypeMap() {
         return classToType;

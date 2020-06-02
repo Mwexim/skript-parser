@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
@@ -10,19 +9,19 @@ import java.util.regex.MatchResult;
 
 /**
  * An object that stores data about how an object was parsed.
- * By opposition to {@link MatchContext}, this object is immutable.
+ * By opposition to {@link MatchContext}, this object is immutable, and generated after matching is complete.
  * @see Expression#init(Expression[], int, ParseContext)
  */
 public class ParseContext {
-    private final Class<? extends TriggerContext>[] currentContexts;
+    private final ParserState parserState;
     private final PatternElement element;
     private final String expressionString;
     private final List<MatchResult> matches;
     private final int parseMark;
     private final SkriptLogger logger;
 
-    public ParseContext(Class<? extends TriggerContext>[] currentContexts, PatternElement element, List<MatchResult> matches, int parseMark, String expressionString, SkriptLogger logger) {
-        this.currentContexts = currentContexts;
+    public ParseContext(ParserState parserState, PatternElement element, List<MatchResult> matches, int parseMark, String expressionString, SkriptLogger logger) {
+        this.parserState = parserState;
         this.element = element;
         this.expressionString = expressionString;
         this.matches = matches;
@@ -58,8 +57,8 @@ public class ParseContext {
         return expressionString;
     }
 
-    public Class<? extends TriggerContext>[] getCurrentContexts() {
-        return currentContexts;
+    public ParserState getParserState() {
+        return parserState;
     }
 
     public SkriptLogger getLogger() {

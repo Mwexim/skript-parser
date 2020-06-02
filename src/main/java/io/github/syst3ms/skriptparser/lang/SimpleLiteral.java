@@ -18,7 +18,7 @@ import java.util.Iterator;
  */
 @SuppressWarnings("unchecked")
 public class SimpleLiteral<T> implements Literal<T> {
-    private T[] values;
+    private final T[] values;
     private boolean isAndList = true;
     private Class<T> returnType;
 
@@ -108,7 +108,7 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     @Override
-    public Iterator iterator(TriggerContext context) {
+    public Iterator<T> iterator(TriggerContext context) {
         if (!isSingle())
             throw new SkriptRuntimeException("Can't loop a single literal !");
         return CollectionUtils.iterator(values);
