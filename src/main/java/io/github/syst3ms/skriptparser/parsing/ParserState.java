@@ -11,7 +11,7 @@ import java.util.List;
 public class ParserState {
     private Class<? extends TriggerContext>[] currentContexts;
     private LinkedList<CodeSection> currentSections = new LinkedList<>();
-    private List<Class<? extends SyntaxElement>> allowedSyntaxes;
+    private List<Class<? extends SyntaxElement>> allowedSyntaxes = Collections.emptyList();
     private boolean restrictingExpressions = false;
 
     public Class<? extends TriggerContext>[] getCurrentContexts() {
