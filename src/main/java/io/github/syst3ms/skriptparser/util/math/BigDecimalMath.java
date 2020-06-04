@@ -45,7 +45,7 @@ public class BigDecimalMath {
     private static volatile BigDecimal log3Cache;
     private static volatile BigDecimal log10Cache;
     private static volatile BigDecimal piCache;
-    private static BigDecimal[] factorialCache = new BigDecimal[100];
+    private static final BigDecimal[] factorialCache = new BigDecimal[100];
     private static BigDecimal eCache;
 
     static {

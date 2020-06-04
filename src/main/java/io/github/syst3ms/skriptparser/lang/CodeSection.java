@@ -8,6 +8,7 @@ import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,8 +36,10 @@ public abstract class CodeSection extends Statement {
      * @param logger
      */
     public void loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+        parserState.setSyntaxRestrictions(getAllowedSyntaxes(), isRestrictingExpressions());
         parserState.addCurrentSection(this);
         setItems(ScriptLoader.loadItems(section, parserState, logger));
+        parserState.clearSyntaxRestrictions();
     }
 
     @Override
@@ -88,5 +91,28 @@ public abstract class CodeSection extends Statement {
     @Nullable
     protected final Statement getLast() {
         return last == null ? getNext() : last;
+    }
+
+    /**
+     * A list of the classes of every syntax that is allowed to be used inside of this CodeSection. The default behavior
+     * is to return an empty list, which equates to no restrictions. If overriden, this allows the creation of specialized,
+     * DSL-like sections in which only select {@linkplain Statement statements} and other {@linkplain CodeSection sections}
+     * (and potentially, but not necessarily, expressions).
+     * @return a list of the classes of each syntax allowed inside this CodeSection
+     * @see #isRestrictingExpressions()
+     */
+    protected List<Class<? extends SyntaxElement>> getAllowedSyntaxes() {
+        return Collections.emptyList();
+    }
+
+    /**
+     * Whether the syntax restrictions outlined in {@link #getAllowedSyntaxes()} should also apply to expressions.
+     * This is usually undesirable, so it is false by default.
+     *
+     * This should return true <b>if and only if</b> {@link #getAllowedSyntaxes()} contains an {@linkplain Expression} class.
+     * @return whether the use of expressions is also restricted by {@link #getAllowedSyntaxes()}. False by default.
+     */
+    protected boolean isRestrictingExpressions() {
+        return false;
     }
 }

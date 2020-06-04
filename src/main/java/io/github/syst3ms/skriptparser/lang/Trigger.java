@@ -25,8 +25,10 @@ public class Trigger extends CodeSection {
 
     @Override
     public void loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+        parserState.setSyntaxRestrictions(getAllowedSyntaxes(), isRestrictingExpressions());
         parserState.addCurrentSection(this);
         setItems(event.loadSection(section, parserState, logger));
+        parserState.clearSyntaxRestrictions();
     }
 
     @Override

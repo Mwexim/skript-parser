@@ -1,14 +1,25 @@
 package io.github.syst3ms.skriptparser.lang.base;
 
+import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.parsing.ParserState;
 
-import java.util.Collections;
 import java.util.List;
 
+/**
+ * An expression that can only be used in select CodeSections. It is possible to make a RestrictedExpression "strict" ;
+ * that is, it would be invalid to use it when not directly enclosed in one of its required sections.
+ * It is possible to specify the error message that should be shown if the restrictions aren't followed.
+ *
+ * This class shouldn't be used for expressions that should only work with specific {@link TriggerContext}s.
+ * For this purpose, use {@link ParseContext#getParserState()} in conjuction with {@link ParserState#getCurrentContexts()}.
+ * @param <T> the return type
+ * @see ParserState#getCurrentContexts()
+ */
 public abstract class RestrictedExpression<T> implements Expression<T> {
 
     @Override

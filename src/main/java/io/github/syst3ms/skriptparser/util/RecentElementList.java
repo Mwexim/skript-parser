@@ -34,8 +34,8 @@ public class RecentElementList<T> implements Iterable<T> {
     // Sorts entries by their value in decreasing order
     private static final Comparator<Map.Entry<?, Integer>> ENTRY_COMPARATOR = (f, s) -> s.getValue() - f.getValue();
 
-    private List<Map.Entry<T, Integer>> backing = new ArrayList<>();
-    private List<T> occurrences = new ArrayList<>();
+    private final List<Map.Entry<T, Integer>> backing = new ArrayList<>();
+    private final List<T> occurrences = new ArrayList<>();
 
     public RecentElementList() {}
 
@@ -78,10 +78,10 @@ public class RecentElementList<T> implements Iterable<T> {
     public Iterator<T> iterator() {
         backing.sort(ENTRY_COMPARATOR);
         /*
-         Anonymous class because usual Iterator implementations check for concurrent modification, which we don't really
-         care about here. This shouldn't cause issues even if parallel parsing is implemented, because any reasonable
-         implementation would not use one RecentElementList across multiple threads. At least I hope so...
-          */
+         * Anonymous class because usual Iterator implementations check for concurrent modification, which we don't really
+         * care about here. This shouldn't cause issues even if parallel parsing is implemented, because any reasonable
+         * implementation would not use one RecentElementList across multiple threads. At least I hope so...
+         */
         return new Iterator<T>() {
             private List<Map.Entry<T, Integer>> b = backing;
             private int index = 0;

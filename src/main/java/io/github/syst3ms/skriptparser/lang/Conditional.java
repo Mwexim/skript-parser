@@ -69,7 +69,7 @@ public class Conditional extends CodeSection {
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        return true;
+        throw new UnsupportedOperationException(); // This is never actually called, and should never be
     }
 
     @Override
