@@ -39,6 +39,7 @@ public abstract class CodeSection extends Statement {
         parserState.setSyntaxRestrictions(getAllowedSyntaxes(), isRestrictingExpressions());
         parserState.addCurrentSection(this);
         setItems(ScriptLoader.loadItems(section, parserState, logger));
+        parserState.removeCurrentSection();
         parserState.clearSyntaxRestrictions();
     }
 

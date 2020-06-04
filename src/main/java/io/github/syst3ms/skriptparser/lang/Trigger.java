@@ -28,6 +28,7 @@ public class Trigger extends CodeSection {
         parserState.setSyntaxRestrictions(event.getAllowedSyntaxes(), event.isRestrictingExpressions());
         parserState.addCurrentSection(this);
         setItems(event.loadSection(section, parserState, logger));
+        parserState.removeCurrentSection();
         parserState.clearSyntaxRestrictions();
     }
 
