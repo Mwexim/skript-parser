@@ -45,7 +45,7 @@ public class ParserState {
     }
 
     public boolean forbidsSyntax(Class<? extends SyntaxElement> c) {
-        return allowedSyntaxes != null && !allowedSyntaxes.contains(c);
+        return !allowedSyntaxes.isEmpty() && !allowedSyntaxes.contains(c);
     }
 
     public boolean isRestrictingExpressions() {
