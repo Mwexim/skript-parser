@@ -13,7 +13,6 @@ import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
-import javax.swing.text.html.parser.Parser;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 

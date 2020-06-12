@@ -3,13 +3,7 @@ package io.github.syst3ms.skriptparser.util;
 import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * A simple list that is only meant to keep track of which syntaxes are used frequently, in order to preemptively check
