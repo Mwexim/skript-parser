@@ -4,12 +4,7 @@ import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileParser;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.file.VoidElement;
-import io.github.syst3ms.skriptparser.lang.CodeSection;
-import io.github.syst3ms.skriptparser.lang.Conditional;
-import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.Loop;
-import io.github.syst3ms.skriptparser.lang.Statement;
-import io.github.syst3ms.skriptparser.lang.Trigger;
+import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.log.ErrorContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.LogEntry;
@@ -57,20 +52,30 @@ public class ScriptLoader {
             return Collections.emptyList();
         }
         logger.setFileInfo(script.getName(), elements);
+        List<UnloadedTrigger> unloadedTriggers = new ArrayList<>();
         for (FileElement element : elements) {
             logger.logOutput();
             logger.nextLine();
             if (element instanceof VoidElement)
                 continue;
             if (element instanceof FileSection) {
-                Trigger trig = SyntaxParser.parseTrigger((FileSection) element, logger);
+                UnloadedTrigger trig = SyntaxParser.parseTrigger((FileSection) element, logger);
                 if (trig == null) {
                     continue;
                 }
-                triggerMap.putOne(scriptName, trig);
+                unloadedTriggers.add(trig);
             } else {
                 logger.error("Can't have code outside of a trigger", ErrorType.STRUCTURE_ERROR);
             }
+        }
+        unloadedTriggers.sort((a, b) -> b.getTrigger().getEvent().getLoadingPriority() - a.getTrigger().getEvent().getLoadingPriority());
+        for (UnloadedTrigger unloaded : unloadedTriggers) {
+            logger.logOutput();
+            logger.setLine(unloaded.getLine());
+            Trigger loaded = unloaded.getTrigger();
+            loaded.loadSection(unloaded.getSection(), unloaded.getParserState(), logger);
+            unloaded.getEventInfo().getRegisterer().handleTrigger(loaded);
+            triggerMap.putOne(scriptName, loaded);
         }
         logger.logOutput();
         SkriptAddon.getAddons().forEach(SkriptAddon::finishedLoading);

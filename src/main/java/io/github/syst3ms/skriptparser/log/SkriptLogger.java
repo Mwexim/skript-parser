@@ -34,11 +34,12 @@ public class SkriptLogger {
     // File
     private String fileName;
     private List<FileElement> fileElements;
+
     private int line = -1;
+
     // Logs
     private List<LogEntry> logEntries = new ArrayList<>();
     private List<LogEntry> logged = new ArrayList<>();
-
     public SkriptLogger(boolean debug) {
         this.debug = debug;
         errorContext.addLast(ErrorContext.MATCHING);
@@ -69,6 +70,14 @@ public class SkriptLogger {
      */
     public void nextLine() {
         line++;
+    }
+
+    public int getLine() {
+        return line;
+    }
+
+    public void setLine(int line) {
+        this.line = line;
     }
 
     /**

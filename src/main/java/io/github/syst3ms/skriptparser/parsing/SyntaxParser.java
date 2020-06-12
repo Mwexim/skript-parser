@@ -632,14 +632,13 @@ public class SyntaxParser {
      * or for another reason detailed in an error message
      */
     @Nullable
-    public static Trigger parseTrigger(FileSection section, SkriptLogger logger) {
+    public static UnloadedTrigger parseTrigger(FileSection section, SkriptLogger logger) {
         if (section.getLineContent().isEmpty())
             return null;
         for (SkriptEventInfo<?> recentEvent : recentEvents) {
-            Trigger trigger = matchEventInfo(section, recentEvent, logger);
+            UnloadedTrigger trigger = matchEventInfo(section, recentEvent, logger);
             if (trigger != null) {
                 recentEvents.acknowledge(recentEvent);
-                recentEvent.getRegisterer().handleTrigger(trigger);
                 logger.clearLogs();
                 return trigger;
             }
@@ -649,10 +648,9 @@ public class SyntaxParser {
         List<SkriptEventInfo<?>> remainingEvents = SyntaxManager.getEvents();
         recentEvents.removeFrom(remainingEvents);
         for (SkriptEventInfo<?> remainingEvent : remainingEvents) {
-            Trigger trigger = matchEventInfo(section, remainingEvent, logger);
+            UnloadedTrigger trigger = matchEventInfo(section, remainingEvent, logger);
             if (trigger != null) {
                 recentEvents.acknowledge(remainingEvent);
-                remainingEvent.getRegisterer().handleTrigger(trigger);
                 logger.clearLogs();
                 return trigger;
             }
@@ -663,7 +661,7 @@ public class SyntaxParser {
         return null;
     }
 
-    private static Trigger matchEventInfo(FileSection section, SkriptEventInfo<?> info, SkriptLogger logger) {
+    private static UnloadedTrigger matchEventInfo(FileSection section, SkriptEventInfo<?> info, SkriptLogger logger) {
         List<PatternElement> patterns = info.getPatterns();
         for (int i = 0; i < patterns.size(); i++) {
             PatternElement element = patterns.get(i);
@@ -683,8 +681,11 @@ public class SyntaxParser {
                     }
                     Trigger trig = new Trigger(event);
                     parserState.setCurrentContexts(info.getContexts());
-                    trig.loadSection(section, parserState, logger);
-                    return trig;
+                    // trig.loadSection(section, parserState, logger);
+                    /*
+                     * We don't actually load the trigger, that will be left to the loading priority system
+                     */
+                    return new UnloadedTrigger(trig, section, logger.getLine(), info, parserState);
                 } catch (InstantiationException | IllegalAccessException e) {
                     logger.error("Couldn't instantiate class " + info.getSyntaxClass(), ErrorType.EXCEPTION);
                 }

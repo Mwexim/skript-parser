@@ -25,6 +25,20 @@ public abstract class SkriptEvent implements SyntaxElement {
     }
 
     /**
+     * For virtually all programming and scripting languages, the need exists to have functions in order to not repeat
+     * code too often. Skript is no exception, however, by default, every trigger is loaded in the order it appears in the file,
+     * This is undesirable if we don't want the restriction of having to declare functions before using them. This is especially
+     * counter-productive if we're dealing with multiple scripts.
+     *
+     * To solve this problem, {@link Trigger triggers} with with a higher loading priority number will be loaded first.
+     *
+     * @return the loading priority number. 0 by default
+     */
+    public int getLoadingPriority() {
+        return 0;
+    }
+
+    /**
      * A list of the classes of every syntax that is allowed to be used inside of this SkriptEvent. The default behavior
      * is to return an empty list, which equates to no restrictions. If overriden, this allows the creation of specialized,
      * DSL-like sections in which only select {@linkplain Statement statements} and other {@linkplain CodeSection sections}
