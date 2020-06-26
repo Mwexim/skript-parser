@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -19,9 +18,9 @@ import org.jetbrains.annotations.Nullable;
  * @see ConditionalMode
  */
 public class Conditional extends CodeSection {
-    private ConditionalMode mode;
+    private final ConditionalMode mode;
     @Nullable
-    private Expression<Boolean> condition;
+    private final Expression<Boolean> condition;
     private Conditional fallingClause;
 
     public Conditional(FileSection section, @Nullable Expression<Boolean> condition, ConditionalMode mode, ParserState parserState, SkriptLogger logger) {

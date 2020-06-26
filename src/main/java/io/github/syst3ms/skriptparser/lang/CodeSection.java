@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
@@ -20,7 +20,7 @@ import java.util.List;
  * @see Conditional
  * @see Loop
  * @see While
- * @see io.github.syst3ms.skriptparser.lang.base.ConditionalExpression
+ * @see ConditionalExpression
  */
 public abstract class CodeSection extends Statement {
     protected List<Statement> items;

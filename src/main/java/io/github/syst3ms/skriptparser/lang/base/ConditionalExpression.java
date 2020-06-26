@@ -1,7 +1,10 @@
 package io.github.syst3ms.skriptparser.lang.base;
 
-import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.expressions.ExprWhether;
+import io.github.syst3ms.skriptparser.lang.Conditional;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.While;
 
 /**
  * A base class for all boolean expressions (i.e {@linkplain Expression<Boolean>}) that should be treated as
@@ -16,9 +19,9 @@ import io.github.syst3ms.skriptparser.lang.Expression;
  * the {@code whether %=boolean%} expression.
  *
  * Other, non-conditional boolean expressions should implement {@link Expression<Boolean>}
- * @see io.github.syst3ms.skriptparser.expressions.ExprWhether
- * @see io.github.syst3ms.skriptparser.lang.Conditional
- * @see io.github.syst3ms.skriptparser.lang.While
+ * @see ExprWhether
+ * @see Conditional
+ * @see While
  */
 public abstract class ConditionalExpression implements Expression<Boolean> {
     private boolean negated = false;

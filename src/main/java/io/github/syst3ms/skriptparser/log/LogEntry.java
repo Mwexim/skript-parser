@@ -10,12 +10,14 @@ import java.util.List;
 public class LogEntry {
     private final LogType type;
     private final String message;
+    private final int line;
     private final List<ErrorContext> errorContext;
     private final ErrorType errorType;
 
-    public LogEntry(String message, LogType verbosity, List<ErrorContext> errorContext, @Nullable ErrorType errorType) {
+    public LogEntry(String message, LogType verbosity, int line, List<ErrorContext> errorContext, @Nullable ErrorType errorType) {
         this.type = verbosity;
         this.message = message;
+        this.line = line;
         this.errorContext = errorContext;
         this.errorType = errorType;
     }
@@ -34,5 +36,9 @@ public class LogEntry {
 
     ErrorType getErrorType() {
         return errorType;
+    }
+
+    int getLine() {
+        return line;
     }
 }

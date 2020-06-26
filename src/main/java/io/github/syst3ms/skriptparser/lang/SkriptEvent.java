@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
@@ -10,7 +9,18 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * The entry point for all code in Skript. Once an event triggers, all of the code inside it is run
+ * The entry point for all code in Skript. Once an event triggers, all of the code inside it may be run.
+ *
+ * Skript-parser's event system is composed of three interacting parts : {@link Trigger}, {@link SkriptEvent} and {@link TriggerContext}.
+ * This is directly parallel to Skript's event system, with Bukkit's own Event class replacing TriggerContext.
+ *
+ * Let's explain how this system works using a simple analogy : skript-parser is like a giant kitchen :
+ * <ul>
+ *   <li>The goal is to prepare food (write code).</li>
+ *   <li>There are many different types of food to prepare ({@link TriggerContext}s).</li>
+ *   <li>There are different ways of actually preparing the food (different {@link SkriptEvent}s), each one being specific to one or more types of good</li>
+ *   <li>Finally, in order to make the recipe come together, one needs physical, tangible tools to achieve that ({@link Trigger}s)</li>
+ * </ul>
  */
 public abstract class SkriptEvent implements SyntaxElement {
     /**

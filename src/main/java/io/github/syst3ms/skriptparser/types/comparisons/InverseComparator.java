@@ -6,7 +6,7 @@ package io.github.syst3ms.skriptparser.types.comparisons;
  * @param <T2> the second type
  */
 public class InverseComparator<T1, T2> extends Comparator<T1, T2> {
-    private Comparator<? super T2, ? super T1> comparator;
+    private final Comparator<? super T2, ? super T1> comparator;
 
     public InverseComparator(Comparator<? super T2, ? super T1> comparator) {
         super(comparator.supportsOrdering());

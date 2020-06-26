@@ -77,7 +77,7 @@ public class RecentElementList<T> implements Iterable<T> {
          * implementation would not use one RecentElementList across multiple threads. At least I hope so...
          */
         return new Iterator<T>() {
-            private List<Map.Entry<T, Integer>> b = backing;
+            private final List<Map.Entry<T, Integer>> b = backing;
             private int index = 0;
 
             @Override

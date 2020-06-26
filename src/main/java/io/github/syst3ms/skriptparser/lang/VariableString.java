@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -27,8 +26,8 @@ public class VariableString implements Expression<String> {
 	 * An array containing raw data for this {@link VariableString}.
 	 * Contains {@link String} and {@link Expression} elements
 	 */
-    private Object[] data;
-    private boolean simple;
+    private final Object[] data;
+    private final boolean simple;
 
     private VariableString(Object[] data) {
         this.data = data;

@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import org.jetbrains.annotations.Nullable;
@@ -13,14 +14,14 @@ import java.util.regex.MatchResult;
  * A parser instance used for matching a pattern to a syntax
  */
 public class MatchContext {
-    private String originalPattern;
-    private PatternElement originalElement;
+    private final String originalPattern;
+    private final PatternElement originalElement;
     // Provided to the syntax's class
     private final ParserState parserState;
     private final SkriptLogger logger;
     private final MatchContext source;
-    private List<Expression<?>> parsedExpressions = new ArrayList<>();
-    private List<MatchResult> regexMatches = new ArrayList<>();
+    private final List<Expression<?>> parsedExpressions = new ArrayList<>();
+    private final List<MatchResult> regexMatches = new ArrayList<>();
     private int patternIndex = 0;
     private int parseMark = 0;
 
@@ -76,6 +77,11 @@ public class MatchContext {
         return source;
     }
 
+    /**
+     * Creates a new MatchContext based on the given {@link PatternElement}
+     * @param e
+     * @return
+     */
     public MatchContext branch(PatternElement e) {
         return new MatchContext(e, parserState, logger, this);
     }
@@ -87,7 +93,7 @@ public class MatchContext {
     }
 
     /**
-     * Turns this {@link MatchContext} into a {@link ParseContext} used in {@linkplain io.github.syst3ms.skriptparser.lang.SyntaxElement}s
+     * Turns this {@link MatchContext} into a {@link ParseContext} used in {@linkplain SyntaxElement}s
      * @return a {@link ParseContext} based on this {@link MatchContext}
      */
     public ParseContext toParseResult() {

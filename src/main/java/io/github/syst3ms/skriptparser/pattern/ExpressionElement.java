@@ -30,9 +30,10 @@ import java.util.regex.Matcher;
  * @see ConditionalExpression
  */
 public class ExpressionElement implements PatternElement {
-    private List<PatternType<?>> types;
-    private Acceptance acceptance;
-    private boolean nullable, acceptsConditional;
+    private final List<PatternType<?>> types;
+    private final Acceptance acceptance;
+    private final boolean nullable;
+    private final boolean acceptsConditional;
 
     public ExpressionElement(List<PatternType<?>> types, Acceptance acceptance, boolean nullable, boolean acceptsConditional) {
         this.types = types;

@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ParserState {
     private Class<? extends TriggerContext>[] currentContexts;
-    private LinkedList<CodeSection> currentSections = new LinkedList<>();
+    private final LinkedList<CodeSection> currentSections = new LinkedList<>();
     private List<Class<? extends SyntaxElement>> allowedSyntaxes = Collections.emptyList();
     private boolean restrictingExpressions = false;
 

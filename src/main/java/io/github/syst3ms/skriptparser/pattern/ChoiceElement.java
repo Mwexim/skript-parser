@@ -6,8 +6,8 @@ package io.github.syst3ms.skriptparser.pattern;
  * @see ChoiceGroup
  */
 public class ChoiceElement {
-    private PatternElement element;
-    private int parseMark;
+    private final PatternElement element;
+    private final int parseMark;
 
     public ChoiceElement(PatternElement element, int parseMark) {
         this.element = element;

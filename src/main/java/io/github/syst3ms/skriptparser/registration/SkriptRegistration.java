@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
-import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.LogEntry;
@@ -29,15 +29,15 @@ import java.util.function.Function;
  * @see #getRegisterer()
  */
 public class SkriptRegistration {
-    private SkriptAddon registerer;
-    private PatternParser patternParser;
-    private SkriptLogger logger = new SkriptLogger();
-    private MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
-    private List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
-    private List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
-    private List<SkriptEventInfo<?>> events = new ArrayList<>();
-    private List<Type<?>> types = new ArrayList<>();
-    private List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
+    private final SkriptAddon registerer;
+    private final PatternParser patternParser;
+    private final SkriptLogger logger = new SkriptLogger();
+    private final MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
+    private final List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
+    private final List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
+    private final List<SkriptEventInfo<?>> events = new ArrayList<>();
+    private final List<Type<?>> types = new ArrayList<>();
+    private final List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
     private boolean newTypes = false;
 
     public SkriptRegistration(SkriptAddon registerer) {
@@ -346,7 +346,7 @@ public class SkriptRegistration {
 
     public abstract class SyntaxRegistrar<C extends SyntaxElement> implements Registrar {
         protected final Class<C> c;
-        private List<String> patterns = new ArrayList<>();
+        private final List<String> patterns = new ArrayList<>();
         private int priority = 5;
 
         SyntaxRegistrar(Class<C> c, String... patterns) {

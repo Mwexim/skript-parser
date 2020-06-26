@@ -14,7 +14,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import static io.github.syst3ms.skriptparser.event.TriggerContext.DUMMY;
+import static io.github.syst3ms.skriptparser.lang.TriggerContext.DUMMY;
 import static org.junit.Assert.*;
 
 @SuppressWarnings("ConstantConditions")

@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
  * Text inside of a pattern. Is case and whitespace insensitive.
  */
 public class TextElement implements PatternElement {
-    private String text;
+    private final String text;
 
     public TextElement(String text) {
         this.text = text;

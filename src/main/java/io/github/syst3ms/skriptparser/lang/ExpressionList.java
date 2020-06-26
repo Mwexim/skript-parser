@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import org.jetbrains.annotations.Nullable;
@@ -17,9 +16,9 @@ public class ExpressionList<T> implements Expression<T> {
     protected final boolean single;
     protected boolean and;
     protected Expression<? extends T>[] expressions;
-    private Class<T> returnType;
+    private final Class<T> returnType;
     @Nullable
-    private ExpressionList<?> source;
+    private final ExpressionList<?> source;
 
     public ExpressionList(Expression<? extends T>[] expressions, Class<T> returnType, boolean and) {
         this(expressions, returnType, and, null);

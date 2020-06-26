@@ -13,7 +13,7 @@ import java.util.List;
  * @param <T> the return type of the {@link Expression}
  */
 public class ExpressionInfo<C, T> extends SyntaxInfo<C> {
-    private PatternType<T> returnType;
+    private final PatternType<T> returnType;
 
     public ExpressionInfo(Class<C> c, List<PatternElement> patterns, SkriptAddon registerer, Type<T> returnType, boolean isSingle, int priority) {
         super(c, patterns, priority, registerer);

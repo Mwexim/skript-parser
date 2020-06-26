@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class ScriptLoader {
     private static final LinkedList<Loop> currentLoops = new LinkedList<>();
-    private static MultiMap<String, Trigger> triggerMap = new MultiMap<>();
+    private static final MultiMap<String, Trigger> triggerMap = new MultiMap<>();
 
     /**
      * Parses and loads the provided script in memory

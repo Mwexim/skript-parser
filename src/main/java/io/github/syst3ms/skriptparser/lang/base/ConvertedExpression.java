@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.lang.base;
 
-import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
@@ -20,9 +20,9 @@ import java.util.function.Function;
  * @see Converters
  */
 public class ConvertedExpression<F, T> implements Expression<T> {
-    private Expression<? extends F> source;
-    private Class<T> to;
-    private Function<? super F, ? extends T> converter;
+    private final Expression<? extends F> source;
+    private final Class<T> to;
+    private final Function<? super F, ? extends T> converter;
 
     public ConvertedExpression(Expression<? extends F> source, Class<T> to, Function<? super F, ? extends T> converter) {
         this.source = source;

@@ -50,7 +50,7 @@ public abstract class Converters {
      */
     public static final int NO_CHAINING = NO_LEFT_CHAINING | NO_RIGHT_CHAINING;
 
-    private static List<ConverterInfo<?, ?>> converters = new ArrayList<>(50);
+    private static final List<ConverterInfo<?, ?>> converters = new ArrayList<>(50);
 
 
     public static List<ConverterInfo<?, ?>> getConverters() {

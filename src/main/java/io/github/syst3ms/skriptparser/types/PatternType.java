@@ -5,8 +5,8 @@ package io.github.syst3ms.skriptparser.types;
  * Groups a {@link Type} and a number (single or plural) together (in contrast to {@link Type})
  */
 public class PatternType<T> {
-    private Type<T> type;
-    private boolean single;
+    private final Type<T> type;
+    private final boolean single;
 
     public PatternType(Type<T> type, boolean single) {
         this.type = type;

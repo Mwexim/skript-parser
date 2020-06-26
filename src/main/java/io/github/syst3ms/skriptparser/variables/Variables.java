@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.variables;
 
-import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
@@ -20,9 +20,9 @@ public class Variables {
     public static final String LIST_SEPARATOR = "::";
     public static final String LOCAL_VARIABLE_TOKEN = "_";
     public static final Pattern REGEX_PATTERN = Pattern.compile("\\{([^{}]|%\\{|}%)+}");
-    private static VariableMap variableMap = new VariableMap();
+    private static final VariableMap variableMap = new VariableMap();
     // Yes, I know it should be trigger-specific, but I haven't got to that part yet, ok ? TODO make the change
-    private static Map<TriggerContext, VariableMap> localVariables = new HashMap<>();
+    private static final Map<TriggerContext, VariableMap> localVariables = new HashMap<>();
 
     @Nullable
     public static <T> Expression<T> parseVariable(String s, Class<? extends T> types, ParserState parserState, SkriptLogger logger) {

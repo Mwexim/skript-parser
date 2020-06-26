@@ -14,6 +14,25 @@ import java.util.stream.Collectors;
  */
 public class SkriptLogger {
     public static final String LOG_FORMAT = "%s (line %d: \"%s\", %s)";
+    /*
+     * In decreasing order of priority :
+     * ErrorContext.RESTRICTED_SYNTAXES
+     * ErrorContext.CONSTRAINT_CHECKING
+     * ErrorContext.INITIALIZATION
+     * ErrorContext.MATCHING
+     * ErrorContext.MATCHING + ErrorContext.RESTRICTED_SYNTAXES
+     * ErrorContext.MATCHING + ErrorContext.CONSTRAINT_CHECKING
+     * ErrorContext.MATCHING + ErrorContext.INITIALIZATION
+     * ErrorContext.MATCHING + ErrorContext.MATCHING
+     * ErrorContext.MATCHING + ErrorContext.MATCHING + ErrorContext.RESTRICTED_SYNTAXES
+     * ErrorContext.MATCHING + ErrorContext.MATCHING + ErrorContext.CONSTRAINT_CHECKING
+     * ErrorContext.MATCHING + ErrorContext.MATCHING + ErrorContext.INITIALIZATION
+     * ErrorContext.MATCHING + ErrorContext.MATCHING + ErrorContext.MATCHING
+     * ...
+     * ErrorContext.MATCHING + ErrorContext.MATCHING + ErrorContext.NO_MATCH
+     * ErrorContext.MATCHING + ErrorContext.NO_MATCH
+     * ErrorContext.NO_MATCH
+     */
     private static final Comparator<LogEntry> ERROR_COMPARATOR = (e1, e2) -> {
         List<ErrorContext> c1 = e1.getErrorContext(),
                 c2 = e2.getErrorContext();
@@ -33,7 +52,7 @@ public class SkriptLogger {
     private final boolean debug;
     private boolean open = true;
     private boolean hasError = false;
-    private LinkedList<ErrorContext> errorContext = new LinkedList<>();
+    private final LinkedList<ErrorContext> errorContext = new LinkedList<>();
     // File
     private String fileName;
     private List<FileElement> fileElements;
@@ -41,8 +60,8 @@ public class SkriptLogger {
     private int line = -1;
 
     // Logs
-    private List<LogEntry> logEntries = new ArrayList<>();
-    private List<LogEntry> logged = new ArrayList<>();
+    private final List<LogEntry> logEntries = new ArrayList<>();
+    private final List<LogEntry> logged = new ArrayList<>();
     public SkriptLogger(boolean debug) {
         this.debug = debug;
         errorContext.addLast(ErrorContext.MATCHING);
@@ -112,9 +131,9 @@ public class SkriptLogger {
         if (open) {
             List<ErrorContext> ctx = new ArrayList<>(errorContext);
             if (line == -1) {
-                logEntries.add(new LogEntry(message, type, ctx, error));
+                logEntries.add(new LogEntry(message, type, line, ctx, error));
             } else {
-                logEntries.add(new LogEntry(String.format(LOG_FORMAT, message, line + 1, fileElements.get(line).getLineContent(), fileName), type, ctx, error));
+                logEntries.add(new LogEntry(String.format(LOG_FORMAT, message, line + 1, fileElements.get(line).getLineContent(), fileName), type, line, ctx, error));
             }
         }
     }
@@ -126,7 +145,7 @@ public class SkriptLogger {
      */
     public void error(String message, ErrorType errorType) {
         if (!hasError) {
-            clearNotError();
+            clearNotError(); // Errors take priority over everything (except DEBUG), so we just delete all other logs
             log(message, LogType.ERROR, errorType);
             hasError = true;
         }
@@ -189,7 +208,7 @@ public class SkriptLogger {
                 .filter(e -> e.getType() == LogType.ERROR)
                 .min(ERROR_COMPARATOR)
                 .ifPresent(logged::add);
-        for (LogEntry entry : logEntries) {
+        for (LogEntry entry : logEntries) { // If no errors have been logged, then all other LogTypes get logged here, DEBUG being the special case
             if (entry.getType() != LogType.ERROR) {
                 logged.add(entry);
             }
@@ -203,6 +222,11 @@ public class SkriptLogger {
      */
     public List<LogEntry> close() {
         open = false;
+        logged.sort((e1, e2) -> { // Due to the load priority system, entries might not be ordered like their corresponding lines
+            if (e1.getLine() == -1 || e2.getLine() == -1)
+                return 0;
+            return e1.getLine() - e2.getLine();
+        });
         return logged;
     }
 

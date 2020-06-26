@@ -8,7 +8,7 @@ import java.util.function.BiFunction;
  * A class handling registration of ranges
  */
 public class Ranges {
-    private static Map<Class<?>, RangeInfo<?, ?>> rangeMap = new HashMap<>();
+    private static final Map<Class<?>, RangeInfo<?, ?>> rangeMap = new HashMap<>();
 
     public static <B, T> void registerRange(Class<B> bound, Class<T> to, BiFunction<? super B, ? super B, T[]> function) {
         rangeMap.put(
