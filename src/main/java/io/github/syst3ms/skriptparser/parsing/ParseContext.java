@@ -9,7 +9,7 @@ import java.util.regex.MatchResult;
 
 /**
  * An object that stores data about how an object was parsed.
- * By opposition to {@link MatchContext}, this object is immutable.
+ * By opposition to {@link MatchContext}, this object is immutable, and generated after matching is complete.
  * @see Expression#init(Expression[], int, ParseContext)
  */
 public class ParseContext {

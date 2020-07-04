@@ -43,51 +43,6 @@ public class ExprRange implements Expression<Object> {
                 false,
                 "range from %object% to %object%"
         );
-        // Range between Longs
-        Ranges.registerRange(
-                Long.class,
-                Long.class,
-                (l, r) -> {
-                    if (l.compareTo(r) >= 0) {
-                        return new Long[0];
-                    } else {
-                        return LongStream.range(l, r + 1)
-                                         .boxed()
-                                         .toArray(Long[]::new);
-                    }
-                }
-        );
-        // Range between BigIntegers
-        Ranges.registerRange(
-                BigInteger.class,
-                BigInteger.class,
-                (l, r) -> {
-                    if (l.compareTo(r) >= 0) {
-                        return new BigInteger[0];
-                    } else {
-                        List<BigInteger> elements = new ArrayList<>();
-                        BigInteger current = l;
-                        do {
-                            elements.add(current);
-                            current = current.add(BigInteger.ONE);
-                        } while (current.compareTo(r) <= 0);
-                        return elements.toArray(new BigInteger[0]);
-                    }
-                }
-        );
-        // Actually a character range
-        Ranges.registerRange(
-                String.class,
-                String.class,
-                (l, r) -> {
-                    if (l.length() != 1 || r.length() != 1)
-                        return new String[0];
-                    char leftChar = l.charAt(0), rightChar = r.charAt(0);
-                    return IntStream.range(leftChar, rightChar + 1)
-                                    .mapToObj(i -> Character.toString((char) i))
-                                    .toArray(String[]::new);
-                }
-        );
     }
 
     @Override

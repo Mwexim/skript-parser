@@ -18,8 +18,8 @@ import java.util.List;
  * <ul>
  *   <li>The goal is to prepare food (write code).</li>
  *   <li>There are many different types of food to prepare ({@link TriggerContext}s).</li>
- *   <li>There are different ways of actually preparing the food (different {@link SkriptEvent}s), each one being specific to one or more types of good</li>
- *   <li>Finally, in order to make the recipe come together, one needs physical, tangible tools to achieve that ({@link Trigger}s)</li>
+ *   <li>There are different means of actually preparing the food (different {@link SkriptEvent}s), each one being specific to one or more types of food</li>
+ *   <li>Finally, in order to make the recipe come together, one needs the physical, tangible tools to achieve that ({@link Trigger}s)</li>
  * </ul>
  */
 public abstract class SkriptEvent implements SyntaxElement {

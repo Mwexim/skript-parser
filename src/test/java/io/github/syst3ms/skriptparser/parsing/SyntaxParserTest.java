@@ -149,21 +149,21 @@ public class SyntaxParserTest {
         FileParser fileParser = new FileParser();
         ClassLoader classLoader = getClass().getClassLoader();
         // While test
-        File file = new File(classLoader.getResource("while-test.txt").getFile());
+        File file = new File(classLoader.getResource("while-test.txt").getCurrentJarFile());
         List<String> lines = FileUtils.readAllLines(file);
         List<FileElement> elements = fileParser.parseFileLines("while-test", lines, 0, 1);
         FileSection sec = (FileSection) elements.get(0);
         CodeSection whileLoop = parseSection(sec);
         assertTrue("The while loop failed", Statement.runAll(whileLoop, DUMMY));
         // Loop test
-        file = new File(classLoader.getResource("loop-test.txt").getFile());
+        file = new File(classLoader.getResource("loop-test.txt").getCurrentJarFile());
         lines = FileUtils.readAllLines(file);
         elements = fileParser.parseFileLines("loop-test", lines, 0, 1);
         sec = (FileSection) elements.get(0);
         CodeSection loop = parseSection(sec);
         assertTrue("The loop failed while running", Statement.runAll(loop, DUMMY));
         // Condition test
-        file = new File(classLoader.getResource("conditions.txt").getFile());
+        file = new File(classLoader.getResource("conditions.txt").getCurrentJarFile());
         lines = FileUtils.readAllLines(file);
         elements = fileParser.parseFileLines("conditions", lines, 0, 1);
         sec = (FileSection) elements.get(0);

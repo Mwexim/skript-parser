@@ -9,7 +9,7 @@ import java.util.*;
  * A simple list that is only meant to keep track of which syntaxes are used frequently, in order to preemptively check
  * them against a string that's being parsed.
  *
- * To illustrate the behaviour of this class, imagine you use some syntax A 10 times, then use syntax B once. The very
+ * To illustrate the behaviour of this class, imagine you use some syntax A 8 times, then use syntax B once. The very
  * next time the parser does the "recent syntaxes" check, it will check syntax A first, because it was used more than syntax B.
  * @param <T> the type of {@link SyntaxInfo}
  */

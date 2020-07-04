@@ -115,11 +115,11 @@ public class FileUtils {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public static void loadClasses(String basePackage, String... subPackages) throws IOException, URISyntaxException {
+    public static void loadClasses(File jarFile, String basePackage, String... subPackages) throws IOException, URISyntaxException {
         for (int i = 0; i < subPackages.length; i++)
             subPackages[i] = subPackages[i].replace('.', '/') + "/";
         basePackage = basePackage.replace('.', '/') + "/";
-        try (JarFile jar = new JarFile(getFile())) {
+        try (JarFile jar = new JarFile(jarFile)) {
             Enumeration<JarEntry> entries = jar.entries();
             while (entries.hasMoreElements()) {
                 JarEntry e = entries.nextElement();
@@ -144,7 +144,7 @@ public class FileUtils {
         }
     }
 
-    private static File getFile() throws URISyntaxException {
+    public static File getCurrentJarFile() throws URISyntaxException {
         if (jarFile == null) {
             jarFile = new File(FileUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         }

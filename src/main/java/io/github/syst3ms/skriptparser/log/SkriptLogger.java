@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * A class managing Skript's I/O messages.
+ * An object through which Skript can keep track of errors, warnings and other useful information to the one that writes
+ * Skript code.
  */
 public class SkriptLogger {
     public static final String LOG_FORMAT = "%s (line %d: \"%s\", %s)";
@@ -56,12 +57,11 @@ public class SkriptLogger {
     // File
     private String fileName;
     private List<FileElement> fileElements;
-
     private int line = -1;
-
     // Logs
     private final List<LogEntry> logEntries = new ArrayList<>();
     private final List<LogEntry> logged = new ArrayList<>();
+
     public SkriptLogger(boolean debug) {
         this.debug = debug;
         errorContext.addLast(ErrorContext.MATCHING);
@@ -71,6 +71,11 @@ public class SkriptLogger {
         this(false);
     }
 
+    /**
+     * Provides the logger information about the file it's currently parsing
+     * @param fileName the file name
+     * @param fileElements the {@link FileElement}s of the current file
+     */
     public void setFileInfo(String fileName, List<FileElement> fileElements) {
         this.fileName = fileName;
         this.fileElements = flatten(fileElements);
@@ -94,10 +99,18 @@ public class SkriptLogger {
         line++;
     }
 
+    /**
+     * Like {@link #setLine(int)}, is only used for the purposes of the trigger loading priority system.
+     * @return the current line
+     */
     public int getLine() {
         return line;
     }
 
+    /**
+     * Like {@link #getLine()}, is only used for the purposes of the trigger loading priority system.
+     * @param line the new line number
+     */
     public void setLine(int line) {
         this.line = line;
     }
