@@ -10,8 +10,8 @@ import org.jetbrains.annotations.Nullable;
  * Returns a value depending of a boolean.
  *
  * @name Ternary
- * @pattern %objects% if <.+>[,] (otherwise|else) %objects%
- * @pattern %boolean% ? %objects% : %objects%
+ * @pattern %objects% if %=boolean%[,] (otherwise|else) %objects%
+ * @pattern %=boolean% ? %objects% : %objects%
  * @since ALPHA
  * @author Olyno
  */
@@ -24,8 +24,8 @@ public class ExprTernary implements Expression<Object> {
             ExprTernary.class,
             Object.class,
             false,
-            "%objects% if %boolean%[,] (otherwise|else) %objects%",
-            "%boolean% ? %objects% : %objects%"
+            "%objects% if %=boolean%[,] (otherwise|else) %objects%",
+            "%=boolean% ? %objects% : %objects%"
         );
     }
 
