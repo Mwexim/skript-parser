@@ -17,7 +17,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public class ExprTernary implements Expression<Object> {
 
-    private Expression<?> valueToCheck, firstValue, secondValue;
+    private Expression<Boolean> valueToCheck;
+    private Expression<Object> firstValue, secondValue;
 
     static {
         Main.getMainRegistration().addExpression(
@@ -29,11 +30,12 @@ public class ExprTernary implements Expression<Object> {
         );
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        valueToCheck = expressions[matchedPattern == 0 ? 1 : 0];
-        firstValue = expressions[matchedPattern == 0 ? 0 : 1];
-        secondValue = expressions[2];
+        valueToCheck = (Expression<Boolean>) expressions[matchedPattern == 0 ? 1 : 0];
+        firstValue = (Expression<Object>) expressions[matchedPattern == 0 ? 0 : 1];
+        secondValue = (Expression<Object>) expressions[2];
         return true;
     }
 
