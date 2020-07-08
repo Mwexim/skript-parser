@@ -44,8 +44,10 @@ public class ExprDefaultValue implements Expression<Object> {
         Object second = secondValue.getSingle(ctx);
         if (first != null) {
             return new Object[]{first};
-        } else {
+        } else if (second != null) {
             return new Object[]{second};
+        } else {
+            return new Object[0];
         }
     }
 
