@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import io.github.syst3ms.skriptparser.registration.DefaultRegistration;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
+import io.github.syst3ms.skriptparser.util.ConsoleColors;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 
 import java.io.File;
@@ -39,7 +40,7 @@ public class Main {
             scriptName = args[0];
             programArgs = Arrays.copyOfRange(args, 1, args.length);
         }
-        init(scriptName, programArgs, new String[0], new String[0], debug, true);
+        init(scriptName, new String[0], new String[0], programArgs, debug, true);
     }
 
     /**
@@ -66,7 +67,7 @@ public class Main {
         subPackages = sub.toArray(new String[0]);
         try {
             for (String mainPackage : mainPackages) {
-                FileUtils.loadClasses(mainPackage, subPackages);
+                FileUtils.loadClasses(FileUtils.getCurrentJarFile(), mainPackage, subPackages);
             }
             if (standalone) {
                 File addonFolder = new File(".", "addons");
@@ -99,10 +100,30 @@ public class Main {
             System.err.println("Error while loading classes:");
             e.printStackTrace();
         }
-        registration.register();
-        File script = new File(scriptName);
-        List<LogEntry> logs = ScriptLoader.loadScript(script, debug);
         Calendar time = Calendar.getInstance();
+        List<LogEntry> logs = registration.register();
+        if (!logs.isEmpty()) {
+            System.out.print(ConsoleColors.RED.toString());
+            System.out.println("Registration log :");
+            System.out.println("---");
+        }
+        printLogs(logs, time);
+        System.out.print(ConsoleColors.RESET.toString());
+        if (!logs.isEmpty()) {
+            System.out.println();
+        }
+        File script = new File(scriptName);
+        logs = ScriptLoader.loadScript(script, debug);
+        if (!logs.isEmpty()) {
+            System.out.print(ConsoleColors.RED.toString());
+            System.out.println("Parsing log :");
+            System.out.println("---");
+        }
+        printLogs(logs, time);
+        System.out.print(ConsoleColors.RESET.toString());
+    }
+
+    private static void printLogs(List<LogEntry> logs, Calendar time) {
         for (LogEntry log : logs) {
             System.out.printf(CONSOLE_FORMAT, time, log.getType().name(), log.getMessage());
         }

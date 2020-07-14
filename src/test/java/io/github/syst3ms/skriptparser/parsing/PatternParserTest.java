@@ -1,14 +1,8 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.pattern.PatternParser;
 import io.github.syst3ms.skriptparser.TestRegistration;
-import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
-import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
-import io.github.syst3ms.skriptparser.pattern.CompoundElement;
-import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
-import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
-import io.github.syst3ms.skriptparser.pattern.RegexGroup;
-import io.github.syst3ms.skriptparser.pattern.TextElement;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
+import io.github.syst3ms.skriptparser.pattern.*;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import org.junit.Test;
 
@@ -27,9 +21,10 @@ public class PatternParserTest {
 
     @Test
     public void testParsePattern() {
+        SkriptLogger logger = new SkriptLogger();
         PatternParser parser = new PatternParser();
-        assertEquals(new TextElement("syntax"), parser.parsePattern("syntax"));
-        assertEquals(new OptionalGroup(new TextElement("optional")), parser.parsePattern("[optional]"));
+        assertEquals(new TextElement("syntax"), parser.parsePattern("syntax", logger));
+        assertEquals(new OptionalGroup(new TextElement("optional")), parser.parsePattern("[optional]", logger));
         assertEquals(
                 new OptionalGroup(
                     new CompoundElement(
@@ -37,33 +32,33 @@ public class PatternParserTest {
                             new OptionalGroup(new TextElement("optional"))
                     )
                 ),
-                parser.parsePattern("[nested [optional]]")
+                parser.parsePattern("[nested [optional]]", logger)
         );
         assertEquals(
                 new ChoiceGroup(
                         new ChoiceElement(new TextElement("single choice"), 0)
                 ),
-                parser.parsePattern("(single choice)")
+                parser.parsePattern("(single choice)", logger)
         );
         assertEquals(
                 new ChoiceGroup(
                         new ChoiceElement(new TextElement("parse mark"), 1)
                 ),
-                parser.parsePattern("(1:parse mark)")
+                parser.parsePattern("(1:parse mark)", logger)
         );
         assertEquals(
                 new ChoiceGroup(
                         new ChoiceElement(new TextElement("first choice"), 0),
                         new ChoiceElement(new TextElement("second choice"), 0)
                 ),
-                parser.parsePattern("(first choice|second choice)")
+                parser.parsePattern("(first choice|second choice)", logger)
         );
         assertEquals(
                 new ChoiceGroup(
                         new ChoiceElement(new TextElement("first mark"), 0),
                         new ChoiceElement(new TextElement("second mark"), 1)
                 ),
-                parser.parsePattern("(first mark|1:second mark)")
+                parser.parsePattern("(first mark|1:second mark)", logger)
         );
         assertEquals(
                 new OptionalGroup(
@@ -75,11 +70,11 @@ public class PatternParserTest {
                                 )
                         )
                 ),
-                parser.parsePattern("[optional (first choice|1:second choice)]")
+                parser.parsePattern("[optional (first choice|1:second choice)]", logger)
         );
         assertEquals(
                 new RegexGroup(Pattern.compile(".+")),
-                parser.parsePattern("<.+>")
+                parser.parsePattern("<.+>", logger)
         );
         assertEquals(
                 new ExpressionElement(
@@ -88,7 +83,7 @@ public class PatternParserTest {
                         false,
                         false
                 ),
-                parser.parsePattern("%number%")
+                parser.parsePattern("%number%", logger)
         );
         assertEquals(
                 new ExpressionElement(
@@ -100,10 +95,10 @@ public class PatternParserTest {
                         true,
                         false
                 ),
-                parser.parsePattern("%*number/strings%")
+                parser.parsePattern("%*number/strings%", logger)
         );
-        assertNull(parser.parsePattern("(unclosed"));
-        assertNull(parser.parsePattern("%unfinished type"));
+        assertNull(parser.parsePattern("(unclosed", logger));
+        assertNull(parser.parsePattern("%unfinished type", logger));
     }
 
 }

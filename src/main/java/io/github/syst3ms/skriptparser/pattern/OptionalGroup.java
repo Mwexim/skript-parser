@@ -6,7 +6,7 @@ import io.github.syst3ms.skriptparser.parsing.MatchContext;
  * A group containing an optional {@link PatternElement}, that can be omitted
  */
 public class OptionalGroup implements PatternElement {
-    private PatternElement element;
+    private final PatternElement element;
 
     public OptionalGroup(PatternElement element) {
         this.element = element;

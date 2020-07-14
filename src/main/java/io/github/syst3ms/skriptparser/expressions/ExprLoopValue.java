@@ -1,13 +1,13 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Loop;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
@@ -65,8 +65,10 @@ public class ExprLoopValue implements Expression<Object> {
 		}
 		int j = 1;
 		Loop loop = null;
-
-		for (final Loop l : ScriptLoader.getCurrentLoops()) {
+		for (final CodeSection sec : parser.getParserState().getCurrentSections()) {
+			if (!(sec instanceof Loop))
+				continue;
+			final Loop l = (Loop) sec;
             Class<?> loopedType = l.getLoopedExpression().getReturnType();
             if (c != null && (c.isAssignableFrom(loopedType) || loopedType == Object.class) ||
                 "value".equals(s) ||

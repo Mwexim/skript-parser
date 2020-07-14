@@ -14,7 +14,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import static io.github.syst3ms.skriptparser.event.TriggerContext.DUMMY;
+import static io.github.syst3ms.skriptparser.lang.TriggerContext.DUMMY;
 import static org.junit.Assert.*;
 
 @SuppressWarnings("ConstantConditions")
@@ -39,30 +39,30 @@ public class VariablesTest {
     @Test
     public void testVariables() {
         SkriptLogger logger = new SkriptLogger();
-        run(SyntaxParser.parseEffect("set {variable} to \"test\"", logger));
+        ParserState parserState = new ParserState();
+        run(SyntaxParser.parseEffect("set {variable} to \"test\"", parserState, logger));
         assertExpressionEquals(
                 new SimpleLiteral<>(String.class, "test"),
-                SyntaxParser.parseExpression("{variable}", new PatternType<>(TypeManager.getByClassExact(String.class), true),
-                        logger)
+                SyntaxParser.parseExpression("{variable}", new PatternType<>(TypeManager.getByClassExact(String.class), true), parserState, logger)
         );
-        run(SyntaxParser.parseEffect("delete {variable}", logger));
+        run(SyntaxParser.parseEffect("delete {variable}", parserState, logger));
         assertExpressionEquals(
                 new SimpleLiteral<>(Object.class),
-                SyntaxParser.parseExpression("{variable}", SyntaxParser.OBJECT_PATTERN_TYPE, logger)
+                SyntaxParser.parseExpression("{variable}", SyntaxParser.OBJECT_PATTERN_TYPE, parserState, logger)
         );
         // Numbers
         PatternType<Number> numberType = new PatternType<>(TypeManager.getByClassExact(Number.class), true);
-        run(SyntaxParser.parseEffect("set {number} to 5", logger));
+        run(SyntaxParser.parseEffect("set {number} to 5", parserState, logger));
         assertEquals(
                 BigInteger.class,
-                SyntaxParser.parseExpression("{number}", numberType, logger)
+                SyntaxParser.parseExpression("{number}", numberType, parserState, logger)
                             .getSingle(DUMMY)
                             .getClass()
         );
-        run(SyntaxParser.parseEffect("set {number} to 5.2", logger));
+        run(SyntaxParser.parseEffect("set {number} to 5.2", parserState, logger));
         assertEquals(
                 BigDecimal.class,
-                SyntaxParser.parseExpression("{number}", numberType, logger)
+                SyntaxParser.parseExpression("{number}", numberType, parserState, logger)
                             .getSingle(DUMMY)
                             .getClass()
         );

@@ -7,39 +7,40 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A wrapper that turns a condition into a boolean expression than can be used anywhere.
+ * Amount of a list of values.
  *
- * @name Whether
- * @pattern whether %=boolean%
+ * @name Amount
+ * @pattern (amount|number|size) of %objects%
  * @since ALPHA
- * @author Syst3ms
+ * @author Olyno
  */
-public class ExprWhether implements Expression<Boolean> {
-    private Expression<Boolean> condition;
+public class ExprAmount implements Expression<Number> {
+
+    private Expression<Object> valuesList;
 
     static {
         Main.getMainRegistration().addExpression(
-                ExprWhether.class,
-                Boolean.class,
-                true,
-                "whether %~=boolean%"
+            ExprAmount.class,
+            Number.class,
+            true,
+            "(amount|number|size) of %objects%"
         );
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        condition = (Expression<Boolean>) expressions[0];
+        valuesList = (Expression<Object>) expressions[0];
         return true;
     }
 
     @Override
-    public Boolean[] getValues(TriggerContext ctx) {
-        return condition.getValues(ctx);
+    public Number[] getValues(TriggerContext ctx) {
+        return new Number[]{valuesList.getValues(ctx).length};
     }
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return "whether " + condition.toString(ctx, debug);
+        return "amount of " + valuesList.toString(ctx, debug);
     }
 }

@@ -14,16 +14,16 @@ import java.util.function.Function;
  * @see PatternType
  */
 public class Type<T> {
-    private Class<T> typeClass;
-    private String baseName;
-    private String[] pluralForms;
-    private Function<Object, String> toStringFunction;
+    private final Class<T> typeClass;
+    private final String baseName;
+    private final String[] pluralForms;
+    private final Function<Object, String> toStringFunction;
     @Nullable
-    private Function<String, ? extends T> literalParser;
+    private final Function<String, ? extends T> literalParser;
     @Nullable
-    private Changer<? super T> defaultChanger;
+    private final Changer<? super T> defaultChanger;
     @Nullable
-    private Arithmetic<T, ?> arithmetic;
+    private final Arithmetic<T, ?> arithmetic;
 
     /**
      * Constructs a new Type.
