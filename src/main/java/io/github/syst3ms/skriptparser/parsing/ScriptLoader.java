@@ -61,6 +61,7 @@ public class ScriptLoader {
                 if (trig == null) {
                     continue;
                 }
+                logger.setLine(logger.getLine() + ((FileSection) element).length());
                 unloadedTriggers.add(trig);
             } else {
                 logger.error("Can't have code outside of a trigger", ErrorType.STRUCTURE_ERROR);
