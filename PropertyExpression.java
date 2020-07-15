@@ -23,6 +23,9 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
         this.owner = owner;
     }
 
-
-
+    @Override
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        setOwner((Expression<O>) expressions[0]);
+        return getOwner() != null;
+    }
 }
