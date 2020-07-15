@@ -8,6 +8,7 @@ import java.util.List;
  */
 public class FileSection extends FileElement {
     private final List<FileElement> elements;
+    private int length = -1;
 
     public FileSection(String fileName, int line, String content, List<FileElement> elements, int indentation) {
         super(fileName, line, content, indentation);
@@ -20,6 +21,20 @@ public class FileSection extends FileElement {
      */
     public List<FileElement> getElements() {
         return elements;
+    }
+
+    public int length() {
+        if (length >= 0)
+            return length;
+        length = 0;
+        for (FileElement e : elements) {
+            if (e instanceof FileSection) {
+                length += ((FileSection) e).length() + 1;
+            } else {
+                length++;
+            }
+        }
+        return length;
     }
 
     @Override

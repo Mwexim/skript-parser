@@ -209,11 +209,13 @@ public class SkriptLogger {
      */
     public void clearLogs() {
         logEntries.removeIf(entry -> entry.getErrorContext().size() >= errorContext.size() && entry.getType() != LogType.DEBUG);
+        errorContext.removeLast();
+        errorContext.add(ErrorContext.MATCHING);
         hasError = false;
     }
 
     /**
-     * Finishes a logging process by making some logged entries definitive. All non-error logs are made definitive,
+     * Finishes a logging process by making some logged entries definitive. All non-error logs are made definitive
      * and only the error that has the most priority is made definitive.
      */
     public void logOutput() {
