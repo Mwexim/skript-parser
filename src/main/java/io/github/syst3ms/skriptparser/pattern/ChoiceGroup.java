@@ -58,7 +58,7 @@ public class ChoiceGroup implements PatternElement {
         StringJoiner joiner = new StringJoiner("|", "(", ")");
         for (ChoiceElement choice : choices) {
             if (choice.getParseMark() != 0) {
-                joiner.add(choice.getParseMark() + "\u00a6" + choice.getElement().toString());
+                joiner.add(choice.getParseMark() + ":" + choice.getElement().toString());
             } else {
                 joiner.add(choice.getElement().toString());
             }
