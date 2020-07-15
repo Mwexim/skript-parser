@@ -42,19 +42,14 @@ public class ExprTernary implements Expression<Object> {
     @Override
     public Object[] getValues(TriggerContext ctx) {
         Boolean check = valueToCheck.getSingle(ctx);
-        Object first = firstValue.getSingle(ctx);
-        Object second = secondValue.getSingle(ctx);
+        Object[] first = firstValue.getValues(ctx);
+        Object[] second = secondValue.getValues(ctx);
         if (check == null)
             return new Object[0];
-        Object result = check ? first : second;
+        Object[] result = check ? first : second;
         if (result == null)
             return new Object[0];
-        return new Object[]{result};
-    }
-
-    @Override
-    public Class<?> getReturnType() {
-        return Object.class;
+        return result;
     }
 
     @Override
