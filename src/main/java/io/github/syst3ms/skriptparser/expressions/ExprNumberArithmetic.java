@@ -298,11 +298,6 @@ public class ExprNumberArithmetic implements Expression<Number> {
     }
 
     @Override
-    public Class<? extends Number> getReturnType() {
-        return Number.class;
-    }
-
-    @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
         return first.toString(ctx, debug) + " " + op + " " + second.toString(ctx, debug);
     }
