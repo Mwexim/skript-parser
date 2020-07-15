@@ -25,6 +25,7 @@ public class ExprDefaultValue implements Expression<Object> {
             ExprDefaultValue.class,
             Object.class,
             false,
+            3,
             "%object% \\|\\| %object%",
             "%object% (otherwise|?) %object%"
         );

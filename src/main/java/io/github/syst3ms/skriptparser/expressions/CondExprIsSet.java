@@ -20,8 +20,13 @@ public class CondExprIsSet extends ConditionalExpression {
     private Expression<?> expr;
 
     static {
-        Main.getMainRegistration()
-                .addExpression(CondExprIsSet.class, Boolean.class, true, "%~objects% (is|are)[1:( not|n't)] set");
+        Main.getMainRegistration().addExpression(
+                CondExprIsSet.class,
+                Boolean.class,
+                true,
+                2,
+                "%~objects% (is|are)[1:( not|n't)] set"
+        );
     }
 
     @Override

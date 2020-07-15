@@ -264,6 +264,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
             ExprNumberArithmetic.class,
             Number.class,
             true,
+            3,
             PATTERNS.getPatterns()
         );
     }
