@@ -35,6 +35,22 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
         this.owner = owner;
     }
 
+
+    /**
+     * There are 2 kinds of possession:
+     * <ul>
+     *     <li><b>Genitive:</b>Mwexim's book</li>
+     *     <li><b>Regular:</b>book of Mwexim</li>
+     * </ul>
+     * Because both have different patterns and the order of the expressions can be important,
+     * you can use this method to check if the pattern is the Genitive form. If it's not, it's the regular form.
+     * @param matchedPattern the matched pattern of a property
+     * @return whether this pattern was the genitive form (true) or the regular form (false)
+     */
+    public static boolean isGenitive(int matchedPattern) {
+        return matchedPattern == 0;
+    }
+
     /**
      * This {@code init()} method overrides the default method and does the initialization by itself.
      * Most of the time, you'll still want to override this, because the only thing it does is
