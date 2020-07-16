@@ -34,7 +34,7 @@ public class EffPrint extends Effect {
 
     @Override
     public void execute(TriggerContext e) {
-        String str = string.getSingle(e);
+         String str = string.getSingle(e);
         if (str == null)
             return;
         System.out.println(str);
