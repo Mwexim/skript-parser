@@ -34,7 +34,16 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     public void setOwner(Expression<O> owner) {
         this.owner = owner;
     }
-
+    
+    /**
+     * If you're property only relies on one simple method, you can define that method here
+     * using a {@link Function}. This function will be applied at the {@link #getValues(TriggerContext)} method
+     * of this class.
+     * @return the function that needs to be applied in order to get the correct values.
+     */
+    public Function<O[], T[]> getPropertyFunction() {
+        return null;
+    }
 
     /**
      * There are 2 kinds of possession:
@@ -83,15 +92,8 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     public T[] getValues(TriggerContext ctx) {
         O[] objs = getOwner().getValues(ctx);
         if (objs == null) return (T[]) new Object[0];
-
+        if (getPropertyFunction() == null) return (T[]) new Object[0];
+            
         return getPropertyFunction().apply(objs);
     }
-
-    /**
-     * If you're property only relies on one simple method, you can define that method here
-     * using a {@link Function}. This function will be applied at the {@link #getValues(TriggerContext)} method
-     * of this class.
-     * @return the function that needs to be applied in order to get the correct values.
-     */
-    public abstract Function<O[], T[]> getPropertyFunction();
 }
