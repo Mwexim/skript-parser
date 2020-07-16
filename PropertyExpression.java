@@ -61,7 +61,9 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     }
 
     /**
-     * This {@code init()} method overrides the default method and does the initialization by itself.
+     * This default {@code init()} implementation automatically properly sets the owner of this property,
+     * which can be accessed using {@link #getOwner()}. If this implementation is overridden for one reason
+     * or another, it must call {@link #setOwner(Expression<O>)} properly.
      * Most of the time, you'll still want to override this, because the only thing it does is
      * getting the first expression (because there is only one) and changing the {@link #owner} field
      * accordingly.
@@ -77,7 +79,7 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         setOwner((Expression<O>) expressions[0]);
-        return getOwner() != null;
+        return true;
     }
 
     /**
@@ -91,7 +93,7 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     @Override
     public T[] getValues(TriggerContext ctx) {
         O[] objs = getOwner().getValues(ctx);
-        if (objs == null) return (T[]) new Object[0];
+        if (objs.length == 0) return (T[]) new Object[0];
         if (getPropertyFunction() == null) return (T[]) new Object[0];
             
         return getPropertyFunction().apply(objs);
