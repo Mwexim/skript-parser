@@ -94,7 +94,8 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     public T[] getValues(TriggerContext ctx) {
         O[] objs = getOwner().getValues(ctx);
         if (objs.length == 0) return (T[]) new Object[0];
-        if (getPropertyFunction() == null) return (T[]) new Object[0];
+        if (getPropertyFunction() == null)
+            throw new UnsupportedOperationException("If you do not wish to override #getPropertyFunction(), you should always override #getValues()");
             
         return getPropertyFunction().apply(objs);
     }
