@@ -138,7 +138,7 @@ public class SkriptRegistration {
                 .register();
     }
     
-    /**
+   /**
      * Starts a registration process for an {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
@@ -151,8 +151,8 @@ public class SkriptRegistration {
      */
     public <C extends Expression<T>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
         return new ExpressionRegistrar<>(c, returnType, isSingle,
-                "%" + ownerType + "%'[s] " + property,
-                (property.startsWith("[the]") ? property : "[the] " + property) + " of %" + ownerType + "%");
+                checkPrefix(ownerType) + "'[s] " + property,
+                (property.startsWith("[the]") ? property : "[the] " + property) + " of " + checkPrefix(ownerType));
     }
 
     /**
@@ -168,8 +168,8 @@ public class SkriptRegistration {
      */
     public <C extends Expression<T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
         new ExpressionRegistrar<>(c, returnType, isSingle,
-                "%" + ownerType + "%'[s] " + property,
-                (property.startsWith("[the]") ? property : "[the] " + property) + " of %" + ownerType + "%")
+                checkPrefix(ownerType) + "'[s] " + property,
+                (property.startsWith("[the]") ? property : "[the] " + property) + " of " + checkPrefix(ownerType))
                 .register();
     }
 
@@ -187,8 +187,8 @@ public class SkriptRegistration {
      */
     public <C extends Expression<T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, int priority, String ownerType, String property) {
         new ExpressionRegistrar<>(c, returnType, isSingle,
-                "%" + ownerType + "%'[s] " + property,
-                (property.startsWith("[the]") ? property : "[the] " + property) + " of %" + ownerType + "%")
+                checkPrefix(ownerType) + "'[s] " + property,
+                (property.startsWith("[the]") ? property : "[the] " + property) + " of " + checkPrefix(ownerType))
                 .setPriority(priority)
                 .register();
     }
@@ -538,5 +538,9 @@ public class SkriptRegistration {
             TypeManager.register(this);
             newTypes = false;
         }
+    }
+    
+    private String checkPrefix(String str) {
+        return str.startsWith("*") ? str.substring(1) : "%" + str + "%";
     }
 }
