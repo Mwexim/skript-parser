@@ -1,6 +1,10 @@
-package com.github.mwexim.buzzle.lang.base;
+package io.github.syst3ms.skriptparser.lang.base;
 
-import com.github.mwexim.buzzle.lang.Expression;
+import io.github.syst3ms.skriptparser.events.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
+
+import java.util.function.Function;
 
 /**
  * A base class for expressions that contain general properties.
@@ -10,7 +14,15 @@ import com.github.mwexim.buzzle.lang.Expression;
  *     <li>the book of Mwexim</li>
  * </ul>
  * This utility class will make sure you won't need to write multiple patterns each time
- * and ensures you can easily handle all these properties, using
+ * and ensures you can easily handle all these properties, using the {@link #setOwner(Expression)}
+ * and {@link #getOwner()} methods to handle the owner.
+ *
+ * The class also has a built-in {@link #init(Expression[], int, ParseContext)} and {@link #getValues(TriggerContext)},
+ * ensuring you only have to do the bare minimum. These methods are very basic though, so most of the time,
+ * you'll want to override them anyway.
+ *
+ * @param <T> The returned type of this expression.
+ * @param <O> The type of the owner of this expression.
  */
 public abstract class PropertyExpression<T, O> implements Expression<T> {
     private Expression<O> owner;
@@ -23,9 +35,47 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
         this.owner = owner;
     }
 
+    /**
+     * This {@code init()} method overrides the default method and does the initialization by itself.
+     * Most of the time, you'll still want to override this, because the only thing it does is
+     * getting the first expression (because there is only one) and changing the {@link #owner} field
+     * accordingly.
+     * @param expressions an array of expressions representing all the expressions that are being passed
+     *                    to this syntax element. As opposed to Buzzle, elements of this array can't be {@code null}.
+     * @param matchedPattern the index of the pattern that was successfully matched. It corresponds to the order of
+     *                       the syntaxes in registration
+     * @param parseContext an object containing additional information about the parsing of this syntax element, like
+     *                    regex matches and parse marks
+     * @return whether the initialization was successful or not.
+     */
+    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         setOwner((Expression<O>) expressions[0]);
         return getOwner() != null;
     }
+
+    /**
+     * A simple default method that will apply your basic function on the {@link #owner} of this property.
+     * It checks for nullity and returns the appropriate values.
+     *
+     * @param ctx the event
+     * @return the values of this property after applying the {@link #getPropertyFunction()} function on the owner.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public T[] getValues(TriggerContext ctx) {
+        O[] objs = getOwner().getValues(ctx);
+        if (objs == null) return (T[]) new Object[0];
+
+        return getPropertyFunction().apply(objs);
+    }
+
+    /**
+     * If you're property only relies on one simple method, you can define that method here
+     * using a {@link Function}. This function will be applied at the {@link #getValues(TriggerContext)} method
+     * of this class.
+     * @return the function that needs to be applied in order to get the correct values.
+     */
+    public abstract Function<O[], T[]> getPropertyFunction();
 }
