@@ -15,7 +15,7 @@ jobs:
       - name: Set up JDK ${{ matrix.node-version }}
         uses: actions/setup-java@v1
         with:
-          java-version: ${{ matrix.node-version }}
+          java-version: ${{ matrix.java-version }}
 
       - name: Run tests
         run: ./gradlew test
