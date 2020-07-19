@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.lang.*;
+import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
@@ -137,6 +138,62 @@ public class SkriptRegistration {
                 .setPriority(priority)
                 .register();
     }
+
+    /**
+     * Starts a registration process for an {@link PropertyExpression}
+     * @param c the Expression's class
+     * @param returnType the Expression's return type
+     * @param isSingle whether the Expression is a single value
+     * @param ownerType the type of the owner
+     * @param property the property that is used
+     * @param <C> the Expression
+     * @param <T> the Expression's return type
+     * @return an {@link ExpressionRegistrar} to continue the registration process
+     */
+    public <C extends Expression<T>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
+        return new ExpressionRegistrar<>(c, returnType, isSingle,
+                checkPrefix(ownerType) + "'[s] " + property,
+                (property.startsWith("[the]") ? property : "[the] " + property) + " of " + checkPrefix(ownerType));
+    }
+
+    /**
+     * Starts a registration process for a {@link PropertyExpression}
+     * @param c the Expression's class
+     * @param returnType the Expression's return type
+     * @param isSingle whether the Expression is a single value
+     * @param ownerType the type of the owner
+     * @param property the property that is used
+     * @param <C> the Expression
+     * @param <T> the Expression's return type
+     * @return an {@link ExpressionRegistrar} to continue the registration process
+     */
+    public <C extends Expression<T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
+        new ExpressionRegistrar<>(c, returnType, isSingle,
+                checkPrefix(ownerType) + "'[s] " + property,
+                (property.startsWith("[the]") ? property : "[the] " + property) + " of " + checkPrefix(ownerType))
+                .register();
+    }
+
+    /**
+     * Starts a registration process for a {@link PropertyExpression}
+     * @param c the Expression's class
+     * @param returnType the Expression's return type
+     * @param isSingle whether the Expression is a single value
+     * @param priority the parsing priority this Expression has. 5 by default, a lower number means lower priority
+     * @param ownerType the type of the owner
+     * @param property the property that is used
+     * @param <C> the Expression
+     * @param <T> the Expression's return type
+     * @return an {@link ExpressionRegistrar} to continue the registration process
+     */
+    public <C extends Expression<T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, int priority, String ownerType, String property) {
+        new ExpressionRegistrar<>(c, returnType, isSingle,
+                checkPrefix(ownerType) + "'[s] " + property,
+                (property.startsWith("[the]") ? property : "[the] " + property) + " of " + checkPrefix(ownerType))
+                .setPriority(priority)
+                .register();
+    }
+
 
     /**
      * Starts a registration process for an {@link Effect}
@@ -483,5 +540,9 @@ public class SkriptRegistration {
             TypeManager.register(this);
             newTypes = false;
         }
+    }
+
+    private String checkPrefix(String str) {
+        return str.startsWith("*") ? str.substring(1) : "%" + str + "%";
     }
 }
