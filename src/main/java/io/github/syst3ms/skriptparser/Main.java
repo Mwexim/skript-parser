@@ -67,7 +67,7 @@ public class Main {
         subPackages = sub.toArray(new String[0]);
         try {
             for (String mainPackage : mainPackages) {
-                FileUtils.loadClasses(FileUtils.getCurrentJarFile(), mainPackage, subPackages);
+                FileUtils.loadClasses(FileUtils.getCurrentJarFile(Main.class), mainPackage, subPackages);
             }
             if (standalone) {
                 File addonFolder = new File(".", "addons");
