@@ -17,6 +17,9 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
 
+      - name: Build skript-parser
+        run: ./gradlew build
+
       - name: Run tests
         run: ./gradlew test
 
@@ -30,11 +33,11 @@ jobs:
         with:
           java-version: 8
 
-      - name: Run tests
-        run: ./gradlew test
-
       - name: Build skript-parser
         run: ./gradlew build
+
+      - name: Run tests
+        run: ./gradlew test
 
       - name: Upload Nightly Build
         uses: actions/upload-artifact@v2
