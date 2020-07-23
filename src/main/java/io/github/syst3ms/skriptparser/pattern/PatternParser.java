@@ -181,6 +181,8 @@ public class PatternParser {
                         String acc = m.group(2);
                         if (acc.equals("~")) {
                             acceptance = ExpressionElement.Acceptance.EXPRESSIONS_ONLY;
+                        } else if (acc.equals("^")) {
+                            acceptance = ExpressionElement.Acceptance.VARIABLES_ONLY;
                         } else {
                             acceptance = ExpressionElement.Acceptance.LITERALS_ONLY;
                         }
