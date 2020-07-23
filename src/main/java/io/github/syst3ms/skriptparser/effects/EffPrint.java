@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
  * @author Syst3ms
  */
 public class EffPrint extends Effect {
-
     private Expression<String> string;
 
     static {
@@ -35,7 +34,7 @@ public class EffPrint extends Effect {
 
     @Override
     public void execute(TriggerContext e) {
-        String str = string.getSingle(e);
+         String str = string.getSingle(e);
         if (str == null)
             return;
         System.out.println(str);

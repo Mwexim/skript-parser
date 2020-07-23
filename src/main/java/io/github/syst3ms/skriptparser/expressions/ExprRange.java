@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
@@ -43,51 +43,6 @@ public class ExprRange implements Expression<Object> {
                 false,
                 "range from %object% to %object%"
         );
-        // Range between Longs
-        Ranges.registerRange(
-                Long.class,
-                Long.class,
-                (l, r) -> {
-                    if (l.compareTo(r) >= 0) {
-                        return new Long[0];
-                    } else {
-                        return LongStream.range(l, r + 1)
-                                         .boxed()
-                                         .toArray(Long[]::new);
-                    }
-                }
-        );
-        // Range between BigIntegers
-        Ranges.registerRange(
-                BigInteger.class,
-                BigInteger.class,
-                (l, r) -> {
-                    if (l.compareTo(r) >= 0) {
-                        return new BigInteger[0];
-                    } else {
-                        List<BigInteger> elements = new ArrayList<>();
-                        BigInteger current = l;
-                        do {
-                            elements.add(current);
-                            current = current.add(BigInteger.ONE);
-                        } while (current.compareTo(r) <= 0);
-                        return elements.toArray(new BigInteger[0]);
-                    }
-                }
-        );
-        // Actually a character range
-        Ranges.registerRange(
-                String.class,
-                String.class,
-                (l, r) -> {
-                    if (l.length() != 1 || r.length() != 1)
-                        return new String[0];
-                    char leftChar = l.charAt(0), rightChar = r.charAt(0);
-                    return IntStream.range(leftChar, rightChar + 1)
-                                    .mapToObj(i -> Character.toString((char) i))
-                                    .toArray(String[]::new);
-                }
-        );
     }
 
     @Override
@@ -98,7 +53,7 @@ public class ExprRange implements Expression<Object> {
         comparator = Comparators.getComparator(from.getReturnType(), to.getReturnType());
         if (range == null) {
             SkriptLogger logger = parseContext.getLogger();
-            parseContext.getLogger().error("Cannot get a range between " + from.toString(null, logger.isDebug()) + " and " + from.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+            logger.error("Cannot get a range between " + from.toString(null, logger.isDebug()) + " and " + from.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
             return false;
         }
         return true;

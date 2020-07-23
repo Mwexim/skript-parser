@@ -9,7 +9,7 @@ import java.util.List;
  * Multiple {@link PatternElement}s put together in order.
  */
 public class CompoundElement implements PatternElement {
-    private List<PatternElement> elements;
+    private final List<PatternElement> elements;
 
     public CompoundElement(List<PatternElement> elements) {
         this.elements = elements;

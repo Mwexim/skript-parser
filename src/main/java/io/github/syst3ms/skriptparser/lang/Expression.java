@@ -1,12 +1,13 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.classes.ChangeMode;
-import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.expressions.ExprLoopValue;
+import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
+import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -107,7 +108,7 @@ public interface Expression<T> extends SyntaxElement {
 
     /**
      * Converts this expression from it's current type ({@link T}) to another type, using
-     * {@linkplain io.github.syst3ms.skriptparser.types.conversions.Converters converters}.
+     * {@linkplain Converters converters}.
      * @param to the class of the type to convert this Expression to
      * @param <C> the type to convert this Expression to
      * @return a converted Expression, or {@code null} if it couldn't be converted
@@ -123,7 +124,7 @@ public interface Expression<T> extends SyntaxElement {
      * @param s the "loop type"
      * @return whether the given "loop type" describes this expression's elements. By default, returns {@code true} if
      * the parameter is {@code "value"}
-     * @see io.github.syst3ms.skriptparser.expressions.ExprLoopValue
+     * @see ExprLoopValue
      * @see Loop
      */
     default boolean isLoopOf(String s) {

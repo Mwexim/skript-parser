@@ -160,7 +160,7 @@ public class StringUtils {
     }
 
     /**
-     * Find the first occurence of a string in another one, ignoring case
+     * Find the first occurrence of a string in another one, ignoring case
      * @param haystack the string to look in
      * @param needle the string to look for
      * @param start where to look from
@@ -203,7 +203,7 @@ public class StringUtils {
     /**
      * Split a pattern at pipe characters, properly accounting for brackets and escapes
      * @param s the string to split
-     * @param logger
+     * @param logger the logger
      * @return the split string
      */
     public static String[] splitVerticalBars(String s, SkriptLogger logger) {

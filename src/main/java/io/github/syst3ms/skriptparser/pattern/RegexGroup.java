@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  * A group containing a regex in the form of a {@link Pattern}.
  */
 public class RegexGroup implements PatternElement {
-    private Pattern pattern;
+    private final Pattern pattern;
 
     public RegexGroup(Pattern pattern) {
         this.pattern = pattern;

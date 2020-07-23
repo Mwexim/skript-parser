@@ -22,10 +22,10 @@ public class SyntaxManager {
             return i2.getPatterns().size() - i.getPatterns().size();
         }
     };
-    private static MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
-    private static List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
-    private static List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
-    private static List<SkriptEventInfo<?>> triggers = new ArrayList<>();
+    private static final MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
+    private static final List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
+    private static final List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
+    private static final List<SkriptEventInfo<?>> triggers = new ArrayList<>();
 
     static void register(SkriptRegistration reg) {
         effects.addAll(reg.getEffects());

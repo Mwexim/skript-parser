@@ -1,8 +1,11 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
+import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
+import io.github.syst3ms.skriptparser.pattern.CompoundElement;
+import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,76 +14,124 @@ import java.util.List;
 import java.util.regex.MatchResult;
 
 /**
- * A parser instance used for matching a pattern to a syntax
+ * An object that provides contextual information during syntax matching.
  */
 public class MatchContext {
-    private String originalPattern;
-    private PatternElement originalElement;
+    private final String originalPattern;
+    private final PatternElement originalElement;
     // Provided to the syntax's class
-    private final Class<? extends TriggerContext>[] currentContexts;
+    private final ParserState parserState;
     private final SkriptLogger logger;
     private final MatchContext source;
-    private List<Expression<?>> parsedExpressions = new ArrayList<>();
-    private List<MatchResult> regexMatches = new ArrayList<>();
+    private final List<Expression<?>> parsedExpressions = new ArrayList<>();
+    private final List<MatchResult> regexMatches = new ArrayList<>();
     private int patternIndex = 0;
     private int parseMark = 0;
 
-    public MatchContext(PatternElement e, Class<? extends TriggerContext>[] currentContexts, SkriptLogger logger) {
-        this(e, currentContexts, logger, null);
+    public MatchContext(PatternElement e, ParserState parserState, SkriptLogger logger) {
+        this(e, parserState, logger, null);
     }
 
-    public MatchContext(PatternElement e, Class<? extends TriggerContext>[] currentContexts, SkriptLogger logger, @Nullable MatchContext source) {
+    public MatchContext(PatternElement e, ParserState parserState, SkriptLogger logger, @Nullable MatchContext source) {
         this.originalPattern = e.toString();
         this.originalElement = e;
-        this.currentContexts = currentContexts;
+        this.parserState = parserState;
         this.logger = logger;
         this.source = source;
     }
 
+    /**
+     * @return the {@link PatternElement} that is currently being matched
+     */
     public PatternElement getOriginalElement() {
         return originalElement;
     }
 
+    /**
+     * @return the string version of {@link #getOriginalElement()}
+     */
     public String getOriginalPattern() {
         return originalPattern;
     }
 
+    /**
+     * @return an index indicating where the matching is currently at inside of the original {@link PatternElement}
+     * (almost always when it is a {@link CompoundElement}).
+     */
     public int getPatternIndex() {
         return patternIndex;
     }
 
+    /**
+     * Indicates that the next element inside the original pattern element (which must be a {@link CompoundElement}) is
+     * now being matched.
+     */
     public void advanceInPattern() {
         patternIndex++;
     }
 
+    /**
+     * @return a list of all successfully parsed expressions so far.
+     */
     public List<Expression<?>> getParsedExpressions() {
         return parsedExpressions;
     }
+
+    /**
+     * Adds a new successfully parsed expression to the list.
+     * @param expression a parsed expression
+     */
     public void addExpression(Expression<?> expression) {
         parsedExpressions.add(expression);
     }
 
+    /**
+     * Adds a new successful regex match to the list.
+     * @param match a regex match
+     */
     public void addRegexMatch(MatchResult match) {
         regexMatches.add(match);
     }
 
+    /**
+     * @return the parse mark so far
+     */
     public int getParseMark() {
         return parseMark;
     }
 
+    /**
+     * Calculates the new parse mark based on the just matched mark. This matched mark is XORed with the current
+     * parse mark.
+     * @param mark the just matched mark
+     */
     public void addMark(int mark) {
         parseMark ^= mark;
     }
 
+    /**
+     * When the original element must be updated (inside of an {@link OptionalGroup} or a {@link ChoiceGroup}), the source
+     * tracks what the original MatchContext was. This is non-null only after {@link #branch(PatternElement)} is called.
+     * @return the source of this MatchContext
+     */
     @Nullable
     public MatchContext getSource() {
         return source;
     }
 
+    /**
+     * Creates a new MatchContext based on the given {@link PatternElement}
+     * @param e the new original pattern element
+     * @return the branched MatchContext
+     */
     public MatchContext branch(PatternElement e) {
-        return new MatchContext(e, currentContexts, logger, this);
+        return new MatchContext(e, parserState, logger, this);
     }
 
+    /**
+     * Merges a branched MatchContext back into the current one
+     * @param branch the branched MatchContext
+     */
     public void merge(MatchContext branch) {
         parsedExpressions.addAll(branch.parsedExpressions);
         regexMatches.addAll(branch.regexMatches);
@@ -88,11 +139,15 @@ public class MatchContext {
     }
 
     /**
-     * Turns this {@link MatchContext} into a {@link ParseContext} used in {@linkplain io.github.syst3ms.skriptparser.lang.SyntaxElement}s
+     * Turns this {@link MatchContext} into a {@link ParseContext} used in {@linkplain SyntaxElement}s
      * @return a {@link ParseContext} based on this {@link MatchContext}
      */
     public ParseContext toParseResult() {
-        return new ParseContext(currentContexts, originalElement, regexMatches, parseMark, originalPattern, logger);
+        return new ParseContext(parserState, originalElement, regexMatches, parseMark, originalPattern, logger);
+    }
+
+    public ParserState getParserState() {
+        return parserState;
     }
 
     public SkriptLogger getLogger() {

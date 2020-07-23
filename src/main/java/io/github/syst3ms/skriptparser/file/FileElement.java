@@ -13,8 +13,8 @@ import io.github.syst3ms.skriptparser.util.StringUtils;
 public class FileElement {
     private final String fileName;
     private final int line;
-    private String content;
-    private int indentation;
+    private final String content;
+    private final int indentation;
 
     public FileElement(String fileName, int line, String content, int indentation) {
         this.fileName = fileName;

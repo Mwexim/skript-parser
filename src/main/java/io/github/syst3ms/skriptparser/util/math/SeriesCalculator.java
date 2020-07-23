@@ -18,9 +18,9 @@ import static java.math.BigDecimal.ONE;
  */
 public abstract class SeriesCalculator {
 
-	private boolean calculateInPairs;
+	private final boolean calculateInPairs;
 
-	private List<BigRational> factors = new ArrayList<>();
+	private final List<BigRational> factors = new ArrayList<>();
 	
 	/**
 	 * Constructs a {@link SeriesCalculator} that calculates single terms.

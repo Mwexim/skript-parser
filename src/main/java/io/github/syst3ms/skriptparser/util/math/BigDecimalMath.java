@@ -4,16 +4,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static java.math.BigDecimal.ONE;
-import static java.math.BigDecimal.TEN;
-import static java.math.BigDecimal.ZERO;
-import static java.math.BigDecimal.valueOf;
+import static java.math.BigDecimal.*;
 
 /**
  * Provides advanced functions operating on {@link BigDecimal}s.
@@ -45,7 +38,7 @@ public class BigDecimalMath {
     private static volatile BigDecimal log3Cache;
     private static volatile BigDecimal log10Cache;
     private static volatile BigDecimal piCache;
-    private static BigDecimal[] factorialCache = new BigDecimal[100];
+    private static final BigDecimal[] factorialCache = new BigDecimal[100];
     private static BigDecimal eCache;
 
     static {

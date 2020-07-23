@@ -42,7 +42,7 @@ public class FileParser {
                 elements.add(new VoidElement(fileName, lastLine + i, expectedIndentation));
                 continue;
             }
-            int lineIndentation = FileUtils.getIndentationLevel(line);
+            int lineIndentation = FileUtils.getIndentationLevel(line, false);
             if (lineIndentation > expectedIndentation) { // The line is indented too much
                 logger.error("The line is indented too much (line " + (lastLine + i) + ": \"" + content + "\")", ErrorType.STRUCTURE_ERROR);
                 continue;

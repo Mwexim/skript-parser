@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class Skript extends SkriptAddon {
     private final String[] mainArgs;
-    private List<Trigger> mainTriggers = new ArrayList<>();
+    private final List<Trigger> mainTriggers = new ArrayList<>();
 
     public Skript(String[] mainArgs) {
         this.mainArgs = mainArgs;

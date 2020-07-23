@@ -26,12 +26,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -55,7 +50,7 @@ public abstract class Converters {
      */
     public static final int NO_CHAINING = NO_LEFT_CHAINING | NO_RIGHT_CHAINING;
 
-    private static List<ConverterInfo<?, ?>> converters = new ArrayList<>(50);
+    private static final List<ConverterInfo<?, ?>> converters = new ArrayList<>(50);
 
 
     public static List<ConverterInfo<?, ?>> getConverters() {

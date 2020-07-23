@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
@@ -264,6 +264,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
             ExprNumberArithmetic.class,
             Number.class,
             true,
+            3,
             PATTERNS.getPatterns()
         );
     }
@@ -295,11 +296,6 @@ public class ExprNumberArithmetic implements Expression<Number> {
         if (n2 == null)
             n2 = 0;
         return new Number[]{op.calculate(n1, n2)};
-    }
-
-    @Override
-    public Class<? extends Number> getReturnType() {
-        return Number.class;
     }
 
     @Override

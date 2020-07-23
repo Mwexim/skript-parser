@@ -12,10 +12,10 @@ import java.util.List;
  * @param <C> the {@link SyntaxElement} class
  */
 public class SyntaxInfo<C> {
-    private Class<C> c;
-    private List<PatternElement> patterns;
-    private int priority;
-    private SkriptAddon registerer;
+    private final Class<C> c;
+    private final List<PatternElement> patterns;
+    private final int priority;
+    private final SkriptAddon registerer;
 
     public SyntaxInfo(Class<C> c, List<PatternElement> patterns, int priority, SkriptAddon registerer) {
         this.c = c;

@@ -5,11 +5,17 @@ import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
+import io.github.syst3ms.skriptparser.types.conversions.Converters;
+import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 /**
  * A class registering features such as types and comparators at startup.
@@ -54,9 +60,7 @@ public class DefaultRegistration {
                         return n;
                     })
                     .toStringFunction(o -> {
-                        if (o instanceof Long || o instanceof BigInteger) {
-                            return o.toString();
-                        } else if (o instanceof BigDecimal) {
+                        if (o instanceof BigDecimal) {
                             BigDecimal bd = (BigDecimal) o;
                             int significantDigits = bd.scale() <= 0
                                     ? bd.precision() + bd.stripTrailingZeros().scale()
@@ -66,9 +70,9 @@ public class DefaultRegistration {
                                                    .toPlainString();
                         } else if (o instanceof Double) {
                             return Double.toString((Double) o);
+                        } else {
+                            return o.toString();
                         }
-                        assert false;
-                        return null; // Can't happen, so we don't really have to worry about that
                     })
                     .arithmetic(new Arithmetic<Number, Number>() {
                         @Override
@@ -153,6 +157,66 @@ public class DefaultRegistration {
                             return Number.class;
                         }
                     }).register();
+        registration.newType(Long.class, "integer", "integer@s")
+                .literalParser(s -> {
+                    try {
+                        return Long.parseLong(s);
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+                })
+                .arithmetic(new Arithmetic<Long, Long>() {
+                    @Override
+                    public Long difference(Long first, Long second) {
+                        return Math.abs(first - second);
+                    }
+
+                    @Override
+                    public Long add(Long value, Long difference) {
+                        return value + difference;
+                    }
+
+                    @Override
+                    public Long subtract(Long value, Long difference) {
+                        return value - difference;
+                    }
+
+                    @Override
+                    public Class<? extends Long> getRelativeType() {
+                        return Long.class;
+                    }
+                })
+                .register();
+        registration.newType(BigInteger.class, "biginteger", "biginteger@s")
+                .literalParser(s -> {
+                    try {
+                        return new BigInteger(s);
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+                })
+                .arithmetic(new Arithmetic<BigInteger, BigInteger>() {
+                    @Override
+                    public BigInteger difference(BigInteger first, BigInteger second) {
+                        return first.subtract(second).abs();
+                    }
+
+                    @Override
+                    public BigInteger add(BigInteger value, BigInteger difference) {
+                        return value.add(difference);
+                    }
+
+                    @Override
+                    public BigInteger subtract(BigInteger value, BigInteger difference) {
+                        return value.subtract(difference);
+                    }
+
+                    @Override
+                    public Class<? extends BigInteger> getRelativeType() {
+                        return BigInteger.class;
+                    }
+                })
+                .register();
         registration.addType(
                 String.class,
                 "string",
@@ -199,6 +263,65 @@ public class DefaultRegistration {
                     }
                 }
         );
+        /*
+         * Ranges
+         */
+        Ranges.registerRange(
+                Long.class,
+                Long.class,
+                (l, r) -> {
+                    if (l.compareTo(r) >= 0) {
+                        return new Long[0];
+                    } else {
+                        return LongStream.range(l, r + 1)
+                                .boxed()
+                                .toArray(Long[]::new);
+                    }
+                }
+        );
+        Ranges.registerRange(
+                BigInteger.class,
+                BigInteger.class,
+                (l, r) -> {
+                    if (l.compareTo(r) >= 0) {
+                        return new BigInteger[0];
+                    } else {
+                        List<BigInteger> elements = new ArrayList<>();
+                        BigInteger current = l;
+                        do {
+                            elements.add(current);
+                            current = current.add(BigInteger.ONE);
+                        } while (current.compareTo(r) <= 0);
+                        return elements.toArray(new BigInteger[0]);
+                    }
+                }
+        );
+        // Actually a character range
+        Ranges.registerRange(
+                String.class,
+                String.class,
+                (l, r) -> {
+                    if (l.length() != 1 || r.length() != 1)
+                        return new String[0];
+                    char leftChar = l.charAt(0), rightChar = r.charAt(0);
+                    return IntStream.range(leftChar, rightChar + 1)
+                            .mapToObj(i -> Character.toString((char) i))
+                            .toArray(String[]::new);
+                }
+        );
+        /*
+         * Converters
+         */
+        Converters.registerConverter(Number.class, Long.class, n -> n instanceof Long ? (Long) n : n.longValue());
+        Converters.registerConverter(Number.class, BigInteger.class, n -> {
+            if (n instanceof BigInteger) {
+                return (BigInteger) n;
+            } else if (n instanceof Long) {
+                return BigInteger.valueOf((Long) n);
+            } else {
+                return BigInteger.valueOf(n.longValue());
+            }
+        });
         registration.register(); // Ignoring logs here, we control the input
     }
 }

@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +27,7 @@ public class ExprBooleanOperators implements Expression<Boolean> {
                 ExprBooleanOperators.class,
                 Boolean.class,
                 true,
-                2,
+                3,
                 "not %=boolean%",
                 "%=boolean% or %=boolean%",
                 "%=boolean% and %=boolean%"

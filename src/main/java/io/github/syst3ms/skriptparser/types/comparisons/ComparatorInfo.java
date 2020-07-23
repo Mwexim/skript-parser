@@ -6,9 +6,9 @@ package io.github.syst3ms.skriptparser.types.comparisons;
  * @param <T2> the second type
  */
 public class ComparatorInfo<T1, T2> {
-    private Class<T1> firstClass;
-    private Class<T2> secondClass;
-    private Comparator<T1, T2> comparator;
+    private final Class<T1> firstClass;
+    private final Class<T2> secondClass;
+    private final Comparator<T1, T2> comparator;
 
     public ComparatorInfo(Class<T1> firstClass, Class<T2> secondClass, Comparator<T1, T2> comparator) {
         this.firstClass = firstClass;

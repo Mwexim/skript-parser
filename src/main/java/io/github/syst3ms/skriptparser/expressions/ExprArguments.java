@@ -2,7 +2,7 @@ package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.event.ScriptLoadContext;
-import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -23,7 +23,7 @@ public class ExprArguments implements Expression<String> {
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        if (!Arrays.asList(parseContext.getCurrentContexts()).contains(ScriptLoadContext.class)) {
+        if (!Arrays.asList(parseContext.getParserState().getCurrentContexts()).contains(ScriptLoadContext.class)) {
             parseContext.getLogger().error("Can't access the program arguments outside of the script load event !", ErrorType.SEMANTIC_ERROR);
             return false;
         } else {

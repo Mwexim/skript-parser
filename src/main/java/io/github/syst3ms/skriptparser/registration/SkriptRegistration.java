@@ -1,11 +1,7 @@
 package io.github.syst3ms.skriptparser.registration;
 
-import io.github.syst3ms.skriptparser.event.TriggerContext;
-import io.github.syst3ms.skriptparser.lang.CodeSection;
-import io.github.syst3ms.skriptparser.lang.Effect;
-import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.SkriptEvent;
-import io.github.syst3ms.skriptparser.lang.SyntaxElement;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
@@ -33,15 +29,15 @@ import java.util.function.Function;
  * @see #getRegisterer()
  */
 public class SkriptRegistration {
-    private SkriptAddon registerer;
-    private PatternParser patternParser;
-    private SkriptLogger logger = new SkriptLogger();
-    private MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
-    private List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
-    private List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
-    private List<SkriptEventInfo<?>> events = new ArrayList<>();
-    private List<Type<?>> types = new ArrayList<>();
-    private List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
+    private final SkriptAddon registerer;
+    private final PatternParser patternParser;
+    private final SkriptLogger logger = new SkriptLogger();
+    private final MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
+    private final List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
+    private final List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
+    private final List<SkriptEventInfo<?>> events = new ArrayList<>();
+    private final List<Type<?>> types = new ArrayList<>();
+    private final List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
     private boolean newTypes = false;
 
     public SkriptRegistration(SkriptAddon registerer) {
@@ -138,6 +134,61 @@ public class SkriptRegistration {
      */
     public <C extends Expression<T>, T> void addExpression(Class<C> c, Class<T> returnType, boolean isSingle, int priority, String... patterns) {
         new ExpressionRegistrar<>(c, returnType, isSingle).addPatterns(patterns)
+                .setPriority(priority)
+                .register();
+    }
+    
+   /**
+     * Starts a registration process for an {@link PropertyExpression}
+     * @param c the Expression's class
+     * @param returnType the Expression's return type
+     * @param isSingle whether the Expression is a single value
+     * @param ownerType the type of the owner
+     * @param property the property that is used
+     * @param <C> the Expression
+     * @param <T> the Expression's return type
+     * @return an {@link ExpressionRegistrar} to continue the registration process
+     */
+    public <C extends Expression<T>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
+        return new ExpressionRegistrar<>(c, returnType, isSingle,
+                checkPrefix(ownerType) + "'[s] " + property,
+                (property.startsWith("[the]") ? property : "[the] " + property) + " of " + checkPrefix(ownerType));
+    }
+
+    /**
+     * Starts a registration process for a {@link PropertyExpression}
+     * @param c the Expression's class
+     * @param returnType the Expression's return type
+     * @param isSingle whether the Expression is a single value
+     * @param ownerType the type of the owner
+     * @param property the property that is used
+     * @param <C> the Expression
+     * @param <T> the Expression's return type
+     * @return an {@link ExpressionRegistrar} to continue the registration process
+     */
+    public <C extends Expression<T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
+        new ExpressionRegistrar<>(c, returnType, isSingle,
+                checkPrefix(ownerType) + "'[s] " + property,
+                (property.startsWith("[the]") ? property : "[the] " + property) + " of " + checkPrefix(ownerType))
+                .register();
+    }
+
+    /**
+     * Starts a registration process for a {@link PropertyExpression}
+     * @param c the Expression's class
+     * @param returnType the Expression's return type
+     * @param isSingle whether the Expression is a single value
+     * @param priority the parsing priority this Expression has. 5 by default, a lower number means lower priority
+     * @param ownerType the type of the owner
+     * @param property the property that is used
+     * @param <C> the Expression
+     * @param <T> the Expression's return type
+     * @return an {@link ExpressionRegistrar} to continue the registration process
+     */
+    public <C extends Expression<T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, int priority, String ownerType, String property) {
+        new ExpressionRegistrar<>(c, returnType, isSingle,
+                checkPrefix(ownerType) + "'[s] " + property,
+                (property.startsWith("[the]") ? property : "[the] " + property) + " of " + checkPrefix(ownerType))
                 .setPriority(priority)
                 .register();
     }
@@ -350,7 +401,7 @@ public class SkriptRegistration {
 
     public abstract class SyntaxRegistrar<C extends SyntaxElement> implements Registrar {
         protected final Class<C> c;
-        private List<String> patterns = new ArrayList<>();
+        private final List<String> patterns = new ArrayList<>();
         private int priority = 5;
 
         SyntaxRegistrar(Class<C> c, String... patterns) {
@@ -487,5 +538,9 @@ public class SkriptRegistration {
             TypeManager.register(this);
             newTypes = false;
         }
+    }
+    
+    private String checkPrefix(String str) {
+        return str.startsWith("*") ? str.substring(1) : "%" + str + "%";
     }
 }

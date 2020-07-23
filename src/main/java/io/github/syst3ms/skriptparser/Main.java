@@ -4,8 +4,8 @@ import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import io.github.syst3ms.skriptparser.registration.DefaultRegistration;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
+import io.github.syst3ms.skriptparser.util.ConsoleColors;
 import io.github.syst3ms.skriptparser.util.FileUtils;
-import sun.rmi.runtime.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,7 +67,7 @@ public class Main {
         subPackages = sub.toArray(new String[0]);
         try {
             for (String mainPackage : mainPackages) {
-                FileUtils.loadClasses(mainPackage, subPackages);
+                FileUtils.loadClasses(FileUtils.getCurrentJarFile(Main.class), mainPackage, subPackages);
             }
             if (standalone) {
                 File addonFolder = new File(".", "addons");
@@ -103,20 +103,24 @@ public class Main {
         Calendar time = Calendar.getInstance();
         List<LogEntry> logs = registration.register();
         if (!logs.isEmpty()) {
+            System.out.print(ConsoleColors.RED.toString());
             System.out.println("Registration log :");
             System.out.println("---");
         }
         printLogs(logs, time);
+        System.out.print(ConsoleColors.RESET.toString());
         if (!logs.isEmpty()) {
             System.out.println();
         }
         File script = new File(scriptName);
         logs = ScriptLoader.loadScript(script, debug);
         if (!logs.isEmpty()) {
+            System.out.print(ConsoleColors.RED.toString());
             System.out.println("Parsing log :");
             System.out.println("---");
         }
         printLogs(logs, time);
+        System.out.print(ConsoleColors.RESET.toString());
     }
 
     private static void printLogs(List<LogEntry> logs, Calendar time) {

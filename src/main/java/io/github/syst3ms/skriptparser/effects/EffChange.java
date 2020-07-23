@@ -1,8 +1,8 @@
 package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.classes.ChangeMode;
-import io.github.syst3ms.skriptparser.event.TriggerContext;
+import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
@@ -49,6 +49,8 @@ public class EffChange extends Effect {
     private Expression<?> changeWith;
     private ChangeMode mode;
 
+    private boolean assignment; // A simple flag for identifying which syntax was precisely used
+
     static {
         Main.getMainRegistration().addEffect(EffChange.class, PATTERNS.getPatterns());
     }
@@ -58,7 +60,7 @@ public class EffChange extends Effect {
         ChangeMode mode = PATTERNS.getInfo(matchedPattern);
         if (mode == ChangeMode.RESET || mode == ChangeMode.DELETE) {
             changed = expressions[0];
-        } else if ((matchedPattern & 1) == 1 || mode == ChangeMode.SET) {
+        } else if ((matchedPattern & 1) == 1 || mode == ChangeMode.SET) { // Notice the difference in the order of expressions
             changed = expressions[0];
             changeWith = expressions[1];
             assignment = (matchedPattern & 1) == 1;
@@ -120,8 +122,6 @@ public class EffChange extends Effect {
         }
         return true;
     }
-
-    private boolean assignment;
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {

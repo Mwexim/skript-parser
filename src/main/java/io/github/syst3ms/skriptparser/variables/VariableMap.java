@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 class VariableMap {
     private static final Pattern listSplitPattern = Pattern.compile(Pattern.quote(Variables.LIST_SEPARATOR));
-    private Map<String, Object> map = new HashMap<>(); // Ordering is not important right now
+    private final Map<String, Object> map = new HashMap<>(); // Ordering is not important right now
 
     private static String[] splitList(String name) {
         return listSplitPattern.split(name);

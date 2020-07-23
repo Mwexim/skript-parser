@@ -1,9 +1,9 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.event.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.parsing.ParserState;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -18,13 +18,13 @@ import org.jetbrains.annotations.Nullable;
  * @see ConditionalMode
  */
 public class Conditional extends CodeSection {
-    private ConditionalMode mode;
+    private final ConditionalMode mode;
     @Nullable
-    private Expression<Boolean> condition;
+    private final Expression<Boolean> condition;
     private Conditional fallingClause;
 
-    public Conditional(FileSection section, @Nullable Expression<Boolean> condition, ConditionalMode mode, SkriptLogger logger) {
-        super.loadSection(section, logger);
+    public Conditional(FileSection section, @Nullable Expression<Boolean> condition, ConditionalMode mode, ParserState parserState, SkriptLogger logger) {
+        super.loadSection(section, parserState, logger);
         this.condition = condition;
         this.mode = mode;
     }
@@ -68,7 +68,7 @@ public class Conditional extends CodeSection {
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        return true;
+        throw new UnsupportedOperationException(); // This is never actually called, and should never be
     }
 
     @Override
