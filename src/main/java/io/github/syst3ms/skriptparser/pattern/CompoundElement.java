@@ -49,7 +49,7 @@ public class CompoundElement implements PatternElement {
             }
             i = m;
         }
-        if (i < s.length() - 1)
+        if (context.getSource() == null && i < s.length() - 1)
             return -1;
         return i;
     }
