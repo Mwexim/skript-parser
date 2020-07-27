@@ -264,6 +264,7 @@ public class ExprNumberArithmetic implements Expression<Number> {
             ExprNumberArithmetic.class,
             Number.class,
             true,
+            3,
             PATTERNS.getPatterns()
         );
     }
@@ -295,11 +296,6 @@ public class ExprNumberArithmetic implements Expression<Number> {
         if (n2 == null)
             n2 = 0;
         return new Number[]{op.calculate(n1, n2)};
-    }
-
-    @Override
-    public Class<? extends Number> getReturnType() {
-        return Number.class;
     }
 
     @Override

@@ -74,6 +74,12 @@ public class TypeManager {
             type = getByClassExact(superclass);
             superclass = superclass.getSuperclass();
         }
+        Class<? super T>[] interf = (Class<? super T>[]) c.getInterfaces();
+        int i = 0;
+        while ((type == null || type.getTypeClass() == Object.class) && i < interf.length) {
+            type = getByClass(interf[i]);
+            i++;
+        }
         return type;
     }
 

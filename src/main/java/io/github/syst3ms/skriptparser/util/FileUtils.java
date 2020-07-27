@@ -111,9 +111,7 @@ public class FileUtils {
     /**
      * Loads all classes of selected packages of the skript-parser JAR.
      * @param basePackage a root package
-     * @param subPackages a list of all subpackages of the root package, in which classes will be leadied
-     * @throws IOException
-     * @throws URISyntaxException
+     * @param subPackages a list of all subpackages of the root package, in which classes will be loaded
      */
     public static void loadClasses(File jarFile, String basePackage, String... subPackages) throws IOException, URISyntaxException {
         for (int i = 0; i < subPackages.length; i++)
@@ -144,9 +142,14 @@ public class FileUtils {
         }
     }
 
-    public static File getCurrentJarFile() throws URISyntaxException {
+    /**
+     * Retrieves the JAR file containing the given Class. Passing down the current class is recommended.
+     * @param cla the class
+     * @return the JAR file containing the class
+     */
+    public static File getCurrentJarFile(Class<?> cla) throws URISyntaxException {
         if (jarFile == null) {
-            jarFile = new File(FileUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            jarFile = new File(cla.getProtectionDomain().getCodeSource().getLocation().toURI());
         }
         return jarFile;
     }

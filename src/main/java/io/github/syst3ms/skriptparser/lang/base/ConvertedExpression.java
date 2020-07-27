@@ -35,8 +35,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
         // casting <? super ? extends F> to <? super F> is wrong, but since the converter is only used for values returned by the expression
         // (which are instances of "<? extends F>") this won't result in any ClassCastExceptions.
         @SuppressWarnings("unchecked")
-        Function<? super F, ? extends T> conv = (Function<? super F, ? extends T>) Converters
-                .getConverter(v.getReturnType(), to);
+        Function<? super F, ? extends T> conv = (Function<? super F, ? extends T>) Converters.getConverter(v.getReturnType(), to);
         if (conv == null)
             return null;
         return new ConvertedExpression<>(v, to, conv);

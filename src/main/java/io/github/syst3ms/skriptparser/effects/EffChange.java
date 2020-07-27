@@ -52,7 +52,7 @@ public class EffChange extends Effect {
     private boolean assignment; // A simple flag for identifying which syntax was precisely used
 
     static {
-        Main.getMainRegistration().addEffect(EffChange.class, PATTERNS.getPatterns());
+        Main.getMainRegistration().addEffect(EffChange.class, 3, PATTERNS.getPatterns());
     }
 
     @Override
