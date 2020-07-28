@@ -8,15 +8,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public class ExprRandomNumber implements Expression<Integer> {
+public class ExprRandomNumber implements Expression<Number> {
 
-    private Expression<Integer> startNumber;
-    private Expression<Integer> endNumber;
+    private Expression<Number> lowerNumber, maxNumber;
 
     static {
         Main.getMainRegistration().addExpression(
                 ExprRandomNumber.class,
-                Integer.class,
+                Number.class,
                 true,
                 "test %number% to %number%"
         );
@@ -26,16 +25,16 @@ public class ExprRandomNumber implements Expression<Integer> {
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         System.out.println("yolo");
-        startNumber = (Expression<Integer>) expressions[0];
-        endNumber = (Expression<Integer>) expressions[1];
+        lowerNumber = (Expression<Number>) expressions[0];
+        maxNumber = (Expression<Number>) expressions[1];
         return true;
     }
 
     @Override
-    public Integer[] getValues(TriggerContext ctx) {
+    public Number[] getValues(TriggerContext ctx) {
         System.out.println("test");
-        int e = startNumber.getSingle(ctx).intValue();
-        int s = endNumber.getSingle(ctx).intValue();
+        Number low = lowerNumber.getSingle(ctx);
+        Number max = maxNumber.getSingle(ctx).intValue();
         System.out.println("test 2");
         return new Integer[]{ThreadLocalRandom.current().nextInt(e, s + 1)};
     }
