@@ -51,6 +51,6 @@ public class ExprRandomNumber implements Expression<Number> {
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return "Generate random " + (isInteger ? "integer" : "number") + " from " + lowerNumber.toString() + " to " + maxNumber.toString();
+        return "set {random}to random " + (isInteger ? "integer" : "number") + " from " + lowerNumber.toString(ctx, debug) + " to " + maxNumber.toString(ctx, debug);
     }
 }
