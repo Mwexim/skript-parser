@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @name Length
  * @pattern length of %string%
+ * @pattern %string%'s length
  * @since ALPHA
  * @author Romitou
  */
