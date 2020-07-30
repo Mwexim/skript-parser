@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
  * @since ALPHA
  * @author Romitou
  */
-public class ExprLength implements Expression<Number> {
+public class ExprLength extends PropertyExpression<Number, String> {
 
     private Expression<String> strValue;
 
