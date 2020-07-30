@@ -18,7 +18,7 @@ import java.util.regex.PatternSyntaxException;
  * A class for parsing syntaxes in string form into parser-usable objects
  */
 public class PatternParser {
-    private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(\\d+?)\\xa6.*");
+    private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(\\d+?)([bx])?:(.*)");
     private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*~])?(=)?(?<types>[\\w/]+)?");
 
     /**
@@ -45,17 +45,23 @@ public class PatternParser {
                 if (s == null) {
                     logger.error("Unmatched square bracket (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
                     return null;
+                } else if (s.isEmpty()) {
+                    logger.warn("There is an empty optional group. Place a backslash before a square bracket for it to be interpreted literally : [" + s + "]");
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
                     textBuilder = new StringBuilder();
                 }
                 i += s.length() + 1; // sets i to the closing bracket, for loop does the rest
-                Matcher m = PARSE_MARK_PATTERN.matcher(s);
+                Matcher matcher = PARSE_MARK_PATTERN.matcher(s);
                 PatternElement content;
-                if (m.matches()) {
-                    String mark = m.group(1);
-                    String base = m.group(2);
+                String[] vertParts = StringUtils.splitVerticalBars(pattern, logger);
+                if (vertParts == null) {
+                    return null; // The content is malformed anyway
+                }
+                if (matcher.matches() && vertParts.length == 1) {
+                    String mark = matcher.group(1);
+                    String base = matcher.group(2);
                     int markNumber;
                     try {
                         if (base == null) {
@@ -71,7 +77,7 @@ public class PatternParser {
                     } catch (NumberFormatException e) {
                         return null;
                     }
-                    String rest = s.substring(mark.length() + 1);
+                    String rest = matcher.group(3);
                     PatternElement e = parsePattern(rest, logger);
                     if (e == null) {
                         return null;
@@ -101,6 +107,9 @@ public class PatternParser {
                 }
                 List<ChoiceElement> choiceElements = new ArrayList<>();
                 for (String choice : choices) {
+                    if (choice.isEmpty()) {
+                        logger.warn("There is an empty choice in the choice group. Place a backslash before the vertical bar for it to be interpreted literally : (" + s + ")");
+                    }
                     Matcher matcher = PARSE_MARK_PATTERN.matcher(choice);
                     if (matcher.matches()) {
                         String mark = matcher.group(1);
@@ -120,7 +129,7 @@ public class PatternParser {
                         } catch (NumberFormatException e) {
                             return null;
                         }
-                        String rest = choice.substring(mark.length() + 1);
+                        String rest = matcher.group(3);
                         PatternElement choiceContent = parsePattern(rest, logger);
                         if (choiceContent == null) {
                             return null;
@@ -140,6 +149,8 @@ public class PatternParser {
                 if (s == null) {
                     logger.error("Unmatched angle bracket (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
                     return null;
+                } else if (s.isEmpty()) {
+                    logger.warn("There is an empty regex group. Place a backslash before an angle bracket for it to be interpreted literally : [" + s + "]");
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
