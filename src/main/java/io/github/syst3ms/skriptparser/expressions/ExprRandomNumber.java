@@ -19,6 +19,7 @@ public class ExprRandomNumber implements Expression<Number> {
 
     private Expression<Number> lowerNumber, maxNumber;
     private boolean isInteger;
+    private boolean isStictly;
     private final ThreadLocalRandom thread = ThreadLocalRandom.current();
 
     static {
@@ -26,9 +27,8 @@ public class ExprRandomNumber implements Expression<Number> {
                 ExprRandomNumber.class,
                 Number.class,
                 true,
-                "[a] random integer (from|between) %integer% (to|and) %integer%",
-                "[a] random number (from|between) %number% (to|and) %number%"
-
+                "[a] [(1:strictly)] random integer (from|between) %integer% (to|and) %integer%",
+                "[a] [(1:strictly)] random number (from|between) %number% (to|and) %number%"
         );
     }
 
@@ -37,7 +37,8 @@ public class ExprRandomNumber implements Expression<Number> {
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext context) {
         lowerNumber = (Expression<Number>) expressions[0];
         maxNumber = (Expression<Number>) expressions[1];
-        isInteger = matchedPattern == 1;
+        isInteger = matchedPattern == 0;
+        isStictly = context.getParseMark() == 1;
         return true;
     }
 
@@ -45,19 +46,30 @@ public class ExprRandomNumber implements Expression<Number> {
     public Number[] getValues(TriggerContext ctx) {
         Number low = lowerNumber.getSingle(ctx);
         Number max = maxNumber.getSingle(ctx);
-
-        if (low == null || max == null)
+        if (low == null || max == null) {
             return new Number[0];
-
-		if (isInteger) {
-            return new Long[]{thread.nextLong(low.longValue(), max.longValue())};
         }
-		return new Double[]{thread.nextDouble(low.doubleValue(), max.doubleValue())};
-
+        int lowInt = low.intValue();
+        int maxInt = max.intValue();
+        if (lowInt > maxInt) {
+            int oldMax = maxInt;
+            maxInt = lowInt;
+            lowInt = oldMax;
+        }
+        if (isStictly) {
+            lowInt--;
+            maxInt++;
+        }
+        System.out.println("low" + lowInt);
+        System.out.println("max" + maxInt);
+        if (isInteger) {
+            return new Long[]{thread.nextLong((long) lowInt, (long) maxInt)};
+        }
+		return new Double[]{thread.nextDouble((double) lowInt, (double) maxInt)};
     }
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return "a random " + (isInteger ? "integer" : "number") + " between " + lowerNumber.toString(ctx, debug) + " and " + maxNumber.toString(ctx, debug);
+        return "a random " + (isInteger ? "integer" : "number") + " between " + lowerNumber.toString(ctx, debug) + " and " + maxNumber.toString(ctx, debug) + "strictly";
     }
 }
