@@ -15,7 +15,7 @@ import java.lang.Math;
  * @since ALPHA
  * @author WeeskyBDW
  */
-public class ExprRandomNumber<> implements Expression<Number> {
+public class ExprRandomNumber implements Expression<Number> {
 
     private Expression<Number> lowerNumber, maxNumber;
     private boolean isInteger;
@@ -49,9 +49,9 @@ public class ExprRandomNumber<> implements Expression<Number> {
         if (low == null || max == null)
             return new Number[0];
 
-		if (isInteger)
-			return new Long[]{thread.nextLong(low.longValue(), max.longValue())};
-
+		if (isInteger) {
+            return new Long[]{thread.nextLong(low.longValue(), max.longValue())};
+        }
 		return new Double[]{thread.nextDouble(low.doubleValue(), max.doubleValue())};
 
     }
