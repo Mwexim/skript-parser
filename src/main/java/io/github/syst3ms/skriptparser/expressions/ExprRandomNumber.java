@@ -15,17 +15,20 @@ import java.lang.Math;
  * @since ALPHA
  * @author WeeskyBDW
  */
-public class ExprRandomNumber implements Expression<Number> {
+public class ExprRandomNumber<> implements Expression<Number> {
 
     private Expression<Number> lowerNumber, maxNumber;
+    private boolean isInteger;
+    private final ThreadLocalRandom thread = ThreadLocalRandom.current();
 
-	private boolean isInteger;
     static {
         Main.getMainRegistration().addExpression(
                 ExprRandomNumber.class,
                 Number.class,
                 true,
-                "[a] random (1:integer|2:number) (from|between) %number% (to|and) %number%"
+                "[a] random integer (from|between) %integer% (to|and) %integer%",
+                "[a] random number (from|between) %number% (to|and) %number%"
+
         );
     }
 
@@ -34,23 +37,27 @@ public class ExprRandomNumber implements Expression<Number> {
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext context) {
         lowerNumber = (Expression<Number>) expressions[0];
         maxNumber = (Expression<Number>) expressions[1];
-		isInteger = context.getParseMark() == 1;
+        isInteger = matchedPattern == 1;
         return true;
     }
 
     @Override
     public Number[] getValues(TriggerContext ctx) {
-        Double low = lowerNumber.getSingle(ctx).doubleValue();
-        Double max = maxNumber.getSingle(ctx).doubleValue();
-		if(isInteger) {
-			return new Long[]{ThreadLocalRandom.current().nextLong(Math.round(low), Math.round(max) + 1)};
-		} else {
-			return new Double[]{ThreadLocalRandom.current().nextDouble(low, max + 1)};
-		}
+        Number low = lowerNumber.getSingle(ctx);
+        Number max = maxNumber.getSingle(ctx);
+
+        if (low == null || max == null)
+            return new Number[0];
+
+		if (isInteger)
+			return new Long[]{thread.nextLong(low.longValue(), max.longValue())};
+
+		return new Double[]{thread.nextDouble(low.doubleValue(), max.doubleValue())};
+
     }
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return "a random " + (isInteger ? "integer" : "number") + " from " + lowerNumber.toString(ctx, debug) + " to " + maxNumber.toString(ctx, debug);
+        return "a random " + (isInteger ? "integer" : "number") + " between " + lowerNumber.toString(ctx, debug) + " and " + maxNumber.toString(ctx, debug);
     }
 }
