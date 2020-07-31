@@ -45,6 +45,8 @@ public class PatternParser {
                 if (s == null) {
                     logger.error("Unmatched square bracket (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
                     return null;
+                } else if (s.isEmpty()) {
+                    logger.warn("There is an empty optional group. Place a backslash before a square bracket for it to be interpreted literally : [" + s + "]");
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
@@ -53,7 +55,11 @@ public class PatternParser {
                 i += s.length() + 1; // sets i to the closing bracket, for loop does the rest
                 Matcher matcher = PARSE_MARK_PATTERN.matcher(s);
                 PatternElement content;
-                if (matcher.matches()) {
+                String[] vertParts = StringUtils.splitVerticalBars(pattern, logger);
+                if (vertParts == null) {
+                    return null; // The content is malformed anyway
+                }
+                if (matcher.matches() && vertParts.length == 1) {
                     String mark = matcher.group(1);
                     String base = matcher.group(2);
                     int markNumber;
@@ -101,6 +107,9 @@ public class PatternParser {
                 }
                 List<ChoiceElement> choiceElements = new ArrayList<>();
                 for (String choice : choices) {
+                    if (choice.isEmpty()) {
+                        logger.warn("There is an empty choice in the choice group. Place a backslash before the vertical bar for it to be interpreted literally : (" + s + ")");
+                    }
                     Matcher matcher = PARSE_MARK_PATTERN.matcher(choice);
                     if (matcher.matches()) {
                         String mark = matcher.group(1);
@@ -140,6 +149,8 @@ public class PatternParser {
                 if (s == null) {
                     logger.error("Unmatched angle bracket (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
                     return null;
+                } else if (s.isEmpty()) {
+                    logger.warn("There is an empty regex group. Place a backslash before an angle bracket for it to be interpreted literally : [" + s + "]");
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
