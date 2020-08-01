@@ -1,13 +1,12 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import org.jetbrains.annotations.Nullable;
@@ -21,17 +20,20 @@ import java.util.Optional;
  * Various arithmetic expressions, including addition, subtraction, multiplication, division and exponentiation.
  * Notes :
  * <ul>
- *     <li>All of the operations will accommodate for the type of the two operands.
- *         <ul>
- *             <li>Two operands of the same type will yield a result of that type.</li>
- *             <li>Adding a decimal type to an integer type will yield a decimal result.</li>
- *             <li>If any of the operands is an arbitrary precision number, the result will be of arbitrary precision</li>
- *         </ul>
- *     </li>
- *     <li>0<sup>0</sup> is defined to be 1</li>
- *     <li>A division by zero will not return any value and will print an error</li>
- *     <li>Primitive types will be converted to an arbitrary-precision result in case of overflow/underflow</li>
- *
+ *      <li>All of the operations will accommodate for the type of the two operands.
+ *          <ul>
+ *              <li>Two operands of the same type will yield a result of that type, except in the following special cases
+ *                  <ul>
+ *                      <li>Trying to divide 0 by 0 will always return {@link Double#NaN} regardless of the original types.</li>
+ *                      <li>Trying to divide any other value by 0 will always return {@link Double#POSITIVE_INFINITY} or {@link Double#NEGATIVE_INFINITY}.</li>
+ *                  </ul>
+ *              </li>
+ *              <li>Adding a decimal type to an integer type will yield a decimal result.</li>
+ *              <li>If any of the operands is an arbitrary precision number, the result will be of arbitrary precision</li>
+ *          </ul>
+ *      </li>
+ *      <li>0<sup>0</sup> is defined to be 1</li>
+ *      <li>Longs and doubles will give an arbitrary-precision result in case of overflow/underflow</li>
  * </ul>
  * 
  * @name Arithmetic Operators
@@ -75,8 +77,10 @@ public class ExprNumberArithmetic implements Expression<Number> {
                     }
                 } else {
                     // Both Double, or mix of Long and Double
-                    double s = left.doubleValue() + right.doubleValue();
-                    if (Double.isInfinite(s)) {
+                    double l = left.doubleValue();
+                    double r = right.doubleValue();
+                    double s = l + r;
+                    if (Double.isInfinite(s) && Double.isFinite(l) && Double.isFinite(r)) {
                         return BigDecimalMath.getBigDecimal(left).add(BigDecimalMath.getBigDecimal(right));
                     } else {
                         return s;
@@ -113,8 +117,10 @@ public class ExprNumberArithmetic implements Expression<Number> {
                     }
                 } else {
                     // Both Double, or mix of Long and Double
-                    double s = left.doubleValue() - right.doubleValue();
-                    if (Double.isInfinite(s)) {
+                    double l = left.doubleValue();
+                    double r = right.doubleValue();
+                    double s = l - r;
+                    if (Double.isInfinite(s) && Double.isFinite(l) && Double.isFinite(r)) {
                         return BigDecimalMath.getBigDecimal(left).subtract(BigDecimalMath.getBigDecimal(right));
                     } else {
                         return s;
@@ -151,8 +157,10 @@ public class ExprNumberArithmetic implements Expression<Number> {
                     }
                 } else {
                     // Both Double, or mix of Long and Double
-                    double s = left.doubleValue() * right.doubleValue();
-                    if (Double.isInfinite(s)) {
+                    double l = left.doubleValue();
+                    double r = right.doubleValue();
+                    double s = l * r;
+                    if (Double.isInfinite(s) && Double.isFinite(l) && Double.isFinite(r)) {
                         return BigDecimalMath.getBigDecimal(left).multiply(BigDecimalMath.getBigDecimal(right));
                     } else {
                         return s;
@@ -163,10 +171,11 @@ public class ExprNumberArithmetic implements Expression<Number> {
         DIV('/') {
             @Override
             public Number calculate(Number left, Number right) {
-                if (isZero(right)) {
-                    throw new SkriptRuntimeException("Cannot divide by 0 !");
-                }
-                if ((left instanceof Long || right instanceof Long) && (left instanceof Double || right instanceof Double)) {
+                if (isZero(left) && isZero(right)) {
+                    return Double.NaN;
+                } else if (isZero(right)) {
+                    return Math.copySign(Double.POSITIVE_INFINITY, left.doubleValue());
+                } else if ((left instanceof Long || right instanceof Long) && (left instanceof Double || right instanceof Double)) {
                     return left.doubleValue() / right.doubleValue();
                 } else {
                     return BigDecimalMath.getBigDecimal(left).divide(BigDecimalMath.getBigDecimal(right), RoundingMode.HALF_UP);
@@ -183,6 +192,8 @@ public class ExprNumberArithmetic implements Expression<Number> {
                         } else {
                             return 1.0;
                         }
+                    } else if (left instanceof BigInteger) {
+                        return BigInteger.ONE;
                     } else {
                         return BigDecimal.ONE;
                     }
@@ -206,8 +217,10 @@ public class ExprNumberArithmetic implements Expression<Number> {
                     }
                 } else {
                     // mix of Long and Double
-                    double p = Math.pow(left.doubleValue(), right.doubleValue());
-                    if (Double.isInfinite(p)) {
+                    double l = left.doubleValue();
+                    double r = right.doubleValue();
+                    double p = Math.pow(l, r);
+                    if (Double.isInfinite(p) && Double.isFinite(l) && Double.isFinite(r)) {
                         return BigDecimalMath.pow(BigDecimalMath.getBigDecimal(left), BigDecimalMath.getBigDecimal(right), BigDecimalMath.DEFAULT_CONTEXT);
                     } else {
                         return p;
