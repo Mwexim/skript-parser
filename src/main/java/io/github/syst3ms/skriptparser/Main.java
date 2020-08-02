@@ -77,8 +77,6 @@ public class Main {
                     .getCodeSource()
                     .getLocation()
                     .toURI()
-                    .getPath()
-                    .substring(1) // Remove first char due to Windows path
                 );
                 Path addonFolderPath = Paths.get(parserPath.getParent().toString(), "addons");
                 if (Files.isDirectory(addonFolderPath)) {

@@ -105,8 +105,7 @@ public class FileParserTest {
 
     @Test
     public void readLines() throws Exception {
-        ClassLoader classLoader = getClass().getClassLoader();
-        Path filePath = Paths.get(classLoader.getResource("multiline.txt").getPath().substring(1));
+        Path filePath = Paths.get(ClassLoader.getSystemResource("multiline.txt").toURI());
         assertEquals(
             Arrays.asList(
                 "# Testing multiline syntax",
