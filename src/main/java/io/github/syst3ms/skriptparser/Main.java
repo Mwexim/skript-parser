@@ -85,13 +85,13 @@ public class Main {
                     Files.walk(addonFolderPath)
                         .filter(Files::isRegularFile)
                         .filter((filePath) -> filePath.toString().endsWith(".jar"))
-                        .forEach((Path filePath) -> {
+                        .forEach((Path addonPath) -> {
                             try {
                                 URLClassLoader child = new URLClassLoader(
-                                    new URL[]{filePath.toUri().toURL()},
+                                    new URL[]{addonPath.toUri().toURL()},
                                     Main.class.getClassLoader()
                                 );
-                                JarFile jar = new JarFile(filePath.toString());
+                                JarFile jar = new JarFile(addonPath.toString());
                                 Manifest manifest = jar.getManifest();
                                 String main = manifest.getMainAttributes().getValue("Main-Class");
                                 if (main != null) {
