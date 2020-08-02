@@ -7,13 +7,15 @@ import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.util.ConsoleColors;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -70,33 +72,46 @@ public class Main {
                 FileUtils.loadClasses(FileUtils.getCurrentJarFile(Main.class), mainPackage, subPackages);
             }
             if (standalone) {
-                File addonFolder = new File(".", "addons");
-                if (addonFolder.exists() && addonFolder.isDirectory()) {
-                    File[] addons = addonFolder.listFiles();
-                    if (addons != null) {
-                        for (File addon : addons) {
-                            if (addon.isFile() && addon.getName().endsWith(".jar")) {
+                Path parserPath = Paths.get(Main.class
+                    .getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .toURI()
+                    .getPath()
+                    .substring(1) // Remove first char due to Windows path
+                );
+                Path addonFolderPath = Paths.get(parserPath.getParent().toString(), "addons");
+                if (Files.isDirectory(addonFolderPath)) {
+                    Files.walk(addonFolderPath)
+                        .filter(Files::isRegularFile)
+                        .filter((filePath) -> filePath.toString().endsWith(".jar"))
+                        .forEach((Path filePath) -> {
+                            try {
                                 URLClassLoader child = new URLClassLoader(
-                                        new URL[]{addon.toURI().toURL()},
-                                        Main.class.getClassLoader()
+                                    new URL[]{filePath.toUri().toURL()},
+                                    Main.class.getClassLoader()
                                 );
-                                JarFile jar = new JarFile(addon);
+                                JarFile jar = new JarFile(filePath.toString());
                                 Manifest manifest = jar.getManifest();
                                 String main = manifest.getMainAttributes().getValue("Main-Class");
-                                Class<?> mainClass = Class.forName(main, true, child);
-                                try {
-                                    Method init = mainClass.getDeclaredMethod("initAddon");
-                                    init.invoke(null);
-                                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
-                                } finally {
-                                	jar.close();
+                                if (main != null) {
+                                    Class<?> mainClass = Class.forName(main, true, child);
+                                    try {
+                                        Method init = mainClass.getDeclaredMethod("initAddon");
+                                        init.invoke(null);
+                                    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
+                                    } finally {
+                                        jar.close();
+                                    }
                                 }
+                            } catch (IOException | ClassNotFoundException e) {
+                                System.err.println("Error while loading classes:");
+                                e.printStackTrace();
                             }
-                        }
-                    }
+                        });
                 }
             }
-        } catch (IOException | URISyntaxException | ClassNotFoundException e) {
+        } catch (IOException | URISyntaxException e) {
             System.err.println("Error while loading classes:");
             e.printStackTrace();
         }
@@ -112,8 +127,8 @@ public class Main {
         if (!logs.isEmpty()) {
             System.out.println();
         }
-        File script = new File(scriptName);
-        logs = ScriptLoader.loadScript(script, debug);
+        Path scriptPath = Paths.get(scriptName);
+        logs = ScriptLoader.loadScript(scriptPath, debug);
         if (!logs.isEmpty()) {
             System.out.print(ConsoleColors.RED.toString());
             System.out.println("Parsing log :");

@@ -18,8 +18,8 @@ import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,14 +35,14 @@ public class ScriptLoader {
      * @param script the script file to load
      * @param debug
      */
-    public static List<LogEntry> loadScript(File script, boolean debug) {
+    public static List<LogEntry> loadScript(Path scriptPath, boolean debug) {
         FileParser parser = new FileParser();
         SkriptLogger logger = new SkriptLogger(debug);
         List<FileElement> elements;
         String scriptName;
         try {
-            List<String> lines = FileUtils.readAllLines(script);
-            scriptName = script.getName().replaceAll("(.+)\\..+", "$1");
+            List<String> lines = FileUtils.readAllLines(scriptPath);
+            scriptName = scriptPath.getFileName().toString().replaceAll("(.+)\\..+", "$1");
             elements = parser.parseFileLines(scriptName,
                     lines,
                     0,
@@ -54,7 +54,7 @@ public class ScriptLoader {
             e.printStackTrace();
             return Collections.emptyList();
         }
-        logger.setFileInfo(script.getName(), elements);
+        logger.setFileInfo(scriptPath.getFileName().toString(), elements);
         List<UnloadedTrigger> unloadedTriggers = new ArrayList<>();
         for (FileElement element : elements) {
             logger.logOutput();

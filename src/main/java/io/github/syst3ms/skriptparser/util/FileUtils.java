@@ -3,6 +3,8 @@ package io.github.syst3ms.skriptparser.util;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -39,13 +41,10 @@ public class FileUtils {
      * @return the lines of the file
      * @throws IOException if the file can't be read
      */
-    public static List<String> readAllLines(File file) throws IOException {
+    public static List<String> readAllLines(Path filePath) throws IOException {
         List<String> lines = new ArrayList<>();
-        InputStreamReader in = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
-        BufferedReader reader = new BufferedReader(in);
-        String line;
         StringBuilder multilineBuilder = new StringBuilder();
-        while ((line = reader.readLine()) != null) {
+        for (String line : Files.readAllLines(filePath, StandardCharsets.UTF_8)) {
             line = line.replaceAll("\\s*$", "");
             if (line.replace("\\" + MULTILINE_SYNTAX_TOKEN, "\0")
                     .endsWith(MULTILINE_SYNTAX_TOKEN)) {
