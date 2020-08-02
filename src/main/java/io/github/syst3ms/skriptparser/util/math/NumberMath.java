@@ -14,7 +14,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class NumberMath {
     private static final BigDecimal RADIANS_TO_DEGREES = new BigDecimal(180).divide(BigDecimalMath.pi(BigDecimalMath.DEFAULT_CONTEXT), BigDecimalMath.DEFAULT_CONTEXT);
     private static final BigDecimal DEGREES_TO_RADIANS = BigDecimalMath.pi(BigDecimalMath.DEFAULT_CONTEXT).divide(new BigDecimal(180), BigDecimalMath.DEFAULT_CONTEXT);
-    private static final ThreadLocalRandom random = ThreadLocalRandom.current();
 
     public static Number abs(Number n) {
         if (n instanceof Long) {
@@ -209,9 +208,9 @@ public class NumberMath {
         if (lower.equals(upper))
             return lower;
         if (inclusive) {
-            upper = changeBoundExclusion(upper);
+            upper = changeBoundExclusion(upper, lower);
         } else {
-            lower = changeBoundExclusion(lower);
+            lower = changeBoundExclusion(lower, upper);
         }
         if (lower instanceof Long && upper instanceof Long) {
             return random.nextLong((long) lower, (long) upper);
@@ -259,23 +258,34 @@ public class NumberMath {
      * @return a random {@link BigDecimal} between {@code lower} (inclusive) and {@code upper} (exclusive)
      */
     public static BigDecimal randomBigDecimal(BigDecimal lower, BigDecimal upper, ThreadLocalRandom random) {
-        return lower.add(BigDecimal.valueOf(random.nextDouble()).multiply(upper.subtract(lower)));
+        BigDecimal rand = BigDecimal.valueOf(random.nextDouble());
+        BigDecimal scaled = lower.add(rand.multiply(upper.subtract(lower)));
+        /*
+         * When we scale the random value, we may lose some digits of precision, especially if "upper - lower" is large.
+         * To remedy that, we generate another random number and use it to fill in the ending digits by shifting its
+         * significant digits until after the point where "scaled" loses some precision
+         */
+        BigDecimal padding = BigDecimal.valueOf(random.nextDouble())
+                                       .scaleByPowerOfTen(-scaled.scale());
+        // Finally, we add the padding and make sure the number of decimals is that same as before
+        return scaled.add(padding).setScale(rand.scale(), BigDecimalMath.DEFAULT_ROUNDING_MODE); // Finally, we add the padding
     }
 
-    private static Number changeBoundExclusion(Number n) {
+    private static Number changeBoundExclusion(Number n, Number other) {
         /*
          * The methods used for each number type have an inclusive lower bound but an exclusive upper bound.
          * This method makes a lower bound exclusive and an upper bound inclusive.
          */
-        if (n instanceof Long) {
+        if (n instanceof Long && (other instanceof Long || other instanceof BigInteger)) {
             return (long) n + 1L;
-        } else if (n instanceof BigInteger) {
+        } else if (n instanceof BigInteger && (other instanceof Long || other instanceof BigInteger)) {
             return ((BigInteger) n).add(BigInteger.ONE);
-        } else if (n instanceof Double) {
-            double d = (double) n;
+        } else if (n instanceof Double || n instanceof Long) {
+            double d = n.doubleValue();
             return d + Math.ulp(d);
         } else {
-            BigDecimal bd = (BigDecimal) n;
+            assert n instanceof BigDecimal || n instanceof BigInteger;
+            BigDecimal bd = bigToBigDecimal(n);
             BigDecimal nudge = BigDecimal.ONE.scaleByPowerOfTen(-BigDecimalMath.DEFAULT_CONTEXT.getPrecision());
             return bd.add(nudge);
         }
