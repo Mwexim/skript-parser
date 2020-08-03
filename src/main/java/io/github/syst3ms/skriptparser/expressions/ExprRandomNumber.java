@@ -4,31 +4,35 @@ import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
+import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
+import io.github.syst3ms.skriptparser.types.comparisons.Relation;
+import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.concurrent.ThreadLocalRandom;
-import java.lang.Math;
 /**
  * Generate a random number (double) or integer.
  *
  * @name random number
- * @pattern [a] random (integer|number) (from|between) %number% (to|and) %number%
+ * @pattern [a] random integer [strictly] (from|between) %number% (to|and) %number%
+ * @pattern [a] random number [strictly] (from|between) %integer% (to|and) %integer%
  * @since ALPHA
  * @author WeeskyBDW
  */
 public class ExprRandomNumber implements Expression<Number> {
-
     private Expression<Number> lowerNumber, maxNumber;
-    private boolean isInteger;
-    private boolean isStictly;
-    private final ThreadLocalRandom thread = ThreadLocalRandom.current();
+    private final ThreadLocalRandom random = ThreadLocalRandom.current();
+    private boolean isInteger, isExclusive;
+    private Comparator<? super Number, ? super Number> numComp;
 
     static {
         Main.getMainRegistration().addExpression(
                 ExprRandomNumber.class,
                 Number.class,
                 true,
-                "[a] [(1:strictly)] random integer (from|between) %integer% (to|and) %integer%",
-                "[a] [(1:strictly)] random number (from|between) %number% (to|and) %number%"
+                "[a] random integer [(1:strictly)] (from|between) %integer% (to|and) %integer%",
+                "[a] random number [(1:strictly)] (from|between) %number% (to|and) %number%"
         );
     }
 
@@ -38,7 +42,9 @@ public class ExprRandomNumber implements Expression<Number> {
         lowerNumber = (Expression<Number>) expressions[0];
         maxNumber = (Expression<Number>) expressions[1];
         isInteger = matchedPattern == 0;
-        isStictly = context.getParseMark() == 1;
+        isExclusive = context.getParseMark() == 1;
+        numComp = Comparators.getComparator(Number.class, Number.class);
+        assert numComp != null;
         return true;
     }
 
@@ -46,30 +52,16 @@ public class ExprRandomNumber implements Expression<Number> {
     public Number[] getValues(TriggerContext ctx) {
         Number low = lowerNumber.getSingle(ctx);
         Number max = maxNumber.getSingle(ctx);
-        if (low == null || max == null) {
+        if (low == null || max == null)
             return new Number[0];
-        }
-        int lowInt = low.intValue();
-        int maxInt = max.intValue();
-        if (lowInt > maxInt) {
-            int oldMax = maxInt;
-            maxInt = lowInt;
-            lowInt = oldMax;
-        }
-        if (isStictly) {
-            lowInt--;
-            maxInt++;
-        }
-        System.out.println("low" + lowInt);
-        System.out.println("max" + maxInt);
-        if (isInteger) {
-            return new Long[]{thread.nextLong((long) lowInt, (long) maxInt)};
-        }
-		return new Double[]{thread.nextDouble((double) lowInt, (double) maxInt)};
+        //Check to find out which number is the greater of the 2, while keeping the type
+        Number realLow = numComp.apply(low, max).is(Relation.SMALLER_OR_EQUAL) ? low : max;
+        Number realMax = numComp.apply(low, max).is(Relation.SMALLER_OR_EQUAL) ? max : low;
+        return new Number[]{NumberMath.random(realLow, realMax, !isExclusive, random)};
     }
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return "a random " + (isInteger ? "integer" : "number") + " between " + lowerNumber.toString(ctx, debug) + " and " + maxNumber.toString(ctx, debug) + "strictly";
+        return "a random " + (isInteger ? "integer " : "number ") + (isExclusive ? "strictly " : "") + "between " + lowerNumber.toString(ctx, debug) + " and " + maxNumber.toString(ctx, debug);
     }
 }
