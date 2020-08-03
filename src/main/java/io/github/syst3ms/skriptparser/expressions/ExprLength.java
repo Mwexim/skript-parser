@@ -1,11 +1,11 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
-import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Function;
 
 /**
  * Length of a string.
@@ -18,8 +18,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public class ExprLength extends PropertyExpression<Number, String> {
 
-    private Expression<String> strValue;
-
     static {
         Main.getMainRegistration().addPropertyExpression(
                 ExprLength.class,
@@ -30,23 +28,13 @@ public class ExprLength extends PropertyExpression<Number, String> {
         );
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        strValue = (Expression<String>) expressions[0];
-        return true;
-    }
-
-    @Override
-    public Number[] getValues(TriggerContext ctx) {
-        String str = strValue.getSingle(ctx);
-        if (str == null) return new Number[]{0};
-        return new Number[]{str.length()};
+    public Function<String[], Number[]> getPropertyFunction() {
+        return strings -> new Number[] {strings[0].length()};
     }
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return "length of " + strValue.toString(ctx, debug);
+        return "length of " + getOwner().toString(ctx, debug);
     }
-
 }
