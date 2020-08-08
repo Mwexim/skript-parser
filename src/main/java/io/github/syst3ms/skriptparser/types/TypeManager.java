@@ -69,9 +69,9 @@ public class TypeManager {
     @Nullable
     public static <T> Type<? super T> getByClass(Class<T> c) {
         Type<? super T> type = getByClassExact(c);
-        Class<? super T> superclass = c;
+        Class<? super T> superclass = c.getSuperclass();
         while (superclass != null && type == null) {
-            type = getByClassExact(superclass);
+            type = getByClass(superclass);
             superclass = superclass.getSuperclass();
         }
         Class<? super T>[] interf = (Class<? super T>[]) c.getInterfaces();
