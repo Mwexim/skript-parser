@@ -4,9 +4,6 @@ import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
-import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
-import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +21,6 @@ public class ExprRandomNumber implements Expression<Number> {
     private Expression<Number> lowerNumber, maxNumber;
     private final ThreadLocalRandom random = ThreadLocalRandom.current();
     private boolean isInteger, isExclusive;
-    private Comparator<? super Number, ? super Number> numComp;
 
     static {
         Main.getMainRegistration().addExpression(
@@ -43,8 +39,6 @@ public class ExprRandomNumber implements Expression<Number> {
         maxNumber = (Expression<Number>) expressions[1];
         isInteger = matchedPattern == 0;
         isExclusive = context.getParseMark() == 1;
-        numComp = Comparators.getComparator(Number.class, Number.class);
-        assert numComp != null;
         return true;
     }
 
@@ -55,8 +49,9 @@ public class ExprRandomNumber implements Expression<Number> {
         if (low == null || max == null)
             return new Number[0];
         //Check to find out which number is the greater of the 2, while keeping the type
-        Number realLow = numComp.apply(low, max).is(Relation.SMALLER_OR_EQUAL) ? low : max;
-        Number realMax = numComp.apply(low, max).is(Relation.SMALLER_OR_EQUAL) ? max : low;
+        Number realLow = low.doubleValue() < max.doubleValue() ? low : max;
+        Number realMax = low.doubleValue() < max.doubleValue() ? max : low;
+
         return new Number[]{NumberMath.random(realLow, realMax, !isExclusive, random)};
     }
 
