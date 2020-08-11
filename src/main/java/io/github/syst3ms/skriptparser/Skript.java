@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser;
 
 import io.github.syst3ms.skriptparser.event.ScriptLoadContext;
-import io.github.syst3ms.skriptparser.event.ScriptLoadEvent;
+import io.github.syst3ms.skriptparser.event.EvtScriptLoad;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
@@ -26,7 +26,7 @@ public class Skript extends SkriptAddon {
         SkriptEvent event = trigger.getEvent();
         if (!canHandleEvent(event))
             return;
-        if (event instanceof ScriptLoadEvent)
+        if (event instanceof EvtScriptLoad)
             mainTriggers.add(trigger);
     }
 

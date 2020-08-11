@@ -1,7 +1,8 @@
-package io.github.syst3ms.skriptparser.lang;
+package io.github.syst3ms.skriptparser.sections;
 
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -15,7 +16,7 @@ import java.util.WeakHashMap;
 /**
  * A section that iterates over a collection of elements
  */
-public class Loop extends CodeSection {
+public class SecLoop extends CodeSection {
 	private Expression<?> expr;
 	private final transient Map<TriggerContext, Object> current = new WeakHashMap<>();
 	private final transient Map<TriggerContext, Iterator<?>> currentIter = new WeakHashMap<>();
@@ -24,7 +25,7 @@ public class Loop extends CodeSection {
 
 	static {
 		Main.getMainRegistration().addSection(
-			Loop.class,
+			SecLoop.class,
 			"loop %objects%"
 		);
 	}
@@ -85,7 +86,7 @@ public class Loop extends CodeSection {
 	}
 
 	@Override
-	public Loop setNext(@Nullable Statement next) {
+	public SecLoop setNext(@Nullable Statement next) {
 		actualNext = next;
 		return this;
 	}

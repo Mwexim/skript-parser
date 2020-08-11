@@ -5,6 +5,8 @@ import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
+import io.github.syst3ms.skriptparser.sections.SecLoop;
+import io.github.syst3ms.skriptparser.sections.SecWhile;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,14 +14,14 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Represents a section of runnable code. This parser guarantees the existence of {@link Conditional}, {@link Loop} and
- * {@link While}.<br>
+ * Represents a section of runnable code. This parser guarantees the existence of {@link Conditional}, {@link SecLoop} and
+ * {@link SecWhile}.<br>
  * <br>
  * It is important to note that Conditional is the only section to be understood
  * natively by the parser, meaning it won't go through the process of syntax parsing.
  * @see Conditional
- * @see Loop
- * @see While
+ * @see SecLoop
+ * @see SecWhile
  * @see ConditionalExpression
  */
 public abstract class CodeSection extends Statement {

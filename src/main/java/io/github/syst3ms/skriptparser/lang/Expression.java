@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.expressions.ExprLoopValue;
+import io.github.syst3ms.skriptparser.sections.SecLoop;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
@@ -100,7 +101,7 @@ public interface Expression<T> extends SyntaxElement {
 
     /**
      * @param ctx the event
-     * @return an iterator, used inside of a {@link Loop loop}
+     * @return an iterator, used inside of a {@link SecLoop loop}
      */
     default Iterator<? extends T> iterator(TriggerContext ctx) {
         return CollectionUtils.iterator(getValues(ctx));
@@ -125,7 +126,7 @@ public interface Expression<T> extends SyntaxElement {
      * @return whether the given "loop type" describes this expression's elements. By default, returns {@code true} if
      * the parameter is {@code "value"}
      * @see ExprLoopValue
-     * @see Loop
+     * @see SecLoop
      */
     default boolean isLoopOf(String s) {
         return s.equals("value");
