@@ -16,11 +16,11 @@ import org.jetbrains.annotations.Nullable;
  * @since ALPHA
  * @author Syst3ms
  */
-public class ScriptLoadEvent extends SkriptEvent {
+public class EvtScriptLoad extends SkriptEvent {
 
     static {
         Main.getMainRegistration()
-            .newEvent(ScriptLoadEvent.class, "script load[ing]")
+            .newEvent(EvtScriptLoad.class, "script load[ing]")
             .setHandledContexts(ScriptLoadContext.class)
             .register();
     }
