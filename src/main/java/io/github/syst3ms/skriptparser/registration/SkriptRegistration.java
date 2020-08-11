@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.*;
+import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;

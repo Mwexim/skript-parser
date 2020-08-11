@@ -37,7 +37,7 @@ public class FileUtils {
      * </pre>
      * This text will be interpreted as a single long line with all the strings back to back.
      * The actual indentation before each additional line doesn't matter, all that matters is that it stays consistent.
-     * @param file the file to parse
+     * @param filePath the file to parse
      * @return the lines of the file
      * @throws IOException if the file can't be read
      */

@@ -32,7 +32,7 @@ public class ScriptLoader {
 
     /**
      * Parses and loads the provided script in memory
-     * @param script the script file to load
+     * @param scriptPath the script file to load
      * @param debug
      */
     public static List<LogEntry> loadScript(Path scriptPath, boolean debug) {
