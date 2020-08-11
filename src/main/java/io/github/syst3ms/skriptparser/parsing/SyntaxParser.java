@@ -331,6 +331,7 @@ public class SyntaxParser {
      * no match was found
      * or for another reason detailed in an error message.
      */
+    @SuppressWarnings("rawtypes")
     public static <T> Expression<? extends T> parseListLiteral(String s, PatternType<T> expectedType, ParserState parserState, SkriptLogger logger) {
         assert !expectedType.isSingle();
         if (!s.contains(",") && !s.contains("and") && !s.contains("nor") && !s.contains("or"))
