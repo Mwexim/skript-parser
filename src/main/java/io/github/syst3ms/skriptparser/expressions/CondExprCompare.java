@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
  * A very general condition, it simply compares two values. Usually you can only compare for equality (e.g. text is/isn't &lt;text&gt;),
  * but some values can also be compared using greater than/less than. In that case you can also test for whether an object is between two others.
  *
+ * @author Syst3ms
  * @name Comparison
  * @type CONDITION
  * @pattern [neither] %objects% ((is|are)[(n't| not| neither)] (greater|more|higher|bigger|larger|above) [than] or (equal to|the same as)|\\>=) %objects%
@@ -33,10 +34,9 @@ import org.jetbrains.annotations.Nullable;
  * @pattern [neither] %objects% ((is|are) (not|neither)|isn't|aren't|!=) [equal to] %objects%
  * @pattern [neither] %objects% (is|are|=) [(equal to|the same as)] %objects%
  * @since ALPHA
- * @author Syst3ms
  */
 public class CondExprCompare extends ConditionalExpression {
-    public static final PatternInfos<Relation> PATTERNS = new PatternInfos<>(new Object[][] {
+    public static final PatternInfos<Relation> PATTERNS = new PatternInfos<>(new Object[][]{
             {"[1:neither] %objects% ((is|are)[2:(n't| not|4: neither)] (greater|more|higher|bigger|larger|above) [than] or (equal to|the same as)|\\>=) %objects%", Relation.GREATER_OR_EQUAL},
             {"[1:neither] %objects% ((is|are)[2:(n't| not|4: neither)] (less|smaller|below) [than] or (equal to|the same as)|\\<=) %objects%", Relation.SMALLER_OR_EQUAL},
             {"[1:neither] %objects% ((is|are)[2:(n't| not|4: neither)] ((greater|more|higher|bigger|larger) than|above)|\\>) %objects%", Relation.GREATER},
@@ -45,7 +45,7 @@ public class CondExprCompare extends ConditionalExpression {
             {"[1:neither] %objects% (is|are) between %objects% and %objects%", Relation.EQUAL},
             {"[1:neither] %objects% [2:]((is|are) (not|4:neither)|isn't|aren't|!=) [equal to] %objects%", Relation.EQUAL},
             {"[1:neither] %objects% (is|are|=) [(equal to|the same as)] %objects%", Relation.EQUAL}
-        }
+    }
     );
 
     static {
@@ -89,12 +89,18 @@ public class CondExprCompare extends ConditionalExpression {
         Expression<?> third = this.third;
         if (!initialize()) {
             if (third == null) {
-                logger.error(first.toString(null, logger.isDebug()) + " and " + second.toString(null, logger.isDebug()) + " cannot be compared", ErrorType.SEMANTIC_ERROR);
-                return false;
+                logger.error(first.toString(null, logger.isDebug()) +
+                        " and " +
+                        second.toString(null, logger.isDebug()) +
+                        " cannot be compared", ErrorType.SEMANTIC_ERROR);
             } else {
-                logger.error(first.toString(null, logger.isDebug()) + " cannot be compared with " + second.toString(null, logger.isDebug()) + " and " + third.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
-                return false;
+                logger.error(first.toString(null, logger.isDebug()) +
+                        " cannot be compared with " +
+                        second.toString(null, logger.isDebug()) +
+                        " and " +
+                        third.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
             }
+            return false;
         }
         @SuppressWarnings("rawtypes")
         Comparator comp = this.comp;
@@ -102,7 +108,11 @@ public class CondExprCompare extends ConditionalExpression {
             if (third == null) {
                 return relation.isEqualOrInverse() || comp.supportsOrdering();
             } else if (!comp.supportsOrdering()) {
-                logger.error(errorString(first, logger.isDebug()) + " cannot be ordered between " + errorString(second, logger.isDebug()) + " and " + errorString(third, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+                logger.error(errorString(first, logger.isDebug()) +
+                        " cannot be ordered between " +
+                        errorString(second, logger.isDebug()) +
+                        " and " +
+                        errorString(third, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
                 return false;
             }
         }
@@ -143,8 +153,8 @@ public class CondExprCompare extends ConditionalExpression {
         }
         Class<?> f = first.getReturnType();
         Class<?> s = third == null
-                     ? second.getReturnType()
-                     : ClassUtils.getCommonSuperclass(second.getReturnType(), third.getReturnType());
+                ? second.getReturnType()
+                : ClassUtils.getCommonSuperclass(second.getReturnType(), third.getReturnType());
         if (f == Object.class || s == Object.class)
             return true;
         comp = (Comparator<Object, Object>) Comparators.getComparator(f, s);
@@ -190,28 +200,39 @@ public class CondExprCompare extends ConditionalExpression {
         Expression<?> third = this.third;
         return first.check(
                 ctx,
-            o1 -> second.check(
-                    ctx,
-                o2 -> {
-                    if (third == null) {
-                        return relation.is(comp != null ?
-                                               comp.apply(o1, o2)
-                                               : Comparators.compare(o1, o2));
-                    }
-                    return third.check(
-                            ctx,
-                        o3 -> relation == Relation.NOT_EQUAL ^
-                              (Relation.GREATER_OR_EQUAL.is(comp != null
-                                                                ? comp.apply(o1, o2)
-                                                                : Comparators.compare(o1, o2)) &&
-                               Relation.SMALLER_OR_EQUAL.is(comp != null
-                                                                ? comp.apply(o1, o3)
-                                                                : Comparators.compare(o1, o3))
-                              )
-                    );
-                },
-                isNegated()
-            )
+                o1 -> second.check(
+                        ctx,
+                        o2 -> {
+                            if (third == null) {
+                                return relation.is(comp != null ?
+                                        comp.apply(o1, o2)
+                                        : Comparators.compare(o1, o2));
+                            }
+                            return third.check(
+                                    ctx,
+                                    o3 -> {
+                                        boolean isBetween;
+                                        if (comp != null) {
+                                            isBetween =
+                                                    (Relation.GREATER_OR_EQUAL.is(comp.apply(o1, o2)) &&
+                                                            Relation.SMALLER_OR_EQUAL.is(comp.apply(o1, o3)))
+                                                            || // Check OPPOSITE (switching o2 / o3)
+                                                            (Relation.GREATER_OR_EQUAL.is(comp.apply(o1, o3)) &&
+                                                                    Relation.SMALLER_OR_EQUAL.is(comp.apply(o1, o2)));
+                                        } else {
+                                            isBetween =
+                                                    (Relation.GREATER_OR_EQUAL.is(Comparators.compare(o1, o2)) &&
+                                                            Relation.SMALLER_OR_EQUAL.is(Comparators.compare(o1, o3)))
+                                                            || // Check OPPOSITE (switching o2 / o3)
+                                                            (Relation.GREATER_OR_EQUAL.is(Comparators.compare(o1, o3)) &&
+                                                                    Relation.SMALLER_OR_EQUAL.is(Comparators.compare(o1, o2)));
+                                        }
+                                        return relation == Relation.NOT_EQUAL ^ isBetween;
+                                    }
+                            );
+                        },
+                        isNegated()
+                )
         );
     }
 
@@ -223,8 +244,13 @@ public class CondExprCompare extends ConditionalExpression {
             s = first.toString(ctx, debug) + " is " + (isNegated() ? "not " : "") + relation + " " + second.toString(
                     ctx, debug);
         } else {
-            s = first.toString(ctx, debug) + " is " + (isNegated() ? "not " : "") + "between " + second.toString(ctx, debug) + " and " + third.toString(
-                    ctx, debug);
+            s = first.toString(ctx, debug) +
+                    " is " +
+                    (isNegated() ? "not " : "") +
+                    "between " +
+                    second.toString(ctx, debug) +
+                    " and " +
+                    third.toString(ctx, debug);
         }
         if (debug) {
             s += " (comparator: " + comp + ")";
