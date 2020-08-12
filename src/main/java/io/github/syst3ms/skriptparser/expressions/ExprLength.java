@@ -30,7 +30,7 @@ public class ExprLength extends PropertyExpression<Number, String> {
 
     @Override
     public Function<String[], Number[]> getPropertyFunction() {
-        return strings -> strings.length == 0 ? new Number[0] : new Number[]{strings[0].length()};
+        return strings -> new Number[]{strings[0].length()};
     }
 
     @Override
