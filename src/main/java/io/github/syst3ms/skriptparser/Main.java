@@ -65,7 +65,7 @@ public class Main {
         mainPackages[mainPackages.length - 1] = "io.github.syst3ms.skriptparser";
         List<String> sub = new ArrayList<String>();
         sub.addAll(Arrays.asList(subPackages));
-        sub.addAll(Arrays.asList("expressions", "effects", "event", "lang"));
+        sub.addAll(Arrays.asList("expressions", "effects", "event", "lang", "sections"));
         subPackages = sub.toArray(new String[0]);
         try {
             for (String mainPackage : mainPackages) {
