@@ -38,6 +38,7 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
      * If this property only relies on one simple method applied to the owner, it can be represented here
      * using a {@link Function}. This function will be applied in the default implementation of {@link #getValues(TriggerContext)}
      * supplied by this class.
+     * The array of values supplied to this function is never empty or null, so no additional checks are required.
      * @return the function that needs to be applied in order to get the correct values.
      */
     public Function<O[], T[]> getPropertyFunction() {
