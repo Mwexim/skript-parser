@@ -1,46 +1,90 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.Literal;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.Variable;
+import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+
 /**
- * Amount of a list of values.
+ * The amount of elements in a given list.
+ * Note that when getting the size of a list variable, it will only return the size of the first layer of elements.
+ * If you want to get the whole list size, including nested layers in a variable, use the recursive size instead.
  *
  * @name Amount
- * @pattern (amount|number|size) of %objects%
+ * @type EXPRESSION
+ * @pattern [the] [recursive] (amount|number|size) of %objects%
+ * @pattern %objects%'[s] [recursive] (amount|number|size)
  * @since ALPHA
- * @author Olyno
+ * @author Olyno, Mwexim
  */
-public class ExprAmount implements Expression<Number> {
+public class ExprAmount extends PropertyExpression<Number, Object> {
 
-    private Expression<Object> valuesList;
+	static {
+		Main.getMainRegistration().addPropertyExpression(
+				ExprAmount.class,
+				Number.class,
+				true,
+				"objects",
+				"[1:recursive] (amount|number|size)");
+	}
 
-    static {
-        Main.getMainRegistration().addExpression(
-            ExprAmount.class,
-            Number.class,
-            true,
-            "(amount|number|size) of %objects%"
-        );
-    }
+	private boolean recursive;
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        valuesList = (Expression<Object>) expressions[0];
-        return true;
-    }
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean init(Expression<?> @NotNull [] expressions, int matchedPattern, @NotNull ParseContext parseContext) {
+		setOwner((Expression<Object>) expressions[0]);
+		if (getOwner() instanceof Literal || getOwner().isSingle()) {
+			parseContext.getLogger().error("'"
+					+ getOwner().toString(null, false)
+					+ "' is a single expression/literal. "
+					+ "Getting its size is redundant as it'll always be constant.", ErrorType.SEMANTIC_ERROR);
+			return false;
+		}
+		this.recursive = parseContext.getParseMark() == 1;
+		if (recursive && !(getOwner() instanceof Variable<?>)) {
+			parseContext.getLogger().error("Getting the recursive size of an expression only applies to variables. "
+					+ "Because of that, the '"
+					+ getOwner().toString(null, false)
+					+ "' is not possible.", ErrorType.SEMANTIC_ERROR);
+			return false;
+		}
+		return true;
+	}
 
-    @Override
-    public Number[] getValues(TriggerContext ctx) {
-        return new Number[]{valuesList.getValues(ctx).length};
-    }
+	@SuppressWarnings("unchecked")
+	@Override
+	public Number[] getValues(TriggerContext ctx) {
+		if (recursive) {
+			Object var = ((Variable<?>) getOwner()).getRaw(ctx);
+			if (var != null)
+				return new Long[] {getRecursiveSize((Map<String, ?>) var)}; // Should already be a Map
+		}
+		return new Long[] {(long) getOwner().getValues(ctx).length};
+	}
 
-    @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return "amount of " + valuesList.toString(ctx, debug);
-    }
+	@Override
+	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+		return (recursive ? "recursive " : "") + "size of " + getOwner().toString(ctx, debug);
+	}
+	@SuppressWarnings("unchecked")
+	private static long getRecursiveSize(Map<String, ?> map) {
+		long count = 0;
+		for (Map.Entry<String, ?> entry : map.entrySet()) {
+			Object value = entry.getValue();
+			if (value instanceof Map)
+				count += getRecursiveSize((Map<String, ?>) value);
+			else
+				count++;
+		}
+		return count;
+	}
 }
