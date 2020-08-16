@@ -39,7 +39,7 @@ public class Variable<T> implements Expression<T> {
         this.supertype = ClassUtils.getCommonSuperclass(this.type);
     }
 
-    private Object getRaw(TriggerContext ctx) {
+    public Object getRaw(TriggerContext ctx) {
         String n = name.toString(ctx);
         if (n.endsWith(Variables.LIST_SEPARATOR + "*") != list) // prevents e.g. {%expr%} where "%expr%" ends with "::*" from returning a Map
             return null;
