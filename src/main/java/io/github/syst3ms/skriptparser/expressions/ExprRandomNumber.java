@@ -10,6 +10,7 @@ import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 /**
  * Generate a random number (double) or integer.
@@ -50,13 +51,13 @@ public class ExprRandomNumber implements Expression<Number> {
 
     @Override
     public Number[] getValues(TriggerContext ctx) {
-        Number low = lowerNumber.getSingle(ctx);
-        Number max = maxNumber.getSingle(ctx);
-        if (low == null || max == null)
+        Optional<Number> low = lowerNumber.getSingle(ctx);
+        Optional<Number> max = maxNumber.getSingle(ctx);
+        if (!low.isPresent() || !max.isPresent())
             return new Number[0];
         //Check to find out which number is the greater of the 2, while keeping the type
-        Number realLow = Relation.SMALLER_OR_EQUAL.is(numComp.apply(low, max)) ? low : max;
-        Number realMax = Relation.SMALLER_OR_EQUAL.is(numComp.apply(low, max)) ? max : low;
+        Number realLow = Relation.SMALLER_OR_EQUAL.is(numComp.apply(low.get(), max.get())) ? low.get() : max.get();
+        Number realMax = Relation.SMALLER_OR_EQUAL.is(numComp.apply(low.get(), max.get())) ? max.get() : low.get();
         return new Number[]{NumberMath.random(realLow, realMax, !isExclusive, random)};
     }
 
