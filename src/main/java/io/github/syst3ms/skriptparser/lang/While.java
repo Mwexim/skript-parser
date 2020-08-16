@@ -5,6 +5,9 @@ import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
+
+import java.util.Optional;
+
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -37,8 +40,8 @@ public class While extends CodeSection {
 
     @Override
     protected Statement walk(TriggerContext ctx) {
-        Boolean cond = condition.getSingle(ctx);
-        if (cond == null || !cond) {
+        Optional<Boolean> cond = condition.getSingle(ctx);
+        if (!cond.isPresent() || !cond.get()) {
             return actualNext;
         } else {
             return getFirst();

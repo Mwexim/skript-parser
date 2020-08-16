@@ -4,6 +4,9 @@ import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+
+import java.util.Optional;
+
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -48,19 +51,19 @@ public class ExprBooleanOperators implements Expression<Boolean> {
     @Override
     public Boolean[] getValues(TriggerContext ctx) {
         assert second != null || pattern == 0;
-        Boolean f = first.getSingle(ctx);
-        if (f == null)
+        Optional<Boolean> f = first.getSingle(ctx);
+        if (!f.isPresent())
             return new Boolean[0];
         if (pattern == 0) {
-            return new Boolean[]{!f};
+            return new Boolean[]{!f.get()};
         } else {
-            Boolean s = second.getSingle(ctx);
-            if (s == null)
+            Optional<Boolean> s = second.getSingle(ctx);
+            if (!s.isPresent())
                 return new Boolean[0];
             if (pattern == 1) {
-                return new Boolean[]{f || s};
+                return new Boolean[]{f.get() || s.get()};
             } else {
-                return new Boolean[]{f && s};
+                return new Boolean[]{f.get() && s.get()};
             }
         }
     }

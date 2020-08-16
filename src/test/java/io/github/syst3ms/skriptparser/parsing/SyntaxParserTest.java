@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Optional;
 
 import static io.github.syst3ms.skriptparser.lang.TriggerContext.DUMMY;
 import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.*;
@@ -46,9 +47,9 @@ public class SyntaxParserTest {
             fail("Null expression");
         if (expr.getReturnType() == expected)
             return;
-        Object value = expr.getSingle(DUMMY);
-        if (value == null || value.getClass() != expected)
-            fail("Different return types : expected " + expected + ", got " + (value == null ? "null" : value.getClass()));
+        Optional<?> value = expr.getSingle(DUMMY);
+        if (!value.isPresent() || value.get().getClass() != expected)
+            fail("Different return types : expected " + expected + ", got " + (!value.isPresent() ? "null" : value.get().getClass()));
     }
 
     private <T> PatternType<T> getType(Class<T> c, boolean single) {

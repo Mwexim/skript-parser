@@ -9,6 +9,7 @@ import io.github.syst3ms.skriptparser.util.StringUtils;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.function.UnaryOperator;
 
 /**
@@ -80,10 +81,10 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 
 	@Override
 	public Number[] getValues(TriggerContext ctx) {
-		Number num = number.getSingle(ctx);
-		if (num == null)
+		Optional<Number> num = number.getSingle(ctx);
+		if (!num.isPresent())
 			return new Number[0];
-		return new Number[]{PATTERNS.getInfo(pattern).apply(num)};
+		return new Number[]{PATTERNS.getInfo(pattern).apply(num.get())};
 	}
 
 	@Override

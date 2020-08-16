@@ -15,12 +15,8 @@ import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import org.jetbrains.annotations.Nullable;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 
 /**
  * Returns a range of values between two endpoints. Types supported by default are integers and characters (length 1 strings).
@@ -62,16 +58,16 @@ public class ExprRange implements Expression<Object> {
     @SuppressWarnings("unchecked")
     @Override
     public Object[] getValues(TriggerContext ctx) {
-        Object f = from.getSingle(ctx);
-        Object t = to.getSingle(ctx);
-        if (f == null || t == null) {
+        Optional<?> f = from.getSingle(ctx);
+        Optional<?> t = to.getSingle(ctx);
+        if (!f.isPresent() || !t.isPresent()) {
             return new Object[0];
         }
         // This is safe... right ?
-        if (comparator != null && ((Comparator<Object, Object>) comparator).apply(f, t).is(Relation.GREATER)) {
-            return CollectionUtils.reverseArray((Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.getFunction()).apply(t, f));
+        if (comparator != null && ((Comparator<Object, Object>) comparator).apply(f.get(), t.get()).is(Relation.GREATER)) {
+            return CollectionUtils.reverseArray((Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.getFunction()).apply(t.get(), f.get()));
         } else {
-            return (Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.getFunction()).apply(f, t);
+            return (Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.getFunction()).apply(f.get(), t.get());
         }
     }
 

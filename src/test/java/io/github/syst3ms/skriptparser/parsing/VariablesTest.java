@@ -57,6 +57,7 @@ public class VariablesTest {
                 BigInteger.class,
                 SyntaxParser.parseExpression("{number}", numberType, parserState, logger)
                             .getSingle(DUMMY)
+                            .get()
                             .getClass()
         );
         run(SyntaxParser.parseEffect("set {number} to 5.2", parserState, logger));
@@ -64,6 +65,7 @@ public class VariablesTest {
                 BigDecimal.class,
                 SyntaxParser.parseExpression("{number}", numberType, parserState, logger)
                             .getSingle(DUMMY)
+                            .get()
                             .getClass()
         );
     }

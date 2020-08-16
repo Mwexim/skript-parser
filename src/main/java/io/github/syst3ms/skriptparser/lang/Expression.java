@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -31,8 +32,8 @@ public interface Expression<T> extends SyntaxElement {
     /*
      * This is staying until we figure out a better way to implement this
      */
-    default T[] getArray(TriggerContext e) {
-        return getValues(e);
+    default Optional<T[]> getArray(TriggerContext e) {
+        return Optional.ofNullable(getValues(e));
     }
 
     /**
@@ -62,15 +63,14 @@ public interface Expression<T> extends SyntaxElement {
      * @return the single value of this Expression, or {@code null} if it has no value
      * @throws SkriptRuntimeException if the expression returns more than one value
      */
-    @Nullable
-    default T getSingle(TriggerContext e) {
+    default Optional<T> getSingle(TriggerContext e) {
         T[] values = getValues(e);
         if (values.length == 0) {
-            return null;
+            return Optional.empty();
         } else if (values.length > 1) {
             throw new SkriptRuntimeException("Can't call getSingle on an expression that returns multiple values !");
         } else {
-            return values[0];
+            return Optional.ofNullable(values[0]);
         }
     }
 

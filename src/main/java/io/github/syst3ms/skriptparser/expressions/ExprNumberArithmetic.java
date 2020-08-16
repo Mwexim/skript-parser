@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.Optional;
 
 /**
  * Various arithmetic expressions, including addition, subtraction, multiplication, division and exponentiation.
@@ -279,8 +280,8 @@ public class ExprNumberArithmetic implements Expression<Number> {
         second = (Expression<? extends Number>) exprs[1];
         op = PATTERNS.getInfo(matchedPattern);
         if (second instanceof Literal) {
-            Number value = ((Literal<? extends Number>) second).getSingle();
-            if (value != null && Operator.isZero(value)) {
+            Optional<? extends Number> value = ((Literal<? extends Number>) second).getSingle();
+            if (value.isPresent() && Operator.isZero(value.get())) {
                 parseContext.getLogger().error("Cannot divide by 0 !", ErrorType.SEMANTIC_ERROR);
                 return false;
             }
@@ -289,13 +290,11 @@ public class ExprNumberArithmetic implements Expression<Number> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Number[] getValues(TriggerContext ctx) {
-        Number n1 = first.getSingle(ctx), n2 = second.getSingle(ctx);
-        if (n1 == null)
-            n1 = 0;
-        if (n2 == null)
-            n2 = 0;
-        return new Number[]{op.calculate(n1, n2)};
+        Optional<Number> n1 = (Optional<Number>) first.getSingle(ctx);
+        Optional<Number> n2 = (Optional<Number>) second.getSingle(ctx);
+        return new Number[]{op.calculate(n1.orElse(0), n2.orElse(0))};
     }
 
     @Override

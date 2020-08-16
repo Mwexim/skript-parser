@@ -4,6 +4,9 @@ import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+
+import java.util.Optional;
+
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -42,12 +45,12 @@ public class ExprTernary implements Expression<Object> {
 
     @Override
     public Object[] getValues(TriggerContext ctx) {
-        Boolean check = valueToCheck.getSingle(ctx);
+        Optional<Boolean> check = valueToCheck.getSingle(ctx);
         Object[] first = firstValue.getValues(ctx);
         Object[] second = secondValue.getValues(ctx);
-        if (check == null)
+        if (!check.isPresent())
             return new Object[0];
-        Object[] result = check ? first : second;
+        Object[] result = check.get() ? first : second;
         if (result == null)
             return new Object[0];
         return result;

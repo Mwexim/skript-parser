@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
+import java.util.Optional;
 
 /**
  * A simple literal with a fixed set of values
@@ -81,13 +82,13 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     @Override
-    public T[] getArray(TriggerContext e) {
+    public Optional<T[]> getArray(TriggerContext e) {
         if (isAndList) {
-            return values;
+            return Optional.ofNullable(values);
         } else {
             T[] newArray = (T[]) Array.newInstance(getReturnType(), 1);
             newArray[0] = CollectionUtils.getRandom(values);
-            return newArray;
+            return Optional.ofNullable(newArray);
         }
     }
 

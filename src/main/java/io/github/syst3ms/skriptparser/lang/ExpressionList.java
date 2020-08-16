@@ -57,19 +57,19 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
-    public T[] getArray(TriggerContext e) {
+    public Optional<T[]> getArray(TriggerContext e) {
         if (and) {
-            return getValues(e);
+            return Optional.ofNullable(getValues(e));
         } else {
             List<Expression<? extends T>> shuffle = Arrays.asList(expressions);
             Collections.shuffle(shuffle);
             for (Expression<? extends T> expr : shuffle) {
                 T[] values = expr.getValues(e);
                 if (values.length > 0)
-                    return values;
+                    return Optional.ofNullable(values);
             }
         }
-        return (T[]) Array.newInstance(returnType, 0);
+        return Optional.ofNullable((T[]) Array.newInstance(returnType, 0));
     }
 
     @Override

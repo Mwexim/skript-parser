@@ -1,6 +1,9 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+
+import java.util.Optional;
+
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,8 +27,8 @@ public class InlineCondition extends Statement {
 
     @Override
     public boolean run(TriggerContext ctx) {
-        Boolean cond = condition.getSingle(ctx);
-        return cond != null && cond;
+        Optional<Boolean> cond = condition.getSingle(ctx);
+        return cond.isPresent() && cond.get();
     }
 
     @Override

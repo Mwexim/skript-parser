@@ -10,6 +10,7 @@ import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.function.BinaryOperator;
 
 /**
@@ -62,12 +63,12 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 
 	@Override
 	public Number[] getValues(TriggerContext ctx) {
-		Number f = first.getSingle(ctx);
-		Number s = second.getSingle(ctx);
-		if (f == null || s == null)
+		Optional<Number> f = first.getSingle(ctx);
+		Optional<Number> s = second.getSingle(ctx);
+		if (!f.isPresent() || !s.isPresent())
 			return new Number[0];
 		BinaryOperator<Number> operator = PATTERNS.getInfo(pattern);
-		return new Number[]{operator.apply(f, s)};
+		return new Number[]{operator.apply(f.get(), s.get())};
 	}
 
 	@Override

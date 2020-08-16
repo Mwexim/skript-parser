@@ -5,6 +5,9 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+
+import java.util.Optional;
+
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -34,10 +37,10 @@ public class EffPrint extends Effect {
 
     @Override
     public void execute(TriggerContext e) {
-        String str = string.getSingle(e);
-        if (str == null)
+        Optional<String> str = string.getSingle(e);
+        if (!str.isPresent())
             return;
-        System.out.println(str);
+        System.out.println(str.get());
     }
 
     @Override

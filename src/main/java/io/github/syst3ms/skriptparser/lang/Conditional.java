@@ -4,6 +4,9 @@ import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
+
+import java.util.Optional;
+
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -43,8 +46,8 @@ public class Conditional extends CodeSection {
         if (mode == ConditionalMode.ELSE) {
             return getFirst();
         }
-        Boolean c = condition.getSingle(ctx);
-        if (c != null && c) {
+        Optional<Boolean> c = condition.getSingle(ctx);
+        if (c.isPresent() && c.get()) {
             return getFirst();
         } else if (fallingClause != null){
             return fallingClause;
