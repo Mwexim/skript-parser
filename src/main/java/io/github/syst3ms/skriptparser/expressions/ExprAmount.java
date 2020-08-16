@@ -2,7 +2,6 @@ package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
@@ -20,8 +19,8 @@ import java.util.Map;
  *
  * @name Amount
  * @type EXPRESSION
- * @pattern [the] [recursive] (amount|number|size) of %objects%
- * @pattern %objects%'[s] [recursive] (amount|number|size)
+ * @pattern [the] [recursive] (amount|number|size) of %~objects%
+ * @pattern %~objects%'[s] [recursive] (amount|number|size)
  * @since ALPHA
  * @author Olyno, Mwexim
  */
@@ -32,7 +31,7 @@ public class ExprAmount extends PropertyExpression<Number, Object> {
 				ExprAmount.class,
 				Number.class,
 				true,
-				"objects",
+				"~objects",
 				"[1:recursive] (amount|number|size)");
 	}
 
@@ -42,19 +41,12 @@ public class ExprAmount extends PropertyExpression<Number, Object> {
 	@Override
 	public boolean init(Expression<?> @NotNull [] expressions, int matchedPattern, @NotNull ParseContext parseContext) {
 		setOwner((Expression<Object>) expressions[0]);
-		if (getOwner() instanceof Literal || getOwner().isSingle()) {
-			parseContext.getLogger().error("'"
-					+ getOwner().toString(null, false)
-					+ "' is a single expression/literal. "
-					+ "Getting its size is redundant as it'll always be constant.", ErrorType.SEMANTIC_ERROR);
-			return false;
-		}
 		this.recursive = parseContext.getParseMark() == 1;
 		if (recursive && !(getOwner() instanceof Variable<?>)) {
 			parseContext.getLogger().error("Getting the recursive size of an expression only applies to variables. "
 					+ "Because of that, the '"
 					+ getOwner().toString(null, false)
-					+ "' is not possible.", ErrorType.SEMANTIC_ERROR);
+					+ "' is not possible here.", ErrorType.SEMANTIC_ERROR);
 			return false;
 		}
 		return true;
@@ -66,15 +58,16 @@ public class ExprAmount extends PropertyExpression<Number, Object> {
 		if (recursive) {
 			Object var = ((Variable<?>) getOwner()).getRaw(ctx);
 			if (var != null)
-				return new Long[] {getRecursiveSize((Map<String, ?>) var)}; // Should already be a Map
+				return new Number[] {getRecursiveSize((Map<String, ?>) var)}; // Should already be a Map
 		}
-		return new Long[] {(long) getOwner().getValues(ctx).length};
+		return new Number[] {getOwner().getValues(ctx).length};
 	}
 
 	@Override
 	public String toString(@Nullable TriggerContext ctx, boolean debug) {
 		return (recursive ? "recursive " : "") + "size of " + getOwner().toString(ctx, debug);
 	}
+
 	@SuppressWarnings("unchecked")
 	private static long getRecursiveSize(Map<String, ?> map) {
 		long count = 0;
