@@ -4,17 +4,18 @@ import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.registration.ContextValueManager;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueTime;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
 import org.jetbrains.annotations.Nullable;
 
-import static io.github.syst3ms.skriptparser.registration.ContextValueManager.ContextValue;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 
 /**
  * A specific context value.
  * Refer to the documentation of the event to see which values can be used.
  *
  * @name Context Value
- * @pattern [the] (past|future|) context-<.+>
+ * @pattern [the] [(past|previous)|(future|next)] [context-]<.+>
  * @since ALPHA
  * @author Mwexim
  */
@@ -26,23 +27,30 @@ public class ExprContextValue implements Expression<Object> {
 			Object.class,
 			false,
 			3,
-			"[the] (1:past|2:future|3:) context-<.+>"
+			"[the] [1:(past|previous)|2:(future|next)] context-<.+>"
 		);
 	}
 
 	private String name;
-	private int timeline;
+	private ContextValueTime time;
 	private ContextValue<?> value;
 
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, ParseContext parseContext) {
 		name = parseContext.getMatches().get(0).group();
-		if (parseContext.getParseMark() == 1) timeline = -1;
-		else if (parseContext.getParseMark() == 2) timeline = 1;
-		else timeline = 0;
+		switch (parseContext.getParseMark()) {
+			case 1:
+				time = ContextValueTime.PAST;
+				break;
+			case 2:
+				time = ContextValueTime.FUTURE;
+				break;
+			default:
+				time = ContextValueTime.PRESENT;
+		}
 		for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts())
-			for (ContextValue<?> val : ContextValueManager.getContextValues())
-				if (val.matches(ctx, name, timeline)) {
+			for (ContextValue<?> val : ContextValues.getContextValues())
+				if (val.matches(ctx, name, time)) {
 					value = val;
 					return true;
 
@@ -63,9 +71,9 @@ public class ExprContextValue implements Expression<Object> {
 	@Override
 	public String toString(final @Nullable TriggerContext ctx, final boolean debug) {
 		String state = "";
-		if (timeline == -1)
+		if (time == ContextValueTime.PAST) {
 			state = "past ";
-		else if (timeline == 1)
+		} else if (time == ContextValueTime.FUTURE)
 			state = "future ";
 		return state + "context-" + name;
 	}

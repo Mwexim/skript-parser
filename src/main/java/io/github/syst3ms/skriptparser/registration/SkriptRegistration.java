@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
-import static io.github.syst3ms.skriptparser.registration.ContextValueManager.ContextValue;
-
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
@@ -11,6 +10,8 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.PatternParser;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueTime;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
@@ -337,7 +338,7 @@ public class SkriptRegistration {
      */
     public List<LogEntry> register() {
         SyntaxManager.register(this);
-        ContextValueManager.register(this);
+        ContextValues.register(this);
         TypeManager.register(this);
         Converters.registerConverters(this);
         Converters.createMissingConverters();
@@ -598,12 +599,13 @@ public class SkriptRegistration {
          * @param type the returned type of this context value
          * @param name the name of this context value (used in the suffix)
          * @param contextFunction the function that needs to be applied in order to get the context value
+         * @param time whether this happens in the present, past or future
          * @param <C> the context class
          * @param <T2> the type class
          * @return the registrar
          */
-        public final <C extends TriggerContext, T2> EventRegistrar<T> addContextValue(Class<C> context, Class<T2> type, String name, Function<C, T2[]> contextFunction, int timeline) {
-            contextValues.add(new ContextValue<>(context, type, name, (Function<TriggerContext, T2[]>) contextFunction, timeline));
+        public final <C extends TriggerContext, T2> EventRegistrar<T> addContextValue(Class<C> context, Class<T2> type, String name, Function<C, T2[]> contextFunction, ContextValueTime time) {
+            contextValues.add(new ContextValue<>(context, type, name, (Function<TriggerContext, T2[]>) contextFunction, time));
             return this;
         }
     }
