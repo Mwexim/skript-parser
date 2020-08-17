@@ -106,7 +106,6 @@ public class BigRational implements Comparable<BigRational> {
 		if (isZero()) {
 			return this;
 		}
-
 		return of(numerator.negate(), denominator);
 	}
 
@@ -213,8 +212,7 @@ public class BigRational implements Comparable<BigRational> {
 
 	// private, because we want to hide that we use BigDecimal internally
 	private BigRational multiply(BigDecimal value) {
-		BigDecimal n = numerator.multiply(value);
-		return of(n, denominator);
+		return of(numerator.multiply(value), denominator);
 	}
 	
 	/**
@@ -279,8 +277,7 @@ public class BigRational implements Comparable<BigRational> {
 	}
 
 	private BigRational divide(BigDecimal value) {
-		BigDecimal d = denominator.multiply(value);
-		return of(numerator, d);
+		return of(numerator, denominator.multiply(value));
 	}
 	
 	/**
