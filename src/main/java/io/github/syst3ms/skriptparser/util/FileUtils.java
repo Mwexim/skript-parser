@@ -112,7 +112,7 @@ public class FileUtils {
      * @param basePackage a root package
      * @param subPackages a list of all subpackages of the root package, in which classes will be loaded
      */
-    public static void loadClasses(File jarFile, String basePackage, String... subPackages) throws IOException, URISyntaxException {
+    public static void loadClasses(File jarFile, String basePackage, String... subPackages) throws IOException {
         for (int i = 0; i < subPackages.length; i++)
             subPackages[i] = subPackages[i].replace('.', '/') + "/";
         basePackage = basePackage.replace('.', '/') + "/";

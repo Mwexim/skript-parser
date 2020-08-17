@@ -26,7 +26,7 @@ import java.util.stream.LongStream;
  * Returns a range of values between two endpoints. Types supported by default are integers and characters (length 1 strings).
  *
  * @name Range
- * @pattern range from %object% to %object%
+ * @pattern [the] range from %object% to %object%
  * @since ALPHA
  * @author Syst3ms
  */
@@ -41,7 +41,7 @@ public class ExprRange implements Expression<Object> {
                 ExprRange.class,
                 Object.class,
                 false,
-                "range from %object% to %object%"
+                "[the] range from %object% to %object%"
         );
     }
 

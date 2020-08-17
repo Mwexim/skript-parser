@@ -63,7 +63,7 @@ public class Main {
         // Make sure Skript loads properly no matter what
         mainPackages = Arrays.copyOf(mainPackages, mainPackages.length + 1);
         mainPackages[mainPackages.length - 1] = "io.github.syst3ms.skriptparser";
-        List<String> sub = new ArrayList<String>();
+        List<String> sub = new ArrayList<>();
         sub.addAll(Arrays.asList(subPackages));
         sub.addAll(Arrays.asList("expressions", "effects", "event", "lang", "sections"));
         subPackages = sub.toArray(new String[0]);
