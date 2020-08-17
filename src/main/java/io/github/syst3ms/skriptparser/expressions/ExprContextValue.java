@@ -48,13 +48,14 @@ public class ExprContextValue implements Expression<Object> {
 			default:
 				time = ContextValueTime.PRESENT;
 		}
-		for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts())
-			for (ContextValue<?> val : ContextValues.getContextValues())
+		for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
+			for (ContextValue<?> val : ContextValues.getContextValues()) {
 				if (val.matches(ctx, name, time)) {
 					value = val;
 					return true;
-
 				}
+			}
+		}
 		return false;
 	}
 
@@ -73,8 +74,9 @@ public class ExprContextValue implements Expression<Object> {
 		String state = "";
 		if (time == ContextValueTime.PAST) {
 			state = "past ";
-		} else if (time == ContextValueTime.FUTURE)
+		} else if (time == ContextValueTime.FUTURE) {
 			state = "future ";
+		}
 		return state + "context-" + name;
 	}
 

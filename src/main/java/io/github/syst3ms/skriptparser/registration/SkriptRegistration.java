@@ -420,7 +420,7 @@ public class SkriptRegistration {
     public abstract class SyntaxRegistrar<C extends SyntaxElement> implements Registrar {
         protected final Class<C> c;
         private final List<String> patterns = new ArrayList<>();
-        private int priority = 5;
+        private int priority;
 
         SyntaxRegistrar(Class<C> c, String... patterns) {
             this(c, 5, patterns);
