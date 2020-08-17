@@ -2,14 +2,12 @@ package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
-import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
-import io.github.syst3ms.skriptparser.types.changers.Changer;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
-import io.github.syst3ms.skriptparser.util.Date;
+import io.github.syst3ms.skriptparser.util.SkriptDate;
 import io.github.syst3ms.skriptparser.util.TimeUtils;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 
@@ -264,21 +262,21 @@ public class DefaultRegistration {
                     }
                 })
                 .register();
-        registration.newType(Date.class, "date", "date@s")
-                .toStringFunction(Date::toString)
-                .arithmetic(new Arithmetic<Date, Duration>() {
+        registration.newType(SkriptDate.class, "date", "date@s")
+                .toStringFunction(SkriptDate::toString)
+                .arithmetic(new Arithmetic<SkriptDate, Duration>() {
                     @Override
-                    public Duration difference(Date first, Date second) {
+                    public Duration difference(SkriptDate first, SkriptDate second) {
                         return first.difference(second);
                     }
 
                     @Override
-                    public Date add(Date value, Duration difference) {
+                    public SkriptDate add(SkriptDate value, Duration difference) {
                         return value.plus(difference);
                     }
 
                     @Override
-                    public Date subtract(Date value, Duration difference) {
+                    public SkriptDate subtract(SkriptDate value, Duration difference) {
                         return value.minus(difference);
                     }
 
