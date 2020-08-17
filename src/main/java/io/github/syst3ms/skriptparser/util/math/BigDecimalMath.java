@@ -711,7 +711,7 @@ public class BigDecimalMath {
             result = result.subtract(logThree(mcDouble).multiply(valueOf(-factorOfThree), mc), mc);
         }
 
-        if (x == correctedX && result == ZERO) {
+        if (x.equals(correctedX) && result.equals(ZERO)) {
             return logUsingNewton(x, mathContext);
         }
 

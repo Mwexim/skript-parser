@@ -33,7 +33,7 @@ public class ScriptLoader {
     /**
      * Parses and loads the provided script in memory
      * @param scriptPath the script file to load
-     * @param debug
+     * @param debug whether debug is enabled
      */
     public static List<LogEntry> loadScript(Path scriptPath, boolean debug) {
         FileParser parser = new FileParser();

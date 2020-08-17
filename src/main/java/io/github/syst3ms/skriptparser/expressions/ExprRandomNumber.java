@@ -31,8 +31,8 @@ public class ExprRandomNumber implements Expression<Number> {
                 ExprRandomNumber.class,
                 Number.class,
                 true,
-                "[a] random integer [(1:strictly)] (from|between) %integer% (to|and) %integer%",
-                "[a] random number [(1:strictly)] (from|between) %number% (to|and) %number%"
+                "[a] random integer [1:strictly] (from|between) %integer% (to|and) %integer%",
+                "[a] random number [1:strictly] (from|between) %number% (to|and) %number%"
         );
     }
 
