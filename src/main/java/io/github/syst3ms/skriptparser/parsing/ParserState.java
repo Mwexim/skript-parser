@@ -68,7 +68,7 @@ public class ParserState {
      * Clears the previously enforced syntax restrictions
      */
     public void clearSyntaxRestrictions() {
-        allowedSyntaxes = null;
+        allowedSyntaxes = Collections.emptyList();
         restrictingExpressions = false;
     }
 

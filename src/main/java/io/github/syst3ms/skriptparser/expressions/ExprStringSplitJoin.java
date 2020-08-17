@@ -1,0 +1,107 @@
+package io.github.syst3ms.skriptparser.expressions;
+
+import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
+/**
+ * Joins multiple strings together using a delimiter,
+ * splits a given string using a delimiter,
+ * or splits that string in multiple string of a certain length.
+ * Note that for the latter, the last string may contain less characters that specified.
+ *
+ * @name Join/Split
+ * @type EXPRESSION
+ * @pattern (concat[enate]|join) %strings% [(with|using|by) [[the] delimiter] %string%]
+ * @pattern (split %string%|%string% split) (at|using|by) [[the] delimiter] %string%
+ * @pattern (split %string%|%string% split) (with|using|by) %number% [char[acter][s]]
+ * @since ALPHA
+ * @author Mwexim
+ */
+public class ExprStringSplitJoin implements Expression<String> {
+
+	static {
+		Main.getMainRegistration().addExpression(
+				ExprStringSplitJoin.class,
+				String.class,
+				false,
+				"(concat[enate]|join) %strings% [1:[(with|using|by) [[the] delimiter] %string%]]",
+				"(split %string%|%string% split) (at|using|by) [[the] delimiter] %string%",
+				"(split %string%|%string% split) (with|using|by) %number% [char[acter]][s]");
+	}
+
+	private Expression<String> expr;
+	private Expression<String> delimiter;
+	private Expression<Number> chars;
+
+	int pattern;
+	boolean delimiterPresent;
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+		pattern = matchedPattern;
+		delimiterPresent = parseContext.getParseMark() == 1;
+		expr = (Expression<String>) expressions[0];
+		if (pattern == 0) {
+			if (delimiterPresent) {
+				delimiter = (Expression<String>) expressions[1];
+			}
+		} else if (pattern == 1) {
+			delimiter = (Expression<String>) expressions[1];
+		} else {
+			chars = (Expression<Number>) expressions[1];
+		}
+		return true;
+	}
+
+	@Override
+	public String[] getValues(TriggerContext ctx) {
+		String str;
+		String del;
+		if (pattern == 0) {
+			String[] strs = expr.getValues(ctx);
+			del = delimiterPresent ? delimiter.getSingle(ctx) : "";
+			if (strs.length == 0 || del == null) {
+				return new String[0];
+			}
+			return new String[]{String.join(del, strs)};
+		} else if (pattern == 1) {
+			str = expr.getSingle(ctx);
+			del = delimiter.getSingle(ctx);
+			if (str == null || del == null) {
+				return new String[0];
+			}
+			return str.split(Pattern.quote(del));
+		} else {
+			str = expr.getSingle(ctx);
+			Number c = chars.getSingle(ctx);
+			if (str == null || c == null) {
+				return new String[0];
+			}
+			List<String> ret = new ArrayList<>();
+			int i = 0;
+			while (i < str.length()) {
+				ret.add(str.substring(i, Math.min(i + c.intValue(), str.length())));
+				i += c.intValue();
+			}
+			return ret.toArray(new String[0]);
+		}
+	}
+
+	@Override
+	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+		if (pattern == 0) {
+			return "join " + expr.toString(ctx, debug) + (delimiterPresent ? " using " + delimiter.toString(ctx, debug) : "");
+		} else if (pattern == 1) {
+			return "split " + expr.toString(ctx, debug) + " using " + delimiter.toString(ctx, debug);
+		}
+		return "split " + expr.toString(ctx, debug) + " using " + chars.toString(ctx, debug) + " characters";
+	}
+}
