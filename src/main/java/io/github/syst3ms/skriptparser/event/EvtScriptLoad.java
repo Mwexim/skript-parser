@@ -14,15 +14,17 @@ import org.jetbrains.annotations.Nullable;
  * @type EVENT
  * @pattern [on] script load[ing]
  * @since ALPHA
+ * @context arguments
  * @author Syst3ms
  */
 public class EvtScriptLoad extends SkriptEvent {
 
     static {
         Main.getMainRegistration()
-            .newEvent(EvtScriptLoad.class, "script load[ing]")
-            .setHandledContexts(ScriptLoadContext.class)
-            .register();
+                .newEvent(EvtScriptLoad.class, "script load[ing]")
+                .addContextValue(ScriptLoadContext.class, String.class, "arguments", ScriptLoadContext::getArguments)
+                .setHandledContexts(ScriptLoadContext.class)
+                .register();
     }
 
     @Override
