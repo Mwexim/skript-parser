@@ -27,7 +27,7 @@ public class CondExprContains extends ConditionalExpression {
                 CondExprContains.class,
                 Boolean.class,
                 true,
-                "%string% [1:does(n't| not)] contains %string%",
+                "%string% [1:does(n't| not)] contain[s] %string%",
                 "%objects% [1:do[es](n't| not)] contain[s] %object%"
         );
     }

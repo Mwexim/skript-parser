@@ -33,7 +33,7 @@ public class ExprStringCases implements Expression<String> {
 				"%strings% in upper[ ]case",
 				"%strings% in lower[ ]case",
 				"%strings% in camel[ ]case",
-				"%strings% in pascal case",
+				"%strings% in (pascal |capital[ized] camel[ ])case",
 				"%strings% in snake case",
 				"%strings% in kebab case",
 				"(reverse[d] %strings%|%strings% in reverse[d] case)",
