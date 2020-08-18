@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
@@ -9,6 +10,8 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.PatternParser;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueTime;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
@@ -39,6 +42,7 @@ public class SkriptRegistration {
     private final List<SkriptEventInfo<?>> events = new ArrayList<>();
     private final List<Type<?>> types = new ArrayList<>();
     private final List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
+    private final List<ContextValue<?>> contextValues = new ArrayList<>();
     private boolean newTypes = false;
 
     public SkriptRegistration(SkriptAddon registerer) {
@@ -96,6 +100,13 @@ public class SkriptRegistration {
     }
 
     /**
+     * @return all currently registered context values
+     */
+    public List<ContextValue<?>> getContextValues() {
+        return contextValues;
+    }
+
+    /**
      * Starts a registration process for an {@link Expression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
@@ -138,8 +149,8 @@ public class SkriptRegistration {
                 .setPriority(priority)
                 .register();
     }
-    
-   /**
+
+    /**
      * Starts a registration process for an {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
@@ -148,7 +159,7 @@ public class SkriptRegistration {
      * @param property the property that is used
      * @param <C> the Expression
      * @param <T> the Expression's return type
-     * @return an {@link ExpressionRegistrar} to continue the registration process
+     * @return an {@link ExpressionRegistrar}
      */
     public <C extends Expression<T>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
         return new ExpressionRegistrar<>(c, returnType, isSingle,
@@ -157,7 +168,7 @@ public class SkriptRegistration {
     }
 
     /**
-     * Starts a registration process for a {@link PropertyExpression}
+     * Registers a {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
      * @param isSingle whether the Expression is a single value
@@ -165,7 +176,6 @@ public class SkriptRegistration {
      * @param property the property that is used
      * @param <C> the Expression
      * @param <T> the Expression's return type
-     * @return an {@link ExpressionRegistrar} to continue the registration process
      */
     public <C extends Expression<T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
         new ExpressionRegistrar<>(c, returnType, isSingle,
@@ -175,7 +185,7 @@ public class SkriptRegistration {
     }
 
     /**
-     * Starts a registration process for a {@link PropertyExpression}
+     * Registers {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
      * @param isSingle whether the Expression is a single value
@@ -184,7 +194,6 @@ public class SkriptRegistration {
      * @param property the property that is used
      * @param <C> the Expression
      * @param <T> the Expression's return type
-     * @return an {@link ExpressionRegistrar} to continue the registration process
      */
     public <C extends Expression<T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, int priority, String ownerType, String property) {
         new ExpressionRegistrar<>(c, returnType, isSingle,
@@ -246,6 +255,13 @@ public class SkriptRegistration {
         new SectionRegistrar<>(c, patterns).setPriority(priority).register();
     }
 
+    /**
+     * Starts a registration process for a {@link SkriptEvent}
+     * @param c the SkriptEvent's class
+     * @param patterns the SkriptEvent's patterns
+     * @param <E> the SkriptEvent
+     * @return a {@link EventRegistrar}
+     */
     public <E extends SkriptEvent> EventRegistrar<E> newEvent(Class<E> c, String... patterns) {
         return new EventRegistrar<>(c, patterns);
     }
@@ -322,6 +338,7 @@ public class SkriptRegistration {
      */
     public List<LogEntry> register() {
         SyntaxManager.register(this);
+        ContextValues.register(this);
         TypeManager.register(this);
         Converters.registerConverters(this);
         Converters.createMissingConverters();
@@ -403,7 +420,7 @@ public class SkriptRegistration {
     public abstract class SyntaxRegistrar<C extends SyntaxElement> implements Registrar {
         protected final Class<C> c;
         private final List<String> patterns = new ArrayList<>();
-        private int priority = 5;
+        private int priority;
 
         SyntaxRegistrar(Class<C> c, String... patterns) {
             this(c, 5, patterns);
@@ -416,11 +433,21 @@ public class SkriptRegistration {
             Collections.addAll(this.patterns, patterns);
         }
 
+        /**
+         * Adds patterns to the current syntax
+         * @param patterns the patterns to add
+         * @return the registrar
+         */
         public SyntaxRegistrar<C> addPatterns(String... patterns) {
             Collections.addAll(this.patterns, patterns);
             return this;
         }
 
+        /**
+         * Sets the priority of the current syntax. Default is 5.
+         * @param priority the priority
+         * @return the registrar
+         */
         public SyntaxRegistrar<C> setPriority(int priority) {
             if (priority < 0)
                 throw new SkriptParserException("Can't have a negative priority !");
@@ -444,6 +471,9 @@ public class SkriptRegistration {
             this.isSingle = isSingle;
         }
 
+        /**
+         * Adds this expression to the list of currently registered syntaxes
+         */
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             for (String s : super.patterns) {
@@ -469,6 +499,9 @@ public class SkriptRegistration {
             typeCheck();
         }
 
+        /**
+         * Adds this effect to the list of currently registered syntaxes
+         */
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             for (String s : super.patterns) {
@@ -486,6 +519,9 @@ public class SkriptRegistration {
             typeCheck();
         }
 
+        /**
+         * Adds this section to the list of currently registered syntaxes
+         */
         @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
@@ -500,6 +536,7 @@ public class SkriptRegistration {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public class EventRegistrar<T extends SkriptEvent> extends SyntaxRegistrar<T> {
         private Class<? extends TriggerContext>[] handledContexts;
 
@@ -508,6 +545,9 @@ public class SkriptRegistration {
             typeCheck();
         }
 
+        /**
+         * Adds this event to the list of currently registered syntaxes
+         */
         @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
@@ -527,9 +567,45 @@ public class SkriptRegistration {
             registerer.addHandledEvent(this.c);
         }
 
+        /**
+         * Set the context this event can handle
+         * @param contexts the contexts
+         * @return the registrar
+         */
         @SafeVarargs
         public final EventRegistrar<T> setHandledContexts(Class<? extends TriggerContext>... contexts) {
             this.handledContexts = contexts;
+            return this;
+        }
+
+        /**
+         * Registers a {@link ContextValue}
+         * @param context the context this value appears in
+         * @param type the returned type of this context value
+         * @param name the name of this context value (used in the suffix)
+         * @param contextFunction the function that needs to be applied in order to get the context value
+         * @param <C> the context class
+         * @param <T2> the type class
+         * @return the registrar
+         */
+        public final <C extends TriggerContext, T2> EventRegistrar<T> addContextValue(Class<C> context, Class<T2> type, String name, Function<C, T2[]> contextFunction) {
+            contextValues.add(new ContextValue<>(context, type, name, (Function<TriggerContext, T2[]>) contextFunction));
+            return this;
+        }
+
+        /**
+         * Registers a {@link ContextValue}
+         * @param context the context this value appears in
+         * @param type the returned type of this context value
+         * @param name the name of this context value (used in the suffix)
+         * @param contextFunction the function that needs to be applied in order to get the context value
+         * @param time whether this happens in the present, past or future
+         * @param <C> the context class
+         * @param <T2> the type class
+         * @return the registrar
+         */
+        public final <C extends TriggerContext, T2> EventRegistrar<T> addContextValue(Class<C> context, Class<T2> type, String name, Function<C, T2[]> contextFunction, ContextValueTime time) {
+            contextValues.add(new ContextValue<>(context, type, name, (Function<TriggerContext, T2[]>) contextFunction, time));
             return this;
         }
     }
@@ -540,7 +616,7 @@ public class SkriptRegistration {
             newTypes = false;
         }
     }
-    
+
     private String checkPrefix(String str) {
         return str.startsWith("*") ? str.substring(1) : "%" + str + "%";
     }

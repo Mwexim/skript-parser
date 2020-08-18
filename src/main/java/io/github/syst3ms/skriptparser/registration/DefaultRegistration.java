@@ -7,11 +7,14 @@ import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
+import io.github.syst3ms.skriptparser.util.SkriptDate;
+import io.github.syst3ms.skriptparser.util.TimeUtils;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -234,6 +237,56 @@ public class DefaultRegistration {
                     })
                     .toStringFunction(String::valueOf)
                     .register();
+        registration.newType(Duration.class, "duration", "duration@s")
+                .literalParser(TimeUtils::parseDuration)
+                .toStringFunction(TimeUtils::toStringDuration)
+                .arithmetic(new Arithmetic<Duration, Duration>() {
+                    @Override
+                    public Duration difference(Duration first, Duration second) {
+                        return first.minus(second).abs();
+                    }
+
+                    @Override
+                    public Duration add(Duration value, Duration difference) {
+                        return value.plus(difference);
+                    }
+
+                    @Override
+                    public Duration subtract(Duration value, Duration difference) {
+                        return value.minus(difference);
+                    }
+
+                    @Override
+                    public Class<? extends Duration> getRelativeType() {
+                        return Duration.class;
+                    }
+                })
+                .register();
+        registration.newType(SkriptDate.class, "date", "date@s")
+                .toStringFunction(SkriptDate::toString)
+                .arithmetic(new Arithmetic<SkriptDate, Duration>() {
+                    @Override
+                    public Duration difference(SkriptDate first, SkriptDate second) {
+                        return first.difference(second);
+                    }
+
+                    @Override
+                    public SkriptDate add(SkriptDate value, Duration difference) {
+                        return value.plus(difference);
+                    }
+
+                    @Override
+                    public SkriptDate subtract(SkriptDate value, Duration difference) {
+                        return value.minus(difference);
+                    }
+
+                    @Override
+                    public Class<? extends Duration> getRelativeType() {
+                        return Duration.class;
+                    }
+                })
+                .register();
+
         Comparators.registerComparator(
                 Number.class,
                 Number.class,
