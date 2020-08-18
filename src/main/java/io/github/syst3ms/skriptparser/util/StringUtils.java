@@ -305,14 +305,15 @@ public class StringUtils {
     }
 
     public static String camelCase(String str, boolean firstNoCase) {
-        String[] parts = str.split(" ");
+        String[] parts = str.split("\\s+");
         StringBuilder ret = new StringBuilder();
         for (String part : parts) {
             if (firstNoCase) {
                 firstNoCase = false;
                 ret.append(part.toLowerCase());
             } else {
-                ret.append(part.substring(0, 1).toUpperCase()).append(part.substring(1).toLowerCase());
+                ret.append(Character.toUpperCase(part.charAt(0)))
+                        .append(part.substring(1).toLowerCase());
             }
         }
         return ret.toString();
@@ -342,6 +343,6 @@ public class StringUtils {
     }
 
     public static String capitalize(String str) {
-        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
+        return Character.toUpperCase(str.charAt(0)) + str.substring(1).toLowerCase();
     }
 }
