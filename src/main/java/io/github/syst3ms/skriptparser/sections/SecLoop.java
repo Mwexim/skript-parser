@@ -47,7 +47,7 @@ public class SecLoop extends CodeSection {
 	}
 
 	@Override
-    protected Statement walk(TriggerContext ctx) {
+	public Statement walk(TriggerContext ctx) {
 		Iterator<?> iter = currentIter.get(ctx);
 		if (iter == null) {
 			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(ctx) : expr.iterator(ctx);

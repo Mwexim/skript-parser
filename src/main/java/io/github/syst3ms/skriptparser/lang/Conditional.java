@@ -38,7 +38,7 @@ public class Conditional extends CodeSection {
     }
 
     @Override
-    protected Statement walk(TriggerContext ctx) {
+    public Statement walk(TriggerContext ctx) {
         assert condition != null || mode == ConditionalMode.ELSE;
         if (mode == ConditionalMode.ELSE) {
             return getFirst();

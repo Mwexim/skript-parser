@@ -40,7 +40,7 @@ public class SecWhile extends CodeSection {
     }
 
     @Override
-    protected Statement walk(TriggerContext ctx) {
+    public Statement walk(TriggerContext ctx) {
         Boolean cond = condition.getSingle(ctx);
         if (cond == null || !cond) {
             return actualNext;
