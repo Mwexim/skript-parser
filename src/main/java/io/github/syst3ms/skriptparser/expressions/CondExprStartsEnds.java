@@ -24,8 +24,8 @@ public class CondExprStartsEnds extends ConditionalExpression {
                 .addExpression(CondExprStartsEnds.class,
                         Boolean.class,
                         true,
-                        "%strings% (1:start|2:end)[s] with %string%",
-                        "%strings% do[es](n't| not) (1:start|2:end) with %string%");
+                        "%strings% (0:start|1:end)[s] with %string%",
+                        "%strings% do[es](n't| not) (0:start|1:end) with %string%");
     }
 
     private Expression<String> expr;
@@ -37,7 +37,7 @@ public class CondExprStartsEnds extends ConditionalExpression {
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         expr = (Expression<String>) expressions[0];
         value = (Expression<String>) expressions[1];
-        start = parseContext.getParseMark() == 1;
+        start = parseContext.getParseMark() == 0;
         setNegated(matchedPattern == 1);
         return true;
     }
@@ -46,7 +46,8 @@ public class CondExprStartsEnds extends ConditionalExpression {
     protected boolean check(TriggerContext ctx) {
         String[] strs = expr.getValues(ctx);
         String v = value.getSingle(ctx);
-        if (v == null) return false;
+        if (v == null)
+            return false;
 
         for (String s : strs) {
             if (isNegated() == (start ? s.startsWith(v) : s.endsWith(v))) {

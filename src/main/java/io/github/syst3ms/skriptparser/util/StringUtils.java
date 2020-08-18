@@ -326,6 +326,8 @@ public class StringUtils {
                 chars[i] = Character.toLowerCase(c);
             else if (Character.isLowerCase(c))
                 chars[i] = Character.toUpperCase(c);
+            else
+                chars[i] = c;
         }
         return new String(chars);
     }

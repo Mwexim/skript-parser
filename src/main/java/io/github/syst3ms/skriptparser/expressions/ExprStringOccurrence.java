@@ -22,18 +22,16 @@ public class ExprStringOccurrence implements Expression<Number> {
 				ExprStringOccurrence.class,
 				Number.class,
 				true,
-				"[the] (1:first|2:last) occurrence of %string% in %string%");
+				"[the] (0:first|1:last) occurrence of %string% in %string%");
 	}
 
-	private Expression<String> value;
-	private Expression<String> expr;
-
+	private Expression<String> value, expr;
 	private boolean first;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		first = parseContext.getParseMark() == 1;
+		first = parseContext.getParseMark() == 0;
 		value = (Expression<String>) expressions[0];
 		expr = (Expression<String>) expressions[1];
 		return true;
@@ -42,7 +40,8 @@ public class ExprStringOccurrence implements Expression<Number> {
 	@Override
 	public Number[] getValues(TriggerContext ctx) {
 		String v = value.getSingle(ctx), e = expr.getSingle(ctx);
-		if (v == null || e == null) return new Number[0];
+		if (v == null || e == null)
+			return new Number[0];
 
 		int i = first ? e.indexOf(v) : e.lastIndexOf(v);
 		// Return i + 1, since Skript indices start at 1.

@@ -4,8 +4,11 @@ import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.UnaryOperator;
 
 /**
  * Converts a given string into a certain case type.
@@ -13,36 +16,40 @@ import org.jetbrains.annotations.Nullable;
  *
  * @name Cased String
  * @type EXPRESSION
- * @pattern %strings% in (upper|lower)[ ]case
- * @pattern %strings% in camel[ ]case
- * @pattern %strings% in pascal case
- * @pattern %strings% in snake case
- * @pattern %strings% in kebab case
- * @pattern %strings% in reverse[d] case
- * @pattern mirror[ed] %strings%
+ * @pattern %string% in (upper|lower)[ ]case
+ * @pattern %string% (to|in) camel[ ]case
+ * @pattern %string% (to|in) (pascal |capital[ized] camel[ ])case
+ * @pattern %string% (to|in) snake case
+ * @pattern %string% (to|in) snake case
+ * @pattern (reverse[d] %string%|%string% (to|in) reverse[d] case)
+ * @pattern mirror[ed] %string%
  * @since ALPHA
  * @author Mwexim
  */
 public class ExprStringCases implements Expression<String> {
 
+	private final static PatternInfos<UnaryOperator<String>> PATTERNS = new PatternInfos<>(
+			new Object[][]{
+					{"%string% in upper[ ]case", (UnaryOperator<String>) String::toUpperCase},
+					{"%string% in lower[ ]case", (UnaryOperator<String>) String::toLowerCase},
+					{"%string% (to|in) camel[ ]case", (UnaryOperator<String>) str -> StringUtils.camelCase(str, true)},
+					{"%string% (to|in) (pascal |capital[ized] camel[ ])case", (UnaryOperator<String>) str -> StringUtils.camelCase(str, false)},
+					{"%string% (to|in) snake case", (UnaryOperator<String>) str -> str.toLowerCase().replaceAll("\\s+", "_")},
+					{"%string% (to|in) kebab case", (UnaryOperator<String>) str -> str.toLowerCase().replaceAll("\\s+", "-")},
+					{"(reverse[d] %string%|%string% (to|in) reverse[d] case)", (UnaryOperator<String>) StringUtils::reverseCase},
+					{"mirror[ed] %string%", (UnaryOperator<String>) StringUtils::mirrored},
+			}
+	);
+
 	static {
 		Main.getMainRegistration().addExpression(
 				ExprStringCases.class,
 				String.class,
-				false,
-				"%strings% in upper[ ]case",
-				"%strings% in lower[ ]case",
-				"%strings% in camel[ ]case",
-				"%strings% in (pascal |capital[ized] camel[ ])case",
-				"%strings% in snake case",
-				"%strings% in kebab case",
-				"(reverse[d] %strings%|%strings% in reverse[d] case)",
-				"mirror[ed] %strings%");
+				true,
+				PATTERNS.getPatterns()
+		);
 	}
 
-	private final static String[] CHOICES = {
-			"upper", "lower", "camel", "pascal", "snake", "kebab", "reverse", "mirrored"
-	};
 	private Expression<String> expr;
 	int pattern;
 
@@ -56,44 +63,43 @@ public class ExprStringCases implements Expression<String> {
 
 	@Override
 	public String[] getValues(TriggerContext ctx) {
-		String[] strs = expr.getValues(ctx);
-		if (strs.length == 0)
+		String str = expr.getSingle(ctx);
+		if (str == null)
 			return new String[0];
 
-		for (int i = 0; i < strs.length; i++) {
-			switch (pattern) {
-				case 0:
-					strs[i] = strs[i].toUpperCase();
-					break;
-				case 1:
-					strs[i] = strs[i].toLowerCase();
-					break;
-				case 2:
-					strs[i] = StringUtils.camelCase(strs[i], true);
-					break;
-				case 3:
-					strs[i] = StringUtils.camelCase(strs[i], false);
-					break;
-				case 4:
-					strs[i] = strs[i].toLowerCase().replaceAll(" ", "_");
-					break;
-				case 5:
-					strs[i] = strs[i].toLowerCase().replaceAll(" ", "-");
-					break;
-				case 6:
-					strs[i] = StringUtils.reverseCase(strs[i]);
-					break;
-				case 7:
-					strs[i] = StringUtils.mirrored(strs[i]);
-					break;
-			}
-		}
-		return strs;
+		return new String[] {PATTERNS.getInfo(pattern).apply(str)};
 	}
 
 	@Override
 	public String toString(@Nullable TriggerContext ctx, boolean debug) {
-		return expr.toString(ctx, debug) + " in " + CHOICES[pattern] + " case";
+		String caseType = "some";
+		switch (pattern) {
+			case 0:
+				caseType = "upper";
+				break;
+			case 1:
+				caseType = "lower";
+				break;
+			case 2:
+				caseType = "camel";
+				break;
+			case 3:
+				caseType = "pascal";
+				break;
+			case 4:
+				caseType = "snake";
+				break;
+			case 5:
+				caseType = "kebab";
+				break;
+			case 6:
+				caseType = "reversed";
+				break;
+			case 7:
+				caseType = "mirrored";
+				break;
+		}
+		return expr.toString(ctx, debug) + " in " + caseType + " case";
 	}
 
 }

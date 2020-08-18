@@ -32,9 +32,7 @@ public class CondExprContains extends ConditionalExpression {
         );
     }
 
-    private Expression<?> first;
-    private Expression<?> second;
-
+    private Expression<?> first, second;
     private boolean onlyString;
 
     @Override
