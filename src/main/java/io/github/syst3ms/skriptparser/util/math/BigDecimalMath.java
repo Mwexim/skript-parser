@@ -42,9 +42,9 @@ public class BigDecimalMath {
     private static BigDecimal eCache;
 
     static {
-        BigDecimal result = ONE;
+        var result = ONE;
         factorialCache[0] = result;
-        for (int i = 1; i < factorialCache.length; i++) {
+        for (var i = 1; i < factorialCache.length; i++) {
             result = result.multiply(valueOf(i));
             factorialCache[i] = result;
         }
@@ -109,7 +109,7 @@ public class BigDecimalMath {
      * @see #exponent(BigDecimal)
      */
     public static BigDecimal mantissa(BigDecimal value) {
-        int exponent = exponent(value);
+        var exponent = exponent(value);
         if (exponent == 0) {
             return value;
         }
@@ -199,14 +199,14 @@ public class BigDecimalMath {
             return factorialCache[n];
         }
 
-        BigDecimal result = factorialCache[factorialCache.length - 1];
+        var result = factorialCache[factorialCache.length - 1];
         return result.multiply(factorialRecursion(factorialCache.length, n));
     }
 
     private static BigDecimal factorialLoop(int n1, final int n2) {
-        final long limit = Long.MAX_VALUE / n2;
+        final var limit = Long.MAX_VALUE / n2;
         long accu = 1;
-        BigDecimal result = BigDecimal.ONE;
+        var result = BigDecimal.ONE;
         while (n1 <= n2) {
             if (accu <= limit) {
                 accu *= n1;
@@ -220,11 +220,11 @@ public class BigDecimalMath {
     }
 
     private static BigDecimal factorialRecursion(final int n1, final int n2) {
-        int threshold = n1 > 200 ? 80 : 150;
+        var threshold = n1 > 200 ? 80 : 150;
         if (n2 - n1 < threshold) {
             return factorialLoop(n1, n2);
         }
-        final int mid = (n1 + n2) >> 1;
+        final var mid = (n1 + n2) >> 1;
         return factorialRecursion(mid + 1, n2).multiply(factorialRecursion(n1, mid));
     }
 
@@ -259,22 +259,22 @@ public class BigDecimalMath {
 
         // https://en.wikipedia.org/wiki/Spouge%27s_approximation
         checkMathContext(mathContext);
-        MathContext mc = new MathContext(mathContext.getPrecision() * 2, mathContext.getRoundingMode());
+        var mc = new MathContext(mathContext.getPrecision() * 2, mathContext.getRoundingMode());
 
-        int a = mathContext.getPrecision() * 13 / 10;
-        List<BigDecimal> constants = getSpougeFactorialConstants(a);
+        var a = mathContext.getPrecision() * 13 / 10;
+        var constants = getSpougeFactorialConstants(a);
 
-        BigDecimal bigA = BigDecimal.valueOf(a);
+        var bigA = BigDecimal.valueOf(a);
 
-        boolean negative = false;
-        BigDecimal factor = constants.get(0);
-        for (int k = 1; k < a; k++) {
-            BigDecimal bigK = BigDecimal.valueOf(k);
+        var negative = false;
+        var factor = constants.get(0);
+        for (var k = 1; k < a; k++) {
+            var bigK = BigDecimal.valueOf(k);
             factor = factor.add(constants.get(k).divide(x.add(bigK), mc), mc);
             negative = !negative;
         }
 
-        BigDecimal result = pow(x.add(bigA, mc), x.add(BigDecimal.valueOf(0.5), mc), mc);
+        var result = pow(x.add(bigA, mc), x.add(BigDecimal.valueOf(0.5), mc), mc);
         result = result.multiply(exp(x.negate().subtract(bigA, mc), mc), mc);
         result = result.multiply(factor, mc);
 
@@ -285,15 +285,15 @@ public class BigDecimalMath {
         synchronized (spougeFactorialConstantsCacheLock) {
             return spougeFactorialConstantsCache.computeIfAbsent(a, key -> {
                 List<BigDecimal> constants = new ArrayList<>(a);
-                MathContext mc = new MathContext(a * 15 / 10);
+                var mc = new MathContext(a * 15 / 10);
 
-                BigDecimal c0 = sqrt(pi(mc).multiply(TWO, mc), mc);
+                var c0 = sqrt(pi(mc).multiply(TWO, mc), mc);
                 constants.add(c0);
 
-                boolean negative = false;
-                for (int k = 1; k < a; k++) {
-                    BigDecimal bigK = BigDecimal.valueOf(k);
-                    BigDecimal ck = pow(BigDecimal.valueOf(a - k), bigK.subtract(ONE_HALF, mc), mc);
+                var negative = false;
+                for (var k = 1; k < a; k++) {
+                    var bigK = BigDecimal.valueOf(k);
+                    var ck = pow(BigDecimal.valueOf(a - k), bigK.subtract(ONE_HALF, mc), mc);
                     ck = ck.multiply(exp(BigDecimal.valueOf(a - k), mc), mc);
                     ck = ck.divide(factorial(k - 1), mc);
                     if (negative) {
@@ -333,7 +333,7 @@ public class BigDecimalMath {
         // TODO optimize y=0, y=1, y=10^k, y=-1, y=-10^k
 
         try {
-            long longValue = y.longValueExact();
+            var longValue = y.longValueExact();
             return pow(x, longValue, mathContext);
         } catch (ArithmeticException ex) {
             // ignored
@@ -344,8 +344,8 @@ public class BigDecimalMath {
         }
 
         // x^y = exp(y*log(x))
-        MathContext mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
-        BigDecimal result = exp(y.multiply(log(x, mc), mc), mc);
+        var mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
+        var result = exp(y.multiply(log(x, mc), mc), mc);
 
         return round(result, mathContext);
     }
@@ -370,18 +370,18 @@ public class BigDecimalMath {
      *                             {@code BigDecimal}  operation would require rounding.
      */
     public static BigDecimal pow(BigDecimal x, long y, MathContext mathContext) {
-        MathContext mc = mathContext.getPrecision() == 0
+        var mc = mathContext.getPrecision() == 0
                 ? mathContext
                 : new MathContext(mathContext.getPrecision() + 10, mathContext.getRoundingMode());
 
         // TODO optimize y=0, y=1, y=10^k, y=-1, y=-10^k
 
         if (y < 0) {
-            BigDecimal value = reciprocal(pow(x, -y, mc), mc);
+            var value = reciprocal(pow(x, -y, mc), mc);
             return round(value, mathContext);
         }
 
-        BigDecimal result = ONE;
+        var result = ONE;
         while (y > 0) {
             if ((y & 1) == 1) {
                 // odd exponent -> multiply result with x
@@ -420,13 +420,13 @@ public class BigDecimalMath {
             return ONE.divide(powInteger(x, integerY.negate(), mathContext), mathContext);
         }
 
-        MathContext mc = new MathContext(Math.max(mathContext.getPrecision(), -integerY.scale()) + 30,
+        var mc = new MathContext(Math.max(mathContext.getPrecision(), -integerY.scale()) + 30,
                 mathContext.getRoundingMode()
         );
 
-        BigDecimal result = ONE;
+        var result = ONE;
         while (integerY.signum() > 0) {
-            BigDecimal halfY = integerY.divide(TWO, mc);
+            var halfY = integerY.divide(TWO, mc);
 
             if (fractionalPart(halfY).signum() != 0) {
                 // odd exponent -> multiply result with x
@@ -466,8 +466,8 @@ public class BigDecimalMath {
                 throw new ArithmeticException("Illegal sqrt(x) for x < 0: x = " + x);
         }
 
-        int maxPrecision = mathContext.getPrecision() + 6;
-        BigDecimal acceptableError = ONE.movePointLeft(mathContext.getPrecision() + 1);
+        var maxPrecision = mathContext.getPrecision() + 6;
+        var acceptableError = ONE.movePointLeft(mathContext.getPrecision() + 1);
 
         BigDecimal result;
         int adaptivePrecision;
@@ -492,7 +492,7 @@ public class BigDecimalMath {
                 if (adaptivePrecision > maxPrecision) {
                     adaptivePrecision = maxPrecision;
                 }
-                MathContext mc = new MathContext(adaptivePrecision, mathContext.getRoundingMode());
+                var mc = new MathContext(adaptivePrecision, mathContext.getRoundingMode());
                 result = x.divide(result, mc).add(last, mc).multiply(ONE_HALF, mc);
             }
             while (adaptivePrecision < maxPrecision || result.subtract(last).abs().compareTo(acceptableError) > 0);
@@ -547,9 +547,9 @@ public class BigDecimalMath {
      */
     public static BigDecimal log2(BigDecimal x, MathContext mathContext) {
         checkMathContext(mathContext);
-        MathContext mc = new MathContext(mathContext.getPrecision() + 4, mathContext.getRoundingMode());
+        var mc = new MathContext(mathContext.getPrecision() + 4, mathContext.getRoundingMode());
 
-        BigDecimal result = log(x, mc).divide(logTwo(mc), mc);
+        var result = log(x, mc).divide(logTwo(mc), mc);
         return round(result, mathContext);
     }
 
@@ -564,9 +564,9 @@ public class BigDecimalMath {
      */
     public static BigDecimal log10(BigDecimal x, MathContext mathContext) {
         checkMathContext(mathContext);
-        MathContext mc = new MathContext(mathContext.getPrecision() + 2, mathContext.getRoundingMode());
+        var mc = new MathContext(mathContext.getPrecision() + 2, mathContext.getRoundingMode());
 
-        BigDecimal result = log(x, mc).divide(logTen(mc), mc);
+        var result = log(x, mc).divide(logTen(mc), mc);
         return round(result, mathContext);
     }
 
@@ -574,13 +574,13 @@ public class BigDecimalMath {
         // https://en.wikipedia.org/wiki/Natural_logarithm in chapter 'High Precision'
         // y = y + 2 * (x-exp(y)) / (x+exp(y))
 
-        int maxPrecision = mathContext.getPrecision() + 20;
-        BigDecimal acceptableError = ONE.movePointLeft(mathContext.getPrecision() + 1);
+        var maxPrecision = mathContext.getPrecision() + 20;
+        var acceptableError = ONE.movePointLeft(mathContext.getPrecision() + 1);
         //System.out.println("logUsingNewton(" + x + " " + mathContext + ") precision " + maxPrecision);
 
         BigDecimal result;
         int adaptivePrecision;
-        double doubleX = x.doubleValue();
+        var doubleX = x.doubleValue();
         if (doubleX > 0.0 && isDoubleValue(x)) {
             result = BigDecimal.valueOf(Math.log(doubleX));
             adaptivePrecision = EXPECTED_INITIAL_PRECISION;
@@ -596,9 +596,9 @@ public class BigDecimalMath {
             if (adaptivePrecision > maxPrecision) {
                 adaptivePrecision = maxPrecision;
             }
-            MathContext mc = new MathContext(adaptivePrecision, mathContext.getRoundingMode());
+            var mc = new MathContext(adaptivePrecision, mathContext.getRoundingMode());
 
-            BigDecimal expY = BigDecimalMath.exp(result, mc);
+            var expY = BigDecimalMath.exp(result, mc);
             step = TWO.multiply(x.subtract(expY, mc), mc).divide(x.add(expY, mc), mc);
             //System.out.println("  step " + step + " adaptivePrecision=" + adaptivePrecision);
             result = result.add(step);
@@ -609,14 +609,14 @@ public class BigDecimalMath {
     }
 
     private static BigDecimal logUsingExponent(BigDecimal x, MathContext mathContext) {
-        MathContext mcDouble = new MathContext(mathContext.getPrecision() * 2, mathContext.getRoundingMode());
-        MathContext mc = new MathContext(mathContext.getPrecision() + 4, mathContext.getRoundingMode());
+        var mcDouble = new MathContext(mathContext.getPrecision() * 2, mathContext.getRoundingMode());
+        var mc = new MathContext(mathContext.getPrecision() + 4, mathContext.getRoundingMode());
         //System.out.println("logUsingExponent(" + x + " " + mathContext + ") precision " + mc);
 
-        int exponent = exponent(x);
-        BigDecimal mantissa = mantissa(x);
+        var exponent = exponent(x);
+        var mantissa = mantissa(x);
 
-        BigDecimal result = logUsingTwoThree(mantissa, mc);
+        var result = logUsingTwoThree(mantissa, mc);
         if (exponent != 0) {
             result = result.add(valueOf(exponent).multiply(logTen(mcDouble), mc), mc);
         }
@@ -624,16 +624,16 @@ public class BigDecimalMath {
     }
 
     private static BigDecimal logUsingTwoThree(BigDecimal x, MathContext mathContext) {
-        MathContext mcDouble = new MathContext(mathContext.getPrecision() * 2, mathContext.getRoundingMode());
-        MathContext mc = new MathContext(mathContext.getPrecision() + 4, mathContext.getRoundingMode());
+        var mcDouble = new MathContext(mathContext.getPrecision() * 2, mathContext.getRoundingMode());
+        var mc = new MathContext(mathContext.getPrecision() + 4, mathContext.getRoundingMode());
         //System.out.println("logUsingTwoThree(" + x + " " + mathContext + ") precision " + mc);
 
-        int factorOfTwo = 0;
-        int powerOfTwo = 1;
-        int factorOfThree = 0;
-        int powerOfThree = 1;
+        var factorOfTwo = 0;
+        var powerOfTwo = 1;
+        var factorOfThree = 0;
+        var powerOfThree = 1;
 
-        double value = x.doubleValue();
+        var value = x.doubleValue();
         if (value < 0.01) {
             // do nothing
         } else if (value < 0.1) { // never happens when called by logUsingExponent()
@@ -692,8 +692,8 @@ public class BigDecimalMath {
             }
         }
 
-        BigDecimal correctedX = x;
-        BigDecimal result = ZERO;
+        var correctedX = x;
+        var result = ZERO;
 
         if (factorOfTwo > 0) {
             correctedX = correctedX.divide(valueOf(powerOfTwo), mc);
@@ -771,18 +771,18 @@ public class BigDecimalMath {
     }
 
     private static BigDecimal piChudnovski(MathContext mathContext) {
-        MathContext mc = new MathContext(mathContext.getPrecision() + 10, mathContext.getRoundingMode());
+        var mc = new MathContext(mathContext.getPrecision() + 10, mathContext.getRoundingMode());
 
-        final BigDecimal value24 = BigDecimal.valueOf(24);
-        final BigDecimal value640320 = BigDecimal.valueOf(640320);
-        final BigDecimal value13591409 = BigDecimal.valueOf(13591409);
-        final BigDecimal value545140134 = BigDecimal.valueOf(545140134);
-        final BigDecimal valueDivisor = value640320.pow(3).divide(value24, mc);
+        final var value24 = BigDecimal.valueOf(24);
+        final var value640320 = BigDecimal.valueOf(640320);
+        final var value13591409 = BigDecimal.valueOf(13591409);
+        final var value545140134 = BigDecimal.valueOf(545140134);
+        final var valueDivisor = value640320.pow(3).divide(value24, mc);
 
-        BigDecimal sumA = BigDecimal.ONE;
-        BigDecimal sumB = BigDecimal.ZERO;
+        var sumA = BigDecimal.ONE;
+        var sumB = BigDecimal.ZERO;
 
-        BigDecimal a = BigDecimal.ONE;
+        var a = BigDecimal.ONE;
         long dividendTerm1 = 5; // -(6*k - 5)
         long dividendTerm2 = -1; // 2*k - 1
         long dividendTerm3 = -1; // 6*k - 1
@@ -790,25 +790,25 @@ public class BigDecimalMath {
 
         long iterationCount = (mc.getPrecision() + 13) / 14;
         for (long k = 1; k <= iterationCount; k++) {
-            BigDecimal valueK = BigDecimal.valueOf(k);
+            var valueK = BigDecimal.valueOf(k);
             dividendTerm1 += -6;
             dividendTerm2 += 2;
             dividendTerm3 += 6;
-            BigDecimal dividend = BigDecimal.valueOf(dividendTerm1).multiply(BigDecimal.valueOf(dividendTerm2))
+            var dividend = BigDecimal.valueOf(dividendTerm1).multiply(BigDecimal.valueOf(dividendTerm2))
                                             .multiply(BigDecimal.valueOf(dividendTerm3));
             kPower3 = valueK.pow(3);
-            BigDecimal divisor = kPower3.multiply(valueDivisor, mc);
+            var divisor = kPower3.multiply(valueDivisor, mc);
             a = a.multiply(dividend).divide(divisor, mc);
-            BigDecimal b = valueK.multiply(a, mc);
+            var b = valueK.multiply(a, mc);
 
             sumA = sumA.add(a);
             sumB = sumB.add(b);
         }
 
-        final BigDecimal value426880 = BigDecimal.valueOf(426880);
-        final BigDecimal value10005 = BigDecimal.valueOf(10005);
-        final BigDecimal factor = value426880.multiply(sqrt(value10005, mc));
-        BigDecimal pi = factor.divide(value13591409.multiply(sumA, mc).add(value545140134.multiply(sumB, mc)), mc);
+        final var value426880 = BigDecimal.valueOf(426880);
+        final var value10005 = BigDecimal.valueOf(10005);
+        final var factor = value426880.multiply(sqrt(value10005, mc));
+        var pi = factor.divide(value13591409.multiply(sumA, mc).add(value545140134.multiply(sumB, mc)), mc);
 
         return round(pi, mathContext);
     }
@@ -877,30 +877,30 @@ public class BigDecimalMath {
     }
 
     private static BigDecimal expIntegralFractional(BigDecimal x, MathContext mathContext) {
-        BigDecimal integralPart = integralPart(x);
+        var integralPart = integralPart(x);
 
         if (integralPart.signum() == 0) {
             return expTaylor(x, mathContext);
         }
 
-        BigDecimal fractionalPart = x.subtract(integralPart);
+        var fractionalPart = x.subtract(integralPart);
 
-        MathContext mc = new MathContext(mathContext.getPrecision() + 10, mathContext.getRoundingMode());
+        var mc = new MathContext(mathContext.getPrecision() + 10, mathContext.getRoundingMode());
 
-        BigDecimal z = ONE.add(fractionalPart.divide(integralPart, mc));
-        BigDecimal t = expTaylor(z, mc);
+        var z = ONE.add(fractionalPart.divide(integralPart, mc));
+        var t = expTaylor(z, mc);
 
-        BigDecimal result = pow(t, integralPart.intValueExact(), mc);
+        var result = pow(t, integralPart.intValueExact(), mc);
 
         return round(result, mathContext);
     }
 
     private static BigDecimal expTaylor(BigDecimal x, MathContext mathContext) {
-        MathContext mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
+        var mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
 
         x = x.divide(valueOf(256), mc);
 
-        BigDecimal result = ExpCalculator.INSTANCE.calculate(x, mc);
+        var result = ExpCalculator.INSTANCE.calculate(x, mc);
         result = BigDecimalMath.pow(result, 256, mc);
         return round(result, mathContext);
     }
@@ -917,15 +917,15 @@ public class BigDecimalMath {
      */
     public static BigDecimal sin(BigDecimal x, MathContext mathContext) {
         checkMathContext(mathContext);
-        MathContext mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
+        var mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
 
         if (x.abs().compareTo(ROUGHLY_TWO_PI) > 0) {
-            MathContext mc2 = new MathContext(mc.getPrecision() + 4, mathContext.getRoundingMode());
-            BigDecimal twoPi = TWO.multiply(pi(mc2), mc2);
+            var mc2 = new MathContext(mc.getPrecision() + 4, mathContext.getRoundingMode());
+            var twoPi = TWO.multiply(pi(mc2), mc2);
             x = x.remainder(twoPi, mc2);
         }
 
-        BigDecimal result = SinCalculator.INSTANCE.calculate(x, mc);
+        var result = SinCalculator.INSTANCE.calculate(x, mc);
         return round(result, mathContext);
     }
 
@@ -953,14 +953,14 @@ public class BigDecimalMath {
             return asin(x.negate(), mathContext).negate();
         }
 
-        MathContext mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
+        var mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
 
         if (x.compareTo(BigDecimal.valueOf(0.707107)) >= 0) {
-            BigDecimal xTransformed = sqrt(ONE.subtract(x.multiply(x, mc), mc), mc);
+            var xTransformed = sqrt(ONE.subtract(x.multiply(x, mc), mc), mc);
             return acos(xTransformed, mathContext);
         }
 
-        BigDecimal result = AsinCalculator.INSTANCE.calculate(x, mc);
+        var result = AsinCalculator.INSTANCE.calculate(x, mc);
         return round(result, mathContext);
     }
 
@@ -976,15 +976,15 @@ public class BigDecimalMath {
      */
     public static BigDecimal cos(BigDecimal x, MathContext mathContext) {
         checkMathContext(mathContext);
-        MathContext mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
+        var mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
 
         if (x.abs().compareTo(ROUGHLY_TWO_PI) > 0) {
-            MathContext mc2 = new MathContext(mc.getPrecision() + 4, mathContext.getRoundingMode());
-            BigDecimal twoPi = TWO.multiply(pi(mc2), mc2);
+            var mc2 = new MathContext(mc.getPrecision() + 4, mathContext.getRoundingMode());
+            var twoPi = TWO.multiply(pi(mc2), mc2);
             x = x.remainder(twoPi, mc2);
         }
 
-        BigDecimal result = CosCalculator.INSTANCE.calculate(x, mc);
+        var result = CosCalculator.INSTANCE.calculate(x, mc);
         return round(result, mathContext);
     }
 
@@ -1008,9 +1008,9 @@ public class BigDecimalMath {
             throw new ArithmeticException("Illegal acos(x) for x < -1: x = " + x);
         }
 
-        MathContext mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
+        var mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
 
-        BigDecimal result = pi(mc).divide(TWO, mc).subtract(asin(x, mc), mc);
+        var result = pi(mc).divide(TWO, mc).subtract(asin(x, mc), mc);
         return round(result, mathContext);
     }
 
@@ -1030,8 +1030,8 @@ public class BigDecimalMath {
             return ZERO;
         }
 
-        MathContext mc = new MathContext(mathContext.getPrecision() + 4, mathContext.getRoundingMode());
-        BigDecimal result = sin(x, mc).divide(cos(x, mc), mc);
+        var mc = new MathContext(mathContext.getPrecision() + 4, mathContext.getRoundingMode());
+        var result = sin(x, mc).divide(cos(x, mc), mc);
         return round(result, mathContext);
     }
 
@@ -1047,11 +1047,11 @@ public class BigDecimalMath {
      */
     public static BigDecimal atan(BigDecimal x, MathContext mathContext) {
         checkMathContext(mathContext);
-        MathContext mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
+        var mc = new MathContext(mathContext.getPrecision() + 6, mathContext.getRoundingMode());
 
         x = x.divide(sqrt(ONE.add(x.multiply(x, mc), mc), mc), mc);
 
-        BigDecimal result = asin(x, mc);
+        var result = asin(x, mc);
         return round(result, mathContext);
     }
 

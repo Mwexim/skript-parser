@@ -1,14 +1,17 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Skript;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
+import java.util.Optional;
 
 /**
  * Check if a given date is a certain duration before or after the current date.
@@ -45,13 +48,10 @@ public class CondExprDateCompare extends ConditionalExpression {
 
     @Override
     protected boolean check(TriggerContext ctx) {
-        SkriptDate d = date.getSingle(ctx);
-        Duration dur = duration.getSingle(ctx);
-        if (d == null || dur == null)
-            return false;
-        long timestamp = d.getTimestamp();
-
-        return isNegated() == (SkriptDate.now().getTimestamp() - dur.toMillis() <= timestamp);
+        DoubleOptional<? extends SkriptDate, ? extends Duration> opt = DoubleOptional.ofOptional(date.getSingle(ctx), duration.getSingle(ctx));
+        return opt.filter(
+                (dat, dur) -> isNegated() != (dat.getTimestamp() < SkriptDate.now().getTimestamp() - dur.toMillis())
+        ).isPresent();
     }
 
     @Override

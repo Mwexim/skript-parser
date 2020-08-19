@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -22,24 +23,18 @@ import java.util.function.Function;
 public class ConvertedExpression<F, T> implements Expression<T> {
     private final Expression<? extends F> source;
     private final Class<T> to;
-    private final Function<? super F, ? extends T> converter;
+    private final Function<? super F, Optional<? extends T>> converter;
 
-    public ConvertedExpression(Expression<? extends F> source, Class<T> to, Function<? super F, ? extends T> converter) {
+    public ConvertedExpression(Expression<? extends F> source, Class<T> to, Function<? super F, Optional<? extends T>> converter) {
         this.source = source;
         this.to = to;
         this.converter = converter;
     }
 
-    @Nullable
-    public static <F, T> ConvertedExpression<F, T> newInstance(Expression<F> v, Class<T> to) {
-        // casting <? super ? extends F> to <? super F> is wrong, but since the converter is only used for values returned by the expression
-        // (which are instances of "<? extends F>") this won't result in any ClassCastExceptions.
-        @SuppressWarnings("unchecked")
-        Function<? super F, ? extends T> conv = (Function<? super F, ? extends T>) Converters.getConverter(v.getReturnType(), to);
-        if (conv == null)
-            return null;
-        return new ConvertedExpression<>(v, to, conv);
-
+    @SuppressWarnings("unchecked")
+    public static <F, T> Optional<? extends ConvertedExpression<F, T>> newInstance(Expression<F> v, Class<T> to) {
+        return Converters.getConverter(v.getReturnType(), to)
+                .map(c -> new ConvertedExpression<>(v, to, (Function<? super F, Optional<? extends T>>) c));
     }
 
     @Override
@@ -81,7 +76,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 
     @Override
     public Iterator<? extends T> iterator(TriggerContext context) {
-        Iterator<? extends F> sourceIterator = source.iterator(context);
+        var sourceIterator = source.iterator(context);
         if (!sourceIterator.hasNext())
             return Collections.emptyIterator();
         return new Iterator<T>() {
@@ -92,8 +87,8 @@ public class ConvertedExpression<F, T> implements Expression<T> {
                 if (next != null)
                     return true;
                 while (next == null && sourceIterator.hasNext()) {
-                    F f = sourceIterator.next();
-                    next = f == null ? null : converter.apply(f);
+                    var f = sourceIterator.next();
+                    next = Optional.ofNullable(f).flatMap(converter::apply).orElse(null);
                 }
                 return next != null;
             }
@@ -103,7 +98,8 @@ public class ConvertedExpression<F, T> implements Expression<T> {
             public T next() {
                 if (!hasNext())
                     throw new NoSuchElementException();
-                T n = next;
+                var n = next;
+                assert next != null;
                 next = null;
                 return n;
             }

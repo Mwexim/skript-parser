@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
+import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
@@ -62,12 +63,12 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 
 	@Override
 	public Number[] getValues(TriggerContext ctx) {
-		Number f = first.getSingle(ctx);
-		Number s = second.getSingle(ctx);
-		if (f == null || s == null)
-			return new Number[0];
+		DoubleOptional<? extends Number, ? extends Number> args = DoubleOptional.ofOptional(
+				first.getSingle(ctx),
+				second.getSingle(ctx)
+		);
 		BinaryOperator<Number> operator = PATTERNS.getInfo(pattern);
-		return new Number[]{operator.apply(f, s)};
+		return args.mapToOptional((f, s) -> new Number[]{operator.apply(f, s)}).orElse(new Number[0]);
 	}
 
 	@Override

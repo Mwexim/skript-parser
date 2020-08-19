@@ -13,6 +13,7 @@ import io.github.syst3ms.skriptparser.types.ranges.RangeInfo;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
+import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
@@ -49,8 +50,8 @@ public class ExprRange implements Expression<Object> {
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         from = expressions[0];
         to = expressions[1];
-        range = Ranges.getRange(ClassUtils.getCommonSuperclass(from.getReturnType(), to.getReturnType()));
-        comparator = Comparators.getComparator(from.getReturnType(), to.getReturnType());
+        range = Ranges.getRange(ClassUtils.getCommonSuperclass(from.getReturnType(), to.getReturnType())).orElse(null);
+        comparator = Comparators.getComparator(from.getReturnType(), to.getReturnType()).orElse(null);
         if (range == null) {
             SkriptLogger logger = parseContext.getLogger();
             logger.error("Cannot get a range between " + from.toString(null, logger.isDebug()) + " and " + from.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
@@ -62,17 +63,19 @@ public class ExprRange implements Expression<Object> {
     @SuppressWarnings("unchecked")
     @Override
     public Object[] getValues(TriggerContext ctx) {
-        Object f = from.getSingle(ctx);
-        Object t = to.getSingle(ctx);
-        if (f == null || t == null) {
-            return new Object[0];
-        }
-        // This is safe... right ?
-        if (comparator != null && ((Comparator<Object, Object>) comparator).apply(f, t).is(Relation.GREATER)) {
-            return CollectionUtils.reverseArray((Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.getFunction()).apply(t, f));
-        } else {
-            return (Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.getFunction()).apply(f, t);
-        }
+        return DoubleOptional.ofOptional(from.getSingle(ctx), to.getSingle(ctx))
+                .mapToOptional((f, t) -> {
+                    // This is safe... right?
+                    if (comparator != null
+                            && ((Comparator<Object, Object>) comparator).apply(f, t).is(Relation.GREATER)) {
+                        return CollectionUtils.reverseArray(
+                                (Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.getFunction()).apply(t, f)
+                        );
+                    } else {
+                        return (Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.getFunction()).apply(f, t);
+                    }
+                })
+                .orElse(new Object[0]);
     }
 
     @Override

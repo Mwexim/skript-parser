@@ -7,6 +7,8 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * The date from a (unix) timestamp.
  * The default timestamp returns the amount of <b>milliseconds</b> since the Unix Epoch.
@@ -42,14 +44,12 @@ public class ExprDateFromUnix implements Expression<SkriptDate> {
 
 	@Override
 	public SkriptDate[] getValues(TriggerContext ctx) {
-		Number t = timestamp.getSingle(ctx);
-		if (t == null)
-			return new SkriptDate[0];
-
-		return new SkriptDate[] {unix
-				? new SkriptDate(t.longValue() * 1000)
-				: new SkriptDate(t.longValue())
-		};
+		return timestamp.getSingle(ctx)
+				.map(
+					t -> new SkriptDate[]{
+							unix ? new SkriptDate(t.longValue() * 1000) : new SkriptDate(t.longValue())
+					}
+				).orElse(new SkriptDate[0]);
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * See if a given list of objects contain a given element.
@@ -48,12 +49,9 @@ public class CondExprContains extends ConditionalExpression {
     @Override
     protected boolean check(TriggerContext ctx) {
         if (onlyString) {
-            String f = ((Expression<String>) first).getSingle(ctx);
-            String s = ((Expression<String>) second).getSingle(ctx);
-            if (f == null || s == null) {
-                return false;
-            }
-            return isNegated() != f.contains(s);
+            Optional<? extends String> f = ((Expression<String>) first).getSingle(ctx);
+            Optional<? extends String> s = ((Expression<String>) second).getSingle(ctx);
+            return isNegated() != f.filter(o1 -> s.map(o1::contains).isPresent()).isPresent();
         } else {
             Object[] f = ((Expression<Object>) first).getValues(ctx);
             Object[] s = ((Expression<Object>) second).getValues(ctx);

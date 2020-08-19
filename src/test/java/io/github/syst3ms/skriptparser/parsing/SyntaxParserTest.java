@@ -15,44 +15,45 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Optional;
 
 import static io.github.syst3ms.skriptparser.lang.TriggerContext.DUMMY;
 import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
-@SuppressWarnings({"unchecked", "ConstantConditions"})
+@SuppressWarnings({"unchecked", "ConstantConditions", "OptionalUsedAsFieldOrParameterType"})
 public class SyntaxParserTest {
 
     static {
         TestRegistration.register();
     }
 
-    private void assertExpressionEquals(@Nullable Expression<?> expected, @Nullable Expression<?> actual) {
-        if (expected == actual)
+    private void assertExpressionEquals(Expression<?> expected, Optional< ?extends Expression<?>> actual) {
+        if (actual.filter(expected::equals).isPresent())
             return;
-        if (actual == null)
+        if (actual.isEmpty())
             fail("Null expression");
-        assertArrayEquals(expected.getValues(DUMMY), actual.getValues(DUMMY));
+        assertArrayEquals(expected.getValues(DUMMY), actual.get().getValues(DUMMY));
     }
 
 
-    private void assertExpressionTrue(@Nullable Expression<?> actual) {
+    private void assertExpressionTrue(Optional<? extends Expression<?>> actual) {
         assertExpressionEquals(new SimpleLiteral<>(Boolean.class, true), actual);
     }
 
-    private void assertExpressionTypeEquals(Class<?> expected, @Nullable Expression<?> expr) throws Exception {
-        if (expr == null)
+    private void assertExpressionTypeEquals(Class<?> expected, Optional<? extends Expression<?>> expr) throws Exception {
+        if (expr.isEmpty())
             fail("Null expression");
-        if (expr.getReturnType() == expected)
+        if (expr.get().getReturnType() == expected)
             return;
-        Object value = expr.getSingle(DUMMY);
-        if (value == null || value.getClass() != expected)
-            fail("Different return types : expected " + expected + ", got " + (value == null ? "null" : value.getClass()));
+        Optional<?> value = expr.get().getSingle(DUMMY);
+        if (value.isEmpty() || value.get().getClass() != expected)
+            fail("Different return types : expected " + expected + ", got " + value.map(Object::getClass).orElse(null));
     }
 
     private <T> PatternType<T> getType(Class<T> c, boolean single) {
-        return new PatternType<>(TypeManager.getByClassExact(c), single);
+        return new PatternType<>(TypeManager.getByClassExact(c).orElseThrow(AssertionError::new), single);
     }
 
     private <T> Literal<T> literal(T... values) {

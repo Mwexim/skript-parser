@@ -9,6 +9,7 @@ import io.github.syst3ms.skriptparser.util.SkriptDate;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -39,8 +40,8 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 	int parseMark;
 
 	@Override
-	public Function<SkriptDate[], Number[]> getPropertyFunction() {
-		return dates -> {
+	public Optional<? extends Function<? super SkriptDate[], ? extends Number[]>> getPropertyFunction() {
+		return Optional.of(dates -> {
 			LocalDateTime lcd = dates[0].toLocalDateTime();
 			switch (parseMark) {
 				case 0:
@@ -62,7 +63,7 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 				default:
 					return new Number[0];
 			}
-		};
+		});
 	}
 
 	@SuppressWarnings("unchecked")

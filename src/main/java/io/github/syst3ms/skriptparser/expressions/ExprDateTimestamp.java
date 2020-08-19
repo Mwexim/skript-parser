@@ -8,6 +8,7 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -37,11 +38,14 @@ public class ExprDateTimestamp extends PropertyExpression<Number, SkriptDate> {
 	boolean unix;
 
 	@Override
-	public Function<SkriptDate[], Number[]> getPropertyFunction() {
-		return dates -> new Number[] {unix
+	public Optional<? extends Function<? super SkriptDate[], ? extends Number[]>> getPropertyFunction() {
+		return Optional.of(
+				dates -> new Number[] {
+					unix
 						? Math.floorDiv(dates[0].getTimestamp(), 1000)
 						: dates[0].getTimestamp()
-		};
+				}
+		);
 	}
 
 	@SuppressWarnings("unchecked")

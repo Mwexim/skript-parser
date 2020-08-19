@@ -9,6 +9,8 @@ import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.util.ThreadUtils;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * Runs this effect asynchronously.
  * The difference between this and the section {@code async} is due to the fact that this effect will only run the specified action asunc,
@@ -36,7 +38,7 @@ public class EffAsync extends Effect {
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         String expr = parseContext.getMatches().get(0).group();
         parseContext.getLogger().recurse();
-        effect = SyntaxParser.parseEffect(expr, parseContext.getParserState(), parseContext.getLogger());
+        effect = SyntaxParser.parseEffect(expr, parseContext.getParserState(), parseContext.getLogger()).orElse(null);
         parseContext.getLogger().callback();
         return effect != null;
     }

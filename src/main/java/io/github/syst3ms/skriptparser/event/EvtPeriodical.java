@@ -41,7 +41,7 @@ public class EvtPeriodical extends SkriptEvent {
 
     @Override
     public boolean check(TriggerContext ctx) {
-        return ctx instanceof PeriodicalContext && duration.getSingle(ctx) != null;
+        return ctx instanceof PeriodicalContext && duration.getSingle(ctx).isPresent();
     }
 
     @Override

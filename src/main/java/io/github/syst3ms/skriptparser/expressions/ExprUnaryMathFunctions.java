@@ -81,10 +81,9 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 
 	@Override
 	public Number[] getValues(TriggerContext ctx) {
-		Number num = number.getSingle(ctx);
-		if (num == null)
-			return new Number[0];
-		return new Number[]{PATTERNS.getInfo(pattern).apply(num)};
+		return number.getSingle(ctx)
+				.map(n -> new Number[]{ PATTERNS.getInfo(pattern).apply(n) })
+				.orElse(new Number[0]);
 	}
 
 	@Override

@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -36,8 +37,8 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 	int parseMark;
 
 	@Override
-	public Function<SkriptDate[], String[]> getPropertyFunction() {
-		return dates -> {
+	public Optional<? extends Function<? super SkriptDate[], ? extends String[]>> getPropertyFunction() {
+		return Optional.of(dates -> {
 			LocalDateTime lcd = dates[0].toLocalDateTime();
 			switch (parseMark) {
 				case 0:
@@ -55,7 +56,7 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 				default:
 					return new String[0];
 			}
-		};
+		});
 	}
 
 	@SuppressWarnings("unchecked")

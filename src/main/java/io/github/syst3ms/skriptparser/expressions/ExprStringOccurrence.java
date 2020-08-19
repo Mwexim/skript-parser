@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -39,13 +40,14 @@ public class ExprStringOccurrence implements Expression<Number> {
 
 	@Override
 	public Number[] getValues(TriggerContext ctx) {
-		String v = value.getSingle(ctx), e = expr.getSingle(ctx);
-		if (v == null || e == null)
-			return new Number[0];
-
-		int i = first ? e.indexOf(v) : e.lastIndexOf(v);
-		// Return i + 1, since Skript indices start at 1.
-		return i == -1 ? new Number[0] : new Number[] {i + 1};
+		return DoubleOptional.ofOptional(value.getSingle(ctx), expr.getSingle(ctx))
+				.mapToOptional((v, e) -> first ? e.indexOf(v) : e.lastIndexOf(v))
+				.filter(i -> i != -1)
+				.map(i -> {
+					// Return i + 1, since Skript indices start at 1.
+					return new Number[]{i + 1};
+				})
+				.orElse(new Number[0]);
 	}
 
 	@Override

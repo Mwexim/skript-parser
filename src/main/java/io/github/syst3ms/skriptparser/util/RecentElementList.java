@@ -45,8 +45,8 @@ public class RecentElementList<T> implements Iterable<T> {
             occurrences.add(element);
             backing.add(new AbstractMap.SimpleEntry<>(element, 1));
         } else {
-            for (int i = 0; i < backing.size(); i++) {
-                Map.Entry<T, Integer> freq = backing.get(i);
+            for (var i = 0; i < backing.size(); i++) {
+                var freq = backing.get(i);
                 if (freq.getKey().equals(element)) {
                     freq.setValue(freq.getValue() + 1);
                     backing.set(i, freq);

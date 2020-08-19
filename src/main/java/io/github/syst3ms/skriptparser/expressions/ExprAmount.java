@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The amount of elements in a given list.
@@ -53,9 +54,9 @@ public class ExprAmount extends PropertyExpression<Number, Object> {
 	@Override
 	public Number[] getValues(TriggerContext ctx) {
 		if (recursive) {
-			Object var = ((Variable<?>) getOwner()).getRaw(ctx);
-			if (var != null)
-				return new Number[] {getRecursiveSize((Map<String, ?>) var)}; // Should already be a Map
+			Optional<Object> var = ((Variable<?>) getOwner()).getRaw(ctx);
+			if (var.isPresent())
+				return new Number[] {getRecursiveSize((Map<String, ?>) var.get())}; // Should already be a Map
 		}
 		return new Number[] {getOwner().getValues(ctx).length};
 	}

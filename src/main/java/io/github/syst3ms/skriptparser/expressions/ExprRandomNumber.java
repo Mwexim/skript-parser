@@ -7,9 +7,11 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
+import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 /**
  * Generate a random number (double) or integer.
@@ -43,21 +45,19 @@ public class ExprRandomNumber implements Expression<Number> {
         maxNumber = (Expression<Number>) expressions[1];
         isInteger = matchedPattern == 0;
         isExclusive = context.getParseMark() == 1;
-        numComp = Comparators.getComparator(Number.class, Number.class);
-        assert numComp != null;
+        numComp = Comparators.getComparator(Number.class, Number.class).orElseThrow(AssertionError::new);
         return true;
     }
 
     @Override
     public Number[] getValues(TriggerContext ctx) {
-        Number low = lowerNumber.getSingle(ctx);
-        Number max = maxNumber.getSingle(ctx);
-        if (low == null || max == null)
-            return new Number[0];
-        //Check to find out which number is the greater of the 2, while keeping the type
-        Number realLow = Relation.SMALLER_OR_EQUAL.is(numComp.apply(low, max)) ? low : max;
-        Number realMax = Relation.SMALLER_OR_EQUAL.is(numComp.apply(low, max)) ? max : low;
-        return new Number[]{NumberMath.random(realLow, realMax, !isExclusive, random)};
+        return DoubleOptional.ofOptional(lowerNumber.getSingle(ctx), maxNumber.getSingle(ctx))
+                .flatMap((l, m) -> DoubleOptional.of(
+                        Relation.SMALLER_OR_EQUAL.is(numComp.apply(l, m)) ? l : m,
+                        Relation.SMALLER_OR_EQUAL.is(numComp.apply(l, m)) ? m : l
+                    )
+                ).mapToOptional((l, m) -> new Number[]{NumberMath.random(l, m, !isExclusive, random)})
+                .orElse(new Number[0]);
     }
 
     @Override

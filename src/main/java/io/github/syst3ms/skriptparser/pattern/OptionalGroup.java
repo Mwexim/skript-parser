@@ -23,15 +23,15 @@ public class OptionalGroup implements PatternElement {
         if (!(obj instanceof OptionalGroup)) {
             return false;
         } else {
-            OptionalGroup other = (OptionalGroup) obj;
+            var other = (OptionalGroup) obj;
             return element.equals(other.element);
         }
     }
 
     @Override
     public int match(String s, int index, MatchContext context) {
-        MatchContext branch = context.branch(element);
-        int m = element.match(s, index, branch);
+        var branch = context.branch(element);
+        var m = element.match(s, index, branch);
         context.merge(branch);
         return m != -1 ? m : index;
     }

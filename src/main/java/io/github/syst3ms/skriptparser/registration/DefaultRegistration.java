@@ -17,6 +17,7 @@ import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
@@ -365,14 +366,14 @@ public class DefaultRegistration {
         /*
          * Converters
          */
-        Converters.registerConverter(Number.class, Long.class, n -> n instanceof Long ? (Long) n : n.longValue());
+        Converters.registerConverter(Number.class, Long.class, n -> Optional.of(n instanceof Long ? (Long) n : n.longValue()));
         Converters.registerConverter(Number.class, BigInteger.class, n -> {
             if (n instanceof BigInteger) {
-                return (BigInteger) n;
+                return Optional.of((BigInteger) n);
             } else if (n instanceof Long) {
-                return BigInteger.valueOf((Long) n);
+                return Optional.of(BigInteger.valueOf((Long) n));
             } else {
-                return BigInteger.valueOf(n.longValue());
+                return Optional.of(BigInteger.valueOf(n.longValue()));
             }
         });
         registration.register(); // Ignoring logs here, we control the input

@@ -4,6 +4,8 @@ import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.registration.PatternInfos;
+import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -63,35 +65,29 @@ public class ExprStringSplitJoin implements Expression<String> {
 
 	@Override
 	public String[] getValues(TriggerContext ctx) {
-		String str;
-		String del;
 		if (pattern == 0) {
 			String[] strs = expr.getValues(ctx);
-			del = delimiterPresent ? delimiter.getSingle(ctx) : "";
+			String del = delimiterPresent ? delimiter.getSingle(ctx).orElse(null) : "";
 			if (strs.length == 0 || del == null) {
 				return new String[0];
 			}
 			return new String[]{String.join(del, strs)};
 		} else if (pattern == 1) {
-			str = expr.getSingle(ctx);
-			del = delimiter.getSingle(ctx);
-			if (str == null || del == null) {
-				return new String[0];
-			}
-			return str.split(Pattern.quote(del));
+			return DoubleOptional.ofOptional(expr.getSingle(ctx), delimiter.getSingle(ctx))
+					.mapToOptional((str, del) -> str.split(Pattern.quote(del)))
+					.orElse(new String[0]);
 		} else {
-			str = expr.getSingle(ctx);
-			Number c = chars.getSingle(ctx);
-			if (str == null || c == null) {
-				return new String[0];
-			}
-			List<String> ret = new ArrayList<>();
-			int i = 0;
-			while (i < str.length()) {
-				ret.add(str.substring(i, Math.min(i + c.intValue(), str.length())));
-				i += c.intValue();
-			}
-			return ret.toArray(new String[0]);
+			return DoubleOptional.ofOptional(expr.getSingle(ctx), chars.getSingle(ctx))
+					.mapToOptional((str, c) -> {
+						List<String> ret = new ArrayList<>();
+						int i = 0;
+						while (i < str.length()) {
+							ret.add(str.substring(i, Math.min(i + c.intValue(), str.length())));
+							i += c.intValue();
+						}
+						return ret.toArray(new String[0]);
+					})
+					.orElse(new String[0]);
 		}
 	}
 

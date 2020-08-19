@@ -63,11 +63,9 @@ public class ExprStringCases implements Expression<String> {
 
 	@Override
 	public String[] getValues(TriggerContext ctx) {
-		String str = expr.getSingle(ctx);
-		if (str == null)
-			return new String[0];
-
-		return new String[] {PATTERNS.getInfo(pattern).apply(str)};
+		return expr.getSingle(ctx)
+				.map(s -> new String[]{ PATTERNS.getInfo(pattern).apply(s) })
+				.orElse(new String[0]);
 	}
 
 	@Override

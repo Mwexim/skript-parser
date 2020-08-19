@@ -32,13 +32,13 @@ public interface PatternElement {
     static List<PatternElement> getPossibleInputs(List<PatternElement> elements) {
         List<PatternElement> optionalPossibilities = new ArrayList<>(); // We generally want to get the non-optional ones out of the way first
         List<PatternElement> possibilities = new ArrayList<>();
-        for (PatternElement element : elements) {
+        for (var element : elements) {
             if (element instanceof TextElement || element instanceof RegexGroup) {
                 if (element instanceof TextElement) {
-                    String text = ((TextElement) element).getText();
-                    if (text.isEmpty() || text.matches("\\s*") && elements.size() == 1) {
-                        return Collections.emptyList();
-                    } else if (text.matches("\\s*")) {
+                    var text = ((TextElement) element).getText();
+                    if (text.isEmpty() || text.isBlank() && elements.size() == 1) {
+                        return possibilities;
+                    } else if (text.isBlank()) {
                         continue;
                     }
                 }
@@ -46,8 +46,8 @@ public interface PatternElement {
                 possibilities.addAll(optionalPossibilities);
                 return possibilities;
             } else if (element instanceof ChoiceGroup) {
-                for (ChoiceElement choice : ((ChoiceGroup) element).getChoices()) {
-                    List<PatternElement> possibleInputs = getPossibleInputs(flatten(choice.getElement()));
+                for (var choice : ((ChoiceGroup) element).getChoices()) {
+                    var possibleInputs = getPossibleInputs(flatten(choice.getElement()));
                     possibilities.addAll(possibleInputs);
                 }
                 possibilities.addAll(optionalPossibilities);

@@ -49,16 +49,16 @@ public abstract class SeriesCalculator {
 	 * @return the calculated result
 	 */
 	public BigDecimal calculate(BigDecimal x, MathContext mathContext) {
-		BigDecimal acceptableError = ONE.movePointLeft(mathContext.getPrecision() + 1);
+		var acceptableError = ONE.movePointLeft(mathContext.getPrecision() + 1);
 
-		PowerIterator powerIterator = createPowerIterator(x, mathContext);
-		
-		BigDecimal sum = BigDecimal.ZERO;
+		var powerIterator = createPowerIterator(x, mathContext);
+
+		var sum = BigDecimal.ZERO;
 		BigDecimal step;
-		int i = 0;
+		var i = 0;
 		do {
-			BigRational factor = getFactor(i);
-			BigDecimal xToThePower  = powerIterator.getCurrentPower();
+			var factor = getFactor(i);
+			var xToThePower  = powerIterator.getCurrentPower();
 			powerIterator.calculateNextPower();
 			step = factor.getNumerator().multiply(xToThePower, mathContext).divide(factor.getDenominator(), mathContext);
 			i++;
@@ -67,7 +67,7 @@ public abstract class SeriesCalculator {
 				xToThePower  = powerIterator.getCurrentPower();
 				powerIterator.calculateNextPower();
 				factor = getFactor(i);
-				BigDecimal step2 = factor.getNumerator().multiply(xToThePower, mathContext).divide(factor.getDenominator(), mathContext);
+				var step2 = factor.getNumerator().multiply(xToThePower, mathContext).divide(factor.getDenominator(), mathContext);
 				step = step.add(step2, mathContext);
 				i++;
 			}
@@ -96,7 +96,7 @@ public abstract class SeriesCalculator {
 	 */
 	protected BigRational getFactor(int index) {
 		while (factors.size() <= index) {
-			BigRational factor = getCurrentFactor();
+			var factor = getCurrentFactor();
 			factors.add(factor);
 			calculateNextFactor();
 		}

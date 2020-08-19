@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Manages the registration and usage of {@link Type}
@@ -42,16 +43,16 @@ public class TypeManager {
      * @param name the name to get a Type from
      * @return the matching Type, or {@literal null} if nothing matched
      */
-    @Nullable
-    public static Type<?> getByName(String name) {
-        for (Type<?> t : nameToType.values()) {
-            String[] forms = t.getPluralForms();
+    public static Optional<Type<?>> getByName(String name) {
+        for (var t : nameToType.values()) {
+            var forms = t.getPluralForms();
             if (name.equalsIgnoreCase(forms[0]) || name.equalsIgnoreCase(forms[1])) {
-                return t;
+                return Optional.of(t);
             }
         }
-        return null;
+        return Optional.empty();
     }
+
 
     /**
      * Gets a {@link Type} from its associated {@link Class}.
@@ -59,24 +60,22 @@ public class TypeManager {
      * @param <T> the underlying type of the Class and the returned Type
      * @return the associated Type, or {@literal null}
      */
-    @Nullable
-    public static <T> Type<T> getByClassExact(Class<T> c) {
+    public static <T> Optional<? extends Type<T>> getByClassExact(Class<T> c) {
         if (c.isArray())
             c = (Class<T>) c.getComponentType();
-        return (Type<T>) classToType.get(c);
+        return Optional.ofNullable((Type<T>) classToType.get(c));
     }
 
-    @Nullable
-    public static <T> Type<? super T> getByClass(Class<T> c) {
-        Type<? super T> type = getByClassExact(c);
-        Class<? super T> superclass = c.getSuperclass();
-        while (superclass != null && type == null) {
+    public static <T> Optional<? extends Type<? super T>> getByClass(Class<T> c) {
+        Optional<? extends Type<? super T>> type = getByClassExact(c);
+        var superclass = c.getSuperclass();
+        while (superclass != null && type.isEmpty()) {
             type = getByClass(superclass);
             superclass = superclass.getSuperclass();
         }
-        Class<? super T>[] interf = (Class<? super T>[]) c.getInterfaces();
-        int i = 0;
-        while ((type == null || type.getTypeClass() == Object.class) && i < interf.length) {
+        var interf = (Class<? super T>[]) c.getInterfaces();
+        var i = 0;
+        while ((type.isEmpty() || type.filter(t -> t.getTypeClass() == Object.class).isPresent()) && i < interf.length) {
             type = getByClass(interf[i]);
             i++;
         }
@@ -84,22 +83,18 @@ public class TypeManager {
     }
 
     public static String toString(Object... objects) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < objects.length; i++) {
+        var sb = new StringBuilder();
+        for (var i = 0; i < objects.length; i++) {
             if (i > 0) {
                 sb.append(i == objects.length - 1 ? " and " : ", ");
             }
-            Object o = objects[i];
+            var o = objects[i];
             if (o == null) {
                 sb.append(NULL_REPRESENTATION);
                 continue;
             }
-            Type<?> type = getByClass(o.getClass());
-            if (type == null) {
-                sb.append(o);
-            } else {
-                sb.append(type.getToStringFunction().apply(o));
-            }
+            var type = getByClass(o.getClass());
+            sb.append(type.map(t -> (Object) t.getToStringFunction().apply(o)).orElse(o));
         }
         return sb.length() == 0 ? EMPTY_REPRESENTATION : sb.toString();
     }
@@ -110,21 +105,20 @@ public class TypeManager {
      * @param name the name input
      * @return a corresponding PatternType, or {@literal null} if nothing matched
      */
-    @Nullable
-    public static PatternType<?> getPatternType(String name) {
-        for (Type<?> t : nameToType.values()) {
-            String[] forms = t.getPluralForms();
+    public static Optional<PatternType<?>> getPatternType(String name) {
+        for (var t : nameToType.values()) {
+            var forms = t.getPluralForms();
             if (name.equalsIgnoreCase(forms[0])) {
-                return new PatternType<>(t, true);
+                return Optional.of(new PatternType<>(t, true));
             } else if (name.equalsIgnoreCase(forms[1])) {
-                return new PatternType<>(t, false);
+                return Optional.of(new PatternType<>(t, false));
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     public static void register(SkriptRegistration reg) {
-        for (Type<?> type : reg.getTypes()) {
+        for (var type : reg.getTypes()) {
             nameToType.put(type.getBaseName(), type);
             classToType.put(type.getTypeClass(), type);
         }
