@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -26,14 +27,13 @@ public class PatternParser {
      * @param pattern the pattern to be parsed
      * @return the parsed PatternElement, or {@literal null} if something went wrong.
      */
-    @Nullable
-    public PatternElement parsePattern(String pattern, SkriptLogger logger) {
+    public Optional<PatternElement> parsePattern(String pattern, SkriptLogger logger) {
         List<PatternElement> elements = new ArrayList<>();
         StringBuilder textBuilder = new StringBuilder();
-        String[] parts = StringUtils.splitVerticalBars(pattern, logger);
-        if (parts == null) {
-            return null;
-        } else if (parts.length > 1) {
+        Optional<String[]> parts = StringUtils.splitVerticalBars(pattern, logger);
+        if (!parts.isPresent()) {
+            return Optional.empty();
+        } else if (parts.get().length > 1) {
             pattern = "(" + pattern + ")";
         }
         char[] chars = pattern.toCharArray();
@@ -41,25 +41,25 @@ public class PatternParser {
             char c = chars[i];
             int initialPos = i;
             if (c == '[') {
-                String s = StringUtils.getEnclosedText(pattern, '[', ']', i);
-                if (s == null) {
+                Optional<String> s = StringUtils.getEnclosedText(pattern, '[', ']', i);
+                if (!s.isPresent()) {
                     logger.error("Unmatched square bracket (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
-                    return null;
-                } else if (s.isEmpty()) {
-                    logger.warn("There is an empty optional group. Place a backslash before a square bracket for it to be interpreted literally : [" + s + "]");
+                    return Optional.empty();
+                } else if (s.get().isEmpty()) {
+                    logger.warn("There is an empty optional group. Place a backslash before a square bracket for it to be interpreted literally : [" + s.get() + "]");
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
                     textBuilder = new StringBuilder();
                 }
-                i += s.length() + 1; // sets i to the closing bracket, for loop does the rest
-                Matcher matcher = PARSE_MARK_PATTERN.matcher(s);
-                PatternElement content;
-                String[] vertParts = StringUtils.splitVerticalBars(pattern, logger);
-                if (vertParts == null) {
-                    return null; // The content is malformed anyway
+                i += s.get().length() + 1; // sets i to the closing bracket, for loop does the rest
+                Optional<OptionalGroup> o;
+                Matcher matcher = PARSE_MARK_PATTERN.matcher(s.get());
+                Optional<String[]> vertParts = StringUtils.splitVerticalBars(pattern, logger);
+                if (!vertParts.isPresent()) {
+                    return Optional.empty(); // The content is malformed anyway
                 }
-                if (matcher.matches() && vertParts.length == 1) {
+                if (matcher.matches() && vertParts.get().length == 1) {
                     String mark = matcher.group(1);
                     String base = matcher.group(2);
                     int markNumber;
@@ -67,49 +67,51 @@ public class PatternParser {
                         if (base == null) {
                             markNumber = Integer.parseInt(mark);
                         } else if (base.equals("b")) {
-                            markNumber = Integer.parseInt(s, 2);
+                            markNumber = Integer.parseInt(s.get(), 2);
                         } else if (base.equals("f")) {
-                            markNumber = Integer.parseInt(s, 16);
+                            markNumber = Integer.parseInt(s.get(), 16);
                         } else {
                             logger.error("Invalid parse mark (index " + initialPos + ") : '" + mark + base + "'", ErrorType.MALFORMED_INPUT);
-                            return null;
+                            return Optional.empty();
                         }
                     } catch (NumberFormatException e) {
-                        return null;
+                        return Optional.empty();
                     }
                     String rest = matcher.group(3);
-                    PatternElement e = parsePattern(rest, logger);
-                    if (e == null) {
-                        return null;
-                    }
-                    content = new ChoiceGroup(Collections.singletonList(new ChoiceElement(e, markNumber))); // I said I would keep the other constructor for unit tests
+                    o = parsePattern(rest, logger)
+                            .map(e -> new ChoiceGroup(Collections.singletonList(new ChoiceElement(e, markNumber))))
+                            .map(OptionalGroup::new);
+
                 } else {
-                    content = parsePattern(s, logger);
-                    if (content == null) {
-                        return null;
-                    }
+                    o = s.flatMap(st -> parsePattern(st, logger))
+                            .map(OptionalGroup::new);
                 }
-                elements.add(new OptionalGroup(content));
+                if (!o.isPresent()) {
+                    return Optional.empty();
+                } else {
+                    elements.add(o.get());
+                }
             } else if (c == '(') {
-                String s = StringUtils.getEnclosedText(pattern, '(', ')', i);
-                if (s == null) {
+                Optional<String> s = StringUtils.getEnclosedText(pattern, '(', ')', i);
+                if (!s.isPresent()) {
                     logger.error("Unmatched parenthesis (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
-                    return null;
+                    return Optional.empty();
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
                     textBuilder = new StringBuilder();
                 }
-                i += s.length() + 1;
-                String[] choices = StringUtils.splitVerticalBars(s, logger);
-                if (choices == null) {
-                    return null;
+                i += s.get().length() + 1;
+                Optional<String[]> choices = StringUtils.splitVerticalBars(s.get(), logger);
+                if (!choices.isPresent()) {
+                    return Optional.empty();
                 }
                 List<ChoiceElement> choiceElements = new ArrayList<>();
-                for (String choice : choices) {
+                for (String choice : choices.get()) {
                     if (choice.isEmpty()) {
-                        logger.warn("There is an empty choice in the choice group. Place a backslash before the vertical bar for it to be interpreted literally : (" + s + ")");
+                        logger.warn("There is an empty choice in the choice group. Place a backslash before the vertical bar for it to be interpreted literally : (" + s.get() + ")");
                     }
+                    Optional<ChoiceElement> choiceElement;
                     Matcher matcher = PARSE_MARK_PATTERN.matcher(choice);
                     if (matcher.matches()) {
                         String mark = matcher.group(1);
@@ -119,50 +121,49 @@ public class PatternParser {
                             if (base == null) {
                                 markNumber = Integer.parseInt(mark);
                             } else if (base.equals("b")) {
-                                markNumber = Integer.parseInt(s, 2);
+                                markNumber = Integer.parseInt(s.get(), 2);
                             } else if (base.equals("f")) {
-                                markNumber = Integer.parseInt(s, 16);
+                                markNumber = Integer.parseInt(s.get(), 16);
                             } else {
                                 logger.error("Invalid parse mark (index " + initialPos + ") : '" + mark + base + "'", ErrorType.MALFORMED_INPUT);
-                                return null;
+                                return Optional.empty();
                             }
                         } catch (NumberFormatException e) {
-                            return null;
+                            return Optional.empty();
                         }
                         String rest = matcher.group(3);
-                        PatternElement choiceContent = parsePattern(rest, logger);
-                        if (choiceContent == null) {
-                            return null;
-                        }
-                        choiceElements.add(new ChoiceElement(choiceContent, markNumber));
+                        choiceElement = parsePattern(rest, logger)
+                                .map(p -> new ChoiceElement(p, markNumber));
                     } else {
-                        PatternElement choiceContent = parsePattern(choice, logger);
-                        if (choiceContent == null) {
-                            return null;
-                        }
-                        choiceElements.add(new ChoiceElement(choiceContent, 0));
+                        choiceElement = parsePattern(choice, logger)
+                                .map(p -> new ChoiceElement(p, 0));
+                    }
+                    if (!choiceElement.isPresent()) {
+                        return Optional.empty();
+                    } else {
+                        choiceElements.add(choiceElement.get());
                     }
                 }
                 elements.add(new ChoiceGroup(choiceElements));
             } else if (c == '<') {
-                String s = StringUtils.getEnclosedText(pattern, '<', '>', i);
-                if (s == null) {
+                Optional<String> s = StringUtils.getEnclosedText(pattern, '<', '>', i);
+                if (!s.isPresent()) {
                     logger.error("Unmatched angle bracket (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
-                    return null;
-                } else if (s.isEmpty()) {
-                    logger.warn("There is an empty regex group. Place a backslash before an angle bracket for it to be interpreted literally : [" + s + "]");
+                    return Optional.empty();
+                } else if (s.get().isEmpty()) {
+                    logger.warn("There is an empty regex group. Place a backslash before an angle bracket for it to be interpreted literally : [" + s.get() + "]");
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
                     textBuilder = new StringBuilder();
                 }
-                i += s.length() + 1;
+                i += s.get().length() + 1;
                 Pattern pat;
                 try {
-                    pat = Pattern.compile(s);
+                    pat = Pattern.compile(s.get());
                 } catch (PatternSyntaxException e) {
-                    logger.error("Invalid regex pattern (index " + initialPos + ") : '" + s + "'", ErrorType.MALFORMED_INPUT);
-                    return null;
+                    logger.error("Invalid regex pattern (index " + initialPos + ") : '" + s.get() + "'", ErrorType.MALFORMED_INPUT);
+                    return Optional.empty();
                 }
                 elements.add(new RegexGroup(pat));
             } else if (c == '%') {
@@ -173,7 +174,7 @@ public class PatternParser {
                 int nextIndex = pattern.indexOf('%', i + 1);
                 if (nextIndex == -1) {
                     logger.error("Unmatched percent (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
-                    return null;
+                    return Optional.empty();
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
@@ -184,7 +185,7 @@ public class PatternParser {
                 Matcher m = VARIABLE_PATTERN.matcher(s);
                 if (!m.matches()) {
                     logger.error("Invalid expression element (index " + initialPos + ") : '" + s + "'", ErrorType.MALFORMED_INPUT);
-                    return null;
+                    return Optional.empty();
                 } else {
                     boolean nullable = m.group(1) != null;
                     ExpressionElement.Acceptance acceptance = ExpressionElement.Acceptance.ALL;
@@ -202,12 +203,12 @@ public class PatternParser {
                     String[] types = typeString.split("/");
                     List<PatternType<?>> patternTypes = new ArrayList<>();
                     for (String type : types) {
-                        PatternType<?> t = TypeManager.getPatternType(type);
-                        if (t == null) {
+                        Optional<PatternType<?>> t = TypeManager.getPatternType(type);
+                        if (!t.isPresent()) {
                             logger.error("Unknown type (index " + initialPos + ") : '" + type + "'", ErrorType.NO_MATCH);
-                            return null;
+                            return Optional.empty();
                         }
-                        patternTypes.add(t);
+                        patternTypes.add(t.get());
                     }
                     boolean acceptConditional = m.group(3) != null;
                     if (acceptConditional && patternTypes.stream().noneMatch(t -> t.getType().getTypeClass() == Boolean.class)) {
@@ -218,13 +219,13 @@ public class PatternParser {
             } else if (c == '\\') {
                 if (i == pattern.length() - 1) {
                     logger.error("Invalid backslash at the end of the string", ErrorType.MALFORMED_INPUT);
-                    return null;
+                    return Optional.empty();
                 } else {
                     textBuilder.append(chars[++i]);
                 }
             } else if (c == ']' || c == ')' || c == '>') { // Closing brackets are skipped over, so this marks an error
                 logger.error("Unmatched closing bracket (index " + initialPos + ") : '" + pattern.substring(0, initialPos + 1) + "'", ErrorType.MALFORMED_INPUT);
-                return null;
+                return Optional.empty();
             } else {
                 textBuilder.append(c);
             }
@@ -234,9 +235,9 @@ public class PatternParser {
             textBuilder.setLength(0);
         }
         if (elements.size() == 1) {
-            return elements.get(0);
+            return Optional.of(elements.get(0));
         } else {
-            return new CompoundElement(elements);
+            return Optional.of(new CompoundElement(elements));
         }
     }
 

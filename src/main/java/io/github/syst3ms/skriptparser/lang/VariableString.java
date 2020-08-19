@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,24 +48,23 @@ public class VariableString implements Expression<String> {
      *     </li>
      * </ul>. Returns a new instance of a VariableString otherwise.
      */
-    @Nullable
-    public static VariableString newInstanceWithQuotes(String s, ParserState parserState, SkriptLogger logger) {
+    public static Optional<VariableString> newInstanceWithQuotes(String s, ParserState parserState, SkriptLogger logger) {
         if (s.startsWith("\"") && s.endsWith("\"") && StringUtils.nextSimpleCharacterIndex(s, 0) == s.length()) {
             return newInstance(s.substring(1, s.length() - 1), parserState, logger);
         } else if (s.startsWith("'") && s.endsWith("'") && StringUtils.nextSimpleCharacterIndex(s, 0) == s.length()) {
-            return new VariableString(new String[]{
-                s.substring(1, s.length() - 1).replace("\\'", "'")
-            });
+            return Optional.of(new VariableString(new String[]{
+                    s.substring(1, s.length() - 1).replace("\\'", "'")
+            }));
         } else if (s.startsWith("R\"") && s.endsWith("\"")) {
             String content = s.substring(2, s.length() - 1);
             Matcher m = R_LITERAL_CONTENT_PATTERN.matcher(content);
             if (m.matches()) {
-                return new VariableString(new String[]{m.group(2)});
+                return Optional.of(new VariableString(new String[]{m.group(2)}));
             } else {
                 logger.error("Invalid R literal string", ErrorType.MALFORMED_INPUT);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -74,7 +74,7 @@ public class VariableString implements Expression<String> {
      * @param logger
      * @return a new instance of a VariableString, or {@code null} if there are unbalanced {@literal %} symbols
      */
-    public static VariableString newInstance(String s, ParserState parserState, SkriptLogger logger) {
+    public static Optional<VariableString> newInstance(String s, ParserState parserState, SkriptLogger logger) {
         List<Object> data = new ArrayList<>(StringUtils.count(s, "%"));
         StringBuilder sb = new StringBuilder();
         char[] charArray = s.toCharArray();
@@ -82,28 +82,26 @@ public class VariableString implements Expression<String> {
             char c = charArray[i];
             if (c == '%') {
                 if (i == charArray.length - 1) {
-                    return null;
+                    return Optional.empty();
                 }
-                String content = StringUtils.getPercentContent(s, i + 1);
-                if (content == null) {
-                    return null;
-                }
-                String toParse = content.replaceAll("\\\\(.)", "$1");
+                Optional<String> content = StringUtils.getPercentContent(s, i + 1);
+                Optional<String> toParse = content.map(co -> co.replaceAll("\\\\(.)", "$1"));
+                if (!toParse.isPresent())
+                    return Optional.empty();
                 logger.recurse();
-                Expression<?> expression = SyntaxParser.parseExpression(toParse, SyntaxParser.OBJECTS_PATTERN_TYPE, parserState, logger);
+                Optional<? extends Expression<?>> expression = SyntaxParser.parseExpression(toParse.get(), SyntaxParser.OBJECTS_PATTERN_TYPE, parserState, logger);
                 logger.callback();
-                if (expression == null) {
-                    return null;
-                }
+                if (!expression.isPresent())
+                    return Optional.empty();
                 if (sb.length() > 0) {
                     data.add(sb.toString());
                     sb.setLength(0);
                 }
-                data.add(expression);
-                i += content.length() + 1;
+                data.add(expression.get());
+                i += content.get().length() + 1;
             } else if (c == '\\') {
                 if (i + 1 == charArray.length) {
-                    return null;
+                    return Optional.empty();
                 }
                 sb.append(charArray[++i]);
             } else {
@@ -113,7 +111,7 @@ public class VariableString implements Expression<String> {
         if (sb.length() > 0) {
             data.add(sb.toString());
         }
-        return new VariableString(data.toArray());
+        return Optional.of(new VariableString(data.toArray()));
     }
 
     /**
@@ -178,9 +176,9 @@ public class VariableString implements Expression<String> {
                 sb.append(o);
             } else {
                 assert o instanceof Expression;
-                ExpressionInfo<?, ?> exprInfo = SyntaxManager.getExpressionExact((Expression<?>) o);
-                assert exprInfo != null;
-                sb.append("<").append(exprInfo.getReturnType().toString()).append(">");
+                Optional<? extends ExpressionInfo<? extends Expression<?>, ?>> exprInfo = SyntaxManager.getExpressionExact((Expression<?>) o);
+                assert exprInfo.isPresent();
+                sb.append("<").append(exprInfo.get().getReturnType().toString()).append(">");
             }
         }
         return sb.toString();

@@ -6,6 +6,8 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * A {@linkplain CodeSection code section} representing a condition. It can either be :
  * <ul>
@@ -38,19 +40,20 @@ public class Conditional extends CodeSection {
     }
 
     @Override
-    protected Statement walk(TriggerContext ctx) {
+    protected Optional<? extends Statement> walk(TriggerContext ctx) {
         assert condition != null || mode == ConditionalMode.ELSE;
-        if (mode == ConditionalMode.ELSE) {
+        if (mode == ConditionalMode.ELSE)
             return getFirst();
-        }
-        Boolean c = condition.getSingle(ctx);
-        if (c != null && c) {
-            return getFirst();
-        } else if (fallingClause != null){
-            return fallingClause;
-        } else {
-            return getNext();
-        }
+        return condition.getSingle(ctx)
+                .map(b -> {
+                    if (b) {
+                        return getFirst().orElse(null);
+                    } else if (fallingClause != null) {
+                        return fallingClause;
+                    } else {
+                        return getNext().orElse(null);
+                    }
+                });
     }
 
     /**

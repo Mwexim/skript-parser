@@ -2,6 +2,8 @@ package io.github.syst3ms.skriptparser.lang;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * The base class for any runnable line of code inside of a script.
  * @see CodeSection
@@ -20,10 +22,10 @@ public abstract class Statement implements SyntaxElement {
      * @return {@code true} if the code ran normally, and {@code false} if any exception occurred
      */
     public static boolean runAll(Statement start, TriggerContext context) {
-        Statement item = start;
+        Optional<? extends Statement> item = Optional.of(start);
         try {
-            while (item != null)
-                item = item.walk(context);
+            while (item.isPresent())
+                item = item.flatMap(i -> i.walk(context));
             return true;
         } catch (StackOverflowError so) {
             System.err.println("The script repeated itself infinitely !");
@@ -44,9 +46,8 @@ public abstract class Statement implements SyntaxElement {
     /**
      * @return the parent of this Statement
      */
-    @Nullable
-    public CodeSection getParent() {
-        return parent;
+    public Optional<? extends CodeSection> getParent() {
+        return Optional.ofNullable(parent);
     }
 
     /**
@@ -63,14 +64,13 @@ public abstract class Statement implements SyntaxElement {
      * @return the Statement after this one in the file. If this Statement is the last item of the section, returns the item after
      *         said section. If this Statement is the very last item of a trigger, returns {@code null}
      */
-    @Nullable
-    public final Statement getNext() {
+    public final Optional<? extends Statement> getNext() {
         if (next != null) {
-            return next;
+            return Optional.of(next);
         } else if (parent != null) {
             return parent.getNext();
         } else {
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -90,14 +90,14 @@ public abstract class Statement implements SyntaxElement {
      * @param ctx the event
      * @return the next item to be ran, or {@code null} if this is the last item to be executed
      */
-    protected Statement walk(TriggerContext ctx) {
+    protected Optional<? extends Statement> walk(TriggerContext ctx) {
         boolean proceed = run(ctx);
         if (proceed) {
             return getNext();   
         } else if (parent != null) {
             return parent.getNext();
         } else {
-            return null;
+            return Optional.empty();
         }
     }
 }

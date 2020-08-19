@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 class VariableMap {
@@ -112,10 +113,9 @@ class VariableMap {
 	 * @return an Object for a normal Variable or a Map<String, Object> for a list variable, or null if the variable is not set.
 	 */
     @SuppressWarnings("unchecked")
-    @Nullable
-    public Object getVariable(String name) {
+    public Optional<Object> getVariable(String name) {
         if (!name.endsWith("*")) {
-            return map.get(name);
+            return Optional.ofNullable(map.get(name));
         } else {
             String[] split = splitList(name);
             Map<String, Object> current = map;
@@ -123,20 +123,20 @@ class VariableMap {
                 String n = split[i];
                 if (n.equals("*")) {
                     assert i == split.length - 1;
-                    return current;
+                    return Optional.of(current);
                 }
                 Object o = current.get(n);
                 if (o == null) {
-                    return null;
+                    return Optional.empty();
                 }
                 if (o instanceof Map) {
                     current = (Map<String, Object>) o;
                     assert i != split.length - 1;
                 } else {
-                    return null;
+                    return Optional.empty();
                 }
             }
-            return null;
+            return Optional.empty();
         }
     }
 }

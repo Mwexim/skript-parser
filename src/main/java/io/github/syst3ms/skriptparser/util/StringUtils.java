@@ -9,6 +9,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -82,13 +83,12 @@ public class StringUtils {
      * @param start where the brace pair starts
      * @return the enclosed text
      */
-    @Nullable
-    public static String getEnclosedText(String pattern, char opening, char closing, int start) {
+    public static Optional<String> getEnclosedText(String pattern, char opening, char closing, int start) {
         int closingBracket = findClosingIndex(pattern, opening, closing, start);
         if (closingBracket == -1) {
-            return null;
+            return Optional.empty();
         } else {
-            return pattern.substring(start + 1, closingBracket);
+            return Optional.of(pattern.substring(start + 1, closingBracket));
         }
     }
 
@@ -142,8 +142,7 @@ public class StringUtils {
      * @param start where the pair begins
      * @return the content between %%
      */
-    @Nullable
-    public static String getPercentContent(String s, int start) {
+    public static Optional<String> getPercentContent(String s, int start) {
         for (int i = start; i < s.length(); i++) {
             char c = s.charAt(i);
             if (c == '\\') {
@@ -151,15 +150,15 @@ public class StringUtils {
             } else if (c == '{') { // We must ignore variable content
                 int closing = findClosingIndex(s, '{', '}', i);
                 if (closing == -1)
-                    return null;
+                    return Optional.empty();
                 i = closing;
             } else if (c == '%') {
-                return s.substring(start, i);
+                return Optional.of(s.substring(start, i));
             } else if (c == '}') { // We normally skip over these, this must be an error
-                return null;
+                return Optional.empty();
             }
         }
-        return null; // There were no percents (unclosed percent is handled by VariableString already)
+        return Optional.empty(); // There were no percents (unclosed percent is handled by VariableString already)
     }
 
     /**
@@ -207,7 +206,7 @@ public class StringUtils {
      * @param logger the logger
      * @return the split string
      */
-    public static String[] splitVerticalBars(String s, SkriptLogger logger) {
+    public static Optional<String[]> splitVerticalBars(String s, SkriptLogger logger) {
         List<String> split = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         char[] chars = s.toCharArray();
@@ -220,13 +219,16 @@ public class StringUtils {
                 }
             } else if (c == '(' || c == '[') {
                 char closing = c == '(' ? ')' : ']';
-                String text = getEnclosedText(s, c, closing, i);
-                if (text == null) {
+                Optional<String> text = getEnclosedText(s, c, closing, i);
+                text.ifPresent(st -> {
+                    sb.append(c).append(st).append(closing);
+                });
+                if (text.isPresent()) {
+                    i += text.get().length() + 1;
+                } else {
                     logger.error("Unmatched bracket : '" + s.substring(i) + "'", ErrorType.MALFORMED_INPUT);
-                    return null;
+                    return Optional.empty();
                 }
-                sb.append(c).append(text).append(closing);
-                i += text.length() + 1;
             } else if (c == '|') {
                 split.add(sb.toString());
                 sb.setLength(0);
@@ -235,7 +237,7 @@ public class StringUtils {
             }
         }
         split.add(sb.toString());
-        return split.toArray(new String[0]);
+        return Optional.of(split.toArray(new String[0]));
     }
 
     /**

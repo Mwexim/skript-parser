@@ -17,10 +17,7 @@ import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -301,7 +298,7 @@ public class SkriptRegistration {
      * @param <F> from
      * @param <T> to
      */
-    public <F, T> void addConverter(Class<F> from, Class<T> to, Function<? super F, ? extends T> converter) {
+    public <F, T> void addConverter(Class<F> from, Class<T> to, Function<? super F, Optional<? extends T>> converter) {
         converters.add(new ConverterInfo<>(from, to, converter));
     }
 
@@ -314,7 +311,7 @@ public class SkriptRegistration {
      * @param <F> from
      * @param <T> to
      */
-    public <F, T> void addConverter(Class<F> from, Class<T> to, Function<? super F, ? extends T> converter, int options) {
+    public <F, T> void addConverter(Class<F> from, Class<T> to, Function<? super F, Optional<? extends T>> converter, int options) {
         converters.add(new ConverterInfo<>(from, to, converter, options));
     }
 
@@ -447,18 +444,13 @@ public class SkriptRegistration {
 
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
-            for (String s : super.patterns) {
-                PatternElement e = patternParser.parsePattern(s, logger);
-                if (e != null) {
-                    elements.add(e);
-                }
-            }
-            Type<T> type = TypeManager.getByClassExact(returnType);
-            if (type == null) {
+            super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
+            Optional<? extends Type<T>> type = TypeManager.getByClassExact(returnType);
+            if (!type.isPresent()) {
                 logger.error("Couldn't find a type corresponding to the class '" + returnType.getName() + "'", ErrorType.NO_MATCH);
                 return;
             }
-            ExpressionInfo<C, T> info = new ExpressionInfo<>(super.c, elements, registerer, type, isSingle, super.priority);
+            ExpressionInfo<C, T> info = new ExpressionInfo<>(super.c, elements, registerer, type.get(), isSingle, super.priority);
             expressions.putOne(super.c, info);
         }
     }
@@ -472,9 +464,7 @@ public class SkriptRegistration {
 
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
-            for (String s : super.patterns) {
-                elements.add(patternParser.parsePattern(s, logger));
-            }
+            super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
             SyntaxInfo<C> info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
             effects.add(info);
         }
@@ -490,12 +480,7 @@ public class SkriptRegistration {
         @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
-            for (String s : super.patterns) {
-                PatternElement e = patternParser.parsePattern(s, logger);
-                if (e != null) {
-                    elements.add(e);
-                }
-            }
+            super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
             SyntaxInfo<C> info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
             sections.add(info);
         }
@@ -518,10 +503,7 @@ public class SkriptRegistration {
                 } else {
                     s = "[on] " + s;
                 }
-                PatternElement e = patternParser.parsePattern(s, logger);
-                if (e != null) {
-                    elements.add(e);
-                }
+                patternParser.parsePattern(s, logger).ifPresent(elements::add);
             }
             SkriptEventInfo<T> info = new SkriptEventInfo<>(super.c, handledContexts, elements, super.priority, registerer);
             events.add(info);

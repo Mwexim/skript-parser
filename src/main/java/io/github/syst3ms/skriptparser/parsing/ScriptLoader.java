@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Contains the logic for loading, parsing and interpreting entire script files
@@ -57,12 +58,11 @@ public class ScriptLoader {
             if (element instanceof VoidElement)
                 continue;
             if (element instanceof FileSection) {
-                UnloadedTrigger trig = SyntaxParser.parseTrigger((FileSection) element, logger);
-                if (trig == null) {
-                    continue;
-                }
-                logger.setLine(logger.getLine() + ((FileSection) element).length());
-                unloadedTriggers.add(trig);
+                Optional<? extends UnloadedTrigger> trig = SyntaxParser.parseTrigger((FileSection) element, logger);
+                trig.ifPresent(t -> {
+                    logger.setLine(logger.getLine() + ((FileSection) element).length());
+                    unloadedTriggers.add(t);
+                });
             } else {
                 logger.error("Can't have code outside of a trigger", ErrorType.STRUCTURE_ERROR);
             }
@@ -101,15 +101,15 @@ public class ScriptLoader {
                 String content = sec.getLineContent();
                 if (content.regionMatches(true, 0, "if ", 0, "if ".length())) {
                     String toParse = content.substring("if ".length());
-                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
-                    if (booleanExpression == null) {
+                    Optional<? extends Expression<Boolean>> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
+                    if (!booleanExpression.isPresent())
                         continue;
-                    } else if (parserState.forbidsSyntax(Conditional.class)) {
+                    booleanExpression = booleanExpression.filter(__ -> parserState.forbidsSyntax(Conditional.class));
+                    booleanExpression.ifPresent(b -> items.add(new Conditional(sec, b, Conditional.ConditionalMode.IF, parserState, logger)));
+                    if (!booleanExpression.isPresent()) {
                         logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
                         logger.error("Conditionals are not allowed in this section", ErrorType.SEMANTIC_ERROR);
-                        continue;
                     }
-                    items.add(new Conditional(sec, booleanExpression, Conditional.ConditionalMode.IF, parserState, logger));
                 } else if (content.regionMatches(true, 0, "else if ", 0, "else if ".length())) {
                     if (items.size() == 0 ||
                         !(items.get(items.size() - 1) instanceof Conditional) ||
@@ -117,18 +117,16 @@ public class ScriptLoader {
                         logger.error("An 'else if' must be placed after an 'if'", ErrorType.STRUCTURE_ERROR);
                         continue;
                     }
-
                     String toParse = content.substring("else if ".length());
-                    Expression<Boolean> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
-                    if (booleanExpression == null) {
+                    Optional<? extends Expression<Boolean>> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
+                    if (!booleanExpression.isPresent())
                         continue;
-                    } else if (parserState.forbidsSyntax(Conditional.class)) {
+                    booleanExpression = booleanExpression.filter(__ -> parserState.forbidsSyntax(Conditional.class));
+                    booleanExpression.ifPresent(b -> items.add(new Conditional(sec, b, Conditional.ConditionalMode.ELSE, parserState, logger)));
+                    if (!booleanExpression.isPresent()) {
                         logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
                         logger.error("Conditionals are not allowed in this section", ErrorType.SEMANTIC_ERROR);
-                        continue;
                     }
-                    Conditional c = new Conditional(sec, booleanExpression, Conditional.ConditionalMode.ELSE_IF, parserState, logger);
-                    ((Conditional) items.get(items.size() - 1)).setFallingClause(c);
                 } else if (content.equalsIgnoreCase("else")) {
                     if (items.size() == 0 ||
                         !(items.get(items.size() - 1) instanceof Conditional) ||
@@ -143,23 +141,19 @@ public class ScriptLoader {
                     Conditional c = new Conditional(sec, null, Conditional.ConditionalMode.ELSE, parserState, logger);
                     ((Conditional) items.get(items.size() - 1)).setFallingClause(c);
                 } else {
-                    CodeSection codeSection = SyntaxParser.parseSection(sec, parserState, logger);
-                    if (codeSection == null) {
+                    Optional<? extends CodeSection> codeSection = SyntaxParser.parseSection(sec, parserState, logger);
+                    if (!codeSection.isPresent()) {
                         continue;
-                    } else if (parserState.forbidsSyntax(codeSection.getClass())) {
+                    } else if (parserState.forbidsSyntax(codeSection.get().getClass())) {
                         logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
-                        logger.error("The enclosing section does not allow the use of this section : " + codeSection.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+                        logger.error("The enclosing section does not allow the use of this section : " + codeSection.get().toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
                         continue;
                     }
-                    items.add(codeSection);
+                    items.add(codeSection.get());
                 }
             } else {
                 String content = element.getLineContent();
-                Statement eff = SyntaxParser.parseStatement(content, parserState, logger);
-                if (eff == null) {
-                    continue;
-                }
-                items.add(eff);
+                SyntaxParser.parseStatement(content, parserState, logger).ifPresent(items::add);
             }
         }
         logger.logOutput();

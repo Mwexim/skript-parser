@@ -6,10 +6,10 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * It is important to note that Conditional is the only section to be understood
@@ -45,7 +45,7 @@ public abstract class CodeSection extends Statement {
     }
 
     @Override
-    protected abstract Statement walk(TriggerContext ctx);
+    protected abstract Optional<? extends Statement> walk(TriggerContext ctx);
 
     /**
      * Sets the items inside this lists, and also modifies other fields, reflected through the outputs of {@link #getFirst()},
@@ -58,7 +58,7 @@ public abstract class CodeSection extends Statement {
             item.setParent(this);
         }
         first = items.isEmpty() ? null : items.get(0);
-        last = items.isEmpty() ? null : items.get(items.size() - 1).setNext(getNext());
+        last = items.isEmpty() ? null : items.get(items.size() - 1).setNext(getNext().orElse(null));
     }
 
     /**
@@ -75,18 +75,16 @@ public abstract class CodeSection extends Statement {
      * @return the first item of this section, or the item after the section if it's empty, or {@code null} if there is
      * no item after this section, in the latter case
      */
-    @Nullable
-    protected final Statement getFirst() {
-        return first == null ? getNext() : first;
+    protected final Optional<? extends Statement> getFirst() {
+        return first == null ? getNext() : Optional.of(first);
     }
 
     /**
      * @return the last item of this section, or the item after the section if it's empty, or {@code null} if there is
      * no item after this section, in the latter case
      */
-    @Nullable
-    protected final Statement getLast() {
-        return last == null ? getNext() : last;
+    protected final Optional<? extends Statement> getLast() {
+        return last == null ? getNext() : Optional.of(last);
     }
 
     /**

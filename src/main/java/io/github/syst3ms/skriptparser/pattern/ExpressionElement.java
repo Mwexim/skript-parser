@@ -14,6 +14,7 @@ import io.github.syst3ms.skriptparser.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 /**
@@ -52,9 +53,10 @@ public class ExpressionElement implements PatternElement {
         logger.recurse();
         int possibilityIndex = context.getPatternIndex();
         List<PatternElement> flattened = PatternElement.flatten(context.getOriginalElement());
-        if (context.getSource() != null && possibilityIndex >= flattened.size()) {
-            flattened = PatternElement.flatten(context.getSource().getOriginalElement());
-            possibilityIndex = context.getSource().getPatternIndex();
+        Optional<MatchContext> source = context.getSource();
+        if (source.isPresent() && possibilityIndex >= flattened.size()) {
+            flattened = PatternElement.flatten(source.get().getOriginalElement());
+            possibilityIndex = source.get().getPatternIndex();
         }
         // We look at what could possibly be after the expression in the current syntax
         List<PatternElement> possibleInputs = PatternElement.getPossibleInputs(flattened.subList(possibilityIndex, flattened.size()));
@@ -68,9 +70,9 @@ public class ExpressionElement implements PatternElement {
                         return -1;
                     }
                     String toParse = s.substring(index).trim();
-                    Expression<?> expression = parse(toParse, typeArray, context.getParserState(), logger);
-                    if (expression != null) {
-                        context.addExpression(expression);
+                    Optional<? extends Expression<?>> expression = parse(toParse, typeArray, context.getParserState(), logger);
+                    if (expression.isPresent()) {
+                        context.addExpression(expression.get());
                         return index + toParse.length();
                     }
                     return -1;
@@ -78,9 +80,9 @@ public class ExpressionElement implements PatternElement {
                 int i = StringUtils.indexOfIgnoreCase(s, text, index);
                 while (i != -1) {
                     String toParse = s.substring(index, i).trim();
-                    Expression<?> expression = parse(toParse, typeArray, context.getParserState(), logger);
-                    if (expression != null) {
-                        context.addExpression(expression);
+                    Optional<? extends Expression<?>> expression = parse(toParse, typeArray, context.getParserState(), logger);
+                    if (expression.isPresent()) {
+                        context.addExpression(expression.get());
                         return index + toParse.length();
                     }
                     i = StringUtils.indexOfIgnoreCase(s, text, i + 1);
@@ -95,9 +97,9 @@ public class ExpressionElement implements PatternElement {
                     String toParse = s.substring(index, i);
                     if (toParse.length() == context.getOriginalPattern().length())
                         continue;
-                    Expression<?> expression = parse(toParse, typeArray, context.getParserState(), logger);
-                    if (expression != null) {
-                        context.addExpression(expression);
+                    Optional<? extends Expression<?>> expression = parse(toParse, typeArray, context.getParserState(), logger);
+                    if (expression.isPresent()) {
+                        context.addExpression(expression.get());
                         return index + toParse.length();
                     }
                 }
@@ -116,9 +118,9 @@ public class ExpressionElement implements PatternElement {
                             int i = StringUtils.indexOfIgnoreCase(s, split, index);
                             if (i != -1) {
                                 String toParse = s.substring(index, i);
-                                Expression<?> expression = parse(toParse, typeArray, context.getParserState(), logger);
-                                if (expression != null) {
-                                    context.addExpression(expression);
+                                Optional<? extends Expression<?>> expression = parse(toParse, typeArray, context.getParserState(), logger);
+                                if (expression.isPresent()) {
+                                    context.addExpression(expression.get());
                                     return index + toParse.length();
                                 }
                             }
@@ -135,9 +137,9 @@ public class ExpressionElement implements PatternElement {
                             int i = StringUtils.indexOfIgnoreCase(s, split, index);
                             if (i != -1) {
                                 String toParse = s.substring(index, i);
-                                Expression<?> expression = parse(toParse, typeArray, context.getParserState(), logger);
-                                if (expression != null) {
-                                    context.addExpression(expression);
+                                Optional<? extends Expression<?>> expression = parse(toParse, typeArray, context.getParserState(), logger);
+                                if (expression.isPresent()) {
+                                    context.addExpression(expression.get());
                                     return index + toParse.length();
                                 }
                             }
@@ -161,13 +163,10 @@ public class ExpressionElement implements PatternElement {
                     sb.setLength(0);
                 }
             } else if (c == '(') {
-                String enclosed = StringUtils.getEnclosedText(s, '(', ')', i);
-                if (enclosed == null) {
-                    sb.append('(');
-                    continue;
-                }
-                sb.append('(').append(enclosed).append(')');
-                i += enclosed.length() + 1;
+                Optional<String> enclosed = StringUtils.getEnclosedText(s, '(', ')', i)
+                        .map(en -> "(" + en + ")");
+                sb.append(enclosed.orElse("("));
+                i += enclosed.map(s1 -> s1.length() + 1).orElse(0);
             } else {
                 sb.append(c);
             }
@@ -179,48 +178,52 @@ public class ExpressionElement implements PatternElement {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Expression<? extends T> parse(String s, PatternType<?>[] types, ParserState parserState, SkriptLogger logger) {
+    private <T> Optional<? extends Expression<? extends T>> parse(String s, PatternType<?>[] types, ParserState parserState, SkriptLogger logger) {
         for (PatternType<?> type : types) {
-            Expression<? extends T> expression;
+            Optional<? extends Expression<? extends T>> expression;
             logger.recurse();
             if (type.equals(SyntaxParser.BOOLEAN_PATTERN_TYPE)) {
                 // NOTE : conditions call parseBooleanExpression straight away
-                expression = (Expression<? extends T>) SyntaxParser.parseBooleanExpression(
+                expression = (Optional<? extends Expression<? extends T>>) SyntaxParser.parseBooleanExpression(
                         s,
                         acceptsConditional ? SyntaxParser.MAYBE_CONDITIONAL : SyntaxParser.NOT_CONDITIONAL,
                         parserState,
-                        logger);
+                        logger
+                );
             } else {
                 expression = SyntaxParser.parseExpression(s, (PatternType<T>) type, parserState, logger);
             }
             logger.callback();
-            if (expression == null)
+            if (!expression.isPresent())
                 continue;
-            switch (acceptance) {
-                case ALL:
-                    break;
-                case EXPRESSIONS_ONLY:
-                    if (Literal.isLiteral(expression)) {
-                        logger.error("Only expressions are allowed, found literal " + s, ErrorType.SEMANTIC_ERROR);
-                        return null;
-                    }
-                    break;
-                case LITERALS_ONLY:
-                    if (!Literal.isLiteral(expression)) {
-                        logger.error("Only literals are allowed, found expression " + s, ErrorType.SEMANTIC_ERROR);
-                        return null;
-                    }
-                    break;
-                case VARIABLES_ONLY:
-                    if (!(expression instanceof Variable)) {
-                        logger.error("Only variables are allowed, found " + s, ErrorType.SEMANTIC_ERROR);
-                        return null;
-                    }
-                    break;
-            }
+            expression = expression.filter(e -> {
+                switch (acceptance) {
+                    case ALL:
+                        break;
+                    case EXPRESSIONS_ONLY:
+                        if (Literal.isLiteral(e)) {
+                            logger.error("Only expressions are allowed, found literal " + s, ErrorType.SEMANTIC_ERROR);
+                            return false;
+                        }
+                        break;
+                    case LITERALS_ONLY:
+                        if (!Literal.isLiteral(e)) {
+                            logger.error("Only literals are allowed, found expression " + s, ErrorType.SEMANTIC_ERROR);
+                            return false;
+                        }
+                        break;
+                    case VARIABLES_ONLY:
+                        if (!(e instanceof Variable)) {
+                            logger.error("Only variables are allowed, found " + s, ErrorType.SEMANTIC_ERROR);
+                            return false;
+                        }
+                        break;
+                }
+                return true;
+            });
             return expression;
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override

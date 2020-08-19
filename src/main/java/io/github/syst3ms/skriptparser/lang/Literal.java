@@ -2,6 +2,8 @@ package io.github.syst3ms.skriptparser.lang;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * An expression whose value is known at parse time
  * @param <T> the type of the literal
@@ -9,8 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public interface Literal<T> extends Expression<T> {
     T[] getValues();
 
-    @Nullable
-    default T getSingle() {
+    default Optional<? extends T> getSingle() {
         return getSingle(TriggerContext.DUMMY);
     }
 

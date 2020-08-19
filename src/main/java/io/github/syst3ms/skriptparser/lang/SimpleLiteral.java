@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
+import java.util.Optional;
 
 /**
  * A simple literal with a fixed set of values
@@ -92,14 +93,14 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     @Override
-    public <R> Expression<R> convertExpression(Class<R> to) {
+    public <R> Optional<? extends Expression<R>> convertExpression(Class<R> to) {
         if (to.isAssignableFrom(getReturnType()))
-            return (SimpleLiteral<R>) this;
+            return Optional.of((SimpleLiteral<R>) this);
         Class<R> superType = (Class<R>) ClassUtils.getCommonSuperclass(to);
         R[] converted = Converters.convertArray(values, to, superType);
         if (converted.length != values.length)
-            return null;
-        return new SimpleLiteral<>(superType, converted);
+            return Optional.empty();
+        return Optional.of(new SimpleLiteral<>(superType, converted));
     }
 
     @Override

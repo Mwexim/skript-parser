@@ -25,8 +25,7 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     protected ExpressionList(@Nullable Expression<? extends T>[] expressions, Class<T> returnType, boolean and, @Nullable ExpressionList<?> source) {
-        assert expressions != null
-               && expressions.length > 1;
+        assert expressions != null && expressions.length > 1;
         this.expressions = expressions;
         this.returnType = returnType;
         this.and = and;
@@ -98,14 +97,13 @@ public class ExpressionList<T> implements Expression<T> {
         return sb.toString();
     }
 
-    @Nullable
     @Override
-    public <R> Expression<R> convertExpression(Class<R> to) {
+    public <R> Optional<? extends Expression<R>> convertExpression(Class<R> to) {
         Expression<? extends R>[] exprs = new Expression[expressions.length];
         for (int i = 0; i < exprs.length; i++)
-            if ((exprs[i] = expressions[i].convertExpression(to)) == null)
-                return null;
-        return new ExpressionList<>(exprs, (Class<R>) ClassUtils.getCommonSuperclass(to), and, this);
+            if ((exprs[i] = expressions[i].convertExpression(to).orElse(null)) == null)
+                return Optional.empty();
+        return Optional.of(new ExpressionList<>(exprs, (Class<R>) ClassUtils.getCommonSuperclass(to), and, this));
     }
 
     @Override

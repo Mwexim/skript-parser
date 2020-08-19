@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -24,27 +25,23 @@ public class Variables {
     // Yes, I know it should be trigger-specific, but I haven't got to that part yet, ok ? TODO make the change
     private static final Map<TriggerContext, VariableMap> localVariables = new HashMap<>();
 
-    @Nullable
-    public static <T> Expression<T> parseVariable(String s, Class<? extends T> types, ParserState parserState, SkriptLogger logger) {
+    public static <T> Optional<Expression<T>> parseVariable(String s, Class<? extends T> types, ParserState parserState, SkriptLogger logger) {
         s = s.trim();
         if (REGEX_PATTERN.matcher(s).matches()) {
             s = s.substring(1, s.length() - 1);
         } else {
-            return null;
+            return Optional.empty();
         }
         if (!isValidVariableName(s, true, logger)) {
-            return null;
+            return Optional.empty();
         }
-        VariableString vs = VariableString.newInstance(
+        Optional<VariableString> vs = VariableString.newInstance(
                 s.startsWith(LOCAL_VARIABLE_TOKEN) ? s.substring(LOCAL_VARIABLE_TOKEN.length()).trim() : s,
                 parserState,
                 logger
         );
-        if (vs == null) {
-            return null;
-        }
-        return new Variable<>(vs, s.startsWith(LOCAL_VARIABLE_TOKEN), s.endsWith(
-                LIST_SEPARATOR + "*"), types);
+        String finalS = s;
+        return vs.map(v -> new Variable<>(v, finalS.startsWith(LOCAL_VARIABLE_TOKEN), finalS.endsWith(LIST_SEPARATOR + "*"), types));
     }
 
     /**
@@ -85,12 +82,11 @@ public class Variables {
 	 * @param name
 	 * @return an Object for a normal Variable or a Map<String, Object> for a list variable, or null if the variable is not set.
 	 */
-    @Nullable
-    public static Object getVariable(String name, TriggerContext e, boolean local) {
+    public static Optional<Object> getVariable(String name, TriggerContext e, boolean local) {
         if (local) {
             VariableMap map = localVariables.get(e);
             if (map == null)
-                return null;
+                return Optional.empty();
             return map.getVariable(name);
         } else {
             return variableMap.getVariable(name);

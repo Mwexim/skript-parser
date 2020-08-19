@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Manages the registration and usage of {@link Type}
@@ -32,9 +33,8 @@ public class TypeManager {
      * @param name the name to get the Type from
      * @return the corresponding Type, or {@literal null} if nothing matched
      */
-    @Nullable
-    public static Type<?> getByExactName(String name) {
-        return nameToType.get(name);
+    public static Optional<Type<?>> getByExactName(String name) {
+        return Optional.ofNullable(nameToType.get(name));
     }
 
     /**
@@ -42,15 +42,14 @@ public class TypeManager {
      * @param name the name to get a Type from
      * @return the matching Type, or {@literal null} if nothing matched
      */
-    @Nullable
-    public static Type<?> getByName(String name) {
+    public static Optional<Type<?>> getByName(String name) {
         for (Type<?> t : nameToType.values()) {
             String[] forms = t.getPluralForms();
             if (name.equalsIgnoreCase(forms[0]) || name.equalsIgnoreCase(forms[1])) {
-                return t;
+                return Optional.of(t);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -59,24 +58,22 @@ public class TypeManager {
      * @param <T> the underlying type of the Class and the returned Type
      * @return the associated Type, or {@literal null}
      */
-    @Nullable
-    public static <T> Type<T> getByClassExact(Class<T> c) {
+    public static <T> Optional<? extends Type<T>> getByClassExact(Class<T> c) {
         if (c.isArray())
             c = (Class<T>) c.getComponentType();
-        return (Type<T>) classToType.get(c);
+        return Optional.ofNullable((Type<T>) classToType.get(c));
     }
 
-    @Nullable
-    public static <T> Type<? super T> getByClass(Class<T> c) {
-        Type<? super T> type = getByClassExact(c);
+    public static <T> Optional<? extends Type<? super T>> getByClass(Class<T> c) {
+        Optional<? extends Type<? super T>> type = getByClassExact(c);
         Class<? super T> superclass = c.getSuperclass();
-        while (superclass != null && type == null) {
+        while (superclass != null && !type.isPresent()) {
             type = getByClass(superclass);
             superclass = superclass.getSuperclass();
         }
         Class<? super T>[] interf = (Class<? super T>[]) c.getInterfaces();
         int i = 0;
-        while ((type == null || type.getTypeClass() == Object.class) && i < interf.length) {
+        while ((!type.isPresent() || type.filter(t -> t.getTypeClass() == Object.class).isPresent()) && i < interf.length) {
             type = getByClass(interf[i]);
             i++;
         }
@@ -94,12 +91,8 @@ public class TypeManager {
                 sb.append(NULL_REPRESENTATION);
                 continue;
             }
-            Type<?> type = getByClass(o.getClass());
-            if (type == null) {
-                sb.append(o);
-            } else {
-                sb.append(type.getToStringFunction().apply(o));
-            }
+            Optional<? extends Type<?>> type = getByClass(o.getClass());
+            sb.append(type.map(t -> (Object) t.getToStringFunction().apply(o)).orElse(o));
         }
         return sb.length() == 0 ? EMPTY_REPRESENTATION : sb.toString();
     }
@@ -110,17 +103,16 @@ public class TypeManager {
      * @param name the name input
      * @return a corresponding PatternType, or {@literal null} if nothing matched
      */
-    @Nullable
-    public static PatternType<?> getPatternType(String name) {
+    public static Optional<PatternType<?>> getPatternType(String name) {
         for (Type<?> t : nameToType.values()) {
             String[] forms = t.getPluralForms();
             if (name.equalsIgnoreCase(forms[0])) {
-                return new PatternType<>(t, true);
+                return Optional.of(new PatternType<>(t, true));
             } else if (name.equalsIgnoreCase(forms[1])) {
-                return new PatternType<>(t, false);
+                return Optional.of(new PatternType<>(t, false));
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     public static void register(SkriptRegistration reg) {
