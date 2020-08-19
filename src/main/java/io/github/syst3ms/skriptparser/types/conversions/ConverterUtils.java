@@ -22,7 +22,7 @@ public class ConverterUtils {
 
     public static <F, T> Function<? super F, ? extends T> createInstanceofConverter(Function<F, ?> conv, Class<T> to) {
         return f -> {
-            Object o = conv.apply(f);
+            var o = conv.apply(f);
             if (to.isInstance(o))
                 return (T) o;
             return null;
@@ -37,7 +37,7 @@ public class ConverterUtils {
         return o -> {
             if (!from.isInstance(o))
                 return null;
-            Object o2 = conv.apply((F) o);
+            var o2 = conv.apply((F) o);
             if (to.isInstance(o2))
                 return (T) o2;
             return null;

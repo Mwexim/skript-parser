@@ -137,7 +137,7 @@ public class Type<T> {
         if (!(obj instanceof Type)) {
             return false;
         } else {
-            Type<?> o = (Type<?>) obj;
+            var o = (Type<?>) obj;
             return typeClass.equals(o.typeClass) && baseName.equals(o.baseName) &&
                    Arrays.equals(pluralForms, o.pluralForms);
         }

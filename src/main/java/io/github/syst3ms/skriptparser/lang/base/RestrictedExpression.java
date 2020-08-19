@@ -24,19 +24,19 @@ public abstract class RestrictedExpression<T> implements Expression<T> {
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        List<Class<? extends CodeSection>> requiredSections = getRequiredSections();
-        List<CodeSection> currentSections = parseContext.getParserState().getCurrentSections();
-        int limit = isStrict() ? 1 : currentSections.size();
+        var requiredSections = getRequiredSections();
+        var currentSections = parseContext.getParserState().getCurrentSections();
+        var limit = isStrict() ? 1 : currentSections.size();
         CodeSection required = null;
-        for (int i = 0; i < limit; i++) {
-            CodeSection sec = currentSections.get(i);
+        for (var i = 0; i < limit; i++) {
+            var sec = currentSections.get(i);
             if (requiredSections.contains(sec.getClass())) {
                 required = sec;
                 break;
             }
         }
         if (required == null) {
-            SkriptLogger logger = parseContext.getLogger();
+            var logger = parseContext.getLogger();
             logger.error(getSpecificErrorMessage() + " : '" + this.toString(null, logger.isDebug()) + "'", ErrorType.SEMANTIC_ERROR);
             return false;
         }

@@ -24,13 +24,13 @@ public class TextElement implements PatternElement {
 
     @Override
     public int match(String s, int index, MatchContext context) {
-        int start = 0;
-        int end = 0;
+        var start = 0;
+        var end = 0;
         if (Character.isWhitespace(text.charAt(0))) {
             while (index + start < s.length() && Character.isWhitespace(s.charAt(index + start)))
                 start++;
         }
-        String trimmed = text.trim();
+        var trimmed = text.trim();
         // We advance until we reach the first non-whitespace character in s
         if (index + start + trimmed.length() > s.length()) {
             return -1;

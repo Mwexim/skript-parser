@@ -19,7 +19,7 @@ public class Ranges {
 
     @SuppressWarnings("unchecked")
     public static <B, T> RangeInfo<B, T> getRange(Class<B> bound) {
-        for (Class<?> c : rangeMap.keySet()) {
+        for (var c : rangeMap.keySet()) {
             if (c == bound || c.isAssignableFrom(bound)) {
                 return (RangeInfo<B, T>) rangeMap.get(c);
             }

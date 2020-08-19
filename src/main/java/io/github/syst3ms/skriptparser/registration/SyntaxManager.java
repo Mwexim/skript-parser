@@ -31,10 +31,10 @@ public class SyntaxManager {
         sections.sort(INFO_COMPARATOR);
         triggers.addAll(reg.getEvents());
         triggers.sort(INFO_COMPARATOR);
-        for (Map.Entry<Class<?>, List<ExpressionInfo<?, ?>>> entry : reg.getExpressions().entrySet()) {
-            Class<?> key = entry.getKey();
-            List<ExpressionInfo<?, ?>> infos = entry.getValue();
-            for (ExpressionInfo<?, ?> info : infos) {
+        for (var entry : reg.getExpressions().entrySet()) {
+            var key = entry.getKey();
+            var infos = entry.getValue();
+            for (var info : infos) {
                 expressions.putOne(key, info);
             }
         }
@@ -44,7 +44,7 @@ public class SyntaxManager {
      * @return a list of all currently registered expressions
      */
     public static List<ExpressionInfo<?, ?>> getAllExpressions() {
-        List<ExpressionInfo<?, ?>> expressionInfos = expressions.getAllValues();
+        var expressionInfos = expressions.getAllValues();
         expressionInfos.sort(INFO_COMPARATOR);
         return expressionInfos;
     }
@@ -58,7 +58,7 @@ public class SyntaxManager {
     @SuppressWarnings("unchecked")
     public static <E extends Expression<T>, T> Optional<ExpressionInfo<E, T>> getExpressionExact(Expression<T> expr) {
         Class<?> c = expr.getSource().getClass();
-        for (ExpressionInfo<?, ?> info : SyntaxManager.getAllExpressions()) {
+        for (var info : SyntaxManager.getAllExpressions()) {
             if (info.getSyntaxClass() == c) {
                 return Optional.of((ExpressionInfo<E, T>) info);
             }

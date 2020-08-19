@@ -44,7 +44,7 @@ public class SimpleLiteral<T> implements Literal<T> {
         if (isAndList) {
             return values;
         } else {
-            T[] copy = (T[]) Array.newInstance(getReturnType(), 1);
+            var copy = (T[]) Array.newInstance(getReturnType(), 1);
             copy[0] = CollectionUtils.getRandom(values);
             return copy;
         }
@@ -65,10 +65,11 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     public Class<? extends T> getReturnType() {
-        if (returnType == null)
-            return (returnType = (Class<T>) values.getClass().getComponentType());
-        else
+        if (returnType != null) {
             return returnType;
+        } else {
+            return (returnType = (Class<T>) values.getClass().getComponentType());
+        }
     }
 
     @Override
@@ -86,7 +87,7 @@ public class SimpleLiteral<T> implements Literal<T> {
         if (isAndList) {
             return values;
         } else {
-            T[] newArray = (T[]) Array.newInstance(getReturnType(), 1);
+            var newArray = (T[]) Array.newInstance(getReturnType(), 1);
             newArray[0] = CollectionUtils.getRandom(values);
             return newArray;
         }
@@ -96,8 +97,8 @@ public class SimpleLiteral<T> implements Literal<T> {
     public <R> Optional<? extends Expression<R>> convertExpression(Class<R> to) {
         if (to.isAssignableFrom(getReturnType()))
             return Optional.of((SimpleLiteral<R>) this);
-        Class<R> superType = (Class<R>) ClassUtils.getCommonSuperclass(to);
-        R[] converted = Converters.convertArray(values, to, superType);
+        var superType = (Class<R>) ClassUtils.getCommonSuperclass(to);
+        var converted = Converters.convertArray(values, to, superType);
         if (converted.length != values.length)
             return Optional.empty();
         return Optional.of(new SimpleLiteral<>(superType, converted));

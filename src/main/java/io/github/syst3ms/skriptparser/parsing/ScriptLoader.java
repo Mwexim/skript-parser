@@ -32,12 +32,12 @@ public class ScriptLoader {
      * @param debug
      */
     public static List<LogEntry> loadScript(Path scriptPath, boolean debug) {
-        FileParser parser = new FileParser();
-        SkriptLogger logger = new SkriptLogger(debug);
+        var parser = new FileParser();
+        var logger = new SkriptLogger(debug);
         List<FileElement> elements;
         String scriptName;
         try {
-            List<String> lines = FileUtils.readAllLines(scriptPath);
+            var lines = FileUtils.readAllLines(scriptPath);
             scriptName = scriptPath.getFileName().toString().replaceAll("(.+)\\..+", "$1");
             elements = parser.parseFileLines(scriptName,
                     lines,
@@ -52,13 +52,13 @@ public class ScriptLoader {
         }
         logger.setFileInfo(scriptPath.getFileName().toString(), elements);
         List<UnloadedTrigger> unloadedTriggers = new ArrayList<>();
-        for (FileElement element : elements) {
+        for (var element : elements) {
             logger.logOutput();
             logger.nextLine();
             if (element instanceof VoidElement)
                 continue;
             if (element instanceof FileSection) {
-                Optional<? extends UnloadedTrigger> trig = SyntaxParser.parseTrigger((FileSection) element, logger);
+                var trig = SyntaxParser.parseTrigger((FileSection) element, logger);
                 trig.ifPresent(t -> {
                     logger.setLine(logger.getLine() + ((FileSection) element).length());
                     unloadedTriggers.add(t);
@@ -68,10 +68,10 @@ public class ScriptLoader {
             }
         }
         unloadedTriggers.sort((a, b) -> b.getTrigger().getEvent().getLoadingPriority() - a.getTrigger().getEvent().getLoadingPriority());
-        for (UnloadedTrigger unloaded : unloadedTriggers) {
+        for (var unloaded : unloadedTriggers) {
             logger.logOutput();
             logger.setLine(unloaded.getLine());
-            Trigger loaded = unloaded.getTrigger();
+            var loaded = unloaded.getTrigger();
             loaded.loadSection(unloaded.getSection(), unloaded.getParserState(), logger);
             unloaded.getEventInfo().getRegisterer().handleTrigger(loaded);
             triggerMap.putOne(scriptName, loaded);
@@ -89,24 +89,24 @@ public class ScriptLoader {
      */
     public static List<Statement> loadItems(FileSection section, ParserState parserState, SkriptLogger logger) {
         List<Statement> items = new ArrayList<>();
-        List<FileElement> elements = section.getElements();
+        var elements = section.getElements();
         logger.recurse();
-        for (FileElement element : elements) {
+        for (var element : elements) {
             logger.logOutput();
             logger.nextLine();
             if (element instanceof VoidElement)
                 continue;
             if (element instanceof FileSection) {
-                FileSection sec = (FileSection) element;
-                String content = sec.getLineContent();
+                var sec = (FileSection) element;
+                var content = sec.getLineContent();
                 if (content.regionMatches(true, 0, "if ", 0, "if ".length())) {
-                    String toParse = content.substring("if ".length());
-                    Optional<? extends Expression<Boolean>> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
-                    if (!booleanExpression.isPresent())
+                    var toParse = content.substring("if ".length());
+                    var booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
+                    if (booleanExpression.isEmpty())
                         continue;
                     booleanExpression = booleanExpression.filter(__ -> parserState.forbidsSyntax(Conditional.class));
                     booleanExpression.ifPresent(b -> items.add(new Conditional(sec, b, Conditional.ConditionalMode.IF, parserState, logger)));
-                    if (!booleanExpression.isPresent()) {
+                    if (booleanExpression.isEmpty()) {
                         logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
                         logger.error("Conditionals are not allowed in this section", ErrorType.SEMANTIC_ERROR);
                     }
@@ -117,13 +117,13 @@ public class ScriptLoader {
                         logger.error("An 'else if' must be placed after an 'if'", ErrorType.STRUCTURE_ERROR);
                         continue;
                     }
-                    String toParse = content.substring("else if ".length());
-                    Optional<? extends Expression<Boolean>> booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
-                    if (!booleanExpression.isPresent())
+                    var toParse = content.substring("else if ".length());
+                    var booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
+                    if (booleanExpression.isEmpty())
                         continue;
                     booleanExpression = booleanExpression.filter(__ -> parserState.forbidsSyntax(Conditional.class));
                     booleanExpression.ifPresent(b -> items.add(new Conditional(sec, b, Conditional.ConditionalMode.ELSE, parserState, logger)));
-                    if (!booleanExpression.isPresent()) {
+                    if (booleanExpression.isEmpty()) {
                         logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
                         logger.error("Conditionals are not allowed in this section", ErrorType.SEMANTIC_ERROR);
                     }
@@ -138,11 +138,11 @@ public class ScriptLoader {
                         logger.error("Conditionals are not allowed in this section", ErrorType.SEMANTIC_ERROR);
                         continue;
                     }
-                    Conditional c = new Conditional(sec, null, Conditional.ConditionalMode.ELSE, parserState, logger);
+                    var c = new Conditional(sec, null, Conditional.ConditionalMode.ELSE, parserState, logger);
                     ((Conditional) items.get(items.size() - 1)).setFallingClause(c);
                 } else {
-                    Optional<? extends CodeSection> codeSection = SyntaxParser.parseSection(sec, parserState, logger);
-                    if (!codeSection.isPresent()) {
+                    var codeSection = SyntaxParser.parseSection(sec, parserState, logger);
+                    if (codeSection.isEmpty()) {
                         continue;
                     } else if (parserState.forbidsSyntax(codeSection.get().getClass())) {
                         logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
@@ -152,12 +152,12 @@ public class ScriptLoader {
                     items.add(codeSection.get());
                 }
             } else {
-                String content = element.getLineContent();
+                var content = element.getLineContent();
                 SyntaxParser.parseStatement(content, parserState, logger).ifPresent(items::add);
             }
         }
         logger.logOutput();
-        for (int i = 0; i + 1 < items.size(); i++) {
+        for (var i = 0; i + 1 < items.size(); i++) {
             items.get(i).setNext(items.get(i + 1));
         }
         logger.callback();

@@ -35,7 +35,7 @@ public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
     public <R> Optional<? extends Expression<R>> convertExpression(Class<R> to) {
         Literal<? extends R>[] exprs = new Literal[expressions.length];
         Class<?>[] classes = new Class[expressions.length];
-        for (int i = 0; i < exprs.length; i++) {
+        for (var i = 0; i < exprs.length; i++) {
             if ((exprs[i] = (Literal<? extends R>) expressions[i].convertExpression(to).orElse(null)) == null)
                 return Optional.empty();
             classes[i] = exprs[i].getReturnType();

@@ -28,7 +28,7 @@ public class CosCalculator extends SeriesCalculator {
 	
 	@Override
 	protected BigRational getCurrentFactor() {
-		BigRational factor = factorial2n.reciprocal();
+		var factor = factorial2n.reciprocal();
 		if (negative) {
 			factor = factor.negate();
 		}

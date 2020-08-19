@@ -34,7 +34,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
     @SuppressWarnings("unchecked")
     public static <F, T> Optional<? extends ConvertedExpression<F, T>> newInstance(Expression<F> v, Class<T> to) {
         return Converters.getConverter(v.getReturnType(), to)
-                .map(c -> new ConvertedExpression<F, T>(v, to, (Function<? super F, Optional<? extends T>>) c));
+                .map(c -> new ConvertedExpression<>(v, to, (Function<? super F, Optional<? extends T>>) c));
     }
 
     @Override
@@ -76,7 +76,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 
     @Override
     public Iterator<? extends T> iterator(TriggerContext context) {
-        Iterator<? extends F> sourceIterator = source.iterator(context);
+        var sourceIterator = source.iterator(context);
         if (!sourceIterator.hasNext())
             return Collections.emptyIterator();
         return new Iterator<T>() {
@@ -87,8 +87,8 @@ public class ConvertedExpression<F, T> implements Expression<T> {
                 if (next != null)
                     return true;
                 while (next == null && sourceIterator.hasNext()) {
-                    F f = sourceIterator.next();
-                    next = f == null ? null : converter.apply(f).orElse(null);
+                    var f = sourceIterator.next();
+                    next = Optional.ofNullable(f).flatMap(converter::apply).orElse(null);
                 }
                 return next != null;
             }
@@ -97,7 +97,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
             public T next() {
                 if (!hasNext())
                     throw new NoSuchElementException();
-                T n = next;
+                var n = next;
                 assert next != null;
                 next = null;
                 return n;

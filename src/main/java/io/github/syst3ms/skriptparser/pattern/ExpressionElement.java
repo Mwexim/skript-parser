@@ -45,42 +45,42 @@ public class ExpressionElement implements PatternElement {
 
     @Override
     public int match(String s, int index, MatchContext context) {
-        PatternType<?>[] typeArray = types.toArray(new PatternType<?>[0]);
+        var typeArray = types.toArray(new PatternType<?>[0]);
         if (index >= s.length()) {
             return -1;
         }
-        SkriptLogger logger = context.getLogger();
+        var logger = context.getLogger();
         logger.recurse();
-        int possibilityIndex = context.getPatternIndex();
-        List<PatternElement> flattened = PatternElement.flatten(context.getOriginalElement());
-        Optional<MatchContext> source = context.getSource();
+        var possibilityIndex = context.getPatternIndex();
+        var flattened = PatternElement.flatten(context.getOriginalElement());
+        var source = context.getSource();
         if (source.isPresent() && possibilityIndex >= flattened.size()) {
             flattened = PatternElement.flatten(source.get().getOriginalElement());
             possibilityIndex = source.get().getPatternIndex();
         }
         // We look at what could possibly be after the expression in the current syntax
-        List<PatternElement> possibleInputs = PatternElement.getPossibleInputs(flattened.subList(possibilityIndex, flattened.size()));
-        for (PatternElement possibleInput : possibleInputs) {  // We iterate over those possibilities
+        var possibleInputs = PatternElement.getPossibleInputs(flattened.subList(possibilityIndex, flattened.size()));
+        for (var possibleInput : possibleInputs) {  // We iterate over those possibilities
             if (possibleInput instanceof TextElement) {
-                String text = ((TextElement) possibleInput).getText();
+                var text = ((TextElement) possibleInput).getText();
                 if (text.isEmpty())
                     continue;
                 if (text.equals("\0")) { // End of line
                     if (index == 0) {
                         return -1;
                     }
-                    String toParse = s.substring(index).trim();
-                    Optional<? extends Expression<?>> expression = parse(toParse, typeArray, context.getParserState(), logger);
+                    var toParse = s.substring(index).trim();
+                    var expression = parse(toParse, typeArray, context.getParserState(), logger);
                     if (expression.isPresent()) {
                         context.addExpression(expression.get());
                         return index + toParse.length();
                     }
                     return -1;
                 }
-                int i = StringUtils.indexOfIgnoreCase(s, text, index);
+                var i = StringUtils.indexOfIgnoreCase(s, text, index);
                 while (i != -1) {
-                    String toParse = s.substring(index, i).trim();
-                    Optional<? extends Expression<?>> expression = parse(toParse, typeArray, context.getParserState(), logger);
+                    var toParse = s.substring(index, i).trim();
+                    var expression = parse(toParse, typeArray, context.getParserState(), logger);
                     if (expression.isPresent()) {
                         context.addExpression(expression.get());
                         return index + toParse.length();
@@ -88,16 +88,16 @@ public class ExpressionElement implements PatternElement {
                     i = StringUtils.indexOfIgnoreCase(s, text, i + 1);
                 }
             } else if (possibleInput instanceof RegexGroup) {
-                Matcher m = ((RegexGroup) possibleInput).getPattern().matcher(s).region(index, s.length());
+                var m = ((RegexGroup) possibleInput).getPattern().matcher(s).region(index, s.length());
                 while (m.lookingAt()) {
-                    int i = m.start();
+                    var i = m.start();
                     if (i == -1) {
                         continue;
                     }
-                    String toParse = s.substring(index, i);
+                    var toParse = s.substring(index, i);
                     if (toParse.length() == context.getOriginalPattern().length())
                         continue;
-                    Optional<? extends Expression<?>> expression = parse(toParse, typeArray, context.getParserState(), logger);
+                    var expression = parse(toParse, typeArray, context.getParserState(), logger);
                     if (expression.isPresent()) {
                         context.addExpression(expression.get());
                         return index + toParse.length();
@@ -105,20 +105,20 @@ public class ExpressionElement implements PatternElement {
                 }
             } else {
                 assert possibleInput instanceof ExpressionElement;
-                List<PatternElement> nextPossibleInputs = PatternElement.getPossibleInputs(flattened.subList(context.getPatternIndex() + 1, flattened.size()));
+                var nextPossibleInputs = PatternElement.getPossibleInputs(flattened.subList(context.getPatternIndex() + 1, flattened.size()));
                 if (nextPossibleInputs.stream().anyMatch(pe -> !(pe instanceof TextElement))) {
                     continue;
                 }
-                for (PatternElement nextPossibleInput : nextPossibleInputs) {
-                    String text = ((TextElement) nextPossibleInput).getText();
+                for (var nextPossibleInput : nextPossibleInputs) {
+                    var text = ((TextElement) nextPossibleInput).getText();
                     if (text.equals("")) {
-                        String rest = s.substring(index);
-                        List<String> splits = splitAtSpaces(rest);
-                        for (String split : splits) {
-                            int i = StringUtils.indexOfIgnoreCase(s, split, index);
+                        var rest = s.substring(index);
+                        var splits = splitAtSpaces(rest);
+                        for (var split : splits) {
+                            var i = StringUtils.indexOfIgnoreCase(s, split, index);
                             if (i != -1) {
-                                String toParse = s.substring(index, i);
-                                Optional<? extends Expression<?>> expression = parse(toParse, typeArray, context.getParserState(), logger);
+                                var toParse = s.substring(index, i);
+                                var expression = parse(toParse, typeArray, context.getParserState(), logger);
                                 if (expression.isPresent()) {
                                     context.addExpression(expression.get());
                                     return index + toParse.length();
@@ -127,17 +127,17 @@ public class ExpressionElement implements PatternElement {
                         }
                         return -1;
                     } else {
-                        int bound = StringUtils.indexOfIgnoreCase(s, text, index);
+                        var bound = StringUtils.indexOfIgnoreCase(s, text, index);
                         if (bound == -1) {
                             continue;
                         }
-                        String rest = s.substring(index, bound);
-                        List<String> splits = splitAtSpaces(rest);
-                        for (String split : splits) {
-                            int i = StringUtils.indexOfIgnoreCase(s, split, index);
+                        var rest = s.substring(index, bound);
+                        var splits = splitAtSpaces(rest);
+                        for (var split : splits) {
+                            var i = StringUtils.indexOfIgnoreCase(s, split, index);
                             if (i != -1) {
-                                String toParse = s.substring(index, i);
-                                Optional<? extends Expression<?>> expression = parse(toParse, typeArray, context.getParserState(), logger);
+                                var toParse = s.substring(index, i);
+                                var expression = parse(toParse, typeArray, context.getParserState(), logger);
                                 if (expression.isPresent()) {
                                     context.addExpression(expression.get());
                                     return index + toParse.length();
@@ -153,17 +153,17 @@ public class ExpressionElement implements PatternElement {
 
     private List<String> splitAtSpaces(String s) {
         List<String> split = new ArrayList<>();
-        StringBuilder sb = new StringBuilder();
-        char[] charArray = s.toCharArray();
-        for (int i = 0; i < charArray.length; i++) {
-            char c = charArray[i];
+        var sb = new StringBuilder();
+        var charArray = s.toCharArray();
+        for (var i = 0; i < charArray.length; i++) {
+            var c = charArray[i];
             if (c == ' ') {
                 if (sb.length() > 0) {
                     split.add(sb.toString());
                     sb.setLength(0);
                 }
             } else if (c == '(') {
-                Optional<String> enclosed = StringUtils.getEnclosedText(s, '(', ')', i)
+                var enclosed = StringUtils.getEnclosedText(s, '(', ')', i)
                         .map(en -> "(" + en + ")");
                 sb.append(enclosed.orElse("("));
                 i += enclosed.map(s1 -> s1.length() + 1).orElse(0);
@@ -179,7 +179,7 @@ public class ExpressionElement implements PatternElement {
 
     @SuppressWarnings("unchecked")
     private <T> Optional<? extends Expression<? extends T>> parse(String s, PatternType<?>[] types, ParserState parserState, SkriptLogger logger) {
-        for (PatternType<?> type : types) {
+        for (var type : types) {
             Optional<? extends Expression<? extends T>> expression;
             logger.recurse();
             if (type.equals(SyntaxParser.BOOLEAN_PATTERN_TYPE)) {
@@ -194,7 +194,7 @@ public class ExpressionElement implements PatternElement {
                 expression = SyntaxParser.parseExpression(s, (PatternType<T>) type, parserState, logger);
             }
             logger.callback();
-            if (!expression.isPresent())
+            if (expression.isEmpty())
                 continue;
             expression = expression.filter(e -> {
                 switch (acceptance) {
@@ -233,14 +233,14 @@ public class ExpressionElement implements PatternElement {
         if (!(obj instanceof ExpressionElement)) {
             return false;
         } else {
-            ExpressionElement e = (ExpressionElement) obj;
+            var e = (ExpressionElement) obj;
             return types.equals(e.types) && acceptance == e.acceptance && acceptsConditional == e.acceptsConditional;
         }
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("%");
+        var sb = new StringBuilder("%");
         if (nullable)
             sb.append('-');
         switch (acceptance) {

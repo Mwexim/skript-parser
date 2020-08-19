@@ -27,7 +27,7 @@ public class FileSection extends FileElement {
         if (length >= 0)
             return length;
         length = 0;
-        for (FileElement e : elements) {
+        for (var e : elements) {
             if (e instanceof FileSection) {
                 length += ((FileSection) e).length() + 1;
             } else {

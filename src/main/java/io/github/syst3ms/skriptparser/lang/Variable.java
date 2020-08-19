@@ -40,7 +40,7 @@ public class Variable<T> implements Expression<T> {
     }
 
     private Optional<Object> getRaw(TriggerContext ctx) {
-        String n = name.toString(ctx);
+        var n = name.toString(ctx);
         if (n.endsWith(Variables.LIST_SEPARATOR + "*") != list) // prevents e.g. {%expr%} where "%expr%" ends with "::*" from returning a Map
             return Optional.empty();
         Object val = Variables.getVariable(n, ctx, local);
@@ -54,10 +54,10 @@ public class Variable<T> implements Expression<T> {
     }
 
     private Optional<Object> get(TriggerContext ctx) {
-        Optional<Object> val = getRaw(ctx);
+        var val = getRaw(ctx);
         if (!list)
             return val;
-        if (!val.isPresent())
+        if (val.isEmpty())
             return Optional.of(Array.newInstance(type, 0));
         List<Object> l = new ArrayList<>();
         for (Map.Entry<String, ?> v : ((Map<String, ?>) val.get()).entrySet()) {
@@ -77,11 +77,11 @@ public class Variable<T> implements Expression<T> {
     public T[] getValues(TriggerContext ctx) {
         if(list)
             return getConvertedArray(ctx);
-        T o = getConverted(ctx);
+        var o = getConverted(ctx);
         if (o == null) {
             return (T[]) Array.newInstance(supertype, 0);
         }
-        T[] one = (T[]) Array.newInstance(supertype, 1);
+        var one = (T[]) Array.newInstance(supertype, 1);
         one[0] = o;
         return one;
     }
@@ -116,14 +116,14 @@ public class Variable<T> implements Expression<T> {
     public Iterator<T> iterator(TriggerContext ctx) {
         if (!list)
             throw new SkriptRuntimeException("");
-        String n = this.name.toString(ctx);
-        String name = n.substring(0, n.length() - 1);
-        Optional<Object> val = Variables.getVariable(name + "*", ctx, local);
-        if (!val.isPresent())
+        var n = this.name.toString(ctx);
+        var name = n.substring(0, n.length() - 1);
+        var val = Variables.getVariable(name + "*", ctx, local);
+        if (val.isEmpty())
             return Collections.emptyIterator();
         assert val.get() instanceof TreeMap;
         // temporary list to prevent CMEs
-        Iterator<String> keys = new ArrayList<>(((Map<String, Object>) val.get()).keySet()).iterator();
+        var keys = new ArrayList<>(((Map<String, Object>) val.get()).keySet()).iterator();
         return new Iterator<T>() {
             @Nullable
             private String key;
@@ -150,7 +150,7 @@ public class Variable<T> implements Expression<T> {
             public T next() {
                 if (!hasNext())
                     throw new NoSuchElementException();
-                T n = next;
+                var n = next;
                 assert n != null;
                 next = null;
                 return n;
@@ -170,15 +170,15 @@ public class Variable<T> implements Expression<T> {
     public Iterator<Pair<String, Object>> variablesIterator(TriggerContext ctx) {
         if (!list)
             throw new SkriptRuntimeException("Looping a non-list variable");
-        String n = this.name.toString(ctx);
-        String name = n.substring(0, n.length() - 1);
-        Optional<Object> val = Variables.getVariable(name + "*", ctx, local);
-        if (!val.isPresent())
+        var n = this.name.toString(ctx);
+        var name = n.substring(0, n.length() - 1);
+        var val = Variables.getVariable(name + "*", ctx, local);
+        if (val.isEmpty())
             return Collections.emptyIterator();
         assert val.get() instanceof TreeMap;
         // temporary list to prevent CMEs
         @SuppressWarnings("unchecked")
-        Iterator<String> keys = new ArrayList<>(((Map<String, Object>) val.get()).keySet()).iterator();
+        var keys = new ArrayList<>(((Map<String, Object>) val.get()).keySet()).iterator();
         return new Iterator<Pair<String, Object>>() {
             @Nullable
             private String key;
@@ -206,7 +206,7 @@ public class Variable<T> implements Expression<T> {
                 if (!hasNext())
                     throw new NoSuchElementException();
                 assert next != null && key != null;
-                Pair<String, Object> n = new Pair<>(key, next);
+                var n = new Pair<String, Object>(key, next);
                 next = null;
                 return n;
             }
@@ -222,7 +222,7 @@ public class Variable<T> implements Expression<T> {
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
         if (ctx != null)
             return TypeManager.toString((Object[]) getValues(ctx));
-        String name = this.name.toString(null, debug);
+        var name = this.name.toString(null, debug);
         return "{" + (local ? Variables.LOCAL_VARIABLE_TOKEN : "") + name.substring(1, name.length() - 1) + "}" + (debug ? "(as " + supertype.getSimpleName() + ")" : "");
     }
 
@@ -241,7 +241,7 @@ public class Variable<T> implements Expression<T> {
 
     private void setIndex(TriggerContext ctx, String index, @Nullable Object value) {
         assert list;
-        String s = name.toString(ctx);
+        var s = name.toString(ctx);
         assert s.endsWith("::*") : s + "; " + name;
         Variables.setVariable(s.substring(0, s.length() - 1) + index, value, ctx, local);
     }
@@ -257,16 +257,16 @@ public class Variable<T> implements Expression<T> {
         switch (mode) {
             case DELETE:
                 if (list) {
-                    ArrayList<String> rem = new ArrayList<>();
-                    Map<String, Object> o = (Map<String, Object>) getRaw(ctx).orElseThrow(IllegalStateException::new);
+                    var rem = new ArrayList<String>();
+                    var o = (Map<String, Object>) getRaw(ctx).orElseThrow(IllegalStateException::new);
                     if (o == null)
                         return;
-                    for (Map.Entry<String, Object> i : o.entrySet()) {
+                    for (var i : o.entrySet()) {
                         if (i.getKey() != null){
                             rem.add(i.getKey());
                         }
                     }
-                    for (String r : rem) {
+                    for (var r : rem) {
                         assert r != null;
                         setIndex(ctx, r, null);
                     }
@@ -277,10 +277,10 @@ public class Variable<T> implements Expression<T> {
                 assert changeWith.length > 0;
                 if (list) {
                     set(ctx, null);
-                    int i = 1;
-                    for (Object d : changeWith) {
+                    var i = 1;
+                    for (var d : changeWith) {
                         if (d instanceof Object[]) {
-                            for (int j = 0; j < ((Object[]) d).length; j++)
+                            for (var j = 0; j < ((Object[]) d).length; j++)
                                 setIndex(ctx, i + Variables.LIST_SEPARATOR + j, ((Object[]) d)[j]);
                         } else {
                             setIndex(ctx, String.valueOf(i), d);
@@ -296,15 +296,15 @@ public class Variable<T> implements Expression<T> {
                         ? ((Map<?, ?>) r).values()
                         : Collections.singletonList(r)
                 );
-                if (!x.isPresent())
+                if (x.isEmpty())
                     return;
                 for (Object o : x.get()) {
-                    Class<?> c = o.getClass();
-                    Optional<? extends Type<?>> type = TypeManager.getByClass(c);
+                    var c = o.getClass();
+                    var type = TypeManager.getByClass(c);
                     assert type.isPresent();
-                    Optional<? extends Changer<?>> changer = type.get().getDefaultChanger();
+                    var changer = type.get().getDefaultChanger();
                     if (changer.map(ch -> ch.acceptsChange(ChangeMode.RESET)).isPresent()) {
-                        Object[] one = (Object[]) Array.newInstance(o.getClass(), 1);
+                        var one = (Object[]) Array.newInstance(o.getClass(), 1);
                         one[0] = o;
                         changer.ifPresent(ch -> ((Changer) ch).change(one, new Object[0], ChangeMode.RESET));
                     }
@@ -317,39 +317,39 @@ public class Variable<T> implements Expression<T> {
                 if (list) {
                     Optional<? extends Map<String, Object>> o = getRaw(ctx).map(r -> (Map<String, Object>) r);
                     if (mode == ChangeMode.REMOVE) {
-                        if (!o.isPresent())
+                        if (o.isEmpty())
                             return;
-                        ArrayList<String> rem = new ArrayList<>(); // prevents CMEs
-                        for (Object d : changeWith) {
-                            for (Map.Entry<String, Object> i : o.get().entrySet()) {
+                        var rem = new ArrayList<String>(); // prevents CMEs
+                        for (var d : changeWith) {
+                            for (var i : o.get().entrySet()) {
                                 if (Relation.EQUAL.is(Comparators.compare(i.getValue(), d))) {
                                     rem.add(i.getKey());
                                     break;
                                 }
                             }
                         }
-                        for (String r : rem) {
+                        for (var r : rem) {
                             assert r != null;
                             setIndex(ctx, r, null);
                         }
                     } else if (mode == ChangeMode.REMOVE_ALL) {
-                        if (!o.isPresent())
+                        if (o.isEmpty())
                             return;
-                        ArrayList<String> rem = new ArrayList<>(); // prevents CMEs
-                        for (Map.Entry<String, Object> i : o.get().entrySet()) {
-                            for (Object d : changeWith) {
+                        var rem = new ArrayList<String>(); // prevents CMEs
+                        for (var i : o.get().entrySet()) {
+                            for (var d : changeWith) {
                                 if (Relation.EQUAL.is(Comparators.compare(i.getValue(), d)))
                                     rem.add(i.getKey());
                             }
                         }
-                        for (String r : rem) {
+                        for (var r : rem) {
                             assert r != null;
                             setIndex(ctx, r, null);
                         }
                     } else {
                         assert mode == ChangeMode.ADD;
-                        int i = 1;
-                        for (Object d : changeWith) {
+                        var i = 1;
+                        for (var d : changeWith) {
                             if (o.isPresent())
                                 while (o.get().containsKey(String.valueOf(i)))
                                     i++;
@@ -359,14 +359,14 @@ public class Variable<T> implements Expression<T> {
                     }
                 } else {
                     Optional<?> o = get(ctx);
-                    Optional<? extends Type<?>> type = o.flatMap(ob -> (Optional<? extends Type<?>>) TypeManager.getByClass(ob.getClass()));
+                    var type = o.flatMap(ob -> (Optional<? extends Type<?>>) TypeManager.getByClass(ob.getClass()));
                     Optional<? extends Arithmetic> a = Optional.empty();
                     Optional<? extends Changer<?>> changer;
                     Class<?>[] cs;
-                    if (!o.isPresent() || !type.isPresent() || (a = type.get().getArithmetic()).isPresent()) {
-                        boolean changed = false;
-                        for (Object d : changeWith) {
-                            if (!o.isPresent() || !type.isPresent()) {
+                    if (o.isEmpty() || type.isEmpty() || (a = type.get().getArithmetic()).isPresent()) {
+                        var changed = false;
+                        for (var d : changeWith) {
+                            if (o.isEmpty() || type.isEmpty()) {
                                 type = TypeManager.getByClass(d.getClass());
                                 //Mirre Start
                                 if (type.isPresent() && type.get().getArithmetic().isPresent() || d instanceof Number)
@@ -377,9 +377,9 @@ public class Variable<T> implements Expression<T> {
                             }
                             assert a.isPresent();
                             Class<?> r = a.get().getRelativeType();
-                            Optional<?> diff = Converters.convert(d, r);
+                            var diff = Converters.convert(d, r);
                             if (diff.isPresent()) {
-                                Optional<? extends Arithmetic> finalA = a;
+                                var finalA = a;
                                 o = o.map(ob -> {
                                     if (mode == ChangeMode.ADD) {
                                         return finalA.get().add(ob, diff.get());
@@ -393,13 +393,13 @@ public class Variable<T> implements Expression<T> {
                         if (changed)
                             set(ctx, o);
                     } else if ((changer = type.get().getDefaultChanger()).isPresent() && (cs = changer.get().acceptsChange(mode)) != null) {
-                        Object[] one = (Object[]) Array.newInstance(o.getClass(), 1);
+                        var one = (Object[]) Array.newInstance(o.getClass(), 1);
                         one[0] = o;
-                        Class<?>[] cs2 = new Class<?>[cs.length];
-                        for (int i = 0; i < cs.length; i++)
+                        var cs2 = new Class<?>[cs.length];
+                        for (var i = 0; i < cs.length; i++)
                             cs2[i] = cs[i].isArray() ? cs[i].getComponentType() : cs[i];
-                        ArrayList<Object> l = new ArrayList<>();
-                        for (Object d : changeWith) {
+                        var l = new ArrayList<Object>();
+                        for (var d : changeWith) {
                             Object d2 = Converters.convert(d, cs2);
                             if (d2 != null)
                                 l.add(d2);

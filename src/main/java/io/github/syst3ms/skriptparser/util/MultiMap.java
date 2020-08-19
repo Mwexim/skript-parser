@@ -35,7 +35,7 @@ public class MultiMap<K, V> extends HashMap<K, List<V>> {
     public List<V> getAllValues() {
         List<V> values = new ArrayList<>();
         for (Iterable<V> v : values()) {
-            for (V val : v) {
+            for (var val : v) {
                 values.add(val);
             }
         }

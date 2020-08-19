@@ -39,7 +39,7 @@ public class FileElement {
         if (!(obj instanceof FileElement)) {
             return false;
         } else {
-            FileElement other = (FileElement) obj;
+            var other = (FileElement) obj;
             return indentation == other.indentation &&
                    line == other.line &&
                    content.equalsIgnoreCase(other.content) &&

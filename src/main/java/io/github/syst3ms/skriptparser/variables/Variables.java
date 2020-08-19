@@ -35,12 +35,12 @@ public class Variables {
         if (!isValidVariableName(s, true, logger)) {
             return Optional.empty();
         }
-        Optional<VariableString> vs = VariableString.newInstance(
+        var vs = VariableString.newInstance(
                 s.startsWith(LOCAL_VARIABLE_TOKEN) ? s.substring(LOCAL_VARIABLE_TOKEN.length()).trim() : s,
                 parserState,
                 logger
         );
-        String finalS = s;
+        var finalS = s;
         return vs.map(v -> new Variable<>(v, finalS.startsWith(LOCAL_VARIABLE_TOKEN), finalS.endsWith(LIST_SEPARATOR + "*"), types));
     }
 
@@ -84,7 +84,7 @@ public class Variables {
 	 */
     public static Optional<Object> getVariable(String name, TriggerContext e, boolean local) {
         if (local) {
-            VariableMap map = localVariables.get(e);
+            var map = localVariables.get(e);
             if (map == null)
                 return Optional.empty();
             return map.getVariable(name);
@@ -102,7 +102,7 @@ public class Variables {
     public static void setVariable(String name, @Nullable Object value, @Nullable TriggerContext e, boolean local) {
         if (local) {
             assert e != null : name;
-            VariableMap map = localVariables.get(e);
+            var map = localVariables.get(e);
             if (map == null)
                 localVariables.put(e, map = new VariableMap());
             map.setVariable(name, value);

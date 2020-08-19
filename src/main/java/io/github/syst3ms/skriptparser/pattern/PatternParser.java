@@ -29,20 +29,20 @@ public class PatternParser {
      */
     public Optional<PatternElement> parsePattern(String pattern, SkriptLogger logger) {
         List<PatternElement> elements = new ArrayList<>();
-        StringBuilder textBuilder = new StringBuilder();
-        Optional<String[]> parts = StringUtils.splitVerticalBars(pattern, logger);
-        if (!parts.isPresent()) {
+        var textBuilder = new StringBuilder();
+        var parts = StringUtils.splitVerticalBars(pattern, logger);
+        if (parts.isEmpty()) {
             return Optional.empty();
         } else if (parts.get().length > 1) {
             pattern = "(" + pattern + ")";
         }
-        char[] chars = pattern.toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            char c = chars[i];
-            int initialPos = i;
+        var chars = pattern.toCharArray();
+        for (var i = 0; i < chars.length; i++) {
+            var c = chars[i];
+            var initialPos = i;
             if (c == '[') {
-                Optional<String> s = StringUtils.getEnclosedText(pattern, '[', ']', i);
-                if (!s.isPresent()) {
+                var s = StringUtils.getEnclosedText(pattern, '[', ']', i);
+                if (s.isEmpty()) {
                     logger.error("Unmatched square bracket (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
                     return Optional.empty();
                 } else if (s.get().isEmpty()) {
@@ -54,14 +54,14 @@ public class PatternParser {
                 }
                 i += s.get().length() + 1; // sets i to the closing bracket, for loop does the rest
                 Optional<OptionalGroup> o;
-                Matcher matcher = PARSE_MARK_PATTERN.matcher(s.get());
-                Optional<String[]> vertParts = StringUtils.splitVerticalBars(pattern, logger);
-                if (!vertParts.isPresent()) {
+                var matcher = PARSE_MARK_PATTERN.matcher(s.get());
+                var vertParts = StringUtils.splitVerticalBars(pattern, logger);
+                if (vertParts.isEmpty()) {
                     return Optional.empty(); // The content is malformed anyway
                 }
                 if (matcher.matches() && vertParts.get().length == 1) {
-                    String mark = matcher.group(1);
-                    String base = matcher.group(2);
+                    var mark = matcher.group(1);
+                    var base = matcher.group(2);
                     int markNumber;
                     try {
                         if (base == null) {
@@ -77,7 +77,7 @@ public class PatternParser {
                     } catch (NumberFormatException e) {
                         return Optional.empty();
                     }
-                    String rest = matcher.group(3);
+                    var rest = matcher.group(3);
                     o = parsePattern(rest, logger)
                             .map(e -> new ChoiceGroup(Collections.singletonList(new ChoiceElement(e, markNumber))))
                             .map(OptionalGroup::new);
@@ -86,14 +86,14 @@ public class PatternParser {
                     o = s.flatMap(st -> parsePattern(st, logger))
                             .map(OptionalGroup::new);
                 }
-                if (!o.isPresent()) {
+                if (o.isEmpty()) {
                     return Optional.empty();
                 } else {
                     elements.add(o.get());
                 }
             } else if (c == '(') {
-                Optional<String> s = StringUtils.getEnclosedText(pattern, '(', ')', i);
-                if (!s.isPresent()) {
+                var s = StringUtils.getEnclosedText(pattern, '(', ')', i);
+                if (s.isEmpty()) {
                     logger.error("Unmatched parenthesis (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
                     return Optional.empty();
                 }
@@ -102,20 +102,20 @@ public class PatternParser {
                     textBuilder = new StringBuilder();
                 }
                 i += s.get().length() + 1;
-                Optional<String[]> choices = StringUtils.splitVerticalBars(s.get(), logger);
-                if (!choices.isPresent()) {
+                var choices = StringUtils.splitVerticalBars(s.get(), logger);
+                if (choices.isEmpty()) {
                     return Optional.empty();
                 }
                 List<ChoiceElement> choiceElements = new ArrayList<>();
-                for (String choice : choices.get()) {
+                for (var choice : choices.get()) {
                     if (choice.isEmpty()) {
                         logger.warn("There is an empty choice in the choice group. Place a backslash before the vertical bar for it to be interpreted literally : (" + s.get() + ")");
                     }
                     Optional<ChoiceElement> choiceElement;
-                    Matcher matcher = PARSE_MARK_PATTERN.matcher(choice);
+                    var matcher = PARSE_MARK_PATTERN.matcher(choice);
                     if (matcher.matches()) {
-                        String mark = matcher.group(1);
-                        String base = matcher.group(2);
+                        var mark = matcher.group(1);
+                        var base = matcher.group(2);
                         int markNumber;
                         try {
                             if (base == null) {
@@ -131,14 +131,14 @@ public class PatternParser {
                         } catch (NumberFormatException e) {
                             return Optional.empty();
                         }
-                        String rest = matcher.group(3);
+                        var rest = matcher.group(3);
                         choiceElement = parsePattern(rest, logger)
                                 .map(p -> new ChoiceElement(p, markNumber));
                     } else {
                         choiceElement = parsePattern(choice, logger)
                                 .map(p -> new ChoiceElement(p, 0));
                     }
-                    if (!choiceElement.isPresent()) {
+                    if (choiceElement.isEmpty()) {
                         return Optional.empty();
                     } else {
                         choiceElements.add(choiceElement.get());
@@ -146,8 +146,8 @@ public class PatternParser {
                 }
                 elements.add(new ChoiceGroup(choiceElements));
             } else if (c == '<') {
-                Optional<String> s = StringUtils.getEnclosedText(pattern, '<', '>', i);
-                if (!s.isPresent()) {
+                var s = StringUtils.getEnclosedText(pattern, '<', '>', i);
+                if (s.isEmpty()) {
                     logger.error("Unmatched angle bracket (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
                     return Optional.empty();
                 } else if (s.get().isEmpty()) {
@@ -171,7 +171,7 @@ public class PatternParser {
                  * Can't use getEnclosedText as % acts for both opening and closing,
                  * and there's no need of checking for nested stuff
                  */
-                int nextIndex = pattern.indexOf('%', i + 1);
+                var nextIndex = pattern.indexOf('%', i + 1);
                 if (nextIndex == -1) {
                     logger.error("Unmatched percent (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
                     return Optional.empty();
@@ -180,17 +180,17 @@ public class PatternParser {
                     elements.add(new TextElement(textBuilder.toString()));
                     textBuilder.setLength(0);
                 }
-                String s = pattern.substring(i + 1, nextIndex);
+                var s = pattern.substring(i + 1, nextIndex);
                 i = nextIndex;
-                Matcher m = VARIABLE_PATTERN.matcher(s);
+                var m = VARIABLE_PATTERN.matcher(s);
                 if (!m.matches()) {
                     logger.error("Invalid expression element (index " + initialPos + ") : '" + s + "'", ErrorType.MALFORMED_INPUT);
                     return Optional.empty();
                 } else {
-                    boolean nullable = m.group(1) != null;
-                    ExpressionElement.Acceptance acceptance = ExpressionElement.Acceptance.ALL;
+                    var nullable = m.group(1) != null;
+                    var acceptance = ExpressionElement.Acceptance.ALL;
                     if (m.group(2) != null) {
-                        String acc = m.group(2);
+                        var acc = m.group(2);
                         if (acc.equals("~")) {
                             acceptance = ExpressionElement.Acceptance.EXPRESSIONS_ONLY;
                         } else if (acc.equals("^")) {
@@ -199,18 +199,18 @@ public class PatternParser {
                             acceptance = ExpressionElement.Acceptance.LITERALS_ONLY;
                         }
                     }
-                    String typeString = m.group("types");
-                    String[] types = typeString.split("/");
+                    var typeString = m.group("types");
+                    var types = typeString.split("/");
                     List<PatternType<?>> patternTypes = new ArrayList<>();
-                    for (String type : types) {
-                        Optional<PatternType<?>> t = TypeManager.getPatternType(type);
-                        if (!t.isPresent()) {
+                    for (var type : types) {
+                        var t = TypeManager.getPatternType(type);
+                        if (t.isEmpty()) {
                             logger.error("Unknown type (index " + initialPos + ") : '" + type + "'", ErrorType.NO_MATCH);
                             return Optional.empty();
                         }
                         patternTypes.add(t.get());
                     }
-                    boolean acceptConditional = m.group(3) != null;
+                    var acceptConditional = m.group(3) != null;
                     if (acceptConditional && patternTypes.stream().noneMatch(t -> t.getType().getTypeClass() == Boolean.class)) {
                         logger.error("Can't use the '=' flag on non-boolean types (index " + initialPos + ")", ErrorType.SEMANTIC_ERROR);
                     }

@@ -38,7 +38,7 @@ public class Comparators {
     public static <F, S> Relation compare(@Nullable F o1, @Nullable S o2) {
         if (o1 == null || o2 == null)
             return Relation.NOT_EQUAL;
-        Optional<? extends Comparator<? super F, ? super S>> c = getComparator((Class<F>) o1.getClass(), (Class<S>) o2.getClass());
+        var c = getComparator((Class<F>) o1.getClass(), (Class<S>) o2.getClass());
         return c.map(comp -> comp.apply(o1, o2)).orElse(Relation.NOT_EQUAL);
     }
 
@@ -52,10 +52,10 @@ public class Comparators {
 
     @SuppressWarnings("unchecked")
     public static <F, S> Optional<? extends Comparator<? super F, ? super S>> getComparator(Class<F> f, Class<S> s) {
-        Pair<Class<?>, Class<?>> p = new Pair<>(f, s);
+        var p = new Pair<Class<?>, Class<?>>(f, s);
         if (comparatorsQuickAccess.containsKey(p))
             return Optional.ofNullable((Comparator<? super F, ? super S>) comparatorsQuickAccess.get(p));
-        Optional<? extends Comparator<? super F, ? super S>> comp = getComparator_i(f, s);
+        var comp = getComparator_i(f, s);
         comp.ifPresent(c -> comparatorsQuickAccess.put(p, c));
         return comp;
     }
@@ -63,7 +63,7 @@ public class Comparators {
     @SuppressWarnings("unchecked")
     private static <F, S> Optional<? extends Comparator<? super F, ? super S>> getComparator_i(Class<F> f, Class<S> s) {
         // perfect match
-        for (ComparatorInfo<?, ?> info : comparators) {
+        for (var info : comparators) {
             if (info.getFirstClass().isAssignableFrom(f) && info.getSecondClass().isAssignableFrom(s)) {
                 return Optional.ofNullable((Comparator<? super F, ? super S>) info.getComparator());
             } else if (info.getFirstClass().isAssignableFrom(s) && info.getSecondClass().isAssignableFrom(f)) {
@@ -81,8 +81,8 @@ public class Comparators {
         Optional<? extends Function<? super S, Optional<?>>> c2;
 
         // single conversion
-        for (ComparatorInfo<?, ?> info : comparators) {
-            for (boolean first : trueFalse) {
+        for (var info : comparators) {
+            for (var first : trueFalse) {
                 if (info.getType(first).isAssignableFrom(f)) {
                     c2 = (Optional<? extends Function<? super S, Optional<?>>>) Converters.getConverter(s, info.getType(!first));
                     if (c2.isPresent()) {
@@ -112,8 +112,8 @@ public class Comparators {
         }
 
         // double conversion
-        for (ComparatorInfo<?, ?> info : comparators) {
-            for (boolean first : trueFalse) {
+        for (var info : comparators) {
+            for (var first : trueFalse) {
                 c1 = (Optional<? extends Function<? super F, Optional<?>>>) Converters.getConverter(f, info.getType(first));
                 c2 = (Optional<? extends Function<? super S, Optional<?>>>) Converters.getConverter(s, info.getType(!first));
                 if (c1.isPresent() && c2.isPresent()) {
@@ -157,9 +157,9 @@ public class Comparators {
         @SuppressWarnings("unchecked")
         @Override
         public Relation apply(@Nullable T1 o1, @Nullable T2 o2) {
-            Optional<?> t1 = c1 == null ? Optional.ofNullable(o1) : (Optional<?>) c1.apply(o1);
-            Optional<?> t2 = c2 == null ? Optional.ofNullable(o2) : (Optional<?>) c2.apply(o2);
-            if (!t1.isPresent() || !t2.isPresent())
+            var t1 = c1 == null ? Optional.ofNullable(o1) : (Optional<?>) c1.apply(o1);
+            var t2 = c2 == null ? Optional.ofNullable(o2) : (Optional<?>) c2.apply(o2);
+            if (t1.isEmpty() || t2.isEmpty())
                 return Relation.NOT_EQUAL;
             return c.apply(t1.get(), t2.get());
         }

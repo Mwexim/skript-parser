@@ -56,8 +56,8 @@ public class VariableString implements Expression<String> {
                     s.substring(1, s.length() - 1).replace("\\'", "'")
             }));
         } else if (s.startsWith("R\"") && s.endsWith("\"")) {
-            String content = s.substring(2, s.length() - 1);
-            Matcher m = R_LITERAL_CONTENT_PATTERN.matcher(content);
+            var content = s.substring(2, s.length() - 1);
+            var m = R_LITERAL_CONTENT_PATTERN.matcher(content);
             if (m.matches()) {
                 return Optional.of(new VariableString(new String[]{m.group(2)}));
             } else {
@@ -76,22 +76,22 @@ public class VariableString implements Expression<String> {
      */
     public static Optional<VariableString> newInstance(String s, ParserState parserState, SkriptLogger logger) {
         List<Object> data = new ArrayList<>(StringUtils.count(s, "%"));
-        StringBuilder sb = new StringBuilder();
-        char[] charArray = s.toCharArray();
-        for (int i = 0; i < charArray.length; i++) {
-            char c = charArray[i];
+        var sb = new StringBuilder();
+        var charArray = s.toCharArray();
+        for (var i = 0; i < charArray.length; i++) {
+            var c = charArray[i];
             if (c == '%') {
                 if (i == charArray.length - 1) {
                     return Optional.empty();
                 }
-                Optional<String> content = StringUtils.getPercentContent(s, i + 1);
-                Optional<String> toParse = content.map(co -> co.replaceAll("\\\\(.)", "$1"));
-                if (!toParse.isPresent())
+                var content = StringUtils.getPercentContent(s, i + 1);
+                var toParse = content.map(co -> co.replaceAll("\\\\(.)", "$1"));
+                if (toParse.isEmpty())
                     return Optional.empty();
                 logger.recurse();
-                Optional<? extends Expression<?>> expression = SyntaxParser.parseExpression(toParse.get(), SyntaxParser.OBJECTS_PATTERN_TYPE, parserState, logger);
+                var expression = SyntaxParser.parseExpression(toParse.get(), SyntaxParser.OBJECTS_PATTERN_TYPE, parserState, logger);
                 logger.callback();
-                if (!expression.isPresent())
+                if (expression.isEmpty())
                     return Optional.empty();
                 if (sb.length() > 0) {
                     data.add(sb.toString());
@@ -141,8 +141,8 @@ public class VariableString implements Expression<String> {
     public String toString(TriggerContext ctx) {
         if (simple)
             return (String) data[0];
-        StringBuilder sb = new StringBuilder();
-        for (Object o : data) {
+        var sb = new StringBuilder();
+        for (var o : data) {
             if (o instanceof Expression) {
                 sb.append(TypeManager.toString(((Expression<?>) o).getValues(ctx)));
             } else {
@@ -156,8 +156,8 @@ public class VariableString implements Expression<String> {
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
         if (simple)
             return "\"" + data[0] + "\"";
-        StringBuilder sb = new StringBuilder("\"");
-        for (Object o : data) {
+        var sb = new StringBuilder("\"");
+        for (var o : data) {
             if (o instanceof Expression) {
                 sb.append('%').append(((Expression<?>) o).toString(ctx, debug)).append('%');
             } else {
@@ -170,8 +170,8 @@ public class VariableString implements Expression<String> {
     public String defaultVariableName() {
         if (simple)
             return (String) data[0];
-        StringBuilder sb = new StringBuilder();
-        for (Object o : data) {
+        var sb = new StringBuilder();
+        for (var o : data) {
             if (o instanceof String) {
                 sb.append(o);
             } else {

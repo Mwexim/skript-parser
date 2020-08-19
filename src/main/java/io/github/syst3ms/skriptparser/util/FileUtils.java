@@ -43,8 +43,8 @@ public class FileUtils {
      */
     public static List<String> readAllLines(Path filePath) throws IOException {
         List<String> lines = new ArrayList<>();
-        StringBuilder multilineBuilder = new StringBuilder();
-        for (String line : Files.readAllLines(filePath, StandardCharsets.UTF_8)) {
+        var multilineBuilder = new StringBuilder();
+        for (var line : Files.readAllLines(filePath, StandardCharsets.UTF_8)) {
             line = line.replaceAll("\\s*$", "");
             if (line.replace("\\" + MULTILINE_SYNTAX_TOKEN, "\0")
                     .endsWith(MULTILINE_SYNTAX_TOKEN)) {
@@ -72,9 +72,9 @@ public class FileUtils {
      * @return the indentation level
      */
     public static int getIndentationLevel(String line, boolean countAllSpaces) {
-        Matcher m = LEADING_WHITESPACE_PATTERN.matcher(line);
+        var m = LEADING_WHITESPACE_PATTERN.matcher(line);
         if (m.matches()) {
-            String space = m.group(1);
+            var space = m.group(1);
             if (countAllSpaces) {
                 return 4 * StringUtils.count(space, "\t") + StringUtils.count(space, " ");
             } else {
@@ -86,20 +86,20 @@ public class FileUtils {
     }
 
     private static String trimMultilineIndent(String multilineText) {
-        String[] lines = multilineText.split("\0");
+        var lines = multilineText.split("\0");
         // Inspired from Kotlin's trimIndent() function
-        int baseIndent = Arrays.stream(lines)
+        var baseIndent = Arrays.stream(lines)
                                .skip(1) // First line's indent should be ignored
                                .mapToInt(l -> getIndentationLevel(l, true))
                                .min()
                                .orElse(0);
         if (baseIndent == 0)
             return multilineText.replace("\0", "");
-        Pattern pat = Pattern.compile("\\s");
-        StringBuilder sb = new StringBuilder(lines[0]);
-        for (String line : Arrays.copyOfRange(lines, 1, lines.length)) {
-            Matcher m = pat.matcher(line);
-            for (int i = 0; i < baseIndent && m.find(); i++) {
+        var pat = Pattern.compile("\\s");
+        var sb = new StringBuilder(lines[0]);
+        for (var line : Arrays.copyOfRange(lines, 1, lines.length)) {
+            var m = pat.matcher(line);
+            for (var i = 0; i < baseIndent && m.find(); i++) {
                 line = line.replaceFirst(m.group(), "");
             }
             sb.append(line);
@@ -112,26 +112,25 @@ public class FileUtils {
      * @param basePackage a root package
      * @param subPackages a list of all subpackages of the root package, in which classes will be leadied
      * @throws IOException
-     * @throws URISyntaxException
      */
-    public static void loadClasses(File jarFile, String basePackage, String... subPackages) throws IOException, URISyntaxException {
-        for (int i = 0; i < subPackages.length; i++)
+    public static void loadClasses(File jarFile, String basePackage, String... subPackages) throws IOException {
+        for (var i = 0; i < subPackages.length; i++)
             subPackages[i] = subPackages[i].replace('.', '/') + "/";
         basePackage = basePackage.replace('.', '/') + "/";
-        try (JarFile jar = new JarFile(jarFile)) {
-            Enumeration<JarEntry> entries = jar.entries();
+        try (var jar = new JarFile(jarFile)) {
+            var entries = jar.entries();
             while (entries.hasMoreElements()) {
-                JarEntry e = entries.nextElement();
+                var e = entries.nextElement();
                 if (e.getName().startsWith(basePackage) && e.getName().endsWith(".class")) {
-                    boolean load = subPackages.length == 0;
-                    for (final String sub : subPackages) {
+                    var load = subPackages.length == 0;
+                    for (final var sub : subPackages) {
                         if (e.getName().startsWith(sub, basePackage.length())) {
                             load = true;
                             break;
                         }
                     }
                     if (load) {
-                        final String c = e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length());
+                        final var c = e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length());
                         try {
                             Class.forName(c, true, FileUtils.class.getClassLoader());
                         } catch (final ClassNotFoundException | ExceptionInInitializerError ex) {

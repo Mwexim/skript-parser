@@ -47,8 +47,8 @@ public class NumberMath {
         if ((n instanceof Long || n instanceof Double) && (base instanceof Long || base instanceof Double)) {
             return Math.log(n.doubleValue()) / Math.log(base.doubleValue());
         } else {
-            BigDecimal bd = bigToBigDecimal(n);
-            BigDecimal bdBase = bigToBigDecimal(base);
+            var bd = bigToBigDecimal(n);
+            var bdBase = bigToBigDecimal(base);
             if (bdBase.compareTo(BigDecimal.valueOf(2)) == 0) {
                 return BigDecimalMath.log2(bd, BigDecimalMath.DEFAULT_CONTEXT);
             } else if (bdBase.compareTo(BigDecimal.TEN) == 0) {
@@ -63,7 +63,7 @@ public class NumberMath {
     public static Number factorial(Number n) {
         if (n instanceof Long && n.longValue() < 13)
             return BigDecimalMath.factorial(n.intValue()).longValue();
-        BigDecimal fac = BigDecimalMath.factorial(new BigDecimal(n.toString()), BigDecimalMath.DEFAULT_CONTEXT);
+        var fac = BigDecimalMath.factorial(new BigDecimal(n.toString()), BigDecimalMath.DEFAULT_CONTEXT);
         if (n instanceof Long || n instanceof BigInteger) {
             return fac.toBigInteger();
         } else {

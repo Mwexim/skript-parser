@@ -33,31 +33,31 @@ public class CompoundElement implements PatternElement {
         if (!(obj instanceof CompoundElement)) {
             return false;
         } else {
-            List<PatternElement> elems = ((CompoundElement) obj).elements;
+            var elems = ((CompoundElement) obj).elements;
             return elements.size() == elems.size() && elements.equals(elems);
         }
     }
 
     @Override
     public int match(String s, int index, MatchContext context) {
-        int i = index;
-        for (PatternElement element : elements) {
+        var i = index;
+        for (var element : elements) {
             context.advanceInPattern();
-            int m = element.match(s, i, context);
+            var m = element.match(s, i, context);
             if (m == -1) {
                 return -1;
             }
             i = m;
         }
-        if (context.getSource() == null && i < s.length() - 1)
+        if (context.getSource().isEmpty() && i < s.length() - 1)
             return -1;
         return i;
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        for (PatternElement element : elements) {
+        var builder = new StringBuilder();
+        for (var element : elements) {
             builder.append(element);
         }
         return builder.toString();

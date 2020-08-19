@@ -54,7 +54,7 @@ public abstract class CodeSection extends Statement {
      */
     public final void setItems(List<Statement> items) {
         this.items = items;
-        for (Statement item : items) {
+        for (var item : items) {
             item.setParent(this);
         }
         first = items.isEmpty() ? null : items.get(0);
@@ -76,7 +76,7 @@ public abstract class CodeSection extends Statement {
      * no item after this section, in the latter case
      */
     protected final Optional<? extends Statement> getFirst() {
-        return first == null ? getNext() : Optional.of(first);
+        return Optional.ofNullable(first).or(this::getNext);
     }
 
     /**
@@ -84,7 +84,7 @@ public abstract class CodeSection extends Statement {
      * no item after this section, in the latter case
      */
     protected final Optional<? extends Statement> getLast() {
-        return last == null ? getNext() : Optional.of(last);
+        return Optional.ofNullable(last).or(this::getNext);
     }
 
     /**

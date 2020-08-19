@@ -445,12 +445,12 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
-            Optional<? extends Type<T>> type = TypeManager.getByClassExact(returnType);
-            if (!type.isPresent()) {
+            var type = TypeManager.getByClassExact(returnType);
+            if (type.isEmpty()) {
                 logger.error("Couldn't find a type corresponding to the class '" + returnType.getName() + "'", ErrorType.NO_MATCH);
                 return;
             }
-            ExpressionInfo<C, T> info = new ExpressionInfo<>(super.c, elements, registerer, type.get(), isSingle, super.priority);
+            var info = new ExpressionInfo<C, T>(super.c, elements, registerer, type.get(), isSingle, super.priority);
             expressions.putOne(super.c, info);
         }
     }
@@ -465,7 +465,7 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
-            SyntaxInfo<C> info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
+            var info = new SyntaxInfo<C>(super.c, elements, super.priority, registerer);
             effects.add(info);
         }
     }
@@ -481,7 +481,7 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
-            SyntaxInfo<C> info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
+            var info = new SyntaxInfo<C>(super.c, elements, super.priority, registerer);
             sections.add(info);
         }
     }
@@ -497,7 +497,7 @@ public class SkriptRegistration {
         @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
-            for (String s : super.patterns) {
+            for (var s : super.patterns) {
                 if (s.startsWith("*")) {
                     s = s.substring(1);
                 } else {
@@ -505,7 +505,7 @@ public class SkriptRegistration {
                 }
                 patternParser.parsePattern(s, logger).ifPresent(elements::add);
             }
-            SkriptEventInfo<T> info = new SkriptEventInfo<>(super.c, handledContexts, elements, super.priority, registerer);
+            var info = new SkriptEventInfo<T>(super.c, handledContexts, elements, super.priority, registerer);
             events.add(info);
             registerer.addHandledEvent(this.c);
         }

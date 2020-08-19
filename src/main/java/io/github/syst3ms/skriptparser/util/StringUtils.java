@@ -27,9 +27,9 @@ public class StringUtils {
      * @return the amount of total occurences
      */
     public static int count(String s, String... toFind) {
-        int count = 0;
-        for (String sequence : toFind) {
-            int occurences = s.length() - s.replace(sequence, "").length();
+        var count = 0;
+        for (var sequence : toFind) {
+            var occurences = s.length() - s.replace(sequence, "").length();
             count += occurences / sequence.length();
         }
         return count;
@@ -42,8 +42,8 @@ public class StringUtils {
      * @return the repeated string
      */
     public static String repeat(String str, int times) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < times; i++) {
+        var sb = new StringBuilder();
+        for (var i = 0; i < times; i++) {
             sb.append(str);
         }
         return sb.toString();
@@ -58,9 +58,9 @@ public class StringUtils {
      * @return the index at which the brace pair closes
      */
     public static int findClosingIndex(String pattern, char opening, char closing, int start) {
-        int n = 0;
-        for (int i = start; i < pattern.length(); i++) {
-            char c = pattern.charAt(i);
+        var n = 0;
+        for (var i = start; i < pattern.length(); i++) {
+            var c = pattern.charAt(i);
             if (c == '\\') {
                 i++;
             } else if (c == closing) {
@@ -84,7 +84,7 @@ public class StringUtils {
      * @return the enclosed text
      */
     public static Optional<String> getEnclosedText(String pattern, char opening, char closing, int start) {
-        int closingBracket = findClosingIndex(pattern, opening, closing, start);
+        var closingBracket = findClosingIndex(pattern, opening, closing, start);
         if (closingBracket == -1) {
             return Optional.empty();
         } else {
@@ -102,30 +102,30 @@ public class StringUtils {
     public static int nextSimpleCharacterIndex(String s, int index) {
         if (index < 0)
             throw new StringIndexOutOfBoundsException(index);
-        char[] chars = s.toCharArray();
-        for (int i = index; i < chars.length; i++) {
-            char c = chars[i];
+        var chars = s.toCharArray();
+        for (var i = index; i < chars.length; i++) {
+            var c = chars[i];
             if (c == '\\') {
                 if (i == chars.length - 1)
                     return -1;
                 return i + 1;
             } else if (c == '{') {
-                int closing = findClosingIndex(s, '{', '}', i);
+                var closing = findClosingIndex(s, '{', '}', i);
                 if (closing == -1)
                     return -1;
                 i = closing;
             } else if (c == '"') {
-                int closing = s.indexOf('"', i + 1);
+                var closing = s.indexOf('"', i + 1);
                 if (closing == -1)
                     return -1;
                 i = closing;
             } else if (c == '\'') {
-                int closing = s.indexOf('\'', i + 1);
+                var closing = s.indexOf('\'', i + 1);
                 if (closing == -1)
                     return -1;
                 i = closing;
             } else if (c == 'R' && i < s.length() - 2 && chars[i + 1] == '"') {
-                Matcher m = R_LITERAL_CONTENT_PATTERN.matcher(s).region(i + 2, s.length());
+                var m = R_LITERAL_CONTENT_PATTERN.matcher(s).region(i + 2, s.length());
                 if (!m.lookingAt())
                     return -1;
                 i = m.end() + 1;
@@ -143,12 +143,12 @@ public class StringUtils {
      * @return the content between %%
      */
     public static Optional<String> getPercentContent(String s, int start) {
-        for (int i = start; i < s.length(); i++) {
-            char c = s.charAt(i);
+        for (var i = start; i < s.length(); i++) {
+            var c = s.charAt(i);
             if (c == '\\') {
                 i++;
             } else if (c == '{') { // We must ignore variable content
-                int closing = findClosingIndex(s, '{', '}', i);
+                var closing = findClosingIndex(s, '{', '}', i);
                 if (closing == -1)
                     return Optional.empty();
                 i = closing;
@@ -173,18 +173,18 @@ public class StringUtils {
             // Fallback to legacy behavior.
             return haystack.indexOf(needle);
         }
-        for (int i = start; i < haystack.length(); ++i) {
+        for (var i = start; i < haystack.length(); ++i) {
             // Early out, if possible.
             if (i + needle.length() > haystack.length()) {
                 return -1;
             }
 
             // Attempt to match substring starting at position i of haystack.
-            int j = 0;
-            int k = i;
+            var j = 0;
+            var k = i;
             while (k < haystack.length() && j < needle.length()) {
-                char c = Character.toLowerCase(haystack.charAt(k));
-                char c2 = Character.toLowerCase(needle.charAt(j));
+                var c = Character.toLowerCase(haystack.charAt(k));
+                var c2 = Character.toLowerCase(needle.charAt(j));
                 if (c != c2) {
                     break;
                 }
@@ -208,18 +208,18 @@ public class StringUtils {
      */
     public static Optional<String[]> splitVerticalBars(String s, SkriptLogger logger) {
         List<String> split = new ArrayList<>();
-        StringBuilder sb = new StringBuilder();
-        char[] chars = s.toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            char c = chars[i];
+        var sb = new StringBuilder();
+        var chars = s.toCharArray();
+        for (var i = 0; i < chars.length; i++) {
+            var c = chars[i];
             if (c == '\\') {
                 sb.append(c);
                 if (i + 1 < s.length()) {
                     sb.append(chars[++i]);
                 }
             } else if (c == '(' || c == '[') {
-                char closing = c == '(' ? ')' : ']';
-                Optional<String> text = getEnclosedText(s, c, closing, i);
+                var closing = c == '(' ? ')' : ']';
+                var text = getEnclosedText(s, c, closing, i);
                 text.ifPresent(st -> {
                     sb.append(c).append(st).append(closing);
                 });
@@ -258,8 +258,8 @@ public class StringUtils {
     public static String[] getForms(String pluralizable) {
         pluralizable = fixEncoding(pluralizable);
         List<String[]> words = new ArrayList<>();
-        for (String s : pluralizable.split("\\s+")) {
-            String[] split = s.split("@");
+        for (var s : pluralizable.split("\\s+")) {
+            var split = s.split("@");
             switch (split.length) {
                 case 1:
                     words.add(new String[]{s, s});
@@ -274,8 +274,8 @@ public class StringUtils {
                     throw new SkriptParserException("Invalid pluralized word : " + s);
             }
         }
-        String[] pluralized = new String[]{"", ""};
-        for (String[] word : words) {
+        var pluralized = new String[]{"", ""};
+        for (var word : words) {
             pluralized[0] += word[0] + " ";
             pluralized[1] += word[1] + " ";
         }
@@ -288,7 +288,7 @@ public class StringUtils {
      * @return the array with all of its contents trimmed
      */
     private static String[] trimAll(String[] strings) {
-        for (int i = 0; i < strings.length; i++)
+        for (var i = 0; i < strings.length; i++)
             strings[i] = strings[i].trim();
         return strings;
     }
@@ -305,7 +305,7 @@ public class StringUtils {
             return "";
         else if (plural)
             return noun;
-        char first = Character.toLowerCase(noun.charAt(0));
+        var first = Character.toLowerCase(noun.charAt(0));
         switch (first) {
             case 'a':
             case 'e':

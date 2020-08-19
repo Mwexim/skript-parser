@@ -28,8 +28,7 @@ public class AsinCalculator extends SeriesCalculator {
 	
 	@Override
 	protected BigRational getCurrentFactor() {
-		BigRational factor = factorial2n.divide(fourPowerN.multiply(factorialN).multiply(factorialN).multiply(2 * n + 1));
-		return factor;
+		return factorial2n.divide(fourPowerN.multiply(factorialN).multiply(factorialN).multiply(2 * n + 1));
 	}
 	
 	@Override

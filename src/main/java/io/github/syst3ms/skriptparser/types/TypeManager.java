@@ -43,8 +43,8 @@ public class TypeManager {
      * @return the matching Type, or {@literal null} if nothing matched
      */
     public static Optional<Type<?>> getByName(String name) {
-        for (Type<?> t : nameToType.values()) {
-            String[] forms = t.getPluralForms();
+        for (var t : nameToType.values()) {
+            var forms = t.getPluralForms();
             if (name.equalsIgnoreCase(forms[0]) || name.equalsIgnoreCase(forms[1])) {
                 return Optional.of(t);
             }
@@ -66,14 +66,14 @@ public class TypeManager {
 
     public static <T> Optional<? extends Type<? super T>> getByClass(Class<T> c) {
         Optional<? extends Type<? super T>> type = getByClassExact(c);
-        Class<? super T> superclass = c.getSuperclass();
-        while (superclass != null && !type.isPresent()) {
+        var superclass = c.getSuperclass();
+        while (superclass != null && type.isEmpty()) {
             type = getByClass(superclass);
             superclass = superclass.getSuperclass();
         }
-        Class<? super T>[] interf = (Class<? super T>[]) c.getInterfaces();
-        int i = 0;
-        while ((!type.isPresent() || type.filter(t -> t.getTypeClass() == Object.class).isPresent()) && i < interf.length) {
+        var interf = (Class<? super T>[]) c.getInterfaces();
+        var i = 0;
+        while ((type.isEmpty() || type.filter(t -> t.getTypeClass() == Object.class).isPresent()) && i < interf.length) {
             type = getByClass(interf[i]);
             i++;
         }
@@ -81,17 +81,17 @@ public class TypeManager {
     }
 
     public static String toString(Object... objects) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < objects.length; i++) {
+        var sb = new StringBuilder();
+        for (var i = 0; i < objects.length; i++) {
             if (i > 0) {
                 sb.append(i == objects.length - 1 ? " and " : ", ");
             }
-            Object o = objects[i];
+            var o = objects[i];
             if (o == null) {
                 sb.append(NULL_REPRESENTATION);
                 continue;
             }
-            Optional<? extends Type<?>> type = getByClass(o.getClass());
+            var type = getByClass(o.getClass());
             sb.append(type.map(t -> (Object) t.getToStringFunction().apply(o)).orElse(o));
         }
         return sb.length() == 0 ? EMPTY_REPRESENTATION : sb.toString();
@@ -104,8 +104,8 @@ public class TypeManager {
      * @return a corresponding PatternType, or {@literal null} if nothing matched
      */
     public static Optional<PatternType<?>> getPatternType(String name) {
-        for (Type<?> t : nameToType.values()) {
-            String[] forms = t.getPluralForms();
+        for (var t : nameToType.values()) {
+            var forms = t.getPluralForms();
             if (name.equalsIgnoreCase(forms[0])) {
                 return Optional.of(new PatternType<>(t, true));
             } else if (name.equalsIgnoreCase(forms[1])) {
@@ -116,7 +116,7 @@ public class TypeManager {
     }
 
     public static void register(SkriptRegistration reg) {
-        for (Type<?> type : reg.getTypes()) {
+        for (var type : reg.getTypes()) {
             nameToType.put(type.getBaseName(), type);
             classToType.put(type.getTypeClass(), type);
         }

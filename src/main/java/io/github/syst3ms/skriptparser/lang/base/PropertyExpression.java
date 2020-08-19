@@ -86,7 +86,7 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     @SuppressWarnings("unchecked")
     @Override
     public T[] getValues(TriggerContext ctx) {
-        O[] objs = getOwner().getValues(ctx);
+        var objs = getOwner().getValues(ctx);
         if (objs.length == 0)
             return (T[]) Array.newInstance(objs.getClass().getComponentType(), 0);
         if (getPropertyFunction() == null)

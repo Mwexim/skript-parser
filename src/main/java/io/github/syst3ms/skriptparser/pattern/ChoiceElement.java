@@ -29,7 +29,7 @@ public class ChoiceElement {
         if (!(obj instanceof ChoiceElement)) {
             return false;
         } else {
-            ChoiceElement other = (ChoiceElement) obj;
+            var other = (ChoiceElement) obj;
             return element.equals(other.element) && parseMark == other.parseMark;
         }
     }

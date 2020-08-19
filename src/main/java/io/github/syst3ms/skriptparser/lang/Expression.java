@@ -61,7 +61,7 @@ public interface Expression<T> extends SyntaxElement {
      * @throws SkriptRuntimeException if the expression returns more than one value
      */
     default Optional<? extends T> getSingle(TriggerContext e) {
-        T[] values = getValues(e);
+        var values = getValues(e);
         if (values.length == 0) {
             return Optional.empty();
         } else if (values.length > 1) {
@@ -76,7 +76,7 @@ public interface Expression<T> extends SyntaxElement {
      * be overriden.
      */
     default boolean isSingle() {
-        for (ExpressionInfo<?, ?> info : SyntaxManager.getAllExpressions()) {
+        for (var info : SyntaxManager.getAllExpressions()) {
             if (info.getSyntaxClass() == getClass()) {
                 return info.getReturnType().isSingle();
             }
@@ -174,12 +174,12 @@ public interface Expression<T> extends SyntaxElement {
      * @return whether the elements match the given predicate
      */
     static <T> boolean check(T[] all, Predicate<? super T> predicate, boolean invert, boolean and) {
-        boolean hasElement = false;
-        for (T t : all) {
+        var hasElement = false;
+        for (var t : all) {
             if (t == null)
                 continue;
             hasElement = true;
-            boolean b = predicate.test(t);
+            var b = predicate.test(t);
             if (and && !b)
                 return invert;
             if (!and && b)
