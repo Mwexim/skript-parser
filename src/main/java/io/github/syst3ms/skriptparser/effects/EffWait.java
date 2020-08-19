@@ -49,6 +49,8 @@ public class EffWait extends Effect {
         if (dur == null)
             return getNext();
         final Statement[] item = {getNext()};
+        if (item[0] == null)
+            return null;
 
         ThreadUtils.runAfter(() -> {
             while (!item[0].equals(item[0].getNext())) {

@@ -82,7 +82,6 @@ public class ScriptLoader {
             triggerMap.putOne(scriptName, loaded);
         }
         logger.logOutput();
-        SkriptAddon.getAddons().forEach(SkriptAddon::finishedLoading);
         return logger.close();
     }
 
