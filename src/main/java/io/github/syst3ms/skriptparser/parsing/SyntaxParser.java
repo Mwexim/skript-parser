@@ -61,10 +61,12 @@ public class SyntaxParser {
     /**
      * The pattern type representing {@link Object}
      */
-    @SuppressWarnings({"ConstantConditions", "RedundantCast"}) // Gradle requires the cast, but IntelliJ considers it redundant
+    @SuppressWarnings({"ConstantConditions", "RedundantCast", "RedundantSuppression"})
+    // Gradle requires the cast, but IntelliJ considers it redundant
     public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class), true);
 
-    @SuppressWarnings({"ConstantConditions", "RedundantCast"}) // Gradle requires the cast, but IntelliJ considers it redundant
+    @SuppressWarnings({"ConstantConditions", "RedundantCast", "RedundantSuppression"})
+    // Gradle requires the cast, but IntelliJ considers it redundant
     public static final PatternType<Object> OBJECTS_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class), false);
 
     /**
@@ -93,7 +95,7 @@ public class SyntaxParser {
      * @param <T> the type of the expression
      * @param s the string to be parsed as an expression
      * @param expectedType the expected return type
-     * @param logger
+     * @param logger the logger
      * @return an expression that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
      * or for another reason detailed in an error message.
@@ -152,8 +154,8 @@ public class SyntaxParser {
      * Parses a {@link Expression boolean expression} from the given {@linkplain String}
      * @param s the string to be parsed as an expression
      * @param conditional a constant describing whether the result can be a {@link ConditionalExpression condition}
-     * @param parserState
-     * @param logger
+     * @param parserState the current parser state
+     * @param logger the logger
      * @see SyntaxParser#NOT_CONDITIONAL
      * @see SyntaxParser#MAYBE_CONDITIONAL
      * @see SyntaxParser#CONDITIONAL
@@ -307,8 +309,8 @@ public class SyntaxParser {
     /**
      * Parses a line of code as an {@link InlineCondition}
      * @param s the line to be parsed
-     * @param parserState
-     * @param logger
+     * @param parserState the current parser state
+     * @param logger the logger
      * @return an inline condition that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
      * or for another reason detailed in an error message
@@ -326,7 +328,7 @@ public class SyntaxParser {
      * @param <T> the type of the list literal
      * @param s the string to be parsed as a list literal
      * @param expectedType the expected return type (must be plural)
-     * @param logger
+     * @param logger the logger
      * @return a list literal that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
      * or for another reason detailed in an error message.
@@ -430,7 +432,7 @@ public class SyntaxParser {
      * @param <T> the type of the literal
      * @param s the string to be parsed as a literal
      * @param expectedType the expected return type
-     * @param logger
+     * @param logger the logger
      * @return a literal that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
      * or for another reason detailed in an error message.
@@ -464,7 +466,7 @@ public class SyntaxParser {
     /**
      * Parses a line of code as an {@link Effect}
      * @param s the line to be parsed
-     * @param parserState
+     * @param parserState the current parser state
      * @param logger the logger
      * @return an effect that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
@@ -528,7 +530,7 @@ public class SyntaxParser {
     /**
      * Parses a line of code as a {@link Statement}, either an {@link Effect} or an {@link InlineCondition}
      * @param s the line to be parsed
-     * @param parserState
+     * @param parserState the current parser state
      * @param logger the logger
      * @return a statement that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
@@ -563,7 +565,7 @@ public class SyntaxParser {
     /**
      * Parses a section of a file as a {@link CodeSection}
      * @param section the section to be parsed
-     * @param parserState
+     * @param parserState the current parser state
      * @param logger the logger
      * @return a section that was successfully parsed, or {@literal null} if the section is empty,
      * no match was found

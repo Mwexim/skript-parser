@@ -52,7 +52,7 @@ public class Variables {
      *
      * @param name The name to test
      * @param printErrors Whether to print errors when they are encountered
-     * @param logger
+     * @param logger the logger
      * @return true if the name is valid, false otherwise.
      */
     public static boolean isValidVariableName(String name, boolean printErrors, SkriptLogger logger) {
@@ -82,7 +82,7 @@ public class Variables {
 	 * <p>
 	 * <b>Do not modify the returned value!</b>
 	 *
-	 * @param name
+	 * @param name the name of the variable
 	 * @return an Object for a normal Variable or a Map<String, Object> for a list variable, or null if the variable is not set.
 	 */
     @Nullable

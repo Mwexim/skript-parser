@@ -35,7 +35,7 @@ public abstract class CodeSection extends Statement {
      * In case an extending class just needs to do some additional operations on top of what the default implementation
      * already does, then call {@code super.loadSection(section)} before any such operations.
      * @param section the {@link FileSection} representing this {@linkplain CodeSection}
-     * @param logger
+     * @param logger the logger
      */
     public void loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
         parserState.setSyntaxRestrictions(getAllowedSyntaxes(), isRestrictingExpressions());
