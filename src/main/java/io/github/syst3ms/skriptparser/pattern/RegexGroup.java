@@ -35,7 +35,12 @@ public class RegexGroup implements PatternElement {
     @Override
     public int match(String s, int index, MatchContext context) {
         List<PatternElement> flattened = PatternElement.flatten(context.getOriginalElement());
-        List<PatternElement> possibleInputs = PatternElement.getPossibleInputs(flattened.subList(context.getPatternIndex(), flattened.size()));
+        int possibilityIndex = context.getPatternIndex();
+        if (context.getSource() != null && possibilityIndex >= flattened.size()) {
+            flattened = PatternElement.flatten(context.getSource().getOriginalElement());
+            possibilityIndex = context.getSource().getPatternIndex();
+        }
+        List<PatternElement> possibleInputs = PatternElement.getPossibleInputs(flattened.subList(possibilityIndex, flattened.size()));
         for (PatternElement possibleInput : possibleInputs) {
             if (possibleInput instanceof TextElement) {
                 String text = ((TextElement) possibleInput).getText();

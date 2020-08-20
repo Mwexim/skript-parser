@@ -28,6 +28,8 @@ public class PatternParser {
      */
     @Nullable
     public PatternElement parsePattern(String pattern, SkriptLogger logger) {
+        if (pattern.isEmpty())
+            return new TextElement("");
         List<PatternElement> elements = new ArrayList<>();
         StringBuilder textBuilder = new StringBuilder();
         String[] parts = StringUtils.splitVerticalBars(pattern, logger);
@@ -212,6 +214,7 @@ public class PatternParser {
                     boolean acceptConditional = m.group(3) != null;
                     if (acceptConditional && patternTypes.stream().noneMatch(t -> t.getType().getTypeClass() == Boolean.class)) {
                         logger.error("Can't use the '=' flag on non-boolean types (index " + initialPos + ")", ErrorType.SEMANTIC_ERROR);
+                        return null;
                     }
                     elements.add(new ExpressionElement(patternTypes, acceptance, nullable, acceptConditional));
                 }

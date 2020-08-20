@@ -36,7 +36,7 @@ public interface PatternElement {
                 if (element instanceof TextElement) {
                     String text = ((TextElement) element).getText();
                     if (text.isEmpty() || text.matches("\\s*") && elements.size() == 1) {
-                        return possibilities;
+                        return Collections.emptyList();
                     } else if (text.matches("\\s*")) {
                         continue;
                     }

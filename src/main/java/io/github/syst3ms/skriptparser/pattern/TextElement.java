@@ -24,6 +24,8 @@ public class TextElement implements PatternElement {
 
     @Override
     public int match(String s, int index, MatchContext context) {
+        if (text.isEmpty())
+            return index;
         int start = 0;
         int end = 0;
         if (Character.isWhitespace(text.charAt(0))) {
