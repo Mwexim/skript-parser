@@ -69,7 +69,7 @@ public class ExpressionElement implements PatternElement {
                     if (index == 0) {
                         return -1;
                     }
-                    var toParse = s.substring(index).trim();
+                    var toParse = s.substring(index).strip();
                     var expression = parse(toParse, typeArray, context.getParserState(), logger);
                     if (expression.isPresent()) {
                         context.addExpression(expression.get());
@@ -79,7 +79,7 @@ public class ExpressionElement implements PatternElement {
                 }
                 var i = StringUtils.indexOfIgnoreCase(s, text, index);
                 while (i != -1) {
-                    var toParse = s.substring(index, i).trim();
+                    var toParse = s.substring(index, i).strip();
                     var expression = parse(toParse, typeArray, context.getParserState(), logger);
                     if (expression.isPresent()) {
                         context.addExpression(expression.get());

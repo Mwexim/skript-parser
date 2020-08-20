@@ -20,8 +20,7 @@ import java.util.function.Predicate;
  */
 public interface Expression<T> extends SyntaxElement {
     /**
-     * Retrieves all values of this Expression. This should never return null ! Doing so will most likely throw a {@linkplain NullPointerException NPE} in
-     * the following instructions.
+     * Retrieves all values of this Expression.
      * @param ctx the event
      * @return an array of the values
      */

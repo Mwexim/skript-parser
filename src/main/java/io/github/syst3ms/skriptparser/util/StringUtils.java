@@ -289,7 +289,7 @@ public class StringUtils {
      */
     private static String[] trimAll(String[] strings) {
         for (var i = 0; i < strings.length; i++)
-            strings[i] = strings[i].trim();
+            strings[i] = strings[i].strip();
         return strings;
     }
 
@@ -300,7 +300,7 @@ public class StringUtils {
      * @return the string with its proper indefinite article
      */
     public static String withIndefiniteArticle(String noun, boolean plural) {
-        noun = noun.trim();
+        noun = noun.strip();
         if (noun.isEmpty())
             return "";
         else if (plural)

@@ -34,9 +34,9 @@ public class FileParser {
             String content;
             var m = LINE_PATTERN.matcher(line);
             if (m.matches()) {
-                content = m.group(1).replace("##", "#").trim();
+                content = m.group(1).replace("##", "#").strip();
             } else {
-                content = line.replace("##", "#").trim();
+                content = line.replace("##", "#").strip();
             }
             if (content.matches("[\\s#]*")) {
                 elements.add(new VoidElement(fileName, lastLine + i, expectedIndentation));

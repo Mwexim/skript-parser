@@ -370,7 +370,7 @@ public class SyntaxParser {
         Boolean isAndList = null; // Hello nullable booleans, it had been a pleasure NOT using you
         for (var i = 0; i < parts.size(); i++) {
             if ((i & 1) == 1) { // Odd index == separator
-                var separator = parts.get(i).trim();
+                var separator = parts.get(i).strip();
                 if (separator.equalsIgnoreCase("and") || separator.equalsIgnoreCase("nor")) {
                     isAndList = true;
                 } else if (separator.equalsIgnoreCase("or")) {
@@ -383,7 +383,7 @@ public class SyntaxParser {
         var isLiteralList = true;
         for (var i = 0; i < parts.size(); i++) {
             if ((i & 1) == 0) { // Even index == element
-                var part = parts.get(i).trim();
+                var part = parts.get(i).strip();
                 logger.recurse();
                 var expression = parseExpression(part, expectedType, parserState, logger);
                 logger.callback();

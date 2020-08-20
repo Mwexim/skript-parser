@@ -26,7 +26,7 @@ public class Variables {
     private static final Map<TriggerContext, VariableMap> localVariables = new HashMap<>();
 
     public static <T> Optional<Expression<T>> parseVariable(String s, Class<? extends T> types, ParserState parserState, SkriptLogger logger) {
-        s = s.trim();
+        s = s.strip();
         if (REGEX_PATTERN.matcher(s).matches()) {
             s = s.substring(1, s.length() - 1);
         } else {
@@ -36,7 +36,7 @@ public class Variables {
             return Optional.empty();
         }
         var vs = VariableString.newInstance(
-                s.startsWith(LOCAL_VARIABLE_TOKEN) ? s.substring(LOCAL_VARIABLE_TOKEN.length()).trim() : s,
+                s.startsWith(LOCAL_VARIABLE_TOKEN) ? s.substring(LOCAL_VARIABLE_TOKEN.length()).strip() : s,
                 parserState,
                 logger
         );
@@ -53,8 +53,8 @@ public class Variables {
      * @return true if the name is valid, false otherwise.
      */
     public static boolean isValidVariableName(String name, boolean printErrors, SkriptLogger logger) {
-        name = name.startsWith(LOCAL_VARIABLE_TOKEN) ? name.substring(LOCAL_VARIABLE_TOKEN.length()).trim()
-			: name.trim();
+        name = name.startsWith(LOCAL_VARIABLE_TOKEN) ? name.substring(LOCAL_VARIABLE_TOKEN.length()).strip()
+			: name.strip();
         if (name.startsWith(LIST_SEPARATOR) || name.endsWith(LIST_SEPARATOR)) {
             if (printErrors) {
                 logger.error("A variable name cannot start nor end with the list separator " + LIST_SEPARATOR, ErrorType.MALFORMED_INPUT);

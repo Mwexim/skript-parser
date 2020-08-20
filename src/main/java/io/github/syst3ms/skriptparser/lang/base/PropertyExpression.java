@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 
 import java.lang.reflect.Array;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -40,8 +41,8 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
      * supplied by this class.
      * @return the function that needs to be applied in order to get the correct values.
      */
-    public Function<O[], T[]> getPropertyFunction() {
-        return null;
+    public Optional<? extends Function<? super O[], ? extends T[]>> getPropertyFunction() {
+        return Optional.empty();
     }
 
     /**
@@ -89,8 +90,10 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
         var objs = getOwner().getValues(ctx);
         if (objs.length == 0)
             return (T[]) Array.newInstance(objs.getClass().getComponentType(), 0);
-        if (getPropertyFunction() == null)
-            throw new UnsupportedOperationException("getPropertyFunction() must be overridden if getValues() isn't!");
-        return getPropertyFunction().apply(objs);
+        return getPropertyFunction()
+                .orElseThrow(() -> new UnsupportedOperationException(
+                        "getPropertyFunction() must be overridden if getValues() isn't!"
+                ))
+                .apply(objs);
     }
 }

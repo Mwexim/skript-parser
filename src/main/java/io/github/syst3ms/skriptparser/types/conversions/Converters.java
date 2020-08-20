@@ -269,7 +269,7 @@ public abstract class Converters {
         }
         for (var conv : converters) {
             if (conv.getFrom().isAssignableFrom(from) && conv.getTo().isAssignableFrom(to)) {
-                return Optional.of((Function<? super F, Optional<? extends T>>) ConverterUtils.createInstanceofConverter(conv.getConverter(), to));
+                return Optional.of(ConverterUtils.createInstanceofConverter((Function<? super Object, Optional<?>>) conv.getConverter(), to));
             } else if (from.isAssignableFrom(conv.getFrom()) && to.isAssignableFrom(conv.getTo())) {
                 return Optional.of((Function<? super F, Optional<? extends T>>) ConverterUtils.createInstanceofConverter(conv));
             }
