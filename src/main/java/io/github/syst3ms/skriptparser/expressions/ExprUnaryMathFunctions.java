@@ -37,6 +37,7 @@ import java.util.function.UnaryOperator;
  * @author Syst3ms
  */
 public class ExprUnaryMathFunctions implements Expression<Number> {
+
 	private static final PatternInfos<UnaryOperator<Number>> PATTERNS = new PatternInfos<>(
 		new Object[][]{
 			{"abs %number%|\\|%number%\\|", (UnaryOperator<Number>) NumberMath::abs},

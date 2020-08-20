@@ -303,4 +303,46 @@ public class StringUtils {
                 return "a " + noun;
         }
     }
+
+    public static String camelCase(String str, boolean firstNoCase) {
+        String[] parts = str.split("\\s+");
+        StringBuilder ret = new StringBuilder();
+        for (String part : parts) {
+            if (firstNoCase) {
+                firstNoCase = false;
+                ret.append(part.toLowerCase());
+            } else {
+                ret.append(Character.toUpperCase(part.charAt(0)))
+                        .append(part.substring(1).toLowerCase());
+            }
+        }
+        return ret.toString();
+    }
+
+    public static String reverseCase(String str) {
+        char[] chars = str.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
+            if (Character.isUpperCase(c))
+                chars[i] = Character.toLowerCase(c);
+            else if (Character.isLowerCase(c))
+                chars[i] = Character.toUpperCase(c);
+            else
+                chars[i] = c;
+        }
+        return new String(chars);
+    }
+
+    public static String mirrored(String str) {
+        char[] chars = str.toCharArray();
+        char[] ret = new char[chars.length];
+        for (int i = 0; i < chars.length; i++) {
+            ret[i] = chars[chars.length - i - 1];
+        }
+        return new String(ret);
+    }
+
+    public static String capitalize(String str) {
+        return Character.toUpperCase(str.charAt(0)) + str.substring(1).toLowerCase();
+    }
 }

@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
  * Prints some text to the console
  *
  * @name Print
- * @pattern print %string% [to [the] console]
+ * @pattern print %strings% [to [the] console]
  * @since ALPHA
  * @author Syst3ms
  */
@@ -21,7 +21,7 @@ public class EffPrint extends Effect {
     static {
         Main.getMainRegistration().addEffect(
             EffPrint.class,
-            "print %string% [to [the] console]"
+            "print %strings% [to [the] console]"
         );
     }
 
@@ -33,11 +33,14 @@ public class EffPrint extends Effect {
     }
 
     @Override
-    public void execute(TriggerContext e) {
-        String str = string.getSingle(e);
-        if (str == null)
+    public void execute(TriggerContext ctx) {
+        String[] strs = string.getValues(ctx);
+        if (strs.length == 0)
             return;
-        System.out.println(str);
+
+        for (String str : strs) {
+            System.out.println(str);
+        }
     }
 
     @Override
