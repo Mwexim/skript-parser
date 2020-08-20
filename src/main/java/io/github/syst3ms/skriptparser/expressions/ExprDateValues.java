@@ -40,15 +40,15 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 		return dates -> {
 			LocalDateTime lcd = dates[0].toLocalDateTime();
 			switch (parseMark) {
-				case 1:
+				case 0:
 					return new String[] {lcd.toLocalDate().getEra().getDisplayName(
 							TextStyle.FULL, SkriptDate.DATE_LOCALE
 					)};
-				case 2:
+				case 1:
 					return new String[] {lcd.getMonth().getDisplayName(
 							TextStyle.FULL, SkriptDate.DATE_LOCALE
 					)};
-				case 3:
+				case 2:
 					return new String[] {lcd.getDayOfWeek().getDisplayName(
 							TextStyle.FULL, SkriptDate.DATE_LOCALE
 					)};
@@ -69,11 +69,11 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 	@Override
 	public String toString(@Nullable TriggerContext ctx, boolean debug) {
 		switch (parseMark)  {
-			case 1:
+			case 0:
 				return "era of " + getOwner().toString(ctx, debug);
-			case 2:
+			case 1:
 				return "month name of " + getOwner().toString(ctx, debug);
-			case 3:
+			case 2:
 				return "weekday name of " + getOwner().toString(ctx, debug);
 			default:
 				return "date value of " + getOwner().toString(ctx, debug);
