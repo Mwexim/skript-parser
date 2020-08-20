@@ -1,0 +1,61 @@
+package io.github.syst3ms.skriptparser.expressions;
+
+import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.util.SkriptDate;
+import org.jetbrains.annotations.Nullable;
+
+import java.time.Duration;
+
+/**
+ * Check if a given date is a certain duration before or after the current date.
+ *
+ * @name Compare Date
+ * @type CONDITION
+ * @pattern %date% (was|were)( more|(n't| not) less) than %duration% [ago]
+ * @pattern %date% (was|were)((n't| not) more| less) than %duration% [ago]
+ * @since ALPHA
+ * @author Mwexim
+ */
+public class CondExprDateCompare extends ConditionalExpression {
+
+    static {
+        Main.getMainRegistration()
+                .addExpression(CondExprDateCompare.class,
+                        Boolean.class,
+                        true,
+                        "%date% (was|were)( more|(n't| not) less) than %duration% [ago]",
+                        "%date% (was|were)((n't| not) more| less) than %duration% [ago]");
+    }
+
+    private Expression<SkriptDate> date;
+    private Expression<Duration> duration;
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        date = (Expression<SkriptDate>) expressions[0];
+        duration = (Expression<Duration>) expressions[1];
+        setNegated(matchedPattern == 1);
+        return true;
+    }
+
+    @Override
+    protected boolean check(TriggerContext ctx) {
+        SkriptDate d = date.getSingle(ctx);
+        Duration dur = duration.getSingle(ctx);
+        if (d == null || dur == null)
+            return false;
+        long timestamp = d.getTimestamp();
+
+        return isNegated() == (SkriptDate.now().getTimestamp() - dur.toMillis() <= timestamp);
+    }
+
+    @Override
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        return date.toString(ctx, debug) + (isNegated() ? " was more than " : " was less than ") + duration.toString(ctx, debug) + " ago";
+    }
+}
