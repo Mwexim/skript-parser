@@ -18,9 +18,9 @@ import java.util.regex.Pattern;
  *
  * @name Join/Split
  * @type EXPRESSION
- * @pattern (concat[enate]|join) [(all|every)] %strings% [(with|using|by) [[the] delimiter] %string%]
+ * @pattern (concat[enate]|join) %strings% [(with|using|by) [[the] delimiter] %string%]
  * @pattern (split %string%|%string% split) (at|using|by) [[the] delimiter] %string%
- * @pattern (split %string%|%string% split) (with|using|by) %number% [char[acter][s]]
+ * @pattern (split %string%|%string% split) (with|using|by|every) %number% [char[acter][s]]
  * @since ALPHA
  * @author Mwexim
  */
@@ -31,9 +31,9 @@ public class ExprStringSplitJoin implements Expression<String> {
 				ExprStringSplitJoin.class,
 				String.class,
 				false,
-				"(concat[enate]|join) [(all|every)] %strings% [1:[(with|using|by) [[the] delimiter] %string%]]",
+				"(concat[enate]|join) %strings% [1:[(with|using|by) [[the] delimiter] %string%]]",
 				"(split %string%|%string% split) (at|using|by) [[the] delimiter] %string%",
-				"(split %string%|%string% split) (with|using|by) %number% [char[acter]][s]");
+				"(split %string%|%string% split) (with|using|by|every) %number% [char[acter]][s]");
 	}
 
 	private Expression<String> expr;
