@@ -11,7 +11,7 @@ import java.util.function.Function;
  * A class handling registration and usage of {@link Comparator}s
  */
 public class Comparators {
-    public static final Comparator<Object, Object> EQUALS_COMPARATOR = new Comparator<Object, Object>(false) {
+    public static final Comparator<Object, Object> EQUALS_COMPARATOR = new Comparator<>(false) {
         @Override
         public Relation apply(@Nullable Object o, @Nullable Object o2) {
             return Relation.get(Objects.equals(o, o2));
@@ -67,7 +67,7 @@ public class Comparators {
             if (info.getFirstClass().isAssignableFrom(f) && info.getSecondClass().isAssignableFrom(s)) {
                 return Optional.ofNullable((Comparator<? super F, ? super S>) info.getComparator());
             } else if (info.getFirstClass().isAssignableFrom(s) && info.getSecondClass().isAssignableFrom(f)) {
-                return Optional.of(new InverseComparator<F, S>((Comparator<? super S, ? super F>) info.getComparator()));
+                return Optional.of(new InverseComparator<>((Comparator<? super S, ? super F>) info.getComparator()));
             }
         }
 

@@ -138,7 +138,7 @@ public class BigDecimalMath {
      * @see #fractionalPart(BigDecimal)
      */
     public static BigDecimal integralPart(BigDecimal value) {
-        return value.setScale(0, BigDecimal.ROUND_DOWN);
+        return value.setScale(0, RoundingMode.DOWN);
     }
 
     /**
@@ -711,7 +711,7 @@ public class BigDecimalMath {
             result = result.subtract(logThree(mcDouble).multiply(valueOf(-factorOfThree), mc), mc);
         }
 
-        if (x == correctedX && result == ZERO) {
+        if (x.equals(correctedX) && result.equals(ZERO)) {
             return logUsingNewton(x, mathContext);
         }
 

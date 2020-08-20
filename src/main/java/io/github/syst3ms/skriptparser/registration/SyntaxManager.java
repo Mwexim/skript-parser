@@ -4,7 +4,6 @@ import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.util.MultiMap;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 

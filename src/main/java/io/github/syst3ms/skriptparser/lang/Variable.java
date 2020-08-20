@@ -124,7 +124,7 @@ public class Variable<T> implements Expression<T> {
         assert val.get() instanceof TreeMap;
         // temporary list to prevent CMEs
         var keys = new ArrayList<>(((Map<String, Object>) val.get()).keySet()).iterator();
-        return new Iterator<T>() {
+        return new Iterator<>() {
             @Nullable
             private String key;
             @Nullable
@@ -179,7 +179,7 @@ public class Variable<T> implements Expression<T> {
         // temporary list to prevent CMEs
         @SuppressWarnings("unchecked")
         var keys = new ArrayList<>(((Map<String, Object>) val.get()).keySet()).iterator();
-        return new Iterator<Pair<String, Object>>() {
+        return new Iterator<>() {
             @Nullable
             private String key;
             @Nullable
@@ -206,7 +206,7 @@ public class Variable<T> implements Expression<T> {
                 if (!hasNext())
                     throw new NoSuchElementException();
                 assert next != null && key != null;
-                var n = new Pair<String, Object>(key, next);
+                var n = new Pair<>(key, next);
                 next = null;
                 return n;
             }
@@ -398,7 +398,7 @@ public class Variable<T> implements Expression<T> {
                         var cs2 = new Class<?>[cs.length];
                         for (var i = 0; i < cs.length; i++)
                             cs2[i] = cs[i].isArray() ? cs[i].getComponentType() : cs[i];
-                        var l = new ArrayList<Object>();
+                        var l = new ArrayList<>();
                         for (var d : changeWith) {
                             Object d2 = Converters.convert(d, cs2);
                             if (d2 != null)

@@ -56,7 +56,7 @@ public class FileElement {
 
     @Override
     public String toString() {
-        return StringUtils.repeat("    ", indentation) + content;
+        return "    ".repeat(indentation) + content;
     }
 
     /**

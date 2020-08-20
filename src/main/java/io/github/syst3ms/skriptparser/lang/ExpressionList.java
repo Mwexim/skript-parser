@@ -126,7 +126,7 @@ public class ExpressionList<T> implements Expression<T> {
             }
             return Collections.emptyIterator();
         }
-        return new Iterator<T>() {
+        return new Iterator<>() {
             private int i = 0;
             @Nullable
             private Iterator<? extends T> current = null;

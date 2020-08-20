@@ -21,7 +21,6 @@ package io.github.syst3ms.skriptparser.types.conversions;
 
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.util.Pair;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
@@ -83,7 +82,7 @@ public abstract class Converters {
     public static <F, T> void registerConverter(Class<F> from, Class<T> to, Function<? super F, Optional<? extends T>> converter, int options) {
         if (converterExistsSlow(from, to))
             return;
-        var info = new ConverterInfo<F, T>(from, to, converter, options);
+        var info = new ConverterInfo<>(from, to, converter, options);
         for (var i = 0; i < converters.size(); i++) {
             var info2 = converters.get(i);
             if (info2.getFrom().isAssignableFrom(from) && to.isAssignableFrom(info2.getTo())) {
@@ -124,7 +123,7 @@ public abstract class Converters {
 
     @SuppressWarnings({"unchecked", "MagicConstant"})
     private static <F, M, T> ConverterInfo<F, T> createChainedConverter(ConverterInfo<?, ?> first, ConverterInfo<?, ?> second) {
-        return new ConverterInfo<F, T>(
+        return new ConverterInfo<>(
                 (Class<F>) first.getFrom(),
                 (Class<T>) second.getTo(),
                 ChainedConverter.newInstance(

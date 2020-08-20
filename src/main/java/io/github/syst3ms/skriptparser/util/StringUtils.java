@@ -3,14 +3,12 @@ package io.github.syst3ms.skriptparser.util;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
-import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -33,20 +31,6 @@ public class StringUtils {
             count += occurences / sequence.length();
         }
         return count;
-    }
-
-    /**
-     * Simply repeats the given string the given amount of times
-     * @param str the string
-     * @param times the amount of times to be repeated
-     * @return the repeated string
-     */
-    public static String repeat(String str, int times) {
-        var sb = new StringBuilder();
-        for (var i = 0; i < times; i++) {
-            sb.append(str);
-        }
-        return sb.toString();
     }
 
     /**
@@ -220,9 +204,7 @@ public class StringUtils {
             } else if (c == '(' || c == '[') {
                 var closing = c == '(' ? ')' : ']';
                 var text = getEnclosedText(s, c, closing, i);
-                text.ifPresent(st -> {
-                    sb.append(c).append(st).append(closing);
-                });
+                text.ifPresent(st -> sb.append(c).append(st).append(closing));
                 if (text.isPresent()) {
                     i += text.get().length() + 1;
                 } else {

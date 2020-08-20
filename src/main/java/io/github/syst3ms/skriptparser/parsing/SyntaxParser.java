@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.log.ErrorContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
-import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SkriptEventInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
@@ -20,12 +19,11 @@ import io.github.syst3ms.skriptparser.util.RecentElementList;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import io.github.syst3ms.skriptparser.variables.Variables;
 import org.intellij.lang.annotations.MagicConstant;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Function;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -261,7 +259,9 @@ public class SyntaxParser {
             var parser = new MatchContext(element, parserState, logger);
             if (element.match(s, 0, parser) != -1) {
                 try {
-                    var expression = (Expression<? extends T>) info.getSyntaxClass().newInstance();
+                    var expression = (Expression<? extends T>) info.getSyntaxClass()
+                            .getDeclaredConstructor()
+                            .newInstance();
                     logger.setContext(ErrorContext.INITIALIZATION);
                     if (!expression.init(
                             parser.getParsedExpressions().toArray(new Expression[0]),
@@ -297,7 +297,7 @@ public class SyntaxParser {
                         continue;
                     }
                     return Optional.of(expression);
-                } catch (InstantiationException | IllegalAccessException e) {
+                } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                     logger.error("Couldn't instantiate class '" + info.getSyntaxClass().getName() + "'", ErrorType.EXCEPTION);
                 }
             }
@@ -505,7 +505,9 @@ public class SyntaxParser {
             var parser = new MatchContext(element, parserState, logger);
             if (element.match(s, 0, parser) != -1) {
                 try {
-                    var eff = info.getSyntaxClass().newInstance();
+                    var eff = info.getSyntaxClass()
+                            .getDeclaredConstructor()
+                            .newInstance();
                     logger.setContext(ErrorContext.INITIALIZATION);
                     if (!eff.init(
                         parser.getParsedExpressions().toArray(new Expression[0]),
@@ -515,7 +517,7 @@ public class SyntaxParser {
                         continue;
                     }
                     return Optional.of(eff);
-                } catch (InstantiationException | IllegalAccessException e) {
+                } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                     logger.error("Couldn't instantiate class " + info.getSyntaxClass(), ErrorType.EXCEPTION);
                 }
             }
@@ -601,7 +603,9 @@ public class SyntaxParser {
             var parser = new MatchContext(element, parserState, logger);
             if (element.match(section.getLineContent(), 0, parser) != -1) {
                 try {
-                    var sec = info.getSyntaxClass().newInstance();
+                    var sec = info.getSyntaxClass()
+                            .getDeclaredConstructor()
+                            .newInstance();
                     logger.setContext(ErrorContext.INITIALIZATION);
                     if (!sec.init(
                             parser.getParsedExpressions().toArray(new Expression[0]),
@@ -612,7 +616,7 @@ public class SyntaxParser {
                     }
                     sec.loadSection(section, parserState, logger);
                     return Optional.of(sec);
-                } catch (InstantiationException | IllegalAccessException e) {
+                } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                     logger.error("Couldn't instantiate class " + info.getSyntaxClass(), ErrorType.EXCEPTION);
                 }
             }
@@ -666,7 +670,9 @@ public class SyntaxParser {
             var parser = new MatchContext(element, parserState, logger);
             if (element.match(section.getLineContent(), 0, parser) != -1) {
                 try {
-                    var event = info.getSyntaxClass().newInstance();
+                    var event = info.getSyntaxClass()
+                            .getDeclaredConstructor()
+                            .newInstance();
                     logger.setContext(ErrorContext.INITIALIZATION);
                     if (!event.init(
                             parser.getParsedExpressions().toArray(new Expression[0]),
@@ -681,7 +687,7 @@ public class SyntaxParser {
                      * We don't actually load the trigger here, that will be left to the loading priority system
                      */
                     return Optional.of(new UnloadedTrigger(trig, section, logger.getLine(), info, parserState));
-                } catch (InstantiationException | IllegalAccessException e) {
+                } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                     logger.error("Couldn't instantiate class " + info.getSyntaxClass(), ErrorType.EXCEPTION);
                 }
             }
