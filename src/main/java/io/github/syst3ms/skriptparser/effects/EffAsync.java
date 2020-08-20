@@ -35,7 +35,9 @@ public class EffAsync extends Effect {
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         String expr = parseContext.getMatches().get(0).group();
+        parseContext.getLogger().recurse();
         effect = SyntaxParser.parseEffect(expr, parseContext.getParserState(), parseContext.getLogger());
+        parseContext.getLogger().callback();
         return effect != null;
     }
 

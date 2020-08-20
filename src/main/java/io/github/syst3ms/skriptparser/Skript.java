@@ -35,10 +35,11 @@ public class Skript extends SkriptAddon {
         if (!canHandleEvent(event))
             return;
 
-        if (event instanceof EvtScriptLoad)
+        if (event instanceof EvtScriptLoad) {
             mainTriggers.add(trigger);
-        else if (event instanceof EvtPeriodical)
+        } else if (event instanceof EvtPeriodical) {
             periodicalTriggers.add(trigger);
+        }
     }
 
     @Override

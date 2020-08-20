@@ -48,15 +48,10 @@ public class EffWait extends Effect {
         Duration dur = duration.getSingle(ctx);
         if (dur == null)
             return getNext();
-        final Statement[] item = {getNext()};
-        if (item[0] == null)
+        if (getNext() == null)
             return null;
 
-        ThreadUtils.runAfter(() -> {
-            while (!item[0].equals(item[0].getNext())) {
-                item[0] = item[0].walk(ctx);
-            }
-        }, dur);
+        ThreadUtils.runAfter(() -> Statement.runAll(getNext(), ctx), dur);
         return null;
     }
 
