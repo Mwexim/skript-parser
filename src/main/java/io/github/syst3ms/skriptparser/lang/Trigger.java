@@ -32,7 +32,7 @@ public class Trigger extends CodeSection {
     }
 
     @Override
-    protected Statement walk(TriggerContext ctx) {
+    public Statement walk(TriggerContext ctx) {
         return event.check(ctx) ? getFirst() : null;
     }
 

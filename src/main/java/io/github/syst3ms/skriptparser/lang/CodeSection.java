@@ -52,7 +52,7 @@ public abstract class CodeSection extends Statement {
     }
 
     @Override
-    protected abstract Statement walk(TriggerContext ctx);
+    public abstract Statement walk(TriggerContext ctx);
 
     /**
      * Sets the items inside this lists, and also modifies other fields, reflected through the outputs of {@link #getFirst()},

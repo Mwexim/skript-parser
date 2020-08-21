@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser;
 import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import io.github.syst3ms.skriptparser.registration.DefaultRegistration;
+import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.util.ConsoleColors;
 import io.github.syst3ms.skriptparser.util.FileUtils;
@@ -118,7 +119,6 @@ public class Main {
         if (!logs.isEmpty()) {
             System.out.print(ConsoleColors.RED.toString());
             System.out.println("Registration log :");
-            System.out.println("---");
         }
         printLogs(logs, time);
         System.out.print(ConsoleColors.RESET.toString());
@@ -130,10 +130,10 @@ public class Main {
         if (!logs.isEmpty()) {
             System.out.print(ConsoleColors.RED.toString());
             System.out.println("Parsing log :");
-            System.out.println("---");
         }
         printLogs(logs, time);
         System.out.print(ConsoleColors.RESET.toString());
+        SkriptAddon.getAddons().forEach(SkriptAddon::finishedLoading);
     }
 
     private static void printLogs(List<LogEntry> logs, Calendar time) {

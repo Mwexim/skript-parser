@@ -90,7 +90,7 @@ public abstract class Statement implements SyntaxElement {
      * @param ctx the event
      * @return the next item to be ran, or {@code null} if this is the last item to be executed
      */
-    protected Statement walk(TriggerContext ctx) {
+    public Statement walk(TriggerContext ctx) {
         boolean proceed = run(ctx);
         if (proceed) {
             return getNext();   
