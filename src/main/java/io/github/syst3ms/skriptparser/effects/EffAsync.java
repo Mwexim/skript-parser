@@ -26,6 +26,7 @@ public class EffAsync extends Effect {
     static {
         Main.getMainRegistration().addEffect(
             EffAsync.class,
+            3,
             "async[hronous[ly]] [do] <.+>"
         );
     }
@@ -43,7 +44,7 @@ public class EffAsync extends Effect {
 
     @Override
     public void execute(TriggerContext ctx) {
-        ThreadUtils.runAsync(() -> effect.walk(ctx));
+        ThreadUtils.runAsync(() -> effect.run(ctx));
     }
 
     @Override
