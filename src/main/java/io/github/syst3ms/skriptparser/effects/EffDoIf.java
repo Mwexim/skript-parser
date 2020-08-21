@@ -5,9 +5,9 @@ import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
-import io.github.syst3ms.skriptparser.util.ThreadUtils;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @name Do If
  * @type EFFECT
- * @pattern [do] <.+> [only] if %=boolean%
+ * @pattern if %=boolean%[,] [do] <.+>
  * @since ALPHA
  * @author Mwexim
  */
@@ -24,7 +24,8 @@ public class EffDoIf extends Effect {
     static {
         Main.getMainRegistration().addEffect(
             EffDoIf.class,
-            "[do] <.+> [only] if %=boolean%"
+            1,
+            "if %=boolean%[,] [do] <.+>"
         );
     }
 
@@ -38,13 +39,16 @@ public class EffDoIf extends Effect {
         parseContext.getLogger().recurse();
         effect = SyntaxParser.parseEffect(expr, parseContext.getParserState(), parseContext.getLogger());
         parseContext.getLogger().callback();
+        if (effect instanceof EffDoIf) {
+            parseContext.getLogger().error("You can't nest multiple do-if effects!", ErrorType.SEMANTIC_ERROR);
+        }
         return effect != null;
     }
 
     @Override
     public void execute(TriggerContext ctx) {
         if (condition.check(ctx))
-            effect.walk(ctx);
+            effect.run(ctx);
     }
 
     @Override
