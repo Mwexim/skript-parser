@@ -43,7 +43,7 @@ public class CondExprStartsEnds extends ConditionalExpression {
     }
 
     @Override
-    protected boolean check(TriggerContext ctx) {
+    public boolean check(TriggerContext ctx) {
         String[] strs = expr.getValues(ctx);
         String v = value.getSingle(ctx);
         if (v == null)

@@ -54,7 +54,7 @@ public class ExprRandomNumber implements Expression<Number> {
         Number max = maxNumber.getSingle(ctx);
         if (low == null || max == null)
             return new Number[0];
-        //Check to find out which number is the greater of the 2, while keeping the type
+        // Check to find out which number is the greater of the 2, while keeping the type
         Number realLow = Relation.SMALLER_OR_EQUAL.is(numComp.apply(low, max)) ? low : max;
         Number realMax = Relation.SMALLER_OR_EQUAL.is(numComp.apply(low, max)) ? max : low;
         return new Number[]{NumberMath.random(realLow, realMax, !isExclusive, random)};
