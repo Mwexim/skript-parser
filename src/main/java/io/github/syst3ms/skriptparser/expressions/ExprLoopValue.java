@@ -1,13 +1,13 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.sections.SecLoop;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.sections.SecLoop;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
@@ -63,7 +63,7 @@ public class ExprLoopValue implements Expression<Object> {
 		c = type.map(patternType -> patternType.getType().getTypeClass()).orElse(null);
 		int j = 1;
 		SecLoop loop = null;
-		for (final CodeSection sec : parser.getParserState().getCurrentSections()) {
+		for (CodeSection sec : parser.getParserState().getCurrentSections()) {
 			if (!(sec instanceof SecLoop))
 				continue;
 			final SecLoop l = (SecLoop) sec;
