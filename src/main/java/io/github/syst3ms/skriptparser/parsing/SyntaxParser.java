@@ -52,7 +52,7 @@ public class SyntaxParser {
      * @see #parseBooleanExpression(String, int, ParserState, SkriptLogger)
      */
     public static final int CONDITIONAL = 2;
-    public static final Pattern LIST_SPLIT_PATTERN = Pattern.compile("\\s*(,)\\s*|\\s+(and|or)\\s+", Pattern.CASE_INSENSITIVE);
+    public static final Pattern LIST_SPLIT_PATTERN = Pattern.compile("\\s*(,)\\s*|\\s+(and|n?or)\\s+", Pattern.CASE_INSENSITIVE);
     /**
      * The pattern type representing {@link Boolean}
      */

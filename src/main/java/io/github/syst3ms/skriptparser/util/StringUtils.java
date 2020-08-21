@@ -25,8 +25,8 @@ public class StringUtils {
     public static int count(String s, String... toFind) {
         int count = 0;
         for (String sequence : toFind) {
-            int occurences = s.length() - s.replace(sequence, "").length();
-            count += occurences / sequence.length();
+            int occurrences = s.length() - s.replace(sequence, "").length();
+            count += occurrences / sequence.length();
         }
         return count;
     }

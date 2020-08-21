@@ -30,6 +30,7 @@ public interface PatternElement {
     }
 
     static List<PatternElement> getPossibleInputs(List<PatternElement> elements) {
+        List<PatternElement> optionalPossibilities = new ArrayList<>(); // We generally want to get the non-optional ones out of the way first
         List<PatternElement> possibilities = new ArrayList<>();
         for (PatternElement element : elements) {
             if (element instanceof TextElement || element instanceof RegexGroup) {
@@ -42,21 +43,25 @@ public interface PatternElement {
                     }
                 }
                 possibilities.add(element);
+                possibilities.addAll(optionalPossibilities);
                 return possibilities;
             } else if (element instanceof ChoiceGroup) {
                 for (ChoiceElement choice : ((ChoiceGroup) element).getChoices()) {
                     List<PatternElement> possibleInputs = getPossibleInputs(flatten(choice.getElement()));
                     possibilities.addAll(possibleInputs);
                 }
+                possibilities.addAll(optionalPossibilities);
                 return possibilities;
             } else if (element instanceof ExpressionElement) {
                 possibilities.add(element);
+                possibilities.addAll(optionalPossibilities);
                 return possibilities;
             } else if (element instanceof OptionalGroup) {
-                possibilities.addAll(getPossibleInputs(flatten(((OptionalGroup) element).getElement())));
+                optionalPossibilities.addAll(getPossibleInputs(flatten(((OptionalGroup) element).getElement())));
             }
         }
-        possibilities.add(new TextElement("\0"));
+        possibilities.addAll(optionalPossibilities);
+        possibilities.add(new TextElement("\0")); // EOL still goes at the very end
         return possibilities;
     }
 }

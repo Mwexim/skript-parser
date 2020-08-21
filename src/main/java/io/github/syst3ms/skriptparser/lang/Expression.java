@@ -152,23 +152,23 @@ public interface Expression<T> extends SyntaxElement {
 
     /**
      * Checks this expression against the given {@link Predicate}
-     * @param e the event
+     * @param ctx the event
      * @param predicate the predicate
      * @return whether the expression matches the predicate
      */
-    default boolean check(TriggerContext e, Predicate<? super T> predicate) {
-        return check(e, predicate, false);
+    default boolean check(TriggerContext ctx, Predicate<? super T> predicate) {
+        return check(ctx, predicate, false);
     }
 
     /**
      * Checks this expression against the given {@link Predicate}
-     * @param e the event
+     * @param ctx the event
      * @param predicate the predicate
      * @param negated whether the result should be inverted
      * @return whether the expression matches the predicate
      */
-    default boolean check(TriggerContext e, Predicate<? super T> predicate, boolean negated) {
-        return check(getValues(e), predicate, negated, isAndList());
+    default boolean check(TriggerContext ctx, Predicate<? super T> predicate, boolean negated) {
+        return check(getValues(ctx), predicate, negated, isAndList());
     }
 
     /**
@@ -180,7 +180,6 @@ public interface Expression<T> extends SyntaxElement {
      * @param <T> the type of the elements to check
      * @return whether the elements match the given predicate
      */
-    @Contract("null, _, _, _ -> false")
     static <T> boolean check(T[] all, Predicate<? super T> predicate, boolean invert, boolean and) {
         boolean hasElement = false;
         for (T t : all) {
@@ -193,7 +192,9 @@ public interface Expression<T> extends SyntaxElement {
             if (!and && b)
                 return !invert;
         }
-        return hasElement && invert ^ and;
+        if (!hasElement)
+            return invert;
+        return invert != and;
     }
 
 }

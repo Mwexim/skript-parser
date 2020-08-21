@@ -18,7 +18,7 @@ import java.util.regex.PatternSyntaxException;
  * A class for parsing syntaxes in string form into parser-usable objects
  */
 public class PatternParser {
-    private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(\\d+?)([bx])?:(.*)");
+    private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(0[bx])?(\\d+?):(.*)");
     private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*~])?(=)?(?<types>[\\w/]+)?");
 
     /**
@@ -57,23 +57,23 @@ public class PatternParser {
                 i += s.length() + 1; // sets i to the closing bracket, for loop does the rest
                 Matcher matcher = PARSE_MARK_PATTERN.matcher(s);
                 PatternElement content;
-                String[] vertParts = StringUtils.splitVerticalBars(pattern, logger);
+                String[] vertParts = StringUtils.splitVerticalBars(s, logger);
                 if (vertParts == null) {
                     return null; // The content is malformed anyway
                 }
                 if (matcher.matches() && vertParts.length == 1) {
-                    String mark = matcher.group(1);
-                    String base = matcher.group(2);
+                    String base = matcher.group(1);
+                    String mark = matcher.group(2);
                     int markNumber;
                     try {
                         if (base == null) {
                             markNumber = Integer.parseInt(mark);
-                        } else if (base.equals("b")) {
-                            markNumber = Integer.parseInt(s, 2);
-                        } else if (base.equals("f")) {
-                            markNumber = Integer.parseInt(s, 16);
+                        } else if (base.equals("0b")) {
+                            markNumber = Integer.parseInt(mark, 2);
+                        } else if (base.equals("0x")) {
+                            markNumber = Integer.parseInt(mark, 16);
                         } else {
-                            logger.error("Invalid parse mark (index " + initialPos + ") : '" + mark + base + "'", ErrorType.MALFORMED_INPUT);
+                            logger.error("Invalid parse mark (index " + initialPos + ") : '" + base + mark + "'", ErrorType.MALFORMED_INPUT);
                             return null;
                         }
                     } catch (NumberFormatException e) {
@@ -114,18 +114,18 @@ public class PatternParser {
                     }
                     Matcher matcher = PARSE_MARK_PATTERN.matcher(choice);
                     if (matcher.matches()) {
-                        String mark = matcher.group(1);
-                        String base = matcher.group(2);
+                        String base = matcher.group(1);
+                        String mark = matcher.group(2);
                         int markNumber;
                         try {
                             if (base == null) {
                                 markNumber = Integer.parseInt(mark);
-                            } else if (base.equals("b")) {
-                                markNumber = Integer.parseInt(s, 2);
-                            } else if (base.equals("f")) {
-                                markNumber = Integer.parseInt(s, 16);
+                            } else if (base.equals("0b")) {
+                                markNumber = Integer.parseInt(mark, 2);
+                            } else if (base.equals("0x")) {
+                                markNumber = Integer.parseInt(mark, 16);
                             } else {
-                                logger.error("Invalid parse mark (index " + initialPos + ") : '" + mark + base + "'", ErrorType.MALFORMED_INPUT);
+                                logger.error("Invalid parse mark (index " + initialPos + ") : '" + base + mark + "'", ErrorType.MALFORMED_INPUT);
                                 return null;
                             }
                         } catch (NumberFormatException e) {
