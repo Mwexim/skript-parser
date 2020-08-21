@@ -17,6 +17,8 @@ public class SkriptDate implements Comparable<SkriptDate> {
     public final static String DATE_FORMAT = "EEEE dd MMMM yyyy HH:mm:ss.SSS zzzXXX";
     public final static Locale DATE_LOCALE = new Locale("US");
 
+    public final static int MILLIS_PER_DAY = 86400000;
+
     /**
      * Timestamp. Should always be in computer time/UTC/GMT+0.
      */
