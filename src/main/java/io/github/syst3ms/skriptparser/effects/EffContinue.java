@@ -52,7 +52,7 @@ public class EffContinue extends Effect {
     }
 
     @Override
-    protected Statement walk(TriggerContext ctx) {
+    public Statement walk(TriggerContext ctx) {
         return loop.walk(ctx);
     }
 

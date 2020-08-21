@@ -10,6 +10,14 @@ public class ClassUtils {
      * @return the nearest common superclass of the provided classes, accounting for interfaces
      */
     public static Class<?> getCommonSuperclass(Class<?>... cs) {
+        return getCommonSuperclass(false, cs);
+    }
+
+    /**
+     * @param cs the array of classes
+     * @return the nearest common superclass of the provided classes, <b>not</b> accounting for interfaces
+     */
+    public static Class<?> getCommonSuperclass(boolean classOnly, Class<?>... cs) {
         Class<?> r = cs[0];
         outer:
         for (Class<?> c : cs) {
@@ -25,11 +33,13 @@ public class ClassUtils {
                         continue outer;
                     }
                 }
-                for (Class<?> i : c.getInterfaces()) {
-                    s = getCommonSuperclass(i, r);
-                    if (s != Object.class) {
-                        r = s;
-                        continue outer;
+                if (!classOnly) {
+                    for (Class<?> i : c.getInterfaces()) {
+                        s = getCommonSuperclass(i, r);
+                        if (s != Object.class) {
+                            r = s;
+                            continue outer;
+                        }
                     }
                 }
                 return Object.class;

@@ -27,6 +27,10 @@ public class DefaultRegistration {
 
     public static void register() {
         SkriptRegistration registration = Main.getMainRegistration();
+
+        /*
+         * Classes
+         */
         registration.addType(
                 Object.class,
                 "object",
@@ -287,6 +291,9 @@ public class DefaultRegistration {
                 })
                 .register();
 
+        /*
+         * Comparators
+         */
         Comparators.registerComparator(
                 Number.class,
                 Number.class,
@@ -316,6 +323,17 @@ public class DefaultRegistration {
                     }
                 }
         );
+        Comparators.registerComparator(
+                Duration.class,
+                Duration.class,
+                new Comparator<Duration, Duration>(true) {
+                    @Override
+                    public Relation apply(Duration duration, Duration duration2) {
+                        return Relation.get(duration.compareTo(duration2));
+                    }
+                }
+        );
+
         /*
          * Ranges
          */
@@ -362,6 +380,7 @@ public class DefaultRegistration {
                             .toArray(String[]::new);
                 }
         );
+
         /*
          * Converters
          */
