@@ -51,7 +51,7 @@ public class RegexGroup implements PatternElement {
                     int i = s.indexOf(text, index);
                     if (i == -1)
                         continue;
-                    m = pattern.matcher(s).region(index, i + 1);
+                    m = pattern.matcher(s).region(index, i);
                 }
                 /*
                  * matches() tries to match against the whole region, and that's what we want
