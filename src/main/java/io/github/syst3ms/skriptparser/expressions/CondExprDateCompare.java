@@ -44,7 +44,7 @@ public class CondExprDateCompare extends ConditionalExpression {
     }
 
     @Override
-    protected boolean check(TriggerContext ctx) {
+    public boolean check(TriggerContext ctx) {
         SkriptDate d = date.getSingle(ctx);
         Duration dur = duration.getSingle(ctx);
         if (d == null || dur == null)

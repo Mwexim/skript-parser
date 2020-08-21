@@ -32,8 +32,8 @@ public interface Expression<T> extends SyntaxElement {
     /*
      * This is staying until we figure out a better way to implement this
      */
-    default T[] getArray(TriggerContext e) {
-        return getValues(e);
+    default T[] getArray(TriggerContext ctx) {
+        return getValues(ctx);
     }
 
     /**
@@ -53,19 +53,19 @@ public interface Expression<T> extends SyntaxElement {
      * Changes this expression with the given values according to the given mode
      * @param ctx the event
      * @param changeWith the values to change this Expression with
-     * @param changeMode the mode of change
+     * @param mode the mode of change
      */
-    default void change(TriggerContext ctx, Object[] changeWith, ChangeMode changeMode) {}
+    default void change(TriggerContext ctx, Object[] changeWith, ChangeMode mode) {}
 
     /**
      * Gets a single value out of this Expression
-     * @param e the event
+     * @param ctx the event
      * @return the single value of this Expression, or {@code null} if it has no value
      * @throws SkriptRuntimeException if the expression returns more than one value
      */
     @Nullable
-    default T getSingle(TriggerContext e) {
-        T[] values = getValues(e);
+    default T getSingle(TriggerContext ctx) {
+        T[] values = getValues(ctx);
         if (values.length == 0) {
             return null;
         } else if (values.length > 1) {
@@ -152,23 +152,23 @@ public interface Expression<T> extends SyntaxElement {
 
     /**
      * Checks this expression against the given {@link Predicate}
-     * @param e the event
+     * @param ctx the event
      * @param predicate the predicate
      * @return whether the expression matches the predicate
      */
-    default boolean check(TriggerContext e, Predicate<? super T> predicate) {
-        return check(e, predicate, false);
+    default boolean check(TriggerContext ctx, Predicate<? super T> predicate) {
+        return check(ctx, predicate, false);
     }
 
     /**
      * Checks this expression against the given {@link Predicate}
-     * @param e the event
+     * @param ctx the event
      * @param predicate the predicate
      * @param negated whether the result should be inverted
      * @return whether the expression matches the predicate
      */
-    default boolean check(TriggerContext e, Predicate<? super T> predicate, boolean negated) {
-        return check(getValues(e), predicate, negated, isAndList());
+    default boolean check(TriggerContext ctx, Predicate<? super T> predicate, boolean negated) {
+        return check(getValues(ctx), predicate, negated, isAndList());
     }
 
     /**

@@ -57,14 +57,14 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
-    public T[] getArray(TriggerContext e) {
+    public T[] getArray(TriggerContext ctx) {
         if (and) {
-            return getValues(e);
+            return getValues(ctx);
         } else {
             List<Expression<? extends T>> shuffle = Arrays.asList(expressions);
             Collections.shuffle(shuffle);
             for (Expression<? extends T> expr : shuffle) {
-                T[] values = expr.getValues(e);
+                T[] values = expr.getValues(ctx);
                 if (values.length > 0)
                     return values;
             }
