@@ -40,9 +40,9 @@ public class ExprDateNow implements Expression<SkriptDate> {
 			case 0:
 				return new SkriptDate[] {SkriptDate.now()};
 			case 1:
-				return new SkriptDate[] {new SkriptDate(SkriptDate.now().getTimestamp() - 1000 * 60 * 60 * 24)};
+				return new SkriptDate[] {new SkriptDate(SkriptDate.now().getTimestamp() - SkriptDate.MILLIS_PER_DAY)};
 			case 2:
-				return new SkriptDate[] {new SkriptDate(SkriptDate.now().getTimestamp() + 1000 * 60 * 60 * 24)};
+				return new SkriptDate[] {new SkriptDate(SkriptDate.now().getTimestamp() + SkriptDate.MILLIS_PER_DAY)};
 		}
 		return new SkriptDate[0];
 	}
