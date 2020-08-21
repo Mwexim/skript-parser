@@ -47,7 +47,7 @@ public class SecChance extends CodeSection {
     }
 
     @Override
-    protected Statement walk(TriggerContext ctx) {
+    public Statement walk(TriggerContext ctx) {
         Number c = chance.getSingle(ctx);
         if (c == null || Math.random() > (percent ? c.doubleValue() / 100 : c.doubleValue())) {
             return getNext();
