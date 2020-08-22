@@ -48,11 +48,11 @@ public class EffDoIf extends Effect {
     @Override
     public void execute(TriggerContext ctx) {
         if (condition.check(ctx))
-            effect.run(ctx);
+            effect.walk(ctx);
     }
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return effect.toString(ctx, debug) + " if " + condition.toString(ctx, debug);
+        return "if " + condition.toString(ctx, debug) + ", " + effect.toString(ctx, debug);
     }
 }

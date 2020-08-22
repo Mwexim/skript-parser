@@ -4,11 +4,12 @@ import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * A certain element or multiple elements out of a list of objects.
@@ -33,6 +34,8 @@ public class ExprElement implements Expression<Object> {
 				"[the] (0:first|1:last) %*integer% elements out [of] %objects%",
 				"%objects%\\[%*integer%\\]");
 	}
+
+	private static final ThreadLocalRandom random = ThreadLocalRandom.current();
 
 	private Expression<Object> expr;
 	private Expression<Long> range;
@@ -100,7 +103,7 @@ public class ExprElement implements Expression<Object> {
 					case 1:
 						return new Object[] {values[values.length - 1]};
 					case 2:
-						return new Object[] {values[new Random().nextInt(values.length)]};
+						return new Object[] {values[NumberMath.random(0, values.length, true, random).intValue()]};
 					case 3:
 						return new Object[] {values[index - 1]};
 					default:
