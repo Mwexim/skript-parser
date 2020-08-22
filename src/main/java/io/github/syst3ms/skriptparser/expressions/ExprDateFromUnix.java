@@ -7,8 +7,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 /**
  * The date from a (unix) timestamp.
  * The default timestamp returns the amount of <b>milliseconds</b> since the Unix Epoch.

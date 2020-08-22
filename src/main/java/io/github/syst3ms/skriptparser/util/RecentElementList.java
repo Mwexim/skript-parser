@@ -76,7 +76,7 @@ public class RecentElementList<T> implements Iterable<T> {
          * care about here. This shouldn't cause issues even if parallel parsing is implemented, because any reasonable
          * implementation would not use one RecentElementList across multiple threads. At least I hope so...
          */
-        return new Iterator<T>() {
+        return new Iterator<>() {
             private final List<Map.Entry<T, Integer>> b = backing;
             private int index = 0;
 

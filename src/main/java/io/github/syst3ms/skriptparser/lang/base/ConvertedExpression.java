@@ -79,7 +79,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
         var sourceIterator = source.iterator(context);
         if (!sourceIterator.hasNext())
             return Collections.emptyIterator();
-        return new Iterator<T>() {
+        return new Iterator<>() {
             @Nullable T next = null;
 
             @Override
@@ -93,7 +93,6 @@ public class ConvertedExpression<F, T> implements Expression<T> {
                 return next != null;
             }
 
-            @Nullable
             @Override
             public T next() {
                 if (!hasNext())

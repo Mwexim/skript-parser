@@ -8,7 +8,6 @@ import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
-import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -33,7 +32,7 @@ public class VariablesTest {
         assertArrayEquals(expected.getValues(DUMMY), actual.get().getValues(DUMMY));
     }
 
-    private void assertExpressionTypeEquals(Class<?> expected, Optional<? extends Expression<?>> expr) throws Exception {
+    private void assertExpressionTypeEquals(Class<?> expected, Optional<? extends Expression<?>> expr) {
         if (expr.isEmpty())
             fail("Null expression");
         if (expr.get().getReturnType() == expected)

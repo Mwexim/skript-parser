@@ -15,7 +15,6 @@ import io.github.syst3ms.skriptparser.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
 
 /**
  * A variable/expression, declared in syntax using {@literal %type%}

@@ -1,8 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
-import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
@@ -481,7 +479,7 @@ public class SkriptRegistration {
                 logger.error("Couldn't find a type corresponding to the class '" + returnType.getName() + "'", ErrorType.NO_MATCH);
                 return;
             }
-            var info = new ExpressionInfo<C, T>(super.c, elements, registerer, type.get(), isSingle, super.priority);
+            var info = new ExpressionInfo<>(super.c, elements, registerer, type.get(), isSingle, super.priority);
             expressions.putOne(super.c, info);
         }
     }
@@ -499,7 +497,7 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
-            var info = new SyntaxInfo<C>(super.c, elements, super.priority, registerer);
+            var info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
             effects.add(info);
         }
     }
@@ -518,7 +516,7 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
-            var info = new SyntaxInfo<C>(super.c, elements, super.priority, registerer);
+            var info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
             sections.add(info);
         }
     }
@@ -546,7 +544,7 @@ public class SkriptRegistration {
                 }
                 patternParser.parsePattern(s, logger).ifPresent(elements::add);
             }
-            var info = new SkriptEventInfo<T>(super.c, handledContexts, elements, super.priority, registerer);
+            var info = new SkriptEventInfo<>(super.c, handledContexts, elements, super.priority, registerer);
             events.add(info);
             registerer.addHandledEvent(this.c);
         }

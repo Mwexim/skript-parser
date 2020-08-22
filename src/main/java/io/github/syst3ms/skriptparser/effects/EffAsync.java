@@ -9,8 +9,6 @@ import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.util.ThreadUtils;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 /**
  * Runs this effect asynchronously.
  * The difference between this and the section {@code async} is due to the fact that this effect will only run the specified action asunc,

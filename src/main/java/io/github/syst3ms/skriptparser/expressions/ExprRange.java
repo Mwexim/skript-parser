@@ -16,12 +16,7 @@ import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import org.jetbrains.annotations.Nullable;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.BiFunction;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 
 /**
  * Returns a range of values between two endpoints. Types supported by default are integers and characters (length 1 strings).

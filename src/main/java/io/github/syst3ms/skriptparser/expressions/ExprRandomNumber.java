@@ -11,7 +11,6 @@ import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 /**
  * Generate a random number (double) or integer.

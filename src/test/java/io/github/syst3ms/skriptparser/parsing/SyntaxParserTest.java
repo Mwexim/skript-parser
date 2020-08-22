@@ -10,7 +10,6 @@ import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
-import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -42,7 +41,7 @@ public class SyntaxParserTest {
         assertExpressionEquals(new SimpleLiteral<>(Boolean.class, true), actual);
     }
 
-    private void assertExpressionTypeEquals(Class<?> expected, Optional<? extends Expression<?>> expr) throws Exception {
+    private void assertExpressionTypeEquals(Class<?> expected, Optional<? extends Expression<?>> expr) {
         if (expr.isEmpty())
             fail("Null expression");
         if (expr.get().getReturnType() == expected)
@@ -81,7 +80,7 @@ public class SyntaxParserTest {
     }
 
     @Test
-    public void standardExpressionsTest() throws Exception {
+    public void standardExpressionsTest() {
         SkriptLogger logger = new SkriptLogger();
         ParserState parserState = new ParserState();
         // CondExprCompare

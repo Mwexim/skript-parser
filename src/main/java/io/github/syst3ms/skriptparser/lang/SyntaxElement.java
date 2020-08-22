@@ -8,7 +8,6 @@ import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * The base class for all elements that are described by a syntax

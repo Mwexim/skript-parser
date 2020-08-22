@@ -291,7 +291,7 @@ public class DefaultRegistration {
         Comparators.registerComparator(
                 Number.class,
                 Number.class,
-                new Comparator<Number, Number>(true) {
+                new Comparator<>(true) {
                     @SuppressWarnings("unchecked")
                     @Override
                     public Relation apply(Number number, Number number2) {
@@ -301,12 +301,13 @@ public class DefaultRegistration {
                             BigDecimal bd = BigDecimalMath.getBigDecimal(number);
                             BigDecimal bd2 = BigDecimalMath.getBigDecimal(number2);
                             return Relation.get(bd.compareTo(bd2));
-                        } else if ((number instanceof BigInteger || number2 instanceof BigInteger) && (number instanceof Long || number2 instanceof Long)) {
+                        } else if ((number instanceof BigInteger || number2 instanceof BigInteger) &&
+                                (number instanceof Long || number2 instanceof Long)) {
                             BigInteger bi = BigDecimalMath.getBigInteger(number);
                             BigInteger bi2 = BigDecimalMath.getBigInteger(number2);
                             return Relation.get(bi.compareTo(bi2));
                         } else if ((number instanceof Double || number instanceof Long) &&
-                                   (number2 instanceof Double || number2 instanceof Long)) {
+                                (number2 instanceof Double || number2 instanceof Long)) {
                             double d = number.doubleValue() - number2.doubleValue();
                             return Double.isNaN(d) ? Relation.NOT_EQUAL : Relation.get(d);
                         } else {

@@ -11,7 +11,7 @@ import java.util.function.Function;
  * A class handling registration and usage of {@link Comparator}s
  */
 public class Comparators {
-    public static final Comparator<Object, Object> EQUALS_COMPARATOR = new Comparator<Object, Object>(false) {
+    public static final Comparator<Object, Object> EQUALS_COMPARATOR = new Comparator<>(false) {
         @Override
         public Relation apply(@Nullable Object o, @Nullable Object o2) {
             return Relation.get(Objects.equals(o, o2));

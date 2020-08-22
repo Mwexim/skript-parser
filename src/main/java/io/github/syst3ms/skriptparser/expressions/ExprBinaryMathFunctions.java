@@ -23,7 +23,7 @@ import java.util.function.BinaryOperator;
  * @author Syst3ms
  */
 public class ExprBinaryMathFunctions implements Expression<Number> {
-	public static PatternInfos<BinaryOperator<Number>> PATTERNS = new PatternInfos<>(
+	public static final PatternInfos<BinaryOperator<Number>> PATTERNS = new PatternInfos<>(
 		new Object[][] {
 			{"log[arithm] [base] %number% of %number%", (BinaryOperator<Number>) NumberMath::log},
 			{"root %number% of %number%", (BinaryOperator<Number>) (n, r) -> {

@@ -7,8 +7,6 @@ import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 /**
  * Check if a given string starts or ends with a certain string.
  *

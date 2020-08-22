@@ -1,13 +1,11 @@
 package io.github.syst3ms.skriptparser.parsing;
 
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.log.ErrorContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
-import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SkriptEventInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
@@ -21,13 +19,11 @@ import io.github.syst3ms.skriptparser.util.RecentElementList;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import io.github.syst3ms.skriptparser.variables.Variables;
 import org.intellij.lang.annotations.MagicConstant;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Function;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**

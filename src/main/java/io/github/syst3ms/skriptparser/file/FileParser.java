@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.util.FileUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**

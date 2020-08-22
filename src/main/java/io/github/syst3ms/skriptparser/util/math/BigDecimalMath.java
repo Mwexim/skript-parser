@@ -138,7 +138,7 @@ public class BigDecimalMath {
      * @see #fractionalPart(BigDecimal)
      */
     public static BigDecimal integralPart(BigDecimal value) {
-        return value.setScale(0, BigDecimal.ROUND_DOWN);
+        return value.setScale(0, RoundingMode.DOWN);
     }
 
     /**

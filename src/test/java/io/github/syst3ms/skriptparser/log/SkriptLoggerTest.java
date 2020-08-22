@@ -17,7 +17,7 @@ public class SkriptLoggerTest {
     }
 
     @Test
-    public void skriptLoggerTest() throws Exception {
+    public void skriptLoggerTest() {
         SkriptLogger logger = new SkriptLogger();
         ParserState parserState = new ParserState();
         Optional<? extends Expression<?>> noMatchFound = SyntaxParser.parseExpression("an expression that doesn't match anything", SyntaxParser.OBJECT_PATTERN_TYPE, parserState, logger);

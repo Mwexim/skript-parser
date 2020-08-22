@@ -4,8 +4,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 /**
  * A condition that is executed as a single line.
  * Useful to make quick assertions without having to make sections for each one.

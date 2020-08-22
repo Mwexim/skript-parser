@@ -20,7 +20,6 @@
 package io.github.syst3ms.skriptparser.types.conversions;
 
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
-import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.util.Pair;
 import org.jetbrains.annotations.Nullable;
 
