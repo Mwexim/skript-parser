@@ -11,9 +11,7 @@ public abstract class Effect extends Statement {
 
     @Override
     public boolean run(TriggerContext ctx) {
-        try {
-            execute(ctx);
-        } catch (UnsupportedOperationException ignored) { }
+        execute(ctx);
         return true;
     }
 }

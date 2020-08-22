@@ -41,18 +41,16 @@ public class ExprDifference implements Expression<Object> {
         first = expressions[0];
         second = expressions[1];
         Type<?> type = TypeManager.getByClass(
-                ClassUtils.getCommonSuperclass(true, first.getReturnType(), second.getReturnType())
+                ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())
         );
         if (type == null) {
-            // Should never happen!
-            return false;
+            type = TypeManager.getByClassExact(Object.class);
+            assert type != null;
         }
         math = (Arithmetic<Object, Object>) type.getArithmetic();
         commonSuperClass = type.getTypeClass();
         if (math == null) {
-            parseContext.getLogger().recurse();
-            parseContext.getLogger().error("Can't compare these two values.", ErrorType.SEMANTIC_ERROR);
-            parseContext.getLogger().callback();
+            parseContext.getLogger().error("Can't compare these two values", ErrorType.SEMANTIC_ERROR);
             return false;
         }
         return true;
