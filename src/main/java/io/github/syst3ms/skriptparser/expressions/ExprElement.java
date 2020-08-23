@@ -103,7 +103,7 @@ public class ExprElement implements Expression<Object> {
 					case 1:
 						return new Object[] {values[values.length - 1]};
 					case 2:
-						return new Object[] {values[NumberMath.random(0, values.length, true, random).intValue()]};
+						return new Object[] {values[NumberMath.random(0, values.length - 1, true, random).intValue()]};
 					case 3:
 						return new Object[] {values[index - 1]};
 					default:
