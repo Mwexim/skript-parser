@@ -1,14 +1,11 @@
 package io.github.syst3ms.skriptparser.sections;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.util.ThreadUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,11 +29,6 @@ public class SecAsync extends CodeSection {
                 SecAsync.class,
                 "async[hronous[ly]]"
         );
-    }
-
-    @Override
-    public void loadSection(@NotNull FileSection section, @NotNull ParserState parserState, SkriptLogger logger) {
-        super.loadSection(section, parserState, logger);
     }
 
     @Override

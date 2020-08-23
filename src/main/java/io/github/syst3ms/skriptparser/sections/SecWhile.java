@@ -16,15 +16,22 @@ import org.jetbrains.annotations.Nullable;
  */
 @SuppressWarnings("unchecked")
 public class SecWhile extends CodeSection {
-    @Nullable
-    private Statement actualNext;
-    private Expression<Boolean> condition;
 
     static {
         Main.getMainRegistration().addSection(
                 SecWhile.class,
                 "while %=boolean%"
         );
+    }
+
+    @Nullable
+    private Statement actualNext;
+    private Expression<Boolean> condition;
+
+    @Override
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        condition = (Expression<Boolean>) expressions[0];
+        return true;
     }
 
     @Override
@@ -34,9 +41,9 @@ public class SecWhile extends CodeSection {
     }
 
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        condition = (Expression<Boolean>) expressions[0];
-        return true;
+    public Statement setNext(@Nullable Statement next) {
+        this.actualNext = next;
+        return this;
     }
 
     @Override
@@ -50,9 +57,8 @@ public class SecWhile extends CodeSection {
     }
 
     @Override
-    public Statement setNext(@Nullable Statement next) {
-        this.actualNext = next;
-        return this;
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        return "while " + condition.toString(ctx, debug);
     }
 
     /**
@@ -61,10 +67,5 @@ public class SecWhile extends CodeSection {
     @Nullable
     public Statement getActualNext() {
         return actualNext;
-    }
-
-    @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return "while " + condition.toString(ctx, debug);
     }
 }

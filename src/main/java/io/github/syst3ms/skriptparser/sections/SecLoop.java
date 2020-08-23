@@ -17,11 +17,6 @@ import java.util.WeakHashMap;
  * A section that iterates over a collection of elements
  */
 public class SecLoop extends CodeSection {
-	private Expression<?> expr;
-	private final transient Map<TriggerContext, Object> current = new WeakHashMap<>();
-	private final transient Map<TriggerContext, Iterator<?>> currentIter = new WeakHashMap<>();
-	@Nullable
-	private Statement actualNext;
 
 	static {
 		Main.getMainRegistration().addSection(
@@ -29,6 +24,12 @@ public class SecLoop extends CodeSection {
 			"loop %objects%"
 		);
 	}
+
+	private Expression<?> expr;
+	private final transient Map<TriggerContext, Object> current = new WeakHashMap<>();
+	private final transient Map<TriggerContext, Iterator<?>> currentIter = new WeakHashMap<>();
+	@Nullable
+	private Statement actualNext;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
@@ -44,6 +45,12 @@ public class SecLoop extends CodeSection {
 	public void loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
 		super.loadSection(section, parserState, logger);
 		super.setNext(this);
+	}
+
+	@Override
+	public SecLoop setNext(@Nullable Statement next) {
+		actualNext = next;
+		return this;
 	}
 
 	@Override
@@ -83,12 +90,6 @@ public class SecLoop extends CodeSection {
      */
 	public Expression<?> getLoopedExpression() {
 		return expr;
-	}
-
-	@Override
-	public SecLoop setNext(@Nullable Statement next) {
-		actualNext = next;
-		return this;
 	}
 
     /**
