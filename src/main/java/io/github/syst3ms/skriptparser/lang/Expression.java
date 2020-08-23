@@ -1,16 +1,15 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.expressions.ExprLoopValue;
-import io.github.syst3ms.skriptparser.sections.SecLoop;
-import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
+import io.github.syst3ms.skriptparser.sections.SecLoop;
+import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -21,6 +20,7 @@ import java.util.function.Predicate;
  * @param <T> the type of value this expression returns
  */
 public interface Expression<T> extends SyntaxElement {
+
     /**
      * Retrieves all values of this Expression. This should never return null ! Doing so will most likely throw a {@linkplain NullPointerException NPE} in
      * the following instructions.

@@ -1,9 +1,9 @@
 package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
  * @author Syst3ms
  */
 public class EffPrint extends Effect {
-    private Expression<String> string;
 
     static {
         Main.getMainRegistration().addEffect(
@@ -24,6 +23,8 @@ public class EffPrint extends Effect {
             "print %strings% [to [the] console]"
         );
     }
+
+    private Expression<String> string;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -45,6 +46,6 @@ public class EffPrint extends Effect {
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return "println " + string.toString(ctx, debug);
+        return "print " + string.toString(ctx, debug);
     }
 }

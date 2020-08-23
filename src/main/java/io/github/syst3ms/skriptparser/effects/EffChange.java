@@ -1,16 +1,16 @@
 package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
+import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
  * @author Syst3ms
  */
 public class EffChange extends Effect {
+
     public static final PatternInfos<ChangeMode> PATTERNS = new PatternInfos<>(new Object[][]{
             {"set %~objects% to %objects%", ChangeMode.SET},
             {"%~objects% = %objects%", ChangeMode.SET},
@@ -44,16 +45,15 @@ public class EffChange extends Effect {
             {"reset %~objects%", ChangeMode.RESET}
     });
 
+    static {
+        Main.getMainRegistration().addEffect(EffChange.class, 3, PATTERNS.getPatterns());
+    }
+
     private Expression<?> changed;
     @Nullable
     private Expression<?> changeWith;
     private ChangeMode mode;
-
     private boolean assignment; // A simple flag for identifying which syntax was precisely used
-
-    static {
-        Main.getMainRegistration().addEffect(EffChange.class, 3, PATTERNS.getPatterns());
-    }
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
@@ -124,6 +124,15 @@ public class EffChange extends Effect {
     }
 
     @Override
+    public void execute(TriggerContext ctx) {
+        if (changeWith == null) {
+            changed.change(ctx, new Object[0], mode);
+        } else {
+            changed.change(ctx, changeWith.getValues(ctx), mode);
+        }
+    }
+
+    @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
         String changedString = changed.toString(ctx, debug);
         String changedWithString = changeWith != null ? changeWith.toString(ctx, debug) : "";
@@ -154,15 +163,6 @@ public class EffChange extends Effect {
             default:
                 assert false;
                 return "!!!unknown change mode!!!";
-        }
-    }
-
-    @Override
-    public void execute(TriggerContext ctx) {
-        if (changeWith == null) {
-            changed.change(ctx, new Object[0], mode);
-        } else {
-            changed.change(ctx, changeWith.getValues(ctx), mode);
         }
     }
 }
