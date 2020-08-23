@@ -28,12 +28,10 @@ public class TextElement implements PatternElement {
             return index;
         var start = 0;
         if (Character.isWhitespace(text.charAt(0))) {
-            start = s.length() - s.stripLeading().length();
+            while (index + start < s.length() && Character.isWhitespace(s.charAt(index + start)))
+                start++;
         }
         var end = 0;
-        if (Character.isWhitespace(text.charAt(text.length() - 1))) {
-            end = s.length() - s.stripTrailing().length();
-        }
         var stripped = text.strip();
         // We advance until we reach the first non-whitespace character in s
         if (index + start + stripped.length() > s.length()) {
@@ -42,6 +40,10 @@ public class TextElement implements PatternElement {
         if (stripped.isEmpty()) {
             return index + start;
         } else if (s.regionMatches(true, index + start, stripped, 0, stripped.length())) {
+            if (Character.isWhitespace(text.charAt(text.length() - 1))) {
+                while (end < s.length() && Character.isWhitespace(s.charAt(index + start + stripped.length() - end)))
+                    end++;
+            }
             return index + start + stripped.length() + end; // Adjusting for some of the whitespace we ignored
         } else {
             return -1;
