@@ -3,7 +3,7 @@ This document outlines code styling conventions to follow when contributing to t
 
 ## Security
 
-Obviously, all of the following are strictly forbidden :
+Obviously, all the following are strictly forbidden:
  - Malicious code.
  - Code exposing secrets/passwords.
 
@@ -12,6 +12,8 @@ Third party code may be allowed if and only if its licensing matches that of thi
 ## Formatting :
 IntelliJ IDEA is the recommended IDE to use for this project.
  * Every statement (separated with a semicolon) belongs on a separate line.
+ * Always leave an empty line after the class declaration and between each method.
+     * This is not needed after the last method in a class.
  * Lines should stay under 120 characters long. This rule is strict when it comes to comments/javadoc, but otherwise it is acceptable to have lines about 10 characters longer.
  * The brace style used is the K&R variant sometimes called 1TBS/OTBS (One True Brace Style) :
 	 * No line break before the opening brace, only a single space.
@@ -48,6 +50,17 @@ if (simpleCondition)
 	simpleStatement();
 ```
 
+but not
+
+```java
+if (firstCondition)
+    firstStatement();
+else if (secondCondition)
+    secondStatement();
+else
+    thirdStatement();
+```
+
 ## Naming conventions
 
 * Classes use PascalCase
@@ -74,6 +87,16 @@ if (simpleCondition)
 ## Project-specific conventions
 
 * When implementing any `SyntaxElement`, `init` must come first and `toString` should come last.
+* Furthermore, the following format should be followed when making a syntax class:
+  1. The optional `PatternInfos` field
+  2. `static {...}` block that registers the syntax
+  3. `final static` constant fields
+  4. `Expression<...>` fields
+  5. `init` method
+  6. All other methods of the used syntax class ordered by implementation in that class
+     * Methods from subclasses always have priority here, except the ones from the `SyntaxElement` class!
+  7. `toString` method as last method of the implementation
+  8. All other public methods (like the `getActualNext` method in `SecLoop`)
 
 ## Nullity
 
@@ -81,6 +104,6 @@ if (simpleCondition)
 * When creating a new package, create a `package-info.java` file, and add the `javax.annotation.ParametersAreNonnullByDefault`. 
 * If you are absolutely certain that a variable is non-null despite it being marked as nullable, use an assertion.
 
-Important note : in the future, the project is planned to instead use the `java.util.Optional` API instead.
+Important note: in the future, the project is planned to instead use the `java.util.Optional` API instead.
 
 
