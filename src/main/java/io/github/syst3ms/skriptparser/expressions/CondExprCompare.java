@@ -38,6 +38,7 @@ import java.util.Arrays;
  * @since ALPHA
  */
 public class CondExprCompare extends ConditionalExpression {
+
     public static final PatternInfos<Relation> PATTERNS = new PatternInfos<>(new Object[][]{
             {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither)| [8:each]) (greater|more|higher|bigger|larger|above) [than] or (equal to|the same as)|\\>=) %objects% [0x10:each|0x18:respectively]", Relation.GREATER_OR_EQUAL},
             {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither)| [8:each]) (less|smaller|below) [than] or (equal to|the same as)|\\<=) %objects% [0x10:each|0x18:respectively]", Relation.SMALLER_OR_EQUAL},
@@ -47,8 +48,7 @@ public class CondExprCompare extends ConditionalExpression {
             {"[1:neither] %objects% [8:each] (is|are) [8:each] between %objects% and %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
             {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither))|!=) [equal to] %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
             {"[1:neither] %objects% [8:each] ((is|are) [8:each] [equal to|the same as]|=) %objects% [0x10:each|0x18:respectively]", Relation.EQUAL}
-    }
-    );
+    });
 
     static {
         Main.getMainRegistration().addExpression(
@@ -66,7 +66,6 @@ public class CondExprCompare extends ConditionalExpression {
     private Expression<?> third;
     private Relation relation;
     private Comparator<Object, Object> comp;
-
     private boolean contentComparison;
     private boolean firstEach;
     private boolean secondEach;
@@ -204,48 +203,6 @@ public class CondExprCompare extends ConditionalExpression {
         return true;
     }
 
-    private String errorString(Expression<?> expr, boolean debug) {
-        if (expr.getReturnType() == Object.class)
-            return expr.toString(null, debug);
-        Type<?> exprType = TypeManager.getByClass(expr.getReturnType());
-        assert exprType != null;
-        return StringUtils.withIndefiniteArticle(exprType.getBaseName(), !expr.isSingle());
-    }
-
-    @SuppressWarnings({"unchecked"})
-    private boolean initialize() {
-        Expression<?> third = this.third;
-        if (first.getReturnType() == Object.class) {
-            Expression<?> e = first.convertExpression(Object.class);
-            if (e == null) {
-                return false;
-            }
-            first = e;
-        }
-        if (second.getReturnType() == Object.class) {
-            Expression<?> e = second.convertExpression(Object.class);
-            if (e == null) {
-                return false;
-            }
-            second = e;
-        }
-        if (third != null && third.getReturnType() == Object.class) {
-            Expression<?> e = third.convertExpression(Object.class);
-            if (e == null) {
-                return false;
-            }
-            this.third = third = e;
-        }
-        Class<?> f = first.getReturnType();
-        Class<?> s = third == null
-                ? second.getReturnType()
-                : ClassUtils.getCommonSuperclass(second.getReturnType(), third.getReturnType());
-        if (f == Object.class || s == Object.class)
-            return true;
-        comp = (Comparator<Object, Object>) Comparators.getComparator(f, s);
-        return comp != null;
-    }
-
     /*
      * # := condition (e.g. is, is less than, contains, is enchanted with, has permission, etc.)
      * !# := not #
@@ -375,6 +332,70 @@ public class CondExprCompare extends ConditionalExpression {
         }
     }
 
+    @Override
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        String s;
+        Expression<?> third = this.third;
+        if (third == null) {
+            s = first.toString(ctx, debug) + " is " + (isNegated() ? "not " : "") + relation + " " + second.toString(
+                    ctx, debug);
+        } else {
+            s = first.toString(ctx, debug) +
+                    " is " +
+                    (isNegated() ? "not " : "") +
+                    "between " +
+                    second.toString(ctx, debug) +
+                    " and " +
+                    third.toString(ctx, debug);
+        }
+        if (debug) {
+            s += " (comparator: " + comp + ")";
+        }
+        return s;
+    }
+
+    private String errorString(Expression<?> expr, boolean debug) {
+        if (expr.getReturnType() == Object.class)
+            return expr.toString(null, debug);
+        Type<?> exprType = TypeManager.getByClass(expr.getReturnType());
+        assert exprType != null;
+        return StringUtils.withIndefiniteArticle(exprType.getBaseName(), !expr.isSingle());
+    }
+
+    @SuppressWarnings({"unchecked"})
+    private boolean initialize() {
+        Expression<?> third = this.third;
+        if (first.getReturnType() == Object.class) {
+            Expression<?> e = first.convertExpression(Object.class);
+            if (e == null) {
+                return false;
+            }
+            first = e;
+        }
+        if (second.getReturnType() == Object.class) {
+            Expression<?> e = second.convertExpression(Object.class);
+            if (e == null) {
+                return false;
+            }
+            second = e;
+        }
+        if (third != null && third.getReturnType() == Object.class) {
+            Expression<?> e = third.convertExpression(Object.class);
+            if (e == null) {
+                return false;
+            }
+            this.third = third = e;
+        }
+        Class<?> f = first.getReturnType();
+        Class<?> s = third == null
+                ? second.getReturnType()
+                : ClassUtils.getCommonSuperclass(second.getReturnType(), third.getReturnType());
+        if (f == Object.class || s == Object.class)
+            return true;
+        comp = (Comparator<Object, Object>) Comparators.getComparator(f, s);
+        return comp != null;
+    }
+
     private boolean fullCompare(Object[] firstValues, Object[] secondValues) {
         if (!contentComparison) {
             return Expression.check(
@@ -446,27 +467,5 @@ public class CondExprCompare extends ConditionalExpression {
                 isNegated(),
                 first.isAndList()
         );
-    }
-
-    @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        String s;
-        Expression<?> third = this.third;
-        if (third == null) {
-            s = first.toString(ctx, debug) + " is " + (isNegated() ? "not " : "") + relation + " " + second.toString(
-                    ctx, debug);
-        } else {
-            s = first.toString(ctx, debug) +
-                    " is " +
-                    (isNegated() ? "not " : "") +
-                    "between " +
-                    second.toString(ctx, debug) +
-                    " and " +
-                    third.toString(ctx, debug);
-        }
-        if (debug) {
-            s += " (comparator: " + comp + ")";
-        }
-        return s;
     }
 }

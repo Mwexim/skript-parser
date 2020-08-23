@@ -1,8 +1,8 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
  * @author Syst3ms
  */
 public class CondExprIsSet extends ConditionalExpression {
-    private Expression<?> expr;
 
     static {
         Main.getMainRegistration().addExpression(
@@ -28,6 +27,8 @@ public class CondExprIsSet extends ConditionalExpression {
                 "%~objects% (is|are)[1:( not|n't)] set"
         );
     }
+
+    private Expression<?> expr;
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {

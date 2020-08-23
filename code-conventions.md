@@ -97,6 +97,7 @@ else
      * Methods from subclasses always have priority here, except the ones from the `SyntaxElement` class!
   7. `toString` method as last method of the implementation
   8. All other public methods (like the `getActualNext` method in `SecLoop`)
+  9. Optional private utility methods
 
 ## Nullity
 
