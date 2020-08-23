@@ -109,7 +109,7 @@ class VariableMap {
 	 * <p>
 	 * <b>Do not modify the returned value!</b>
 	 *
-	 * @param name
+	 * @param name name of the variable
 	 * @return an Object for a normal Variable or a Map<String, Object> for a list variable, or null if the variable is not set.
 	 */
     @SuppressWarnings("unchecked")

@@ -126,7 +126,7 @@ public class FileUtils {
                             break;
                         }
                     }
-                    if (load) {
+                    if (load && !e.getName().matches(".+\\$\\d+\\.class")) { // It's of very little use to load anonymous classes
                         final var c = e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length());
                         try {
                             Class.forName(c, true, FileUtils.class.getClassLoader());
@@ -139,9 +139,14 @@ public class FileUtils {
         }
     }
 
-    public static File getCurrentJarFile() throws URISyntaxException {
+    /**
+     * Retrieves the JAR file containing the given Class. Passing down the current class is recommended.
+     * @param cla the class
+     * @return the JAR file containing the class
+     */
+    public static File getCurrentJarFile(Class<?> cla) throws URISyntaxException {
         if (jarFile == null) {
-            jarFile = new File(FileUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            jarFile = new File(cla.getProtectionDomain().getCodeSource().getLocation().toURI());
         }
         return jarFile;
     }

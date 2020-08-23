@@ -40,20 +40,19 @@ public class Conditional extends CodeSection {
     }
 
     @Override
-    protected Optional<? extends Statement> walk(TriggerContext ctx) {
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
         assert condition != null || mode == ConditionalMode.ELSE;
-        if (mode == ConditionalMode.ELSE)
+        if (mode == ConditionalMode.ELSE) {
             return getFirst();
-        return condition.getSingle(ctx)
-                .map(b -> {
-                    if (b) {
-                        return getFirst().orElse(null);
-                    } else if (fallingClause != null) {
-                        return fallingClause;
-                    } else {
-                        return getNext().orElse(null);
-                    }
-                });
+        }
+        Optional<? extends Boolean> c = condition.getSingle(ctx);
+        if (c.filter(b -> b).isPresent()) {
+            return getFirst();
+        } else if (fallingClause != null) {
+            return Optional.of(fallingClause);
+        } else {
+            return getNext();
+        }
     }
 
     /**

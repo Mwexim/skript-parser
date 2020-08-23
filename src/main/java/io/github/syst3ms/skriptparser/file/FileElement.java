@@ -1,7 +1,5 @@
 package io.github.syst3ms.skriptparser.file;
 
-import io.github.syst3ms.skriptparser.util.StringUtils;
-
 /**
  * Represents any non-blank and not comment-only line in a file. It is important to note that information about comments
  * is absent from this class, as they are discarded before being passed to the constructor.<br>

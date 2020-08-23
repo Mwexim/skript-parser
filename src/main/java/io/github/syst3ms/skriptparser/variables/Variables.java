@@ -25,7 +25,7 @@ public class Variables {
     // Yes, I know it should be trigger-specific, but I haven't got to that part yet, ok ? TODO make the change
     private static final Map<TriggerContext, VariableMap> localVariables = new HashMap<>();
 
-    public static <T> Optional<Expression<T>> parseVariable(String s, Class<? extends T> types, ParserState parserState, SkriptLogger logger) {
+    public static <T> Optional<? extends Expression<T>> parseVariable(String s, Class<? extends T> types, ParserState parserState, SkriptLogger logger) {
         s = s.strip();
         if (REGEX_PATTERN.matcher(s).matches()) {
             s = s.substring(1, s.length() - 1);
@@ -49,7 +49,7 @@ public class Variables {
      *
      * @param name The name to test
      * @param printErrors Whether to print errors when they are encountered
-     * @param logger
+     * @param logger the logger
      * @return true if the name is valid, false otherwise.
      */
     public static boolean isValidVariableName(String name, boolean printErrors, SkriptLogger logger) {
@@ -79,7 +79,7 @@ public class Variables {
 	 * <p>
 	 * <b>Do not modify the returned value!</b>
 	 *
-	 * @param name
+	 * @param name the name of the variable
 	 * @return an Object for a normal Variable or a Map<String, Object> for a list variable, or null if the variable is not set.
 	 */
     public static Optional<Object> getVariable(String name, TriggerContext e, boolean local) {

@@ -322,11 +322,7 @@ public class BigRational implements Comparable<BigRational> {
 		return numerator.signum() == 0;
 	}
 
-	private boolean isPositive() {
-		return numerator.signum() > 0;
-	}
-
-    /**
+	/**
 	 * Returns whether this rational number is an integer number without fraction part.
 	 *
 	 * <p>Will return <code>false</code> if this number is not reduced to the integer representation yet (e.g. 4/4 or 4/2)</p>

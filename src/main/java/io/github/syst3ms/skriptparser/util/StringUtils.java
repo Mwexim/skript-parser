@@ -4,8 +4,6 @@ import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -16,19 +14,18 @@ import java.util.regex.Pattern;
  */
 public class StringUtils {
     public static final Pattern R_LITERAL_CONTENT_PATTERN = Pattern.compile("(.+?)\\((.+)\\)\\1"); // It's actually rare to be able to use '.+' raw like this
-    private static final String osName = System.getProperty("os.name");
 
     /**
-     * Counts combined occurences of one or more strings in another
-     * @param s the string to find occurences in
-     * @param toFind the strings to find occurences of
-     * @return the amount of total occurences
+     * Counts combined occurrences of one or more strings in another
+     * @param s the string to find occurrences in
+     * @param toFind the strings to find occurrences of
+     * @return the amount of total occurrences
      */
     public static int count(String s, String... toFind) {
         var count = 0;
         for (var sequence : toFind) {
-            var occurences = s.length() - s.replace(sequence, "").length();
-            count += occurences / sequence.length();
+            var occurrences = s.length() - s.replace(sequence, "").length();
+            count += occurrences / sequence.length();
         }
         return count;
     }
@@ -223,22 +220,10 @@ public class StringUtils {
     }
 
     /**
-     * Fixes a potential encoding issue on Windows systems
-     * @param s the string
-     * @return the (potentially) fixed string
-     */
-    public static String fixEncoding(String s) {
-        if (osName.contains("Windows"))
-            return new String(s.getBytes(Charset.defaultCharset()), StandardCharsets.UTF_8);
-        return s;
-    }
-
-    /**
      * Returns an array of two elements, containing the plural and singular forms of the
      * given pluralizable expression. Does not support escaping.
      */
     public static String[] getForms(String pluralizable) {
-        pluralizable = fixEncoding(pluralizable);
         List<String[]> words = new ArrayList<>();
         for (var s : pluralizable.split("\\s+")) {
             var split = s.split("@");
@@ -261,7 +246,7 @@ public class StringUtils {
             pluralized[0] += word[0] + " ";
             pluralized[1] += word[1] + " ";
         }
-        return trimAll(pluralized);
+        return stripAll(pluralized);
     }
 
     /**
@@ -269,7 +254,7 @@ public class StringUtils {
      * @param strings the strings
      * @return the array with all of its contents trimmed
      */
-    private static String[] trimAll(String[] strings) {
+    private static String[] stripAll(String[] strings) {
         for (var i = 0; i < strings.length; i++)
             strings[i] = strings[i].strip();
         return strings;

@@ -55,7 +55,7 @@ public class SyntaxManager {
      * @return the {@link ExpressionInfo} corresponding to the given {@link Expression} instance
      */
     @SuppressWarnings("unchecked")
-    public static <E extends Expression<T>, T> Optional<ExpressionInfo<E, T>> getExpressionExact(Expression<T> expr) {
+    public static <E extends Expression<T>, T> Optional<? extends ExpressionInfo<E, T>> getExpressionExact(Expression<T> expr) {
         Class<?> c = expr.getSource().getClass();
         for (var info : SyntaxManager.getAllExpressions()) {
             if (info.getSyntaxClass() == c) {

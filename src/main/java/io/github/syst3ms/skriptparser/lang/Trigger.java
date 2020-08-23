@@ -34,7 +34,7 @@ public class Trigger extends CodeSection {
     }
 
     @Override
-    protected Optional<? extends Statement> walk(TriggerContext ctx) {
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
         return getFirst().filter(__ -> event.check(ctx));
     }
 

@@ -28,7 +28,7 @@ public abstract class CodeSection extends Statement {
      * In case an extending class just needs to do some additional operations on top of what the default implementation
      * already does, then call {@code super.loadSection(section)} before any such operations.
      * @param section the {@link FileSection} representing this {@linkplain CodeSection}
-     * @param logger
+     * @param logger the logger
      */
     public void loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
         parserState.setSyntaxRestrictions(getAllowedSyntaxes(), isRestrictingExpressions());
@@ -45,7 +45,7 @@ public abstract class CodeSection extends Statement {
     }
 
     @Override
-    protected abstract Optional<? extends Statement> walk(TriggerContext ctx);
+    public abstract Optional<? extends Statement> walk(TriggerContext ctx);
 
     /**
      * Sets the items inside this lists, and also modifies other fields, reflected through the outputs of {@link #getFirst()},

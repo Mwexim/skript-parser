@@ -33,8 +33,15 @@ public class RegexGroup implements PatternElement {
 
     @Override
     public int match(String s, int index, MatchContext context) {
+        var source = context.getSource();
         var flattened = PatternElement.flatten(context.getOriginalElement());
-        var possibleInputs = PatternElement.getPossibleInputs(flattened.subList(context.getPatternIndex(), flattened.size()));
+        var possibilityIndex = context.getPatternIndex();
+        while (source.isPresent() && possibilityIndex >= flattened.size()) {
+            flattened = PatternElement.flatten(source.get().getOriginalElement());
+            possibilityIndex = source.get().getPatternIndex();
+            source = source.get().getSource();
+        }
+        var possibleInputs = PatternElement.getPossibleInputs(flattened.subList(possibilityIndex, flattened.size()));
         for (var possibleInput : possibleInputs) {
             if (possibleInput instanceof TextElement) {
                 var text = ((TextElement) possibleInput).getText();
@@ -45,7 +52,7 @@ public class RegexGroup implements PatternElement {
                     var i = s.indexOf(text, index);
                     if (i == -1)
                         continue;
-                    m = pattern.matcher(s).region(index, i + 1);
+                    m = pattern.matcher(s).region(index, i);
                 }
                 /*
                  * matches() tries to match against the whole region, and that's what we want

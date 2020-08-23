@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 /**
  * Contains the logic for parsing and interpreting single statements, sections and expressions inside of a script.
  */
-@SuppressWarnings({"unchecked", "UnusedAssignment"})
+@SuppressWarnings("unchecked")
 public class SyntaxParser {
     /**
      * Tells {@link #parseBooleanExpression(String, int, ParserState, SkriptLogger)} to only return expressions that are not conditional
@@ -46,19 +46,19 @@ public class SyntaxParser {
      * @see #parseBooleanExpression(String, int, ParserState, SkriptLogger)
      */
     public static final int CONDITIONAL = 2;
-    public static final Pattern LIST_SPLIT_PATTERN = Pattern.compile("\\s*(,)\\s*|\\s+(and|or)\\s+", Pattern.CASE_INSENSITIVE);
+    public static final Pattern LIST_SPLIT_PATTERN = Pattern.compile("\\s*(,)\\s*|\\s+(and|n?or)\\s+", Pattern.CASE_INSENSITIVE);
     /**
      * The pattern type representing {@link Boolean}
      */
-    public static final PatternType<Boolean> BOOLEAN_PATTERN_TYPE = new PatternType<>((Type<Boolean>) TypeManager.getByClass(Boolean.class).orElseThrow(IllegalStateException::new), true);
+    public static final PatternType<Boolean> BOOLEAN_PATTERN_TYPE = new PatternType<>((Type<Boolean>) TypeManager.getByClass(Boolean.class).orElseThrow(AssertionError::new), true);
     /**
      * The pattern type representing {@link Object}
      */
     @SuppressWarnings({"RedundantCast"}) // Gradle requires the cast, but IntelliJ considers it redundant
-    public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class).orElseThrow(IllegalStateException::new), true);
+    public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class).orElseThrow(AssertionError::new), true);
 
     @SuppressWarnings({"RedundantCast"}) // Gradle requires the cast, but IntelliJ considers it redundant
-    public static final PatternType<Object> OBJECTS_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class).orElseThrow(IllegalStateException::new), false);
+    public static final PatternType<Object> OBJECTS_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class).orElseThrow(AssertionError::new), false);
 
     /**
      * All {@link Effect effects} that are successfully parsed during parsing, in order of last successful parsing
@@ -86,7 +86,8 @@ public class SyntaxParser {
      * @param <T> the type of the expression
      * @param s the string to be parsed as an expression
      * @param expectedType the expected return type
-     * @param logger
+     * @param parserState the current parser state
+     * @param logger the logger
      * @return an expression that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
      * or for another reason detailed in an error message.
@@ -103,7 +104,7 @@ public class SyntaxParser {
         }
         var variable = (Optional<? extends Variable<? extends T>>) Variables.parseVariable(s, expectedType.getType().getTypeClass(), parserState, logger);
         if (variable.isPresent()) {
-            if (variable.filter(v -> !v.isSingle() && expectedType.isSingle()).isEmpty()) {
+            if (variable.filter(v -> !v.isSingle() && expectedType.isSingle()).isPresent()) {
                 logger.error("A single value was expected, but " +
                         s +
                         " represents multiple values.", ErrorType.SEMANTIC_ERROR);
@@ -148,8 +149,8 @@ public class SyntaxParser {
      * Parses a {@link Expression boolean expression} from the given {@linkplain String}
      * @param s the string to be parsed as an expression
      * @param conditional a constant describing whether the result can be a {@link ConditionalExpression condition}
-     * @param parserState
-     * @param logger
+     * @param parserState the current parser state
+     * @param logger the logger
      * @see SyntaxParser#NOT_CONDITIONAL
      * @see SyntaxParser#MAYBE_CONDITIONAL
      * @see SyntaxParser#CONDITIONAL
@@ -169,7 +170,7 @@ public class SyntaxParser {
         }
         var variable = (Optional<? extends Variable<Boolean>>) Variables.parseVariable(s, Boolean.class, parserState, logger);
         if (variable.isPresent()) {
-            if (variable.filter(v -> !v.isSingle()).isEmpty()) {
+            if (variable.filter(v -> !v.isSingle()).isPresent()) {
                 logger.error("A single value was expected, but " +
                         s +
                         " represents multiple values.", ErrorType.SEMANTIC_ERROR);
@@ -308,8 +309,8 @@ public class SyntaxParser {
     /**
      * Parses a line of code as an {@link InlineCondition}
      * @param s the line to be parsed
-     * @param parserState
-     * @param logger
+     * @param parserState the current parser state
+     * @param logger the logger
      * @return an inline condition that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
      * or for another reason detailed in an error message
@@ -325,7 +326,8 @@ public class SyntaxParser {
      * @param <T> the type of the list literal
      * @param s the string to be parsed as a list literal
      * @param expectedType the expected return type (must be plural)
-     * @param logger
+     * @param parserState the current parser state
+     * @param logger the logger
      * @return a list literal that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
      * or for another reason detailed in an error message.
@@ -396,28 +398,28 @@ public class SyntaxParser {
         if (expressions.size() == 1)
             return Optional.of(expressions.get(0));
         if (isLiteralList) {
-            var literals = new Literal[expressions.size()];
+            Literal<?>[] literals = new Literal[expressions.size()];
             for (var i = 0; i < expressions.size(); i++) {
                 var exp = expressions.get(i);
                 if (exp instanceof Literal) {
-                    literals[i] = (Literal) exp;
+                    literals[i] = (Literal<?>) exp;
                 } else {
                     assert exp instanceof VariableString;
-                    literals[i] = new SimpleLiteral(String.class, exp.getSingle(TriggerContext.DUMMY));
+                    literals[i] = new SimpleLiteral<>(String.class, (String) exp.getSingle(TriggerContext.DUMMY).orElseThrow(AssertionError::new));
                 }
             }
             var returnType = ClassUtils.getCommonSuperclass(Arrays.stream(literals).map(Literal::getReturnType).toArray(Class[]::new));
-            return (Optional<? extends Expression<? extends T>>) Optional.of(new LiteralList(
-                    literals,
-                    returnType,
+            return Optional.of(new LiteralList<>(
+                    (Literal<? extends T>[]) literals,
+                    (Class<T>) returnType,
                     isAndList
             ));
         } else {
-            var exprs = expressions.toArray(new Expression[0]);
+            Expression<?>[] exprs = expressions.toArray(new Expression[0]);
             var returnType = ClassUtils.getCommonSuperclass(Arrays.stream(exprs).map(Expression::getReturnType).toArray(Class[]::new));
-            return (Optional<? extends Expression<? extends T>>) Optional.of(new ExpressionList(
-                    exprs,
-                    returnType,
+            return Optional.of(new ExpressionList<>(
+                    (Expression<? extends T>[]) exprs,
+                    (Class<T>) returnType,
                     isAndList
             ));
         }
@@ -428,7 +430,8 @@ public class SyntaxParser {
      * @param <T> the type of the literal
      * @param s the string to be parsed as a literal
      * @param expectedType the expected return type
-     * @param logger
+     * @param parserState the current parser state
+     * @param logger the logger
      * @return a literal that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
      * or for another reason detailed in an error message.
@@ -442,16 +445,17 @@ public class SyntaxParser {
                 if (literalParser.isPresent()) {
                     var literal = literalParser.map(l -> (T) l.apply(s));
                     if (literal.isPresent() && expectedClass.isAssignableFrom(c)) {
-                        var one = (T[]) Array.newInstance(literal.getClass(), 1);
+                        var one = (T[]) Array.newInstance(literal.get().getClass(), 1);
                         one[0] = literal.get();
                         return Optional.of(new SimpleLiteral<>(one));
                     } else if (literal.isPresent()) {
                         return new SimpleLiteral<>((Class<T>) c, literal.get()).convertExpression(expectedType.getType().getTypeClass());
                     }
                 } else if (expectedClass == String.class || c == String.class) {
-                    var vs = VariableString.newInstanceWithQuotes(s, parserState, logger);
+                    var vs = VariableString.newInstanceWithQuotes(s, parserState, logger)
+                            .map(v -> (Expression<? extends T>) v);
                     if (vs.isPresent()) {
-                        return (Optional<? extends Expression<? extends T>>) vs;
+                        return vs;
                     }
                 }
             }
@@ -462,7 +466,7 @@ public class SyntaxParser {
     /**
      * Parses a line of code as an {@link Effect}
      * @param s the line to be parsed
-     * @param parserState
+     * @param parserState the current parser state
      * @param logger the logger
      * @return an effect that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
@@ -510,9 +514,9 @@ public class SyntaxParser {
                             .newInstance();
                     logger.setContext(ErrorContext.INITIALIZATION);
                     if (!eff.init(
-                        parser.getParsedExpressions().toArray(new Expression[0]),
-                        i,
-                        parser.toParseResult()
+                            parser.getParsedExpressions().toArray(new Expression[0]),
+                            i,
+                            parser.toParseResult()
                     )) {
                         continue;
                     }
@@ -528,7 +532,7 @@ public class SyntaxParser {
     /**
      * Parses a line of code as a {@link Statement}, either an {@link Effect} or an {@link InlineCondition}
      * @param s the line to be parsed
-     * @param parserState
+     * @param parserState the current parser state
      * @param logger the logger
      * @return a statement that was successfully parsed, or {@literal null} if the string is empty,
      * no match was found
@@ -561,7 +565,7 @@ public class SyntaxParser {
     /**
      * Parses a section of a file as a {@link CodeSection}
      * @param section the section to be parsed
-     * @param parserState
+     * @param parserState the current parser state
      * @param logger the logger
      * @return a section that was successfully parsed, or {@literal null} if the section is empty,
      * no match was found

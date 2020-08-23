@@ -14,27 +14,27 @@ public class ConverterUtils {
     }
 
     public static <F, T> Function<?, Optional<? extends T>> createInstanceofConverter(Class<F> from, Function<? super F, Optional<? extends T>> conv) {
-        return o -> Optional.ofNullable(o)
+        return p -> Optional.ofNullable(p)
                 .filter(from::isInstance)
-                .flatMap(p -> conv.apply((F) p));
+                .flatMap(f -> conv.apply((F) f));
     }
 
-    public static <F, T> Function<? super F, Optional<? extends T>> createInstanceofConverter(Function<? super F, Optional<?>> conv, Class<T> to) {
-        return f -> conv.apply(f)
+    public static <F, T> Function<? super F, Optional<? extends T>> createInstanceofConverter(Function<? super F, Optional<? extends T>> conv, Class<T> to) {
+        return p -> conv.apply(p)
                 .filter(to::isInstance)
-                .map(p -> (T) p);
+                .map(t -> (T) t);
     }
 
     public static <F, T> Function<?, Optional<? extends T>> createDoubleInstanceofConverter(ConverterInfo<F, ?> conv, Class<T> to) {
-        return createDoubleInstanceofConverter(conv.getFrom(), (Function<? super F, Optional<?>>) conv.getConverter(), to);
+        return createDoubleInstanceofConverter(conv.getFrom(), (Function<F, Optional<?>>) conv.getConverter(), to);
     }
 
     public static <F, T> Function<?, Optional<? extends T>> createDoubleInstanceofConverter(Class<F> from, Function<? super F, Optional<?>> conv, Class<T> to) {
-        return o -> Optional.ofNullable(o)
+        return p -> Optional.ofNullable(p)
                 .filter(from::isInstance)
-                .flatMap(p -> conv.apply((F) p))
+                .flatMap(f -> conv.apply((F) f))
                 .filter(to::isInstance)
-                .map(p -> (T) p);
+                .map(t -> (T) t);
     }
 
 }

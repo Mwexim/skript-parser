@@ -23,7 +23,7 @@ public class FileParser {
      * @param expectedIndentation the indentation level the first line is expected to be at
      * @param lastLine a parameter that keeps track of the line count throughout recursive calls of this method when
      *                 parsing sections
-     * @param logger
+     * @param logger the logger
      * @return a list of {@link FileElement}s
      */
     public List<FileElement> parseFileLines(String fileName, List<String> lines, int expectedIndentation, int lastLine, SkriptLogger logger) {

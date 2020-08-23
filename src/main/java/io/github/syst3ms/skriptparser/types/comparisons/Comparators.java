@@ -87,9 +87,9 @@ public class Comparators {
                     c2 = (Optional<? extends Function<? super S, Optional<?>>>) Converters.getConverter(s, info.getType(!first));
                     if (c2.isPresent()) {
                         return Optional.of(first
-                                ? new ConvertedComparator<>((Comparator<? super F, ?>) info.getComparator(), c2.get())
+                                ? new ConvertedComparator<>(info.getComparator(), c2.get())
                                 : new InverseComparator<>(
-                                        new ConvertedComparator<>(c2.get(), (Comparator<?, ? super F>) info.getComparator())
+                                        new ConvertedComparator<>(c2.get(), info.getComparator())
                                 )
                         );
                     }
@@ -103,7 +103,7 @@ public class Comparators {
                                         (Function<? super S, Optional<?>>) info.getComparator()
                                 )
                                 : new InverseComparator<>(
-                                        new ConvertedComparator<>((Comparator<? super S, ?>) info.getComparator(), c1.get())
+                                        new ConvertedComparator<>(info.getComparator(), c1.get())
                                 )
                         );
                     }
@@ -133,21 +133,21 @@ public class Comparators {
         @Nullable
         private final Function c1, c2;
 
-        public ConvertedComparator(Function<? super T1, Optional<?>> c1, Comparator<?, ? super T2> c) {
+        public ConvertedComparator(Function<? super T1, ?> c1, Comparator<?, ?> c) {
             super(c.supportsOrdering());
             this.c1 = c1;
             this.c = c;
             this.c2 = null;
         }
 
-        public ConvertedComparator(Comparator<? super T1, ?> c, Function<? super T2, Optional<?>> c2) {
+        public ConvertedComparator(Comparator<?, ?> c, Function<? super T2, ?> c2) {
             super(c.supportsOrdering());
             this.c1 = null;
             this.c = c;
             this.c2 = c2;
         }
 
-        public ConvertedComparator(Function<? super T1, Optional<?>> c1, Comparator<?, ?> c, Function<? super T2, Optional<?>> c2) {
+        public ConvertedComparator(Function<? super T1, ?> c1, Comparator<?, ?> c, Function<? super T2, ?> c2) {
             super(c.supportsOrdering());
             this.c1 = c1;
             this.c = c;

@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
+import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 
 import java.util.Iterator;
@@ -101,7 +102,7 @@ public interface Expression<T> extends SyntaxElement {
 
     /**
      * Converts this expression from it's current type ({@link T}) to another type, using
-     * {@linkplain io.github.syst3ms.skriptparser.types.conversions.Converters converters}.
+     * {@linkplain Converters converters}.
      * @param to the class of the type to convert this Expression to
      * @param <C> the type to convert this Expression to
      * @return a converted Expression, or {@code null} if it couldn't be converted
@@ -141,23 +142,23 @@ public interface Expression<T> extends SyntaxElement {
 
     /**
      * Checks this expression against the given {@link Predicate}
-     * @param e the event
+     * @param ctx the event
      * @param predicate the predicate
      * @return whether the expression matches the predicate
      */
-    default boolean check(TriggerContext e, Predicate<? super T> predicate) {
-        return check(e, predicate, false);
+    default boolean check(TriggerContext ctx, Predicate<? super T> predicate) {
+        return check(ctx, predicate, false);
     }
 
     /**
      * Checks this expression against the given {@link Predicate}
-     * @param e the event
+     * @param ctx the event
      * @param predicate the predicate
      * @param negated whether the result should be inverted
      * @return whether the expression matches the predicate
      */
-    default boolean check(TriggerContext e, Predicate<? super T> predicate, boolean negated) {
-        return check(getValues(e), predicate, negated, isAndList());
+    default boolean check(TriggerContext ctx, Predicate<? super T> predicate, boolean negated) {
+        return check(getValues(ctx), predicate, negated, isAndList());
     }
 
     /**
@@ -181,7 +182,9 @@ public interface Expression<T> extends SyntaxElement {
             if (!and && b)
                 return !invert;
         }
-        return hasElement && invert ^ and;
+        if (!hasElement)
+            return invert;
+        return invert != and;
     }
 
 }

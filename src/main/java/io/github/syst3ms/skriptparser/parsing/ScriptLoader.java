@@ -28,7 +28,7 @@ public class ScriptLoader {
     /**
      * Parses and loads the provided script in memory
      * @param scriptPath the script file to load
-     * @param debug
+     * @param debug whether debug is enabled
      */
     public static List<LogEntry> loadScript(Path scriptPath, boolean debug) {
         var parser = new FileParser();
@@ -76,7 +76,6 @@ public class ScriptLoader {
             triggerMap.putOne(scriptName, loaded);
         }
         logger.logOutput();
-        SkriptAddon.getAddons().forEach(SkriptAddon::finishedLoading);
         return logger.close();
     }
 
@@ -111,8 +110,8 @@ public class ScriptLoader {
                     }
                 } else if (content.regionMatches(true, 0, "else if ", 0, "else if ".length())) {
                     if (items.size() == 0 ||
-                        !(items.get(items.size() - 1) instanceof Conditional) ||
-                        ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
+                            !(items.get(items.size() - 1) instanceof Conditional) ||
+                            ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
                         logger.error("An 'else if' must be placed after an 'if'", ErrorType.STRUCTURE_ERROR);
                         continue;
                     }
@@ -121,15 +120,19 @@ public class ScriptLoader {
                     if (booleanExpression.isEmpty())
                         continue;
                     booleanExpression = booleanExpression.filter(__ -> parserState.forbidsSyntax(Conditional.class));
-                    booleanExpression.ifPresent(b -> items.add(new Conditional(sec, b, Conditional.ConditionalMode.ELSE, parserState, logger)));
+                    booleanExpression.ifPresent(
+                            b -> ((Conditional) items.get(items.size() - 1)).setFallingClause(
+                                    new Conditional(sec, b, Conditional.ConditionalMode.ELSE_IF, parserState, logger)
+                            )
+                    );
                     if (booleanExpression.isEmpty()) {
                         logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
                         logger.error("Conditionals are not allowed in this section", ErrorType.SEMANTIC_ERROR);
                     }
                 } else if (content.equalsIgnoreCase("else")) {
                     if (items.size() == 0 ||
-                        !(items.get(items.size() - 1) instanceof Conditional) ||
-                        ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
+                            !(items.get(items.size() - 1) instanceof Conditional) ||
+                            ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
                         logger.error("An 'else' must be placed after an 'if' or an 'else if'", ErrorType.STRUCTURE_ERROR);
                         continue;
                     } else if (parserState.forbidsSyntax(Conditional.class)) {

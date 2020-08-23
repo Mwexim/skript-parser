@@ -39,18 +39,17 @@ public class Variable<T> implements Expression<T> {
         this.supertype = ClassUtils.getCommonSuperclass(this.type);
     }
 
-    private Optional<Object> getRaw(TriggerContext ctx) {
+    public Optional<Object> getRaw(TriggerContext ctx) {
         var n = name.toString(ctx);
         if (n.endsWith(Variables.LIST_SEPARATOR + "*") != list) // prevents e.g. {%expr%} where "%expr%" ends with "::*" from returning a Map
             return Optional.empty();
-        Object val = Variables.getVariable(n, ctx, local);
-        if (val == null)
-            return Variables.getVariable(
-                    (local ? Variables.LOCAL_VARIABLE_TOKEN : "") + name.defaultVariableName(),
-                    ctx,
-                    false
-            );
-        return Optional.of(val);
+        return Variables.getVariable(n, ctx, local)
+                .or(() -> Variables.getVariable(
+                        (local ? Variables.LOCAL_VARIABLE_TOKEN : "") + name.defaultVariableName(),
+                        ctx,
+                        false
+                    )
+                );
     }
 
     private Optional<Object> get(TriggerContext ctx) {
@@ -77,21 +76,22 @@ public class Variable<T> implements Expression<T> {
     public T[] getValues(TriggerContext ctx) {
         if(list)
             return getConvertedArray(ctx);
-        var o = getConverted(ctx);
-        if (o == null) {
+        Optional<? extends T> o = getConverted(ctx);
+        if (o.isEmpty()) {
             return (T[]) Array.newInstance(supertype, 0);
         }
         var one = (T[]) Array.newInstance(supertype, 1);
-        one[0] = o;
+        one[0] = o.get();
         return one;
     }
 
-    private T getConverted(TriggerContext ctx) {
-        return (T) Converters.convert(get(ctx), type);
+    private Optional<? extends T> getConverted(TriggerContext ctx) {
+        return (Optional<? extends T>) Converters.convert(get(ctx).orElse(null), type);
     }
 
+    @SuppressWarnings("ConstantConditions")
     private T[] getConvertedArray(TriggerContext ctx) {
-        return Converters.convertArray((Object[]) get(ctx).orElseThrow(IllegalStateException::new), (Class<T>) type, (Class<T>) supertype);
+        return Converters.convertArray((Object[]) get(ctx).orElse(null), (Class<T>) type, (Class<T>) supertype);
     }
 
     @Override
@@ -258,7 +258,7 @@ public class Variable<T> implements Expression<T> {
             case DELETE:
                 if (list) {
                     var rem = new ArrayList<String>();
-                    var o = (Map<String, Object>) getRaw(ctx).orElseThrow(IllegalStateException::new);
+                    var o = (Map<String, Object>) getRaw(ctx).orElseThrow(AssertionError::new);
                     if (o == null)
                         return;
                     for (var i : o.entrySet()) {
@@ -405,8 +405,8 @@ public class Variable<T> implements Expression<T> {
                                 l.add(d2);
                         }
                         ((Changer<Object>) changer.get()).change(one, l.toArray(), mode);
-                }
-                break;
+                    }
+                    break;
             }
         }
     }

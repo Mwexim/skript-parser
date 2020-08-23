@@ -136,14 +136,13 @@ public class VariableString implements Expression<String> {
      * @return this VariableString represented in the given event. The behaviour of passing {@code null} without
      * checking {@link #isSimple()} is unspecified.
      */
-    @SuppressWarnings("ConfusingArgumentToVarargsMethod")
     public String toString(TriggerContext ctx) {
         if (simple)
             return (String) data[0];
         var sb = new StringBuilder();
         for (var o : data) {
             if (o instanceof Expression) {
-                sb.append(TypeManager.toString(((Expression<?>) o).getValues(ctx)));
+                sb.append(TypeManager.toString((Object[]) ((Expression<?>) o).getValues(ctx)));
             } else {
                 sb.append(o);
             }

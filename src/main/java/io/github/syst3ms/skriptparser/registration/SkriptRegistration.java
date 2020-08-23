@@ -137,7 +137,7 @@ public class SkriptRegistration {
     }
 
     /**
-     * Starts a registration process for an {@link PropertyExpression}
+     * Starts a registration process for a {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
      * @param isSingle whether the Expression is a single value
@@ -154,7 +154,7 @@ public class SkriptRegistration {
     }
 
     /**
-     * Starts a registration process for a {@link PropertyExpression}
+     * Registers a {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
      * @param isSingle whether the Expression is a single value
@@ -162,7 +162,6 @@ public class SkriptRegistration {
      * @param property the property that is used
      * @param <C> the Expression
      * @param <T> the Expression's return type
-     * @return an {@link ExpressionRegistrar} to continue the registration process
      */
     public <C extends Expression<T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
         new ExpressionRegistrar<>(c, returnType, isSingle,
@@ -172,7 +171,7 @@ public class SkriptRegistration {
     }
 
     /**
-     * Starts a registration process for a {@link PropertyExpression}
+     * Registers a {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
      * @param isSingle whether the Expression is a single value
@@ -181,7 +180,6 @@ public class SkriptRegistration {
      * @param property the property that is used
      * @param <C> the Expression
      * @param <T> the Expression's return type
-     * @return an {@link ExpressionRegistrar} to continue the registration process
      */
     public <C extends Expression<T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, int priority, String ownerType, String property) {
         new ExpressionRegistrar<>(c, returnType, isSingle,
@@ -197,7 +195,7 @@ public class SkriptRegistration {
      * @param c the Effect's class
      * @param patterns the Effect's patterns
      * @param <C> the Effect
-     * @return an {@link EffectRegistrar}
+     * @return an {@link EffectRegistrar} to continue the registration process
      */
     public <C extends Effect> EffectRegistrar<C> newEffect(Class<C> c, String... patterns) {
         return new EffectRegistrar<>(c, patterns);
@@ -244,6 +242,13 @@ public class SkriptRegistration {
         new SectionRegistrar<>(c, patterns).setPriority(priority).register();
     }
 
+    /**
+     * Starts a registration process for a {@link SkriptEvent}
+     * @param c the SkriptEvent's class
+     * @param patterns the SkriptEvent's patterns
+     * @param <E> the SkriptEvent
+     * @return an {@link EventRegistrar} to continue the registration process
+     */
     public <E extends SkriptEvent> EventRegistrar<E> newEvent(Class<E> c, String... patterns) {
         return new EventRegistrar<>(c, patterns);
     }
@@ -414,11 +419,21 @@ public class SkriptRegistration {
             Collections.addAll(this.patterns, patterns);
         }
 
+        /**
+         * Adds patterns to the current syntax
+         * @param patterns the patterns to add
+         * @return the registrar
+         */
         public SyntaxRegistrar<C> addPatterns(String... patterns) {
             Collections.addAll(this.patterns, patterns);
             return this;
         }
 
+        /**
+         * Sets the priority of the current syntax. Default is 5.
+         * @param priority the priority
+         * @return the registrar
+         */
         public SyntaxRegistrar<C> setPriority(int priority) {
             if (priority < 0)
                 throw new SkriptParserException("Can't have a negative priority !");
@@ -442,6 +457,10 @@ public class SkriptRegistration {
             this.isSingle = isSingle;
         }
 
+        /**
+         * Adds this expression to the list of currently registered syntaxes
+         */
+        @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
@@ -462,6 +481,10 @@ public class SkriptRegistration {
             typeCheck();
         }
 
+        /**
+         * Adds this effect to the list of currently registered syntaxes
+         */
+        @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
@@ -477,6 +500,9 @@ public class SkriptRegistration {
             typeCheck();
         }
 
+        /**
+         * Adds this section to the list of currently registered syntaxes
+         */
         @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
@@ -494,6 +520,9 @@ public class SkriptRegistration {
             typeCheck();
         }
 
+        /**
+         * Adds this event to the list of currently registered syntaxes
+         */
         @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
@@ -510,6 +539,11 @@ public class SkriptRegistration {
             registerer.addHandledEvent(this.c);
         }
 
+        /**
+         * Sets the contexts this event can handle
+         * @param contexts the contexts
+         * @return the registrar
+         */
         @SafeVarargs
         public final EventRegistrar<T> setHandledContexts(Class<? extends TriggerContext>... contexts) {
             this.handledContexts = contexts;

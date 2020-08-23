@@ -90,10 +90,10 @@ public abstract class Statement implements SyntaxElement {
      * @param ctx the event
      * @return the next item to be ran, or {@code null} if this is the last item to be executed
      */
-    protected Optional<? extends Statement> walk(TriggerContext ctx) {
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
         var proceed = run(ctx);
         if (proceed) {
-            return getNext();   
+            return getNext();
         } else if (parent != null) {
             return parent.getNext();
         } else {
