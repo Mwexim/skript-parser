@@ -50,7 +50,6 @@ public class SimpleLiteral<T> implements Literal<T> {
         }
     }
 
-    @SuppressWarnings("RedundantCast")
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
         if (isSingle()) {

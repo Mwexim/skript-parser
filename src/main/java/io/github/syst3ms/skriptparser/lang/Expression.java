@@ -21,8 +21,7 @@ import java.util.function.Predicate;
  */
 public interface Expression<T> extends SyntaxElement {
     /**
-     * Retrieves all values of this Expression. This should never return null ! Doing so will most likely throw a {@linkplain NullPointerException NPE} in
-     * the following instructions.
+     * Retrieves all values of this Expression.
      * @param ctx the event
      * @return an array of the values
      */
@@ -89,16 +88,16 @@ public interface Expression<T> extends SyntaxElement {
      * @return the return type of this expression. By default, this is defined on registration, but, like {@linkplain #isSingle()}, can be overriden.
      */
     default Class<? extends T> getReturnType() {
-        ExpressionInfo<?, T> info = SyntaxManager.getExpressionExact(this);
-        if (info == null) {
-            throw new SkriptParserException("Unregistered expression class : " + getClass().getName());
-        }
-        return info.getReturnType().getType().getTypeClass();
+        return SyntaxManager.getExpressionExact(this)
+                .orElseThrow(() -> new SkriptParserException("Unregistered expression class : " + getClass().getName()))
+                .getReturnType()
+                .getType()
+                .getTypeClass();
     }
 
     /**
      * @param ctx the event
-     * @return an iterator, used inside of a {@link SecLoop loop}
+     * @return an iterator of the values of this expression
      */
     default Iterator<? extends T> iterator(TriggerContext ctx) {
         return CollectionUtils.iterator(getValues(ctx));

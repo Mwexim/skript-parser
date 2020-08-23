@@ -46,9 +46,8 @@ public abstract class Statement implements SyntaxElement {
     /**
      * @return the parent of this Statement
      */
-    @Nullable
-    public CodeSection getParent() {
-        return parent;
+    public Optional<? extends CodeSection> getParent() {
+        return Optional.ofNullable(parent);
     }
 
     /**

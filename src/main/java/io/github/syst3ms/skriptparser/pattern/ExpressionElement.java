@@ -50,12 +50,13 @@ public class ExpressionElement implements PatternElement {
         }
         var logger = context.getLogger();
         logger.recurse();
+        var source = context.getSource();
         var possibilityIndex = context.getPatternIndex();
         var flattened = PatternElement.flatten(context.getOriginalElement());
-        var source = context.getSource();
-        if (source.isPresent() && possibilityIndex >= flattened.size()) {
+        while (source.isPresent() && possibilityIndex >= flattened.size()) {
             flattened = PatternElement.flatten(source.get().getOriginalElement());
             possibilityIndex = source.get().getPatternIndex();
+            source = source.get().getSource();
         }
         // We look at what could possibly be after the expression in the current syntax
         var possibleInputs = PatternElement.getPossibleInputs(flattened.subList(possibilityIndex, flattened.size()));
@@ -68,7 +69,7 @@ public class ExpressionElement implements PatternElement {
                     if (index == 0) {
                         return -1;
                     }
-                    var toParse = s.substring(index).trim();
+                    var toParse = s.substring(index).strip();
                     var expression = parse(toParse, typeArray, context.getParserState(), logger);
                     if (expression.isPresent()) {
                         context.addExpression(expression.get());
@@ -78,7 +79,7 @@ public class ExpressionElement implements PatternElement {
                 }
                 var i = StringUtils.indexOfIgnoreCase(s, text, index);
                 while (i != -1) {
-                    var toParse = s.substring(index, i).trim();
+                    var toParse = s.substring(index, i).strip();
                     var expression = parse(toParse, typeArray, context.getParserState(), logger);
                     if (expression.isPresent()) {
                         context.addExpression(expression.get());

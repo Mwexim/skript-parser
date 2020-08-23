@@ -45,9 +45,9 @@ public class Variable<T> implements Expression<T> {
             return Optional.empty();
         return Variables.getVariable(n, ctx, local)
                 .or(() -> Variables.getVariable(
-                            (local ? Variables.LOCAL_VARIABLE_TOKEN : "") + name.defaultVariableName(),
-                            ctx,
-                            false
+                        (local ? Variables.LOCAL_VARIABLE_TOKEN : "") + name.defaultVariableName(),
+                        ctx,
+                        false
                     )
                 );
     }
@@ -77,8 +77,9 @@ public class Variable<T> implements Expression<T> {
         if(list)
             return getConvertedArray(ctx);
         Optional<? extends T> o = getConverted(ctx);
-        if (o.isEmpty())
+        if (o.isEmpty()) {
             return (T[]) Array.newInstance(supertype, 0);
+        }
         var one = (T[]) Array.newInstance(supertype, 1);
         one[0] = o.get();
         return one;
@@ -406,7 +407,7 @@ public class Variable<T> implements Expression<T> {
                         ((Changer<Object>) changer.get()).change(one, l.toArray(), mode);
                     }
                     break;
-                }
+            }
         }
     }
 }

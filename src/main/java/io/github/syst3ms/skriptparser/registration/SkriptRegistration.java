@@ -148,7 +148,7 @@ public class SkriptRegistration {
     }
 
     /**
-     * Starts a registration process for an {@link PropertyExpression}
+     * Starts a registration process for a {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
      * @param isSingle whether the Expression is a single value
@@ -156,7 +156,7 @@ public class SkriptRegistration {
      * @param property the property that is used
      * @param <C> the Expression
      * @param <T> the Expression's return type
-     * @return an {@link ExpressionRegistrar}
+     * @return an {@link ExpressionRegistrar} to continue the registration process
      */
     public <C extends Expression<T>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
         return new ExpressionRegistrar<>(c, returnType, isSingle,
@@ -182,7 +182,7 @@ public class SkriptRegistration {
     }
 
     /**
-     * Registers {@link PropertyExpression}
+     * Registers a {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
      * @param isSingle whether the Expression is a single value
@@ -205,7 +205,7 @@ public class SkriptRegistration {
      * @param c the Effect's class
      * @param patterns the Effect's patterns
      * @param <C> the Effect
-     * @return an {@link EffectRegistrar}
+     * @return an {@link EffectRegistrar} to continue the registration process
      */
     public <C extends Effect> EffectRegistrar<C> newEffect(Class<C> c, String... patterns) {
         return new EffectRegistrar<>(c, patterns);
@@ -257,7 +257,7 @@ public class SkriptRegistration {
      * @param c the SkriptEvent's class
      * @param patterns the SkriptEvent's patterns
      * @param <E> the SkriptEvent
-     * @return a {@link EventRegistrar}
+     * @return an {@link EventRegistrar} to continue the registration process
      */
     public <E extends SkriptEvent> EventRegistrar<E> newEvent(Class<E> c, String... patterns) {
         return new EventRegistrar<>(c, patterns);
@@ -471,6 +471,7 @@ public class SkriptRegistration {
         /**
          * Adds this expression to the list of currently registered syntaxes
          */
+        @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
@@ -494,6 +495,7 @@ public class SkriptRegistration {
         /**
          * Adds this effect to the list of currently registered syntaxes
          */
+        @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));

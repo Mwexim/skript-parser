@@ -33,9 +33,8 @@ public class TypeManager {
      * @param name the name to get the Type from
      * @return the corresponding Type, or {@literal null} if nothing matched
      */
-    @Nullable
-    public static Type<?> getByExactName(String name) {
-        return nameToType.get(name);
+    public static Optional<? extends Type<?>> getByExactName(String name) {
+        return Optional.ofNullable(nameToType.get(name));
     }
 
     /**
@@ -43,7 +42,7 @@ public class TypeManager {
      * @param name the name to get a Type from
      * @return the matching Type, or {@literal null} if nothing matched
      */
-    public static Optional<Type<?>> getByName(String name) {
+    public static Optional<? extends Type<?>> getByName(String name) {
         for (var t : nameToType.values()) {
             var forms = t.getPluralForms();
             if (name.equalsIgnoreCase(forms[0]) || name.equalsIgnoreCase(forms[1])) {

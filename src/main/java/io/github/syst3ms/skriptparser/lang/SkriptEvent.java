@@ -23,6 +23,7 @@ import java.util.List;
  * </ul>
  */
 public abstract class SkriptEvent implements SyntaxElement {
+
     /**
      * Whether this event should trigger, given the {@link TriggerContext}
      * @param ctx the TriggerContext to check

@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 public class SyntaxManager {
     /**
@@ -58,15 +59,14 @@ public class SyntaxManager {
      * @return the {@link ExpressionInfo} corresponding to the given {@link Expression} instance
      */
     @SuppressWarnings("unchecked")
-    @Nullable
-    public static <E extends Expression<T>, T> ExpressionInfo<E, T> getExpressionExact(Expression<T> expr) {
+    public static <E extends Expression<T>, T> Optional<? extends ExpressionInfo<E, T>> getExpressionExact(Expression<T> expr) {
         Class<?> c = expr.getSource().getClass();
         for (var info : SyntaxManager.getAllExpressions()) {
             if (info.getSyntaxClass() == c) {
-                return (ExpressionInfo<E, T>) info;
+                return Optional.of((ExpressionInfo<E, T>) info);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**

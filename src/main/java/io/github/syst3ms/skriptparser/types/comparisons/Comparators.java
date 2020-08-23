@@ -87,8 +87,8 @@ public class Comparators {
                     c2 = (Optional<? extends Function<? super S, Optional<?>>>) Converters.getConverter(s, info.getType(!first));
                     if (c2.isPresent()) {
                         return Optional.of(first
-                                        ? new ConvertedComparator<>(info.getComparator(), c2.get())
-                                        : new InverseComparator<>(
+                                ? new ConvertedComparator<>(info.getComparator(), c2.get())
+                                : new InverseComparator<>(
                                         new ConvertedComparator<>(c2.get(), info.getComparator())
                                 )
                         );
@@ -98,11 +98,11 @@ public class Comparators {
                     c1 = (Optional<? extends Function<? super F, Optional<?>>>) Converters.getConverter(f, info.getType(!first));
                     if (c1.isPresent()) {
                         return Optional.of(!first
-                                        ? new ConvertedComparator<>(
+                                ? new ConvertedComparator<>(
                                         (Comparator<? super F, ?>) c1.get(),
                                         (Function<? super S, Optional<?>>) info.getComparator()
                                 )
-                                        : new InverseComparator<>(
+                                : new InverseComparator<>(
                                         new ConvertedComparator<>(info.getComparator(), c1.get())
                                 )
                         );
@@ -161,7 +161,7 @@ public class Comparators {
             var t2 = c2 == null ? Optional.ofNullable(o2) : (Optional<?>) c2.apply(o2);
             if (t1.isEmpty() || t2.isEmpty())
                 return Relation.NOT_EQUAL;
-            return c.apply(t1, t2);
+            return c.apply(t1.get(), t2.get());
         }
 
         @Override

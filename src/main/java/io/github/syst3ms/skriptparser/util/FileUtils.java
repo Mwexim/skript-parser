@@ -126,7 +126,7 @@ public class FileUtils {
                             break;
                         }
                     }
-                    if (load && !e.getName().matches(".+\\$\\d+\\.class$")) { // It's of very little use to load anonymous classes
+                    if (load && !e.getName().matches(".+\\$\\d+\\.class")) { // It's of very little use to load anonymous classes
                         final var c = e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length());
                         try {
                             Class.forName(c, true, FileUtils.class.getClassLoader());

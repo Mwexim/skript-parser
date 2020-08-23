@@ -16,10 +16,10 @@ public class StringUtils {
     public static final Pattern R_LITERAL_CONTENT_PATTERN = Pattern.compile("(.+?)\\((.+)\\)\\1"); // It's actually rare to be able to use '.+' raw like this
 
     /**
-     * Counts combined occurences of one or more strings in another
-     * @param s the string to find occurences in
-     * @param toFind the strings to find occurences of
-     * @return the amount of total occurences
+     * Counts combined occurrences of one or more strings in another
+     * @param s the string to find occurrences in
+     * @param toFind the strings to find occurrences of
+     * @return the amount of total occurrences
      */
     public static int count(String s, String... toFind) {
         var count = 0;
@@ -147,11 +147,9 @@ public class StringUtils {
      * @param haystack the string to look in
      * @param needle the string to look for
      * @param start where to look from
-     * @return the index of the first occurence
+     * @return the index of the first occurrence
      */
-    public static int indexOfIgnoreCase(String haystack,
-                                        String needle,
-                                        int start) {
+    public static int indexOfIgnoreCase(String haystack, String needle, int start) {
         if (needle.isEmpty() || haystack.isEmpty()) {
             // Fallback to legacy behavior.
             return haystack.indexOf(needle);
@@ -175,7 +173,7 @@ public class StringUtils {
                 k++;
             }
             // Walked all the way to the end of the needle, return the start
-            // position that this was found.
+            // position that this was found at.
             if (j == needle.length()) {
                 return i;
             }
@@ -248,7 +246,7 @@ public class StringUtils {
             pluralized[0] += word[0] + " ";
             pluralized[1] += word[1] + " ";
         }
-        return trimAll(pluralized);
+        return stripAll(pluralized);
     }
 
     /**
@@ -256,9 +254,9 @@ public class StringUtils {
      * @param strings the strings
      * @return the array with all of its contents trimmed
      */
-    private static String[] trimAll(String[] strings) {
+    private static String[] stripAll(String[] strings) {
         for (var i = 0; i < strings.length; i++)
-            strings[i] = strings[i].trim();
+            strings[i] = strings[i].strip();
         return strings;
     }
 
@@ -269,7 +267,7 @@ public class StringUtils {
      * @return the string with its proper indefinite article
      */
     public static String withIndefiniteArticle(String noun, boolean plural) {
-        noun = noun.trim();
+        noun = noun.strip();
         if (noun.isEmpty())
             return "";
         else if (plural)

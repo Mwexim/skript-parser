@@ -171,7 +171,7 @@ public class SyntaxParser {
         }
         var variable = (Optional<? extends Variable<Boolean>>) Variables.parseVariable(s, Boolean.class, parserState, logger);
         if (variable.isPresent()) {
-            if (variable.filter(v -> !v.isSingle()).isEmpty()) {
+            if (variable.filter(v -> !v.isSingle()).isPresent()) {
                 logger.error("A single value was expected, but " +
                         s +
                         " represents multiple values.", ErrorType.SEMANTIC_ERROR);
@@ -419,7 +419,7 @@ public class SyntaxParser {
             Expression<?>[] exprs = expressions.toArray(new Expression[0]);
             var returnType = ClassUtils.getCommonSuperclass(Arrays.stream(exprs).map(Expression::getReturnType).toArray(Class[]::new));
             return Optional.of(new ExpressionList<>(
-                    (Literal<? extends T>[]) exprs,
+                    (Expression<? extends T>[]) exprs,
                     (Class<T>) returnType,
                     isAndList
             ));

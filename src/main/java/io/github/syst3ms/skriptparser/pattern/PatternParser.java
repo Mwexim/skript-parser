@@ -46,7 +46,7 @@ public class PatternParser {
                     logger.error("Unmatched square bracket (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
                     return Optional.empty();
                 } else if (s.get().isEmpty()) {
-                    logger.warn("There is an empty optional group. Place a backslash before a square bracket for it to be interpreted literally : [" + s + "]");
+                    logger.warn("There is an empty optional group. Place a backslash before a square bracket for it to be interpreted literally : [" + s.get() + "]");
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
@@ -110,7 +110,7 @@ public class PatternParser {
                 List<ChoiceElement> choiceElements = new ArrayList<>();
                 for (var choice : choices.get()) {
                     if (choice.isEmpty()) {
-                        logger.warn("There is an empty choice in the choice group. Place a backslash before the vertical bar for it to be interpreted literally : (" + s + ")");
+                        logger.warn("There is an empty choice in the choice group. Place a backslash before the vertical bar for it to be interpreted literally : (" + s.get() + ")");
                     }
                     Optional<ChoiceElement> choiceElement;
                     var matcher = PARSE_MARK_PATTERN.matcher(choice);
@@ -153,7 +153,7 @@ public class PatternParser {
                     logger.error("Unmatched angle bracket (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
                     return Optional.empty();
                 } else if (s.get().isEmpty()) {
-                    logger.warn("There is an empty regex group. Place a backslash before an angle bracket for it to be interpreted literally : [" + s + "]");
+                    logger.warn("There is an empty regex group. Place a backslash before an angle bracket for it to be interpreted literally : [" + s.get() + "]");
                 }
                 if (textBuilder.length() != 0) {
                     elements.add(new TextElement(textBuilder.toString()));
@@ -164,7 +164,7 @@ public class PatternParser {
                 try {
                     pat = Pattern.compile(s.get());
                 } catch (PatternSyntaxException e) {
-                    logger.error("Invalid regex pattern (index " + initialPos + ") : '" + s + "'", ErrorType.MALFORMED_INPUT);
+                    logger.error("Invalid regex pattern (index " + initialPos + ") : '" + s.get() + "'", ErrorType.MALFORMED_INPUT);
                     return Optional.empty();
                 }
                 elements.add(new RegexGroup(pat));

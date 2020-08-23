@@ -48,7 +48,7 @@ public class Conditional extends CodeSection {
         Optional<? extends Boolean> c = condition.getSingle(ctx);
         if (c.filter(b -> b).isPresent()) {
             return getFirst();
-        } else if (fallingClause != null){
+        } else if (fallingClause != null) {
             return Optional.of(fallingClause);
         } else {
             return getNext();

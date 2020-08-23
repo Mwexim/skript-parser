@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.pattern;
 
 import io.github.syst3ms.skriptparser.parsing.MatchContext;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,14 +34,16 @@ public class RegexGroup implements PatternElement {
 
     @Override
     public int match(String s, int index, MatchContext context) {
+        var source = context.getSource();
         var flattened = PatternElement.flatten(context.getOriginalElement());
         var possibilityIndex = context.getPatternIndex();
-        if (context.getSource().isPresent() && possibilityIndex >= flattened.size()) {
-            flattened = PatternElement.flatten(context.getSource().get().getOriginalElement());
-            possibilityIndex = context.getSource().get().getPatternIndex();
+        while (source.isPresent() && possibilityIndex >= flattened.size()) {
+            flattened = PatternElement.flatten(source.get().getOriginalElement());
+            possibilityIndex = source.get().getPatternIndex();
+            source = source.get().getSource();
         }
         var possibleInputs = PatternElement.getPossibleInputs(flattened.subList(possibilityIndex, flattened.size()));
-        for (PatternElement possibleInput : possibleInputs) {
+        for (var possibleInput : possibleInputs) {
             if (possibleInput instanceof TextElement) {
                 var text = ((TextElement) possibleInput).getText();
                 Matcher m;

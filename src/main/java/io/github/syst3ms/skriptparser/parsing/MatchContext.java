@@ -23,6 +23,7 @@ public class MatchContext {
     // Provided to the syntax's class
     private final ParserState parserState;
     private final SkriptLogger logger;
+    @Nullable
     private final MatchContext source;
     private final List<Expression<?>> parsedExpressions = new ArrayList<>();
     private final List<MatchResult> regexMatches = new ArrayList<>();

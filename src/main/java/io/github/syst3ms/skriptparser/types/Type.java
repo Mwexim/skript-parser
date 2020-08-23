@@ -108,7 +108,7 @@ public class Type<T> {
         this.baseName = baseName;
         this.literalParser = literalParser;
         this.toStringFunction = (Function<Object, String>) toStringFunction;
-        this.pluralForms = StringUtils.getForms(pattern.trim());
+        this.pluralForms = StringUtils.getForms(pattern.strip());
         this.defaultChanger = defaultChanger;
         this.arithmetic = arithmetic;
     }

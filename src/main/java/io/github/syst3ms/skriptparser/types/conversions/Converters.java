@@ -60,12 +60,11 @@ public abstract class Converters {
     public static <F, T> void registerConverters(SkriptRegistration registration) {
         for (var info : registration.getConverters()) {
             var inf = (ConverterInfo<F, T>) info;
-            // Well, this is... fun
-            Converters.registerConverter(
+            registerConverter(
                     inf.getFrom(),
                     inf.getTo(),
                     inf.getConverter(),
-                    info.getFlags()
+                    inf.getFlags()
             );
         }
     }
@@ -273,9 +272,11 @@ public abstract class Converters {
         }
         for (var conv : converters) {
             if (conv.getFrom().isAssignableFrom(from) && conv.getTo().isAssignableFrom(to)) {
-                return Optional.of((Function<? super F, Optional<? extends T>>) ConverterUtils.createInstanceofConverter(conv.getConverter(), to));
+                var inf = (ConverterInfo<F, T>) conv;
+                return Optional.of(ConverterUtils.createInstanceofConverter(inf.getConverter(), to));
             } else if (from.isAssignableFrom(conv.getFrom()) && to.isAssignableFrom(conv.getTo())) {
-                return Optional.of((Function<? super F, Optional<? extends T>>) ConverterUtils.createInstanceofConverter(conv));
+                var inf = (ConverterInfo<F, T>) conv;
+                return Optional.of((Function<? super F, Optional<? extends T>>) ConverterUtils.createInstanceofConverter(inf));
             }
         }
         for (var conv : converters) {

@@ -29,8 +29,7 @@ public final class ChainedConverter<F, M, T> implements Function<F, Optional<? e
 
     @Override
     public Optional<? extends T> apply(@Nullable F f) {
-        return first.apply(f)
-                .flatMap(second::apply);
+        return first.apply(f).flatMap(second::apply);
     }
 
 }

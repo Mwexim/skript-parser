@@ -53,8 +53,8 @@ public class Variables {
      * @return true if the name is valid, false otherwise.
      */
     public static boolean isValidVariableName(String name, boolean printErrors, SkriptLogger logger) {
-        name = name.startsWith(LOCAL_VARIABLE_TOKEN) ? name.substring(LOCAL_VARIABLE_TOKEN.length()).trim()
-			: name.trim();
+        name = name.startsWith(LOCAL_VARIABLE_TOKEN) ? name.substring(LOCAL_VARIABLE_TOKEN.length()).strip()
+			: name.strip();
         if (name.startsWith(LIST_SEPARATOR) || name.endsWith(LIST_SEPARATOR)) {
             if (printErrors) {
                 logger.error("A variable name cannot start nor end with the list separator " + LIST_SEPARATOR, ErrorType.MALFORMED_INPUT);
