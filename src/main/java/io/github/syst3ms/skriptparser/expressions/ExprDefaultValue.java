@@ -1,10 +1,9 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -17,8 +16,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public class ExprDefaultValue implements Expression<Object> {
 
-    private Expression<Object> firstValue, secondValue;
-
     static {
         Main.getMainRegistration().addExpression(
             ExprDefaultValue.class,
@@ -28,6 +25,8 @@ public class ExprDefaultValue implements Expression<Object> {
             "%objects% (otherwise|?) %objects%"
         );
     }
+
+    private Expression<Object> firstValue, secondValue;
 
     @SuppressWarnings("unchecked")
     @Override

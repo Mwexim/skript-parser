@@ -24,40 +24,8 @@ import java.util.function.Function;
  * @author Mwexim
  */
 public abstract class PropertyExpression<T, O> implements Expression<T> {
+
     private Expression<O> owner;
-
-    public Expression<O> getOwner() {
-        return owner;
-    }
-
-    public void setOwner(Expression<O> owner) {
-        this.owner = owner;
-    }
-    
-    /**
-     * If this property only relies on one simple method applied to the owner, it can be represented here
-     * using a {@link Function}. This function will be applied in the default implementation of {@link #getValues(TriggerContext)}
-     * supplied by this class.
-     * The array of values supplied to this function is never empty or null, so no additional checks are required.
-     * @return the function that needs to be applied in order to get the correct values.
-     */
-    public Function<O[], T[]> getPropertyFunction() {
-        return null;
-    }
-
-    /**
-     * There are 2 kinds of possession:
-     * <ul>
-     *     <li><b>Genitive:</b>Mwexim's book</li>
-     *     <li><b>Regular:</b>book of Mwexim</li>
-     * </ul>
-     * One may use this method to check if the pattern is in genitive form.
-     * @param matchedPattern the matched pattern of a property
-     * @return whether this pattern is in the genitive form or not.
-     */
-    public static boolean isGenitive(int matchedPattern) {
-        return matchedPattern == 0;
-    }
 
     /**
      * This default {@code init()} implementation automatically properly sets the owner of this property,
@@ -93,5 +61,38 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
         if (getPropertyFunction() == null)
             throw new UnsupportedOperationException("getPropertyFunction() must be overridden if getValues() isn't!");
         return getPropertyFunction().apply(objs);
+    }
+
+    public Expression<O> getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Expression<O> owner) {
+        this.owner = owner;
+    }
+
+    /**
+     * If this property only relies on one simple method applied to the owner, it can be represented here
+     * using a {@link Function}. This function will be applied in the default implementation of {@link #getValues(TriggerContext)}
+     * supplied by this class.
+     * The array of values supplied to this function is never empty or null, so no additional checks are required.
+     * @return the function that needs to be applied in order to get the correct values.
+     */
+    public Function<O[], T[]> getPropertyFunction() {
+        return null;
+    }
+
+    /**
+     * There are 2 kinds of possession:
+     * <ul>
+     *     <li><b>Genitive:</b>Mwexim's book</li>
+     *     <li><b>Regular:</b>book of Mwexim</li>
+     * </ul>
+     * One may use this method to check if the pattern is in genitive form.
+     * @param matchedPattern the matched pattern of a property
+     * @return whether this pattern is in the genitive form or not.
+     */
+    public static boolean isGenitive(int matchedPattern) {
+        return matchedPattern == 0;
     }
 }

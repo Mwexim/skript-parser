@@ -1,8 +1,8 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
@@ -22,6 +22,7 @@ import java.util.function.BinaryOperator;
  * @author Syst3ms
  */
 public class ExprBinaryMathFunctions implements Expression<Number> {
+
 	public static PatternInfos<BinaryOperator<Number>> PATTERNS = new PatternInfos<>(
 		new Object[][] {
 			{"log[arithm] [base] %number% of %number%", (BinaryOperator<Number>) NumberMath::log},
@@ -39,8 +40,6 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 			}
 		}
 	);
-	private int pattern;
-	private Expression<Number> first, second;
 
 	static {
 		Main.getMainRegistration().addExpression(
@@ -50,6 +49,9 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 			PATTERNS.getPatterns()
 		);
 	}
+
+	private int pattern;
+	private Expression<Number> first, second;
 
 	@SuppressWarnings("unchecked")
 	@Override

@@ -1,8 +1,8 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,9 +17,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public class ExprTernary implements Expression<Object> {
 
-    private Expression<Boolean> valueToCheck;
-    private Expression<Object> firstValue, secondValue;
-
     static {
         Main.getMainRegistration().addExpression(
             ExprTernary.class,
@@ -30,6 +27,9 @@ public class ExprTernary implements Expression<Object> {
             "%=boolean% ? %objects% : %objects%"
         );
     }
+
+    private Expression<Boolean> valueToCheck;
+    private Expression<Object> firstValue, secondValue;
 
     @SuppressWarnings("unchecked")
     @Override

@@ -1,8 +1,8 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +15,6 @@ import org.jetbrains.annotations.Nullable;
  * @author Syst3ms
  */
 public class ExprWhether implements Expression<Boolean> {
-    private Expression<Boolean> condition;
 
     static {
         Main.getMainRegistration().addExpression(
@@ -25,6 +24,8 @@ public class ExprWhether implements Expression<Boolean> {
                 "whether %~=boolean%"
         );
     }
+
+    private Expression<Boolean> condition;
 
     @SuppressWarnings("unchecked")
     @Override

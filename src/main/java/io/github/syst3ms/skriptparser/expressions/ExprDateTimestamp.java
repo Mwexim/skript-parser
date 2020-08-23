@@ -36,20 +36,20 @@ public class ExprDateTimestamp extends PropertyExpression<Number, SkriptDate> {
 
 	boolean unix;
 
-	@Override
-	public Function<SkriptDate[], Number[]> getPropertyFunction() {
-		return dates -> new Number[] {unix
-						? Math.floorDiv(dates[0].getTimestamp(), 1000)
-						: dates[0].getTimestamp()
-		};
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		unix = parseContext.getParseMark() == 1;
 		setOwner((Expression<SkriptDate>) expressions[0]);
 		return true;
+	}
+
+	@Override
+	public Function<SkriptDate[], Number[]> getPropertyFunction() {
+		return dates -> new Number[] {unix
+				? Math.floorDiv(dates[0].getTimestamp(), 1000)
+				: dates[0].getTimestamp()
+		};
 	}
 
 	@Override

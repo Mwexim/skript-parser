@@ -38,6 +38,14 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 
 	int parseMark;
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+		parseMark = parseContext.getParseMark();
+		setOwner((Expression<SkriptDate>) expressions[0]);
+		return true;
+	}
+
 	@Override
 	public Function<SkriptDate[], Number[]> getPropertyFunction() {
 		return dates -> {
@@ -63,14 +71,6 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 					return new Number[0];
 			}
 		};
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		parseMark = parseContext.getParseMark();
-		setOwner((Expression<SkriptDate>) expressions[0]);
-		return true;
 	}
 
 	@Override

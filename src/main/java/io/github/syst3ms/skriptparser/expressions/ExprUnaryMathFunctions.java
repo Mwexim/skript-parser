@@ -1,8 +1,8 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.StringUtils;
@@ -56,20 +56,21 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 			{"sinh %number%", (UnaryOperator<Number>) NumberMath::sinh},
 			{"cosh %number%", (UnaryOperator<Number>) NumberMath::cosh},
 			{"tanh %number%", (UnaryOperator<Number>) NumberMath::tanh},
-			{"ln %number%", (UnaryOperator<Number>) NumberMath::ln}
+				{"ln %number%", (UnaryOperator<Number>) NumberMath::ln}
 		}
 	);
-	private int pattern;
-	private Expression<Number> number;
 
 	static {
 		Main.getMainRegistration().addExpression(
-			ExprUnaryMathFunctions.class,
-			Number.class,
-			true,
-			PATTERNS.getPatterns()
+				ExprUnaryMathFunctions.class,
+				Number.class,
+				true,
+				PATTERNS.getPatterns()
 		);
 	}
+
+	private int pattern;
+	private Expression<Number> number;
 
 	@SuppressWarnings("unchecked")
 	@Override

@@ -39,9 +39,8 @@ public class ExprStringSplitJoin implements Expression<String> {
 	private Expression<String> expr;
 	private Expression<String> delimiter;
 	private Expression<Number> chars;
-
-	int pattern;
-	boolean delimiterPresent;
+	private int pattern;
+	private boolean delimiterPresent;
 
 	@SuppressWarnings("unchecked")
 	@Override

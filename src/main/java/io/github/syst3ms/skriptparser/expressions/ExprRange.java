@@ -1,8 +1,8 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -15,12 +15,7 @@ import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import org.jetbrains.annotations.Nullable;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.BiFunction;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 
 /**
  * Returns a range of values between two endpoints. Types supported by default are integers and characters (length 1 strings).
@@ -31,10 +26,6 @@ import java.util.stream.LongStream;
  * @author Syst3ms
  */
 public class ExprRange implements Expression<Object> {
-    private Expression<?> from, to;
-    private RangeInfo<?, ?> range;
-    @Nullable
-    private Comparator<?, ?> comparator;
 
     static {
         Main.getMainRegistration().addExpression(
@@ -44,6 +35,11 @@ public class ExprRange implements Expression<Object> {
                 "[the] range from %object% to %object%"
         );
     }
+
+    private Expression<?> from, to;
+    private RangeInfo<?, ?> range;
+    @Nullable
+    private Comparator<?, ?> comparator;
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {

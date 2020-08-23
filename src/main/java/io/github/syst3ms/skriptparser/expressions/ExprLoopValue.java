@@ -1,13 +1,13 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.sections.SecLoop;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.sections.SecLoop;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
@@ -29,12 +29,6 @@ import java.util.regex.Pattern;
  * @author Syst3ms
  */
 public class ExprLoopValue implements Expression<Object> {
-	@SuppressWarnings("null")
-	private String name;
-	@SuppressWarnings("null")
-	private SecLoop loop;
-	private boolean isVariableLoop;
-	private boolean isIndex;
 
 	static {
 		Main.getMainRegistration().addExpression(
@@ -45,6 +39,13 @@ public class ExprLoopValue implements Expression<Object> {
 			"[the] loop-<.+>"
 		);
 	}
+
+	@SuppressWarnings("null")
+	private String name;
+	@SuppressWarnings("null")
+	private SecLoop loop;
+	private boolean isVariableLoop;
+	private boolean isIndex;
 
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, ParseContext parser) {
@@ -97,23 +98,6 @@ public class ExprLoopValue implements Expression<Object> {
 		return true;
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <R> Expression<R> convertExpression(Class<R> to) {
-		if (isVariableLoop && !isIndex) {
-			return new ConvertedExpression<>(this, (Class<R>) ClassUtils.getCommonSuperclass(to), o -> Converters.convert(o, to));
-		} else {
-			return Expression.super.convertExpression(to);
-		}
-	}
-
-	@Override
-	public Class<?> getReturnType() {
-		if (isIndex)
-			return String.class;
-		return loop.getLoopedExpression().getReturnType();
-	}
-
 	@Override
 	public Object[] getValues(TriggerContext ctx) {
 		Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
@@ -131,6 +115,23 @@ public class ExprLoopValue implements Expression<Object> {
 		}
 		one[0] = loop.getCurrent(ctx);
 		return one;
+	}
+
+	@Override
+	public Class<?> getReturnType() {
+		if (isIndex)
+			return String.class;
+		return loop.getLoopedExpression().getReturnType();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <R> Expression<R> convertExpression(Class<R> to) {
+		if (isVariableLoop && !isIndex) {
+			return new ConvertedExpression<>(this, (Class<R>) ClassUtils.getCommonSuperclass(to), o -> Converters.convert(o, to));
+		} else {
+			return Expression.super.convertExpression(to);
+		}
 	}
 
 	@Override

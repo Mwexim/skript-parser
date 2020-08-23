@@ -46,6 +46,65 @@ import java.math.RoundingMode;
  */
 public class ExprNumberArithmetic implements Expression<Number> {
 
+    public static final PatternInfos<Operator> PATTERNS = new PatternInfos<>(new Object[][]{
+            {"%number%[ ]+[ ]%number%", Operator.PLUS},
+            {"%number%[ ]-[ ]%number%", Operator.MINUS},
+            {"%number%[ ]*[ ]%number%", Operator.MULT},
+            {"%number%[ ]/[ ]%number%", Operator.DIV},
+            {"%number%[ ]^[ ]%number%", Operator.EXP},
+    });
+
+    static {
+        Main.getMainRegistration().addExpression(
+            ExprNumberArithmetic.class,
+            Number.class,
+            true,
+            3,
+            PATTERNS.getPatterns()
+        );
+    }
+
+    private Expression<? extends Number> first, second;
+    private Operator op;
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean init(Expression<?>[] exprs, int matchedPattern, ParseContext parseContext) {
+        first = (Expression<? extends Number>) exprs[0];
+        second = (Expression<? extends Number>) exprs[1];
+        op = PATTERNS.getInfo(matchedPattern);
+        if (second instanceof Literal) {
+            Number value = ((Literal<? extends Number>) second).getSingle();
+            if (value != null && Operator.isZero(value)) {
+                parseContext.getLogger().error("Cannot divide by 0 !", ErrorType.SEMANTIC_ERROR);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public Number[] getValues(TriggerContext ctx) {
+        Number n1 = first.getSingle(ctx), n2 = second.getSingle(ctx);
+        if (n1 == null)
+            n1 = 0;
+        if (n2 == null)
+            n2 = 0;
+        return new Number[]{op.calculate(n1, n2)};
+    }
+
+    @Override
+    public Expression<? extends Number> simplify() {
+        if (first instanceof Literal && second instanceof Literal)
+            return new SimpleLiteral<>(Number.class, getValues(TriggerContext.DUMMY));
+        return this;
+    }
+
+    @Override
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        return first.toString(ctx, debug) + " " + op + " " + second.toString(ctx, debug);
+    }
+
     private enum Operator {
         PLUS('+') {
             @Override
@@ -262,65 +321,4 @@ public class ExprNumberArithmetic implements Expression<Number> {
             return result;
         }
     }
-
-    public static final PatternInfos<Operator> PATTERNS = new PatternInfos<>(new Object[][]{
-            {"%number%[ ]+[ ]%number%", Operator.PLUS},
-            {"%number%[ ]-[ ]%number%", Operator.MINUS},
-            {"%number%[ ]*[ ]%number%", Operator.MULT},
-            {"%number%[ ]/[ ]%number%", Operator.DIV},
-            {"%number%[ ]^[ ]%number%", Operator.EXP},
-        }
-    );
-
-    static {
-        Main.getMainRegistration().addExpression(
-            ExprNumberArithmetic.class,
-            Number.class,
-            true,
-            3,
-            PATTERNS.getPatterns()
-        );
-    }
-
-    private Expression<? extends Number> first, second;
-    private Operator op;
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, ParseContext parseContext) {
-        first = (Expression<? extends Number>) exprs[0];
-        second = (Expression<? extends Number>) exprs[1];
-        op = PATTERNS.getInfo(matchedPattern);
-        if (second instanceof Literal) {
-            Number value = ((Literal<? extends Number>) second).getSingle();
-            if (value != null && Operator.isZero(value)) {
-                parseContext.getLogger().error("Cannot divide by 0 !", ErrorType.SEMANTIC_ERROR);
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public Number[] getValues(TriggerContext ctx) {
-        Number n1 = first.getSingle(ctx), n2 = second.getSingle(ctx);
-        if (n1 == null)
-            n1 = 0;
-        if (n2 == null)
-            n2 = 0;
-        return new Number[]{op.calculate(n1, n2)};
-    }
-
-    @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return first.toString(ctx, debug) + " " + op + " " + second.toString(ctx, debug);
-    }
-
-    @Override
-    public Expression<? extends Number> simplify() {
-        if (first instanceof Literal && second instanceof Literal)
-            return new SimpleLiteral<>(Number.class, getValues(TriggerContext.DUMMY));
-        return this;
-    }
-
 }

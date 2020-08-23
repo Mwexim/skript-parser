@@ -4,11 +4,10 @@ import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueTime;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
 import org.jetbrains.annotations.Nullable;
-
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 
 /**
  * A specific context value.
@@ -60,13 +59,13 @@ public class ExprContextValue implements Expression<Object> {
 	}
 
 	@Override
-	public Class<?> getReturnType() {
-		return value.getType();
+	public Object[] getValues(TriggerContext ctx) {
+		return value.getContextFunction().apply(ctx);
 	}
 
 	@Override
-	public Object[] getValues(TriggerContext ctx) {
-		return value.getContextFunction().apply(ctx);
+	public Class<?> getReturnType() {
+		return value.getType();
 	}
 
 	@Override

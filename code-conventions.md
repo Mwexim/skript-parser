@@ -98,6 +98,9 @@ else
   7. `toString` method as last method of the implementation
   8. All other public methods (like the `getActualNext` method in `SecLoop`)
   9. Optional private utility methods
+  
+We know that the above specified conventions are very specific and do not allow any freedom in ordering. We did this because we think consistency is very important, and with many different contributors working on this project, sometimes an inconsistency slips through.
+It's very important that the syntax classes stay very clear and easy to read, so future contributors can make easy changes based on this ordering.
 
 ## Nullity
 

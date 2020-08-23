@@ -1,8 +1,8 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,10 +17,6 @@ import org.jetbrains.annotations.Nullable;
  * @author Syst3ms
  */
 public class ExprBooleanOperators implements Expression<Boolean> {
-    private int pattern;
-    private Expression<Boolean> first;
-    @Nullable
-    private Expression<Boolean> second;
 
     static {
         Main.getMainRegistration().addExpression(
@@ -33,6 +29,11 @@ public class ExprBooleanOperators implements Expression<Boolean> {
                 "%=boolean% and %=boolean%"
         );
     }
+
+    private Expression<Boolean> first;
+    @Nullable
+    private Expression<Boolean> second;
+    private int pattern;
 
     @SuppressWarnings("unchecked")
     @Override

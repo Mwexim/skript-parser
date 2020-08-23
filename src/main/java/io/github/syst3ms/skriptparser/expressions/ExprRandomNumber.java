@@ -21,10 +21,6 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author WeeskyBDW
  */
 public class ExprRandomNumber implements Expression<Number> {
-    private Expression<Number> lowerNumber, maxNumber;
-    private final ThreadLocalRandom random = ThreadLocalRandom.current();
-    private boolean isInteger, isExclusive;
-    private Comparator<? super Number, ? super Number> numComp;
 
     static {
         Main.getMainRegistration().addExpression(
@@ -35,6 +31,11 @@ public class ExprRandomNumber implements Expression<Number> {
                 "[a] random number [1:strictly] (from|between) %number% (to|and) %number%"
         );
     }
+
+    private Expression<Number> lowerNumber, maxNumber;
+    private final ThreadLocalRandom random = ThreadLocalRandom.current();
+    private boolean isInteger, isExclusive;
+    private Comparator<? super Number, ? super Number> numComp;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -62,6 +63,6 @@ public class ExprRandomNumber implements Expression<Number> {
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return "a random " + (isInteger ? "integer " : "number ") + (isExclusive ? "strictly " : "") + "between " + lowerNumber.toString(ctx, debug) + " and " + maxNumber.toString(ctx, debug);
+        return "random " + (isInteger ? "integer " : "number ") + (isExclusive ? "strictly " : "") + "between " + lowerNumber.toString(ctx, debug) + " and " + maxNumber.toString(ctx, debug);
     }
 }
