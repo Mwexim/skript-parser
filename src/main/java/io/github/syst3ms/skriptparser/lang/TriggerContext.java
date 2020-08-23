@@ -5,6 +5,7 @@ package io.github.syst3ms.skriptparser.lang;
  * A parallel to Bukkit's own Event class.
  */
 public interface TriggerContext {
+
     /**
      * A dummy TriggerContext that may be used when the context is known not to matter.
      */

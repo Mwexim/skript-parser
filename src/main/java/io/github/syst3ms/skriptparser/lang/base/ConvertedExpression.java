@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.lang.base;
 
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import org.jetbrains.annotations.Contract;
@@ -20,6 +20,7 @@ import java.util.function.Function;
  * @see Converters
  */
 public class ConvertedExpression<F, T> implements Expression<T> {
+
     private final Expression<? extends F> source;
     private final Class<T> to;
     private final Function<? super F, ? extends T> converter;

@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
  * @see Conditional
  */
 public class InlineCondition extends Statement {
+
     private final Expression<Boolean> condition;
 
     public InlineCondition(Expression<Boolean> condition) {

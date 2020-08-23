@@ -29,6 +29,11 @@ public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
         return getSingle(TriggerContext.DUMMY);
     }
 
+    @Override
+    public boolean isSingle() {
+        return single;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public <R> Expression<R> convertExpression(Class<R> to) {
@@ -40,10 +45,5 @@ public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
             classes[i] = exprs[i].getReturnType();
         }
         return new LiteralList<>(exprs, (Class<R>) ClassUtils.getCommonSuperclass(classes), and, this);
-    }
-
-    @Override
-    public boolean isSingle() {
-        return single;
     }
 }

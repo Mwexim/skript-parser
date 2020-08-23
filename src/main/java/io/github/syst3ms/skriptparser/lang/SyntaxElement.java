@@ -17,6 +17,7 @@ import java.util.List;
  * @see CodeSection
  */
 public interface SyntaxElement {
+
     /**
      * Initialises this SyntaxElement before being used. This method is always called before all the others in
      * an extending class, the only exception being {@link CodeSection#loadSection(FileSection, ParserState, SkriptLogger)}.

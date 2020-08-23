@@ -7,16 +7,17 @@ import org.jetbrains.annotations.Nullable;
  * @param <T> the type of the literal
  */
 public interface Literal<T> extends Expression<T> {
-    T[] getValues();
 
-    @Nullable
-    default T getSingle() {
-        return getSingle(TriggerContext.DUMMY);
-    }
+    T[] getValues();
 
     @Override
     default T[] getValues(TriggerContext ctx) {
         return getValues();
+    }
+
+    @Nullable
+    default T getSingle() {
+        return getSingle(TriggerContext.DUMMY);
     }
 
     static boolean isLiteral(Expression<?> exp) {

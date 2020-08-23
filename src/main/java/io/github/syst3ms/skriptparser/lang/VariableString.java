@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
  * A string that possibly contains expressions inside it, meaning that its value may be unknown at parse time
  */
 public class VariableString implements Expression<String> {
+
     public static final Pattern R_LITERAL_CONTENT_PATTERN = Pattern.compile("^(.+?)\\((.+)\\)\\1$"); // It's actually rare to be able to use '.+' raw like this
     /**
 	 * An array containing raw data for this {@link VariableString}.
@@ -37,7 +38,7 @@ public class VariableString implements Expression<String> {
     /**
      * Creates a new instance of a VariableString.
      * @param s the text to create a new instance from, with its surrounding quotes
-     * @param logger
+     * @param logger the logger
      * @return {@code null} if either:
      * <ul>
      *     <li>The argument isn't quoted correctly</li>
@@ -70,8 +71,8 @@ public class VariableString implements Expression<String> {
     /**
      * Creates a new instance of a VariableString from the text inside a string literal.
      * @param s the content of the string literal, without quotes
-     * @param parserState
-     * @param logger
+     * @param parserState the current parser state
+     * @param logger the logger
      * @return a new instance of a VariableString, or {@code null} if there are unbalanced {@literal %} symbols
      */
     public static VariableString newInstance(String s, ParserState parserState, SkriptLogger logger) {
@@ -116,6 +117,12 @@ public class VariableString implements Expression<String> {
         return new VariableString(data.toArray());
     }
 
+    @Override
+    @Contract("_, _, _ -> fail")
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * @return whether this VariableString is actually constant and whose value can be known at parse time
      */
@@ -129,9 +136,8 @@ public class VariableString implements Expression<String> {
     }
 
     @Override
-    @Contract("_, _, _ -> fail")
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        throw new UnsupportedOperationException();
+    public Class<? extends String> getReturnType() {
+        return String.class;
     }
 
     /**
@@ -183,10 +189,5 @@ public class VariableString implements Expression<String> {
             }
         }
         return sb.toString();
-    }
-
-    @Override
-    public Class<? extends String> getReturnType() {
-        return String.class;
     }
 }

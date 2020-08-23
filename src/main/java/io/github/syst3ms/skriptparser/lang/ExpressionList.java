@@ -13,6 +13,7 @@ import java.util.*;
  */
 @SuppressWarnings("unchecked")
 public class ExpressionList<T> implements Expression<T> {
+
     protected final boolean single;
     protected boolean and;
     protected Expression<? extends T>[] expressions;
@@ -47,13 +48,17 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
-    public Class<T> getReturnType() {
-        return returnType;
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        throw new UnsupportedOperationException();
+    public T[] getValues(TriggerContext ctx) {
+        List<T> values = new ArrayList<>();
+        for (Expression<? extends T> expression : expressions) {
+            Collections.addAll(values, expression.getValues(ctx));
+        }
+        return values.toArray((T[]) Array.newInstance(returnType, values.size()));
     }
 
     @Override
@@ -73,47 +78,8 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
-    public T[] getValues(TriggerContext ctx) {
-        List<T> values = new ArrayList<>();
-        for (Expression<? extends T> expression : expressions) {
-            Collections.addAll(values, expression.getValues(ctx));
-        }
-        return values.toArray((T[]) Array.newInstance(returnType, values.size()));
-    }
-
-    @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < expressions.length; i++) {
-            if (i > 0) {
-                if (i == expressions.length - 1) {
-                    sb.append(and ? " and " : " or ");
-                } else {
-                    sb.append(", ");
-                }
-            }
-            Expression<? extends T> expr = expressions[i];
-            sb.append(expr.toString(ctx, debug));
-        }
-        return sb.toString();
-    }
-
-    @Nullable
-    @Override
-    public <R> Expression<R> convertExpression(Class<R> to) {
-        Expression<? extends R>[] exprs = new Expression[expressions.length];
-        for (int i = 0; i < exprs.length; i++)
-            if ((exprs[i] = expressions[i].convertExpression(to)) == null)
-                return null;
-        return new ExpressionList<>(exprs, (Class<R>) ClassUtils.getCommonSuperclass(to), and, this);
-    }
-
-    @Override
-    public boolean isLoopOf(String s) {
-        for (Expression<?> e : expressions)
-            if (!e.isSingle() && e.isLoopOf(s))
-                return true;
-        return false;
+    public Class<T> getReturnType() {
+        return returnType;
     }
 
     @Override
@@ -158,6 +124,24 @@ public class ExpressionList<T> implements Expression<T> {
         };
     }
 
+    @Nullable
+    @Override
+    public <R> Expression<R> convertExpression(Class<R> to) {
+        Expression<? extends R>[] exprs = new Expression[expressions.length];
+        for (int i = 0; i < exprs.length; i++)
+            if ((exprs[i] = expressions[i].convertExpression(to)) == null)
+                return null;
+        return new ExpressionList<>(exprs, (Class<R>) ClassUtils.getCommonSuperclass(to), and, this);
+    }
+
+    @Override
+    public boolean isLoopOf(String s) {
+        for (Expression<?> e : expressions)
+            if (!e.isSingle() && e.isLoopOf(s))
+                return true;
+        return false;
+    }
+
     @Override
     public boolean isAndList() {
         return and;
@@ -171,5 +155,22 @@ public class ExpressionList<T> implements Expression<T> {
     @Override
     public Expression<?> getSource() {
         return source != null ? source : this;
+    }
+
+    @Override
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < expressions.length; i++) {
+            if (i > 0) {
+                if (i == expressions.length - 1) {
+                    sb.append(and ? " and " : " or ");
+                } else {
+                    sb.append(", ");
+                }
+            }
+            Expression<? extends T> expr = expressions[i];
+            sb.append(expr.toString(ctx, debug));
+        }
+        return sb.toString();
     }
 }

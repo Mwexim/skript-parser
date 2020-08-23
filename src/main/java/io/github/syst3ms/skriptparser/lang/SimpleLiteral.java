@@ -18,6 +18,7 @@ import java.util.Iterator;
  */
 @SuppressWarnings("unchecked")
 public class SimpleLiteral<T> implements Literal<T> {
+
     private final T[] values;
     private boolean isAndList = true;
     private Class<T> returnType;
@@ -49,13 +50,14 @@ public class SimpleLiteral<T> implements Literal<T> {
         }
     }
 
-    @SuppressWarnings("RedundantCast")
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        if (isSingle()) {
-            return values[0].toString();
+    public T[] getArray(TriggerContext e) {
+        if (isAndList) {
+            return values;
         } else {
-            return TypeManager.toString((Object[]) values);
+            T[] newArray = (T[]) Array.newInstance(getReturnType(), 1);
+            newArray[0] = CollectionUtils.getRandom(values);
+            return newArray;
         }
     }
 
@@ -72,24 +74,10 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     @Override
-    public void setAndList(boolean isAndList) {
-        this.isAndList = isAndList;
-    }
-
-    @Override
-    public boolean isAndList() {
-        return isAndList;
-    }
-
-    @Override
-    public T[] getArray(TriggerContext e) {
-        if (isAndList) {
-            return values;
-        } else {
-            T[] newArray = (T[]) Array.newInstance(getReturnType(), 1);
-            newArray[0] = CollectionUtils.getRandom(values);
-            return newArray;
-        }
+    public Iterator<T> iterator(TriggerContext context) {
+        if (!isSingle())
+            throw new SkriptRuntimeException("Can't loop a single literal !");
+        return CollectionUtils.iterator(values);
     }
 
     @Override
@@ -109,9 +97,22 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     @Override
-    public Iterator<T> iterator(TriggerContext context) {
-        if (!isSingle())
-            throw new SkriptRuntimeException("Can't loop a single literal !");
-        return CollectionUtils.iterator(values);
+    public void setAndList(boolean isAndList) {
+        this.isAndList = isAndList;
+    }
+
+    @Override
+    public boolean isAndList() {
+        return isAndList;
+    }
+
+    @SuppressWarnings("RedundantCast")
+    @Override
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        if (isSingle()) {
+            return values[0].toString();
+        } else {
+            return TypeManager.toString((Object[]) values);
+        }
     }
 }

@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
  * @see Effect
  */
 public abstract class Statement implements SyntaxElement {
+
     @Nullable
     protected CodeSection parent;
     @Nullable

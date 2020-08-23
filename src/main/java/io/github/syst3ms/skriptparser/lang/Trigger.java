@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
  * Usually declares an event.
  */
 public class Trigger extends CodeSection {
+
     private final SkriptEvent event;
 
     public Trigger(SkriptEvent event) {

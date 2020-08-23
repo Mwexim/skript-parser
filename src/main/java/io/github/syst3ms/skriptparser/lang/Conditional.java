@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
  * @see ConditionalMode
  */
 public class Conditional extends CodeSection {
+
     private final ConditionalMode mode;
     @Nullable
     private final Expression<Boolean> condition;

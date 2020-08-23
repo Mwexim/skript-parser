@@ -9,6 +9,7 @@ import io.github.syst3ms.skriptparser.registration.SkriptEventInfo;
  * {@link SkriptEvent#getLoadingPriority() loading priority}.
  */
 public class UnloadedTrigger {
+
     private final Trigger trigger;
     private final FileSection section;
     private final int line;

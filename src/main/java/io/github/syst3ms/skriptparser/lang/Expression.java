@@ -77,7 +77,7 @@ public interface Expression<T> extends SyntaxElement {
 
     /**
      * @return whether this expression returns a single value. By default, this is defined on registration, but it can
-     * be overriden.
+     * be overridden.
      */
     default boolean isSingle() {
         for (ExpressionInfo<?, ?> info : SyntaxManager.getAllExpressions()) {
@@ -89,7 +89,7 @@ public interface Expression<T> extends SyntaxElement {
     }
 
     /**
-     * @return the return type of this expression. By default, this is defined on registration, but, like {@linkplain #isSingle()}, can be overriden.
+     * @return the return type of this expression. By default, this is defined on registration, but, like {@linkplain #isSingle()}, can be overridden.
      */
     default Class<? extends T> getReturnType() {
         ExpressionInfo<?, T> info = SyntaxManager.getExpressionExact(this);
@@ -139,6 +139,10 @@ public interface Expression<T> extends SyntaxElement {
     default void setAndList(boolean isAndList) {
     }
 
+    /**
+     * This expression
+     * @return the instance of this expression
+     */
     default Expression<?> getSource() {
         return this;
     }
