@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.event;
 
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -17,7 +18,7 @@ import java.time.Duration;
  *
  * @name Periodical
  * @type EVENT
- * @pattern every %duration%
+ * @pattern every %*duration%
  * @since ALPHA
  * @author Mwexim
  */
@@ -25,23 +26,23 @@ public class EvtPeriodical extends SkriptEvent {
 
     static {
         Main.getMainRegistration()
-                .newEvent(EvtPeriodical.class, "*every %duration%")
+                .newEvent(EvtPeriodical.class, "*every %*duration%")
                 .setHandledContexts(PeriodicalContext.class)
                 .register();
     }
 
-    private Expression<Duration> duration;
+    private Literal<Duration> duration;
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        duration = (Expression<Duration>) expressions[0];
+        duration = (Literal<Duration>) expressions[0];
         return true;
     }
 
     @Override
     public boolean check(TriggerContext ctx) {
-        return ctx instanceof PeriodicalContext && duration.getSingle(ctx) != null;
+        return ctx instanceof PeriodicalContext && duration.getSingle() != null;
     }
 
     @Override
