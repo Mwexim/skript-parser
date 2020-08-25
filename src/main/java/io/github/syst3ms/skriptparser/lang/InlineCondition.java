@@ -24,8 +24,7 @@ public class InlineCondition extends Statement {
 
     @Override
     public boolean run(TriggerContext ctx) {
-        Boolean cond = condition.getSingle(ctx);
-        return cond != null && cond;
+        return condition.getSingle(ctx).filter(b -> b).isPresent();
     }
 
     @Override

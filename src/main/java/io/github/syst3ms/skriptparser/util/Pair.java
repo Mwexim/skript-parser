@@ -14,17 +14,6 @@ public class Pair<T, U> {
         this.second = second;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        Pair<?, ?> pair = (Pair<?, ?>) o;
-        return first.equals(pair.first) &&
-                second.equals(pair.second);
-    }
-
     /**
      * Retrieves the first element
      * @return the first element
@@ -39,5 +28,16 @@ public class Pair<T, U> {
      */
     public U getSecond() {
         return second;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        var pair = (Pair<?, ?>) o;
+        return first.equals(pair.first) &&
+                second.equals(pair.second);
     }
 }

@@ -28,14 +28,14 @@ public class PatternType<T> {
         if (!(obj instanceof PatternType)) {
             return false;
         } else {
-            PatternType<?> o = (PatternType<?>) obj;
+            var o = (PatternType<?>) obj;
             return type.equals(o.type) && single == o.single;
         }
     }
 
     @Override
     public String toString() {
-        String[] forms = type.getPluralForms();
+        var forms = type.getPluralForms();
         return forms[single ? 0 : 1];
     }
 }

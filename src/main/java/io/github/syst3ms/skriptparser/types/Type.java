@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -107,14 +108,13 @@ public class Type<T> {
         this.baseName = baseName;
         this.literalParser = literalParser;
         this.toStringFunction = (Function<Object, String>) toStringFunction;
-        this.pluralForms = StringUtils.getForms(pattern.trim());
+        this.pluralForms = StringUtils.getForms(pattern.strip());
         this.defaultChanger = defaultChanger;
         this.arithmetic = arithmetic;
     }
 
-    @Nullable
-    public Function<String, ? extends T> getLiteralParser() {
-        return literalParser;
+    public Optional<Function<String, ? extends T>> getLiteralParser() {
+        return Optional.ofNullable(literalParser);
     }
 
     public String[] getPluralForms() {
@@ -137,7 +137,7 @@ public class Type<T> {
         if (!(obj instanceof Type)) {
             return false;
         } else {
-            Type<?> o = (Type<?>) obj;
+            var o = (Type<?>) obj;
             return typeClass.equals(o.typeClass) && baseName.equals(o.baseName) &&
                    Arrays.equals(pluralForms, o.pluralForms);
         }
@@ -156,13 +156,11 @@ public class Type<T> {
         return toStringFunction;
     }
 
-    @Nullable
-    public Changer<? super T> getDefaultChanger() {
-        return defaultChanger;
+    public Optional<? extends Changer<? super T>> getDefaultChanger() {
+        return Optional.ofNullable(defaultChanger);
     }
 
-    @Nullable
-    public Arithmetic<T, ?> getArithmetic() {
-        return arithmetic;
+    public Optional<? extends Arithmetic<T, ?>> getArithmetic() {
+        return Optional.ofNullable(arithmetic);
     }
 }

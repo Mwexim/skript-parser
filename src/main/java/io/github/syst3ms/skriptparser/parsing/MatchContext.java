@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.MatchResult;
 
 /**
@@ -22,6 +23,7 @@ public class MatchContext {
     // Provided to the syntax's class
     private final ParserState parserState;
     private final SkriptLogger logger;
+    @Nullable
     private final MatchContext source;
     private final List<Expression<?>> parsedExpressions = new ArrayList<>();
     private final List<MatchResult> regexMatches = new ArrayList<>();
@@ -114,8 +116,8 @@ public class MatchContext {
      * tracks what the original MatchContext was. This is non-null only after {@link #branch(PatternElement)} is called.
      * @return the source of this MatchContext
      */
-    public MatchContext getSource() {
-        return source;
+    public Optional<MatchContext> getSource() {
+        return Optional.ofNullable(source);
     }
 
     /**

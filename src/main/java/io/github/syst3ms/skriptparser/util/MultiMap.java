@@ -10,11 +10,10 @@ import java.util.List;
  * A simple implementation of a Multimap, emulating Guava's. This implementation allows duplicate elements in the
  * values.
  */
-// I know classes like this are out there but the ones available to me didn't work
 public class MultiMap<K, V> extends HashMap<K, List<V>> {
     /**
      * Looks for a list that is mapped to the given key. If there is one, then the given value is added to that list.
-     * If there isn't, then a new entry is created and has the value added to it..
+     * If there isn't, then a new entry is created and has the value added to it.
      *
      * @param key the key
      * @param value the value
@@ -35,7 +34,7 @@ public class MultiMap<K, V> extends HashMap<K, List<V>> {
     public List<V> getAllValues() {
         List<V> values = new ArrayList<>();
         for (Iterable<V> v : values()) {
-            for (V val : v) {
+            for (var val : v) {
                 values.add(val);
             }
         }

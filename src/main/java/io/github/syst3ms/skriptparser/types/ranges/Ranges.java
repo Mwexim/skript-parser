@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.types.ranges;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 
 /**
@@ -18,12 +19,12 @@ public class Ranges {
     }
 
     @SuppressWarnings("unchecked")
-    public static <B, T> RangeInfo<B, T> getRange(Class<B> bound) {
-        for (Class<?> c : rangeMap.keySet()) {
+    public static <B, T> Optional<? extends RangeInfo<B, T>> getRange(Class<B> bound) {
+        for (var c : rangeMap.keySet()) {
             if (c == bound || c.isAssignableFrom(bound)) {
-                return (RangeInfo<B, T>) rangeMap.get(c);
+                return Optional.ofNullable((RangeInfo<B, T>) rangeMap.get(c));
             }
         }
-        return null;
+        return Optional.empty();
     }
 }

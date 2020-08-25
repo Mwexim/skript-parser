@@ -6,6 +6,7 @@ package io.github.syst3ms.skriptparser.lang;
  * @see Statement
  */
 public abstract class Effect extends Statement {
+
     protected abstract void execute(TriggerContext ctx);
 
     @Override
