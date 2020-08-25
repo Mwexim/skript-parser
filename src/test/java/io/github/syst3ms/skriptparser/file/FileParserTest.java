@@ -26,7 +26,7 @@ public class FileParserTest {
     }
 
     @Test
-    public void parseFileLines() throws Exception {
+    public void parseFileLines() {
         FileParser parser = new FileParser();
         assertEquals(
                 Collections.singletonList(simpleFileLine("line", 0, 1)),

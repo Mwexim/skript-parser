@@ -8,7 +8,6 @@ import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * The base class for all elements that are described by a syntax
@@ -52,11 +51,11 @@ public interface SyntaxElement {
      */
     @SafeVarargs
     static boolean checkIsInSection(ParseContext parseContext, boolean isStrict, Class<? extends CodeSection>... requiredSections) {
-        List<CodeSection> currentSections = parseContext.getParserState().getCurrentSections();
-        List<Class<? extends CodeSection>> sections = Arrays.asList(requiredSections);
-        int limit = isStrict ? 1 : currentSections.size();
-        for (int i = 0; i < limit; i++) {
-            CodeSection sec = currentSections.get(i);
+        var currentSections = parseContext.getParserState().getCurrentSections();
+        var sections = Arrays.asList(requiredSections);
+        var limit = isStrict ? 1 : currentSections.size();
+        for (var i = 0; i < limit; i++) {
+            var sec = currentSections.get(i);
             if (sections.contains(sec.getClass())) {
                 return true;
             }

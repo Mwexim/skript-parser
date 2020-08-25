@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.WeakHashMap;
 
 /**
@@ -47,7 +48,7 @@ public class SecLoop extends CodeSection {
 	}
 
 	@Override
-	public Statement walk(TriggerContext ctx) {
+	public Optional<? extends Statement> walk(TriggerContext ctx) {
 		Iterator<?> iter = currentIter.get(ctx);
 		if (iter == null) {
 			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(ctx) : expr.iterator(ctx);
@@ -61,7 +62,7 @@ public class SecLoop extends CodeSection {
 		if (iter == null || !iter.hasNext()) {
 			if (iter != null)
 				currentIter.remove(ctx); // a loop inside another loop can be called multiple times in the same event
-			return actualNext;
+			return Optional.ofNullable(actualNext);
 		} else {
 			current.put(ctx, iter.next());
 			return getFirst();

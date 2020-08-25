@@ -13,6 +13,8 @@ import io.github.syst3ms.skriptparser.util.ThreadUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * Executes the code in the section asynchronously, meaning in another thread.
  * Note that the next code that isn't part of the section (intended the same amount of times) will be executed in the current thread again.
@@ -44,13 +46,13 @@ public class SecAsync extends CodeSection {
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Statement walk(TriggerContext ctx) {
-        final Statement[] item = {getFirst()};
-
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
+        Optional<? extends Statement>[] item = new Optional[]{getFirst()};
         ThreadUtils.runAsync(() -> {
-            while (!item[0].equals(getNext()))
-                item[0] = item[0].walk(ctx);
+            while (!item[0].equals(getNext())) // Calling equals() on optionals calls equals() on their values
+                item[0] = item[0].flatMap(i -> i.walk(ctx));
         });
         return getNext();
     }

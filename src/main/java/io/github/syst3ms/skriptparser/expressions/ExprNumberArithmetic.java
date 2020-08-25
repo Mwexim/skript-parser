@@ -8,12 +8,14 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
+import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.Optional;
 
 /**
  * Various arithmetic expressions, including addition, subtraction, multiplication, division and exponentiation.
@@ -292,8 +294,8 @@ public class ExprNumberArithmetic implements Expression<Number> {
         second = (Expression<? extends Number>) exprs[1];
         op = PATTERNS.getInfo(matchedPattern);
         if (second instanceof Literal) {
-            Number value = ((Literal<? extends Number>) second).getSingle();
-            if (value != null && Operator.isZero(value)) {
+            Optional<? extends Number> value = ((Literal<? extends Number>) second).getSingle();
+            if (value.filter(Operator::isZero).isPresent()) {
                 parseContext.getLogger().error("Cannot divide by 0 !", ErrorType.SEMANTIC_ERROR);
                 return false;
             }
@@ -303,12 +305,11 @@ public class ExprNumberArithmetic implements Expression<Number> {
 
     @Override
     public Number[] getValues(TriggerContext ctx) {
-        Number n1 = first.getSingle(ctx), n2 = second.getSingle(ctx);
-        if (n1 == null)
-            n1 = 0;
-        if (n2 == null)
-            n2 = 0;
-        return new Number[]{op.calculate(n1, n2)};
+        return DoubleOptional.ofOptional(first.getSingle(ctx), second.getSingle(ctx))
+                .map(f -> (Number) f, s -> (Number) s)
+                .or(() -> DoubleOptional.of(0, 0))
+                .mapToOptional((f, s) -> new Number[]{ op.calculate(f, s) })
+                .orElse(new Number[0]);
     }
 
     @Override

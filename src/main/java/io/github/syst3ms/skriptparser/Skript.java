@@ -49,8 +49,7 @@ public class Skript extends SkriptAddon {
         }
         for (Trigger trigger : periodicalTriggers) {
             PeriodicalContext ctx = new PeriodicalContext();
-            Duration dur = ((EvtPeriodical) trigger.getEvent()).getDuration().getSingle(ctx);
-            assert dur != null;
+            Duration dur = ((EvtPeriodical) trigger.getEvent()).getDuration().getSingle(ctx).orElseThrow(AssertionError::new);
             ThreadUtils.runPeriodically(() -> Statement.runAll(trigger, ctx), dur);
         }
     }

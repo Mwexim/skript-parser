@@ -38,7 +38,7 @@ public class LogEntry {
         return errorType;
     }
 
-    int getLine() {
+    public int getLine() {
         return line;
     }
 }

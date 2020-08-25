@@ -28,7 +28,7 @@ public class SinCalculator extends SeriesCalculator {
 	
 	@Override
 	protected BigRational getCurrentFactor() {
-		BigRational factor = factorial2nPlus1.reciprocal();
+		var factor = factorial2nPlus1.reciprocal();
 		if (negative) {
 			factor = factor.negate();
 		}

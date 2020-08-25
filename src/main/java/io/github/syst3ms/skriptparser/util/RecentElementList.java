@@ -45,8 +45,8 @@ public class RecentElementList<T> implements Iterable<T> {
             occurrences.add(element);
             backing.add(new AbstractMap.SimpleEntry<>(element, 1));
         } else {
-            for (int i = 0; i < backing.size(); i++) {
-                Map.Entry<T, Integer> freq = backing.get(i);
+            for (var i = 0; i < backing.size(); i++) {
+                var freq = backing.get(i);
                 if (freq.getKey().equals(element)) {
                     freq.setValue(freq.getValue() + 1);
                     backing.set(i, freq);
@@ -76,7 +76,7 @@ public class RecentElementList<T> implements Iterable<T> {
          * care about here. This shouldn't cause issues even if parallel parsing is implemented, because any reasonable
          * implementation would not use one RecentElementList across multiple threads. At least I hope so...
          */
-        return new Iterator<T>() {
+        return new Iterator<>() {
             private final List<Map.Entry<T, Integer>> b = backing;
             private int index = 0;
 

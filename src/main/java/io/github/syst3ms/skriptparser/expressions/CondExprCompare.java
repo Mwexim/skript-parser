@@ -19,6 +19,7 @@ import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * A very general condition, it simply compares two values. Usually you can only compare for equality (e.g. text is/isn't &lt;text&gt;),
@@ -207,34 +208,34 @@ public class CondExprCompare extends ConditionalExpression {
     private String errorString(Expression<?> expr, boolean debug) {
         if (expr.getReturnType() == Object.class)
             return expr.toString(null, debug);
-        Type<?> exprType = TypeManager.getByClass(expr.getReturnType());
-        assert exprType != null;
-        return StringUtils.withIndefiniteArticle(exprType.getBaseName(), !expr.isSingle());
+        Optional<? extends Type<?>> exprType = TypeManager.getByClass(expr.getReturnType());
+        assert exprType.isPresent();
+        return StringUtils.withIndefiniteArticle(exprType.get().getBaseName(), !expr.isSingle());
     }
 
     @SuppressWarnings({"unchecked"})
     private boolean initialize() {
         Expression<?> third = this.third;
         if (first.getReturnType() == Object.class) {
-            Expression<?> e = first.convertExpression(Object.class);
-            if (e == null) {
+            Optional<? extends Expression<Object>> e = first.convertExpression(Object.class);
+            if (e.isEmpty()) {
                 return false;
             }
-            first = e;
+            first = e.get();
         }
         if (second.getReturnType() == Object.class) {
-            Expression<?> e = second.convertExpression(Object.class);
-            if (e == null) {
+            Optional<? extends Expression<Object>> e = second.convertExpression(Object.class);
+            if (e.isEmpty()) {
                 return false;
             }
-            second = e;
+            second = e.get();
         }
         if (third != null && third.getReturnType() == Object.class) {
-            Expression<?> e = third.convertExpression(Object.class);
-            if (e == null) {
+            Optional<? extends Expression<Object>> e = third.convertExpression(Object.class);
+            if (e.isEmpty()) {
                 return false;
             }
-            this.third = third = e;
+            this.third = third = e.get();
         }
         Class<?> f = first.getReturnType();
         Class<?> s = third == null
@@ -242,8 +243,7 @@ public class CondExprCompare extends ConditionalExpression {
                 : ClassUtils.getCommonSuperclass(second.getReturnType(), third.getReturnType());
         if (f == Object.class || s == Object.class)
             return true;
-        comp = (Comparator<Object, Object>) Comparators.getComparator(f, s);
-        return comp != null;
+        return (comp = (Comparator<Object, Object>) Comparators.getComparator(f, s).orElse(null)) != null;
     }
 
     /*

@@ -53,8 +53,8 @@ public class BigRational implements Comparable<BigRational> {
 	}
 
 	private BigRational(BigDecimal num, BigDecimal denom) {
-		BigDecimal n = num;
-		BigDecimal d = denom;
+		var n = num;
+		var d = denom;
 
 		if (d.signum() == 0) {
 			throw new ArithmeticException("Divide by zero");
@@ -106,6 +106,7 @@ public class BigRational implements Comparable<BigRational> {
 		if (isZero()) {
 			return this;
 		}
+
 		return of(numerator.negate(), denominator);
 	}
 
@@ -140,8 +141,8 @@ public class BigRational implements Comparable<BigRational> {
 			return of(numerator.add(value.numerator), denominator);
 		}
 
-		BigDecimal n = numerator.multiply(value.denominator).add(value.numerator.multiply(denominator));
-		BigDecimal d = denominator.multiply(value.denominator);
+		var n = numerator.multiply(value.denominator).add(value.numerator.multiply(denominator));
+		var d = denominator.multiply(value.denominator);
 		return of(n, d);
 	}
 
@@ -181,8 +182,8 @@ public class BigRational implements Comparable<BigRational> {
 			return of(numerator.subtract(value.numerator), denominator);
 		}
 
-		BigDecimal n = numerator.multiply(value.denominator).subtract(value.numerator.multiply(denominator));
-		BigDecimal d = denominator.multiply(value.denominator);
+		var n = numerator.multiply(value.denominator).subtract(value.numerator.multiply(denominator));
+		var d = denominator.multiply(value.denominator);
 		return of(n, d);
 	}
 
@@ -205,9 +206,7 @@ public class BigRational implements Comparable<BigRational> {
 			return this;
 		}
 
-		BigDecimal n = numerator.multiply(value.numerator);
-		BigDecimal d = denominator.multiply(value.denominator);
-		return of(n, d);
+		return of(numerator.multiply(value.numerator), denominator.multiply(value.denominator));
 	}
 
 	// private, because we want to hide that we use BigDecimal internally
@@ -270,10 +269,7 @@ public class BigRational implements Comparable<BigRational> {
 		if (value.equals(ONE)) {
 			return this;
 		}
-
-		BigDecimal n = numerator.multiply(value.denominator);
-		BigDecimal d = denominator.multiply(value.numerator);
-		return of(n, d);
+		return of(numerator.multiply(value.denominator), denominator.multiply(value.numerator));
 	}
 
 	private BigRational divide(BigDecimal value) {
@@ -297,7 +293,6 @@ public class BigRational implements Comparable<BigRational> {
 		if (value.equals(BigInteger.ONE)) {
 			return this;
 		}
-
 		return divide(new BigDecimal(value));
 	}
 
@@ -327,11 +322,7 @@ public class BigRational implements Comparable<BigRational> {
 		return numerator.signum() == 0;
 	}
 
-	private boolean isPositive() {
-		return numerator.signum() > 0;
-	}
-
-    /**
+	/**
 	 * Returns whether this rational number is an integer number without fraction part.
 	 *
 	 * <p>Will return <code>false</code> if this number is not reduced to the integer representation yet (e.g. 4/4 or 4/2)</p>
@@ -372,8 +363,8 @@ public class BigRational implements Comparable<BigRational> {
 	}
 
     private static int countDigits(BigInteger number) {
-		double factor = Math.log(2) / Math.log(10);
-		int digitCount = (int) (factor * number.bitLength() + 1);
+		var factor = Math.log(2) / Math.log(10);
+		var digitCount = (int) (factor * number.bitLength() + 1);
 		if (BigInteger.TEN.pow(digitCount - 1).compareTo(number) > 0) {
 			return digitCount - 1;
 		}
@@ -391,7 +382,7 @@ public class BigRational implements Comparable<BigRational> {
 	 * @return the {@link BigDecimal} value
 	 */
 	public BigDecimal toBigDecimal() {
-		int precision = Math.max(precision(), MathContext.DECIMAL128.getPrecision());
+		var precision = Math.max(precision(), MathContext.DECIMAL128.getPrecision());
 		return toBigDecimal(new MathContext(precision));
 	}
 
@@ -431,7 +422,7 @@ public class BigRational implements Comparable<BigRational> {
 			return false;
 		}
 
-		BigRational other = (BigRational) obj;
+		var other = (BigRational) obj;
 		if (!numerator.equals(other.numerator)) {
 			return false;
 		}
@@ -519,16 +510,16 @@ public class BigRational implements Comparable<BigRational> {
 			return ONE;
 		}
 
-		int scale = value.scale();
+		var scale = value.scale();
 		if (scale == 0) {
 			return new BigRational(value, BigDecimal.ONE);
 		} else if (scale < 0) {
-			BigDecimal n = new BigDecimal(value.unscaledValue()).multiply(BigDecimal.ONE.movePointLeft(value.scale()));
+			var n = new BigDecimal(value.unscaledValue()).multiply(BigDecimal.ONE.movePointLeft(value.scale()));
 			return new BigRational(n, BigDecimal.ONE);
 		}
 		else {
-			BigDecimal n = new BigDecimal(value.unscaledValue());
-			BigDecimal d = BigDecimal.ONE.movePointRight(value.scale());
+			var n = new BigDecimal(value.unscaledValue());
+			var d = BigDecimal.ONE.movePointRight(value.scale());
 			return new BigRational(n, d);
 		}
 	}

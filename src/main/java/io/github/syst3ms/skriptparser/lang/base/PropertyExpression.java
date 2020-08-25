@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 
 import java.lang.reflect.Array;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -38,11 +39,10 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
      * If this property only relies on one simple method applied to the owner, it can be represented here
      * using a {@link Function}. This function will be applied in the default implementation of {@link #getValues(TriggerContext)}
      * supplied by this class.
-     * The array of values supplied to this function is never empty or null, so no additional checks are required.
      * @return the function that needs to be applied in order to get the correct values.
      */
-    public Function<O[], T[]> getPropertyFunction() {
-        return null;
+    public Optional<? extends Function<? super O[], ? extends T[]>> getPropertyFunction() {
+        return Optional.empty();
     }
 
     /**
@@ -87,11 +87,13 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     @SuppressWarnings("unchecked")
     @Override
     public T[] getValues(TriggerContext ctx) {
-        O[] objs = getOwner().getValues(ctx);
+        var objs = getOwner().getValues(ctx);
         if (objs.length == 0)
             return (T[]) Array.newInstance(objs.getClass().getComponentType(), 0);
-        if (getPropertyFunction() == null)
-            throw new UnsupportedOperationException("getPropertyFunction() must be overridden if getValues() isn't!");
-        return getPropertyFunction().apply(objs);
+        return getPropertyFunction()
+                .orElseThrow(() -> new UnsupportedOperationException(
+                        "getPropertyFunction() must be overridden if getValues() isn't!"
+                ))
+                .apply(objs);
     }
 }

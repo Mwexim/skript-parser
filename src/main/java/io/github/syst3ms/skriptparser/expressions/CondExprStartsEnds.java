@@ -45,16 +45,14 @@ public class CondExprStartsEnds extends ConditionalExpression {
     @Override
     protected boolean check(TriggerContext ctx) {
         String[] strs = expr.getValues(ctx);
-        String v = value.getSingle(ctx);
-        if (v == null)
-            return false;
-
-        for (String s : strs) {
-            if (isNegated() == (start ? s.startsWith(v) : s.endsWith(v))) {
-                return false;
+        return value.getSingle(ctx).filter(v -> {
+            for (String s : strs) {
+                if (isNegated() != (start ? s.startsWith(v) : s.endsWith(v))) {
+                    return false;
+                }
             }
-        }
-        return true;
+            return true;
+        }).isPresent();
     }
 
     @Override

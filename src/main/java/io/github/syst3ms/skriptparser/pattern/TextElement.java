@@ -26,24 +26,25 @@ public class TextElement implements PatternElement {
     public int match(String s, int index, MatchContext context) {
         if (text.isEmpty())
             return index;
-        int start = 0;
-        int end = 0;
+        var start = 0;
         if (Character.isWhitespace(text.charAt(0))) {
             while (index + start < s.length() && Character.isWhitespace(s.charAt(index + start)))
                 start++;
         }
-        String trimmed = text.trim();
-        if (index + start + trimmed.length() > s.length()) {
+        var end = 0;
+        var stripped = text.strip();
+        // We advance until we reach the first non-whitespace character in s
+        if (index + start + stripped.length() > s.length()) {
             return -1;
         }
-        if (trimmed.isEmpty()) {
+        if (stripped.isEmpty()) {
             return index + start;
-        } else if (s.regionMatches(true, index + start, trimmed, 0, trimmed.length())) {
+        } else if (s.regionMatches(true, index + start, stripped, 0, stripped.length())) {
             if (Character.isWhitespace(text.charAt(text.length() - 1))) {
-                while (index + start + trimmed.length() - end < s.length() && Character.isWhitespace(s.charAt(index + start + trimmed.length() - end)))
+                while (end < s.length() && Character.isWhitespace(s.charAt(index + start + stripped.length() - end)))
                     end++;
             }
-            return index + start + trimmed.length() + end; // Adjusting for some of the whitespace we ignored
+            return index + start + stripped.length() + end; // Adjusting for some of the whitespace we ignored
         } else {
             return -1;
         }

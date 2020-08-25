@@ -38,7 +38,7 @@ public class CondExprIsSet extends ConditionalExpression {
 
     @Override
     protected boolean check(TriggerContext ctx) {
-        return isNegated() == (expr == null || expr.getValues(ctx).length == 0);
+        return isNegated() != (expr == null || expr.getValues(ctx).length == 0);
     }
 
     @Override

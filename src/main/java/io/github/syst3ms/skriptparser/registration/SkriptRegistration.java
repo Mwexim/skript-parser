@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
@@ -16,14 +15,12 @@ import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.changers.Changer;
+import io.github.syst3ms.skriptparser.types.conversions.ConverterInfo;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -41,7 +38,7 @@ public class SkriptRegistration {
     private final List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
     private final List<SkriptEventInfo<?>> events = new ArrayList<>();
     private final List<Type<?>> types = new ArrayList<>();
-    private final List<Converters.ConverterInfo<?, ?>> converters = new ArrayList<>();
+    private final List<ConverterInfo<?, ?>> converters = new ArrayList<>();
     private final List<ContextValue<?>> contextValues = new ArrayList<>();
     private boolean newTypes = false;
 
@@ -95,7 +92,7 @@ public class SkriptRegistration {
     /**
      * @return all currently registered converters
      */
-    public List<Converters.ConverterInfo<?, ?>> getConverters() {
+    public List<ConverterInfo<?, ?>> getConverters() {
         return converters;
     }
 
@@ -151,7 +148,7 @@ public class SkriptRegistration {
     }
 
     /**
-     * Starts a registration process for an {@link PropertyExpression}
+     * Starts a registration process for a {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
      * @param isSingle whether the Expression is a single value
@@ -159,7 +156,7 @@ public class SkriptRegistration {
      * @param property the property that is used
      * @param <C> the Expression
      * @param <T> the Expression's return type
-     * @return an {@link ExpressionRegistrar}
+     * @return an {@link ExpressionRegistrar} to continue the registration process
      */
     public <C extends Expression<T>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
         return new ExpressionRegistrar<>(c, returnType, isSingle,
@@ -185,7 +182,7 @@ public class SkriptRegistration {
     }
 
     /**
-     * Registers {@link PropertyExpression}
+     * Registers a {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
      * @param isSingle whether the Expression is a single value
@@ -208,7 +205,7 @@ public class SkriptRegistration {
      * @param c the Effect's class
      * @param patterns the Effect's patterns
      * @param <C> the Effect
-     * @return an {@link EffectRegistrar}
+     * @return an {@link EffectRegistrar} to continue the registration process
      */
     public <C extends Effect> EffectRegistrar<C> newEffect(Class<C> c, String... patterns) {
         return new EffectRegistrar<>(c, patterns);
@@ -260,7 +257,7 @@ public class SkriptRegistration {
      * @param c the SkriptEvent's class
      * @param patterns the SkriptEvent's patterns
      * @param <E> the SkriptEvent
-     * @return a {@link EventRegistrar}
+     * @return an {@link EventRegistrar} to continue the registration process
      */
     public <E extends SkriptEvent> EventRegistrar<E> newEvent(Class<E> c, String... patterns) {
         return new EventRegistrar<>(c, patterns);
@@ -316,8 +313,8 @@ public class SkriptRegistration {
      * @param <F> from
      * @param <T> to
      */
-    public <F, T> void addConverter(Class<F> from, Class<T> to, Function<? super F, ? extends T> converter) {
-        converters.add(new Converters.ConverterInfo<>(from, to, converter));
+    public <F, T> void addConverter(Class<F> from, Class<T> to, Function<? super F, Optional<? extends T>> converter) {
+        converters.add(new ConverterInfo<>(from, to, converter));
     }
 
     /**
@@ -329,8 +326,8 @@ public class SkriptRegistration {
      * @param <F> from
      * @param <T> to
      */
-    public <F, T> void addConverter(Class<F> from, Class<T> to, Function<? super F, ? extends T> converter, int options) {
-        converters.add(new Converters.ConverterInfo<>(from, to, converter, options));
+    public <F, T> void addConverter(Class<F> from, Class<T> to, Function<? super F, Optional<? extends T>> converter, int options) {
+        converters.add(new ConverterInfo<>(from, to, converter, options));
     }
 
     /**
@@ -474,20 +471,16 @@ public class SkriptRegistration {
         /**
          * Adds this expression to the list of currently registered syntaxes
          */
+        @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
-            for (String s : super.patterns) {
-                PatternElement e = patternParser.parsePattern(s, logger);
-                if (e != null) {
-                    elements.add(e);
-                }
-            }
-            Type<T> type = TypeManager.getByClassExact(returnType);
-            if (type == null) {
+            super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
+            var type = TypeManager.getByClassExact(returnType);
+            if (type.isEmpty()) {
                 logger.error("Couldn't find a type corresponding to the class '" + returnType.getName() + "'", ErrorType.NO_MATCH);
                 return;
             }
-            ExpressionInfo<C, T> info = new ExpressionInfo<>(super.c, elements, registerer, type, isSingle, super.priority);
+            var info = new ExpressionInfo<>(super.c, elements, registerer, type.get(), isSingle, super.priority);
             expressions.putOne(super.c, info);
         }
     }
@@ -502,12 +495,11 @@ public class SkriptRegistration {
         /**
          * Adds this effect to the list of currently registered syntaxes
          */
+        @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
-            for (String s : super.patterns) {
-                elements.add(patternParser.parsePattern(s, logger));
-            }
-            SyntaxInfo<C> info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
+            super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
+            var info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
             effects.add(info);
         }
     }
@@ -525,13 +517,8 @@ public class SkriptRegistration {
         @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
-            for (String s : super.patterns) {
-                PatternElement e = patternParser.parsePattern(s, logger);
-                if (e != null) {
-                    elements.add(e);
-                }
-            }
-            SyntaxInfo<C> info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
+            super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
+            var info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
             sections.add(info);
         }
     }
@@ -551,18 +538,15 @@ public class SkriptRegistration {
         @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
-            for (String s : super.patterns) {
+            for (var s : super.patterns) {
                 if (s.startsWith("*")) {
                     s = s.substring(1);
                 } else {
                     s = "[on] " + s;
                 }
-                PatternElement e = patternParser.parsePattern(s, logger);
-                if (e != null) {
-                    elements.add(e);
-                }
+                patternParser.parsePattern(s, logger).ifPresent(elements::add);
             }
-            SkriptEventInfo<T> info = new SkriptEventInfo<>(super.c, handledContexts, elements, super.priority, registerer);
+            var info = new SkriptEventInfo<>(super.c, handledContexts, elements, super.priority, registerer);
             events.add(info);
             registerer.addHandledEvent(this.c);
         }

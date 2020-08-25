@@ -6,6 +6,8 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * Basic boolean operators. It is possible to use conditions inside the operators.
  *
@@ -48,21 +50,22 @@ public class ExprBooleanOperators implements Expression<Boolean> {
     @Override
     public Boolean[] getValues(TriggerContext ctx) {
         assert second != null || pattern == 0;
-        Boolean f = first.getSingle(ctx);
-        if (f == null)
-            return new Boolean[0];
-        if (pattern == 0) {
-            return new Boolean[]{!f};
-        } else {
-            Boolean s = second.getSingle(ctx);
-            if (s == null)
-                return new Boolean[0];
-            if (pattern == 1) {
-                return new Boolean[]{f || s};
+        return first.getSingle(ctx).flatMap(f -> {
+            if (pattern == 0) {
+                return Optional.of(new Boolean[]{!f});
             } else {
-                return new Boolean[]{f && s};
+                return second.getSingle(ctx)
+                        .map(
+                            s -> {
+                                if (pattern == 1) {
+                                    return new Boolean[]{f || s};
+                                } else {
+                                    return new Boolean[]{f && s};
+                                }
+                            }
+                        );
             }
-        }
+        }).orElse(new Boolean[0]);
     }
 
     @Override

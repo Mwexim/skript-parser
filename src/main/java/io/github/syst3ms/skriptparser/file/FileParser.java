@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.util.FileUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -29,20 +28,20 @@ public class FileParser {
      */
     public List<FileElement> parseFileLines(String fileName, List<String> lines, int expectedIndentation, int lastLine, SkriptLogger logger) {
         List<FileElement> elements = new ArrayList<>();
-        for (int i = 0; i < lines.size(); i++) {
-            String line = lines.get(i);
+        for (var i = 0; i < lines.size(); i++) {
+            var line = lines.get(i);
             String content;
-            Matcher m = LINE_PATTERN.matcher(line);
+            var m = LINE_PATTERN.matcher(line);
             if (m.matches()) {
-                content = m.group(1).replace("##", "#").trim();
+                content = m.group(1).replace("##", "#").strip();
             } else {
-                content = line.replace("##", "#").trim();
+                content = line.replace("##", "#").strip();
             }
             if (content.matches("[\\s#]*")) {
                 elements.add(new VoidElement(fileName, lastLine + i, expectedIndentation));
                 continue;
             }
-            int lineIndentation = FileUtils.getIndentationLevel(line, false);
+            var lineIndentation = FileUtils.getIndentationLevel(line, false);
             if (lineIndentation > expectedIndentation) { // The line is indented too much
                 logger.error("The line is indented too much (line " + (lastLine + i) + ": \"" + content + "\")", ErrorType.STRUCTURE_ERROR);
                 continue;
@@ -55,7 +54,7 @@ public class FileParser {
                             new ArrayList<>(), expectedIndentation
                     ));
                 } else {
-                    List<FileElement> sectionElements = parseFileLines(fileName, lines.subList(i + 1, lines.size()),
+                    var sectionElements = parseFileLines(fileName, lines.subList(i + 1, lines.size()),
                             expectedIndentation + 1, lastLine + i + 1,
                             logger);
                     elements.add(new FileSection(fileName, lastLine + i, content.substring(0, content.length() - 1),
@@ -71,8 +70,8 @@ public class FileParser {
     }
 
     private int count(List<FileElement> elements) {
-        int count = 0;
-        for (FileElement element : elements) {
+        var count = 0;
+        for (var element : elements) {
             if (element instanceof FileSection) {
                 count += count(((FileSection) element).getElements()) + 1;
             } else {

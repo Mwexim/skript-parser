@@ -3,7 +3,7 @@ apply plugin: 'application'
 
 mainClassName = "io.github.syst3ms.skriptparser.Main"
 
-sourceCompatibility = 1.8
+sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()

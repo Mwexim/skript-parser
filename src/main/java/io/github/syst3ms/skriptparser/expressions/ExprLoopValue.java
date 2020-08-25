@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,12 +58,9 @@ public class ExprLoopValue implements Expression<Object> {
 			i = Integer.parseInt(m.group(2));
 		}
 		Class<?> c;
-		PatternType<?> type = TypeManager.getPatternType(s);
-		if (type != null) { // And that, people, is why I like Kotlin
-			c = type.getType().getTypeClass();
-		} else {
-			c = null;
-		}
+		Optional<PatternType<?>> type = TypeManager.getPatternType(s);
+		// And that, people, is why I like Kotlin
+		c = type.map(patternType -> patternType.getType().getTypeClass()).orElse(null);
 		int j = 1;
 		SecLoop loop = null;
 		for (final CodeSection sec : parser.getParserState().getCurrentSections()) {
@@ -99,9 +97,9 @@ public class ExprLoopValue implements Expression<Object> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <R> Expression<R> convertExpression(Class<R> to) {
+	public <R> Optional<? extends Expression<R>> convertExpression(Class<R> to) {
 		if (isVariableLoop && !isIndex) {
-			return new ConvertedExpression<>(this, (Class<R>) ClassUtils.getCommonSuperclass(to), o -> Converters.convert(o, to));
+			return Optional.of(new ConvertedExpression<>(this, (Class<R>) ClassUtils.getCommonSuperclass(to), o -> Converters.convert(o, to)));
 		} else {
 			return Expression.super.convertExpression(to);
 		}

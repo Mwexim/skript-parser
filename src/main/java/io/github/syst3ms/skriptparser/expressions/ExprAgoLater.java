@@ -4,10 +4,12 @@ import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
+import java.util.Optional;
 
 /**
  * The date that was a certain duration ago or is a certain duration in the future.
@@ -40,7 +42,6 @@ public class ExprAgoLater implements Expression<SkriptDate> {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		past = matchedPattern == 0;
 		relative = parseContext.getParseMark() == 1;
-
 		duration = (Expression<Duration>) expressions[0];
 		if (relative)
 			date = (Expression<SkriptDate>) expressions[1];
@@ -49,17 +50,11 @@ public class ExprAgoLater implements Expression<SkriptDate> {
 
 	@Override
 	public SkriptDate[] getValues(TriggerContext ctx) {
-		Duration dur = duration.getSingle(ctx);
-		if (dur == null)
-			return new SkriptDate[0];
-
-		if (relative) {
-			SkriptDate d = date.getSingle(ctx);
-			if (d == null)
-				return new SkriptDate[0];
-			return new SkriptDate[] {past ? d.minus(dur) : d.plus(dur)};
-		}
-		return new SkriptDate[] {past ? SkriptDate.now().minus(dur) : SkriptDate.now().plus(dur)};
+		Optional<? extends Duration> dur = duration.getSingle(ctx);
+		Optional<? extends SkriptDate> dat = relative ? date.getSingle(ctx) : Optional.of(SkriptDate.now());
+		DoubleOptional<? extends SkriptDate, ? extends Duration> opt = DoubleOptional.ofOptional(dat, dur);
+		return opt.mapToOptional((da, du) -> new SkriptDate[]{past ? da.minus(du) : da.plus(du)})
+				.orElse(new SkriptDate[0]);
 	}
 
 	@Override

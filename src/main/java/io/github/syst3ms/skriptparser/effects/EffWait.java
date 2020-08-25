@@ -10,6 +10,7 @@ import io.github.syst3ms.skriptparser.util.ThreadUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
+import java.util.Optional;
 
 /**
  * Waits a certain duration and then executes all the code after this effect.
@@ -44,15 +45,14 @@ public class EffWait extends Effect {
     }
 
     @Override
-    public Statement walk(TriggerContext ctx) {
-        Duration dur = duration.getSingle(ctx);
-        if (dur == null)
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
+        Optional<? extends Duration> dur = duration.getSingle(ctx);
+        if (dur.isEmpty())
             return getNext();
-        if (getNext() == null)
-            return null;
-
-        ThreadUtils.runAfter(() -> Statement.runAll(getNext(), ctx), dur);
-        return null;
+        if (getNext().isEmpty())
+            return Optional.empty();
+        ThreadUtils.runAfter(() -> Statement.runAll(getNext().get(), ctx), dur.get());
+        return Optional.empty();
     }
 
     @Override

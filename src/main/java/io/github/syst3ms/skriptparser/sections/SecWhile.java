@@ -11,6 +11,8 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * A section that keeps executing its contents while a given condition is met.
  */
@@ -40,10 +42,10 @@ public class SecWhile extends CodeSection {
     }
 
     @Override
-    public Statement walk(TriggerContext ctx) {
-        Boolean cond = condition.getSingle(ctx);
-        if (cond == null || !cond) {
-            return actualNext;
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
+        Optional<? extends Boolean> cond = condition.getSingle(ctx);
+        if (cond.isEmpty() || !cond.get()) {
+            return Optional.ofNullable(actualNext);
         } else {
             return getFirst();
         }

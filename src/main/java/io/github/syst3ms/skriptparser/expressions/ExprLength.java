@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -29,8 +30,8 @@ public class ExprLength extends PropertyExpression<Number, String> {
     }
 
     @Override
-    public Function<String[], Number[]> getPropertyFunction() {
-        return strings -> new Number[]{strings[0].length()};
+    public Optional<? extends Function<? super String[], ? extends Number[]>> getPropertyFunction() {
+        return Optional.of(strings -> new Number[]{strings[0].length()});
     }
 
     @Override
