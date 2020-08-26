@@ -8,7 +8,6 @@ import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -108,11 +107,10 @@ public class ExprElement implements Expression<Object> {
 						return new Object[0];
 				}
 			case 1:
-				List<Object> selection = Arrays.asList(values.clone());
 				if (parseMark == 0) {
-					return selection.subList(0, index).toArray();
+					return Arrays.copyOfRange(values, 0, index);
 				} else {
-					return selection.subList(selection.size() - index, selection.size()).toArray();
+					return Arrays.copyOfRange(values, values.length - index, values.length);
 				}
 			case 2:
 				return new Object[] {values[index - 1]};
