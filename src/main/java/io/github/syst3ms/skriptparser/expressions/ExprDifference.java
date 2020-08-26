@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
@@ -40,19 +39,21 @@ public class ExprDifference implements Expression<Object> {
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         first = expressions[0];
         second = expressions[1];
-        Type<?> type = TypeManager.getByClass(
+        var commonType = TypeManager.getByClass(
                 ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())
         );
-        if (type == null) {
-            type = TypeManager.getByClassExact(Object.class);
-            assert type != null;
+        if (commonType.isEmpty()) {
+            commonType = TypeManager.getByClassExact(Object.class);
+            assert commonType.isPresent();
         }
-        math = (Arithmetic<Object, Object>) type.getArithmetic();
-        commonSuperClass = type.getTypeClass();
-        if (math == null) {
+        var type = commonType.get();
+        var arithmetic = type.getArithmetic();
+        commonSuperClass = commonType.get().getTypeClass();
+        if (arithmetic.isEmpty()) {
             parseContext.getLogger().error("Can't compare these two values", ErrorType.SEMANTIC_ERROR);
             return false;
         }
+        math = (Arithmetic<Object, Object>) arithmetic.get();
         return true;
     }
 

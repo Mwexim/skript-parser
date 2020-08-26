@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Exits the entire trigger, preventing all upcoming statements to not get triggered.
@@ -59,23 +60,19 @@ public class EffExit extends Effect {
     }
 
     @Override
-    public Statement walk(TriggerContext ctx) {
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
         switch (pattern) {
             case 0:
-                return null;
+                return Optional.empty();
             case 1:
                 return escapeSections(1, this);
             case 2:
-                Long l = amount.getSingle(ctx);
-                if (l == null)
-                    return null;
-
-                return escapeSections(l, this);
+                return amount.getSingle(ctx).flatMap(sec -> escapeSections(sec, this));
             case 3:
                 // The current Trigger itself is also a part of the current sections!
                 return escapeSections(currentSections.size() - 1, this);
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
@@ -93,26 +90,28 @@ public class EffExit extends Effect {
         }
     }
 
-    @Nullable
-    private Statement escapeSections(long amount, Statement start) {
-        Statement temp;
+    @SuppressWarnings("unchecked")
+    private Optional<Statement> escapeSections(long amount, Statement start) {
+        Optional<Statement> temp;
+        Optional<Statement> statement = Optional.of(start);
+        Statement stm = statement.get();
         while (amount > 0) {
-            temp = start;
-            start = start.getParent();
-            if (start == null)
-                return null;
+            temp = statement;
+            statement = statement.flatMap(Statement::getParent);
+            if (statement.isEmpty())
+                return Optional.empty();
+            stm = statement.get();
             // 0 = all, 1 = only loops, 2 = only conditionals
             if (parseMark == 0
-                    || parseMark == 1 && (start instanceof SecLoop || start instanceof SecWhile)
-                    || parseMark == 2 && start instanceof Conditional) {
+                    || parseMark == 1 && (stm instanceof SecLoop || stm instanceof SecWhile)
+                    || parseMark == 2 && stm instanceof Conditional) {
                 amount--;
                 continue;
             }
-            return temp.getNext();
+            return temp.flatMap(Statement::getNext);
         }
-        System.out.println(start.getNext());
-        return start instanceof SecLoop ? ((SecLoop) start).getActualNext()
-                : start instanceof SecWhile ? ((SecWhile) start).getActualNext()
-                : start.getNext();
+        return stm instanceof SecLoop ? ((SecLoop) stm).getActualNext()
+                : stm instanceof SecWhile ? ((SecWhile) stm).getActualNext()
+                : (Optional<Statement>) stm.getNext();
     }
 }

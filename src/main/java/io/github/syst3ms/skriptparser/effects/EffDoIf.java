@@ -37,12 +37,15 @@ public class EffDoIf extends Effect {
         condition = (ConditionalExpression) expressions[0];
         String expr = parseContext.getMatches().get(0).group();
         parseContext.getLogger().recurse();
-        effect = SyntaxParser.parseEffect(expr, parseContext.getParserState(), parseContext.getLogger());
+        var eff = SyntaxParser.parseEffect(expr, parseContext.getParserState(), parseContext.getLogger());
         parseContext.getLogger().callback();
+        if (eff.isEmpty())
+            return false;
+        effect = eff.get();
         if (effect instanceof EffDoIf) {
             parseContext.getLogger().error("You can't nest multiple do-if effects!", ErrorType.SEMANTIC_ERROR);
         }
-        return effect != null;
+        return true;
     }
 
     @Override

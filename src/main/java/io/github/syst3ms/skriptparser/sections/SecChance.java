@@ -10,6 +10,7 @@ import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -45,11 +46,11 @@ public class SecChance extends CodeSection {
     }
 
     @Override
-    public Statement walk(TriggerContext ctx) {
-        Number c = chance.getSingle(ctx);
-        if (c == null)
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
+        Optional<? extends Number> c = chance.getSingle(ctx);
+        if (c.isEmpty())
             return getNext();
-        double val = c.doubleValue();
+        double val = c.get().doubleValue();
         if (val < 0 || val > (percent ? 100 : 1))
             return getNext();
         BigDecimal randomNumber = (BigDecimal) NumberMath.random(BigDecimal.valueOf(0), BigDecimal.valueOf(100), false, random);
