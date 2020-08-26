@@ -1,10 +1,11 @@
 package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.registration.tags.SkriptTags;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -34,7 +35,7 @@ public class EffPrint extends Effect {
 
     @Override
     public void execute(TriggerContext ctx) {
-        String[] strs = string.getValues(ctx);
+        String[] strs = SkriptTags.occasionally(() -> string.getValues(ctx));
         if (strs.length == 0)
             return;
 

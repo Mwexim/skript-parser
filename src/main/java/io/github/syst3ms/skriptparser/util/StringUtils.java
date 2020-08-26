@@ -143,6 +143,26 @@ public class StringUtils {
     }
 
     /**
+     * Finds the contents until a closing bracket
+     * @param s the string containing the percents
+     * @param start where the pair begins
+     * @param closingBracket the closing bracket
+     * @return the content until the closing bracket
+     */
+    @Nullable
+    public static String getBracketContent(String s, int start, char closingBracket) {
+        for (int i = start; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '\\') {
+                i++;
+            } else if (c == closingBracket) {
+                return s.substring(start, i);
+            }
+        }
+        return null; // There was no closing bracket
+    }
+
+    /**
      * Find the first occurrence of a string in another one, ignoring case
      * @param haystack the string to look in
      * @param needle the string to look for
