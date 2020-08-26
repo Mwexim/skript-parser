@@ -149,17 +149,16 @@ public class StringUtils {
      * @param closingBracket the closing bracket
      * @return the content until the closing bracket
      */
-    @Nullable
-    public static String getBracketContent(String s, int start, char closingBracket) {
+    public static Optional<String> getBracketContent(String s, int start, char closingBracket) {
         for (int i = start; i < s.length(); i++) {
             char c = s.charAt(i);
             if (c == '\\') {
                 i++;
             } else if (c == closingBracket) {
-                return s.substring(start, i);
+                return Optional.of(s.substring(start, i));
             }
         }
-        return null; // There was no closing bracket
+        return Optional.empty(); // There was no closing bracket
     }
 
     /**

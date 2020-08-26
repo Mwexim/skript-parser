@@ -2,15 +2,15 @@ package io.github.syst3ms.skriptparser.registration.tags;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.function.UnaryOperator;
 
 /**
  * A simple tag is a tag that only has a key. The value is omitted and the returned value will always be static.
  */
-public class SimpleTag extends SkriptTag {
+public class SimpleTag extends Tag {
 
 	private final String key;
-	@Nullable
 	private final Character symbol;
 	private final UnaryOperator<String> function;
 
@@ -42,9 +42,13 @@ public class SimpleTag extends SkriptTag {
 	 * since the more abbreviations, the more chance they will clash with each other.
 	 * @return the abbreviation of this tag, default {@code null}
 	 */
-	@Nullable
-	public Character getSymbol() {
-		return symbol;
+	public Optional<Character> getSymbol() {
+		return Optional.ofNullable(symbol);
+	}
+
+	@Override
+	public String toString() {
+		return "<" + key + ">";
 	}
 
 	/**
@@ -54,8 +58,11 @@ public class SimpleTag extends SkriptTag {
 	 * @return whether the match was successful or not
 	 */
 	public final boolean matches(String key, boolean isSymbol) {
-		if (isSymbol)
-			return Character.valueOf(key.charAt(0)).equals(getSymbol());
+		if (isSymbol) {
+			return getSymbol()
+					.filter(sym -> sym.equals(key.charAt(0)))
+					.isPresent();
+		}
 		return getKey().equalsIgnoreCase(key);
 	}
 }

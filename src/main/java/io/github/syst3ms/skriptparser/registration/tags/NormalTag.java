@@ -7,7 +7,7 @@ import java.util.function.BinaryOperator;
 /**
  * A normal tag is a tag that both has a key and value.
  */
-public class NormalTag extends SkriptTag {
+public class NormalTag extends Tag {
 
 	private final String key;
 	private final BinaryOperator<String> function;
@@ -36,6 +36,11 @@ public class NormalTag extends SkriptTag {
 
 	public void setParameter(String param) {
 		this.param = param;
+	}
+
+	@Override
+	public String toString() {
+		return "<" + key + "=" + param + ">";
 	}
 
 	/**

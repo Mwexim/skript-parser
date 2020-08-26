@@ -1,11 +1,12 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.registration.tags.NormalTag;
+import io.github.syst3ms.skriptparser.registration.tags.SkriptTags;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
-import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import io.github.syst3ms.skriptparser.util.TimeUtils;
@@ -28,6 +29,10 @@ public class DefaultRegistration {
 
     public static void register() {
         SkriptRegistration registration = Main.getMainRegistration();
+
+        /*
+         * Classes
+         */
         registration.addType(
                 Object.class,
                 "object",
@@ -288,6 +293,23 @@ public class DefaultRegistration {
                 })
                 .register();
 
+        /*
+         * Converters
+         */
+        registration.addConverter(Number.class, Long.class, n -> Optional.of(n instanceof Long ? (Long) n : n.longValue()));
+        registration.addConverter(Number.class, BigInteger.class, n -> {
+            if (n instanceof BigInteger) {
+                return Optional.of((BigInteger) n);
+            } else if (n instanceof Long) {
+                return Optional.of(BigInteger.valueOf((Long) n));
+            } else {
+                return Optional.of(BigInteger.valueOf(n.longValue()));
+            }
+        });
+
+        /*
+         * Comparators
+         */
         Comparators.registerComparator(
                 Number.class,
                 Number.class,
@@ -318,6 +340,7 @@ public class DefaultRegistration {
                     }
                 }
         );
+
         /*
          * Ranges
          */
@@ -364,19 +387,25 @@ public class DefaultRegistration {
                             .toArray(String[]::new);
                 }
         );
+
         /*
-         * Converters
+         * Tags
          */
-        Converters.registerConverter(Number.class, Long.class, n -> Optional.of(n instanceof Long ? (Long) n : n.longValue()));
-        Converters.registerConverter(Number.class, BigInteger.class, n -> {
-            if (n instanceof BigInteger) {
-                return Optional.of((BigInteger) n);
-            } else if (n instanceof Long) {
-                return Optional.of(BigInteger.valueOf((Long) n));
-            } else {
-                return Optional.of(BigInteger.valueOf(n.longValue()));
-            }
-        });
+        SkriptTags.registerTag(SkriptTags.RESET_TAG);
+        SkriptTags.registerTag(new NormalTag(
+                        "case",
+                        (p, s) -> {
+                            if (p.equalsIgnoreCase("upper")) {
+                                System.out.println("Matched");
+                                return s.toUpperCase();
+                            } else if (p.equalsIgnoreCase("lower")) {
+                                System.out.println("Matched2");
+                                return s.toLowerCase();
+                            }
+                            return s;
+                        }),
+                true);
+
         registration.register(); // Ignoring logs here, we control the input
     }
 }

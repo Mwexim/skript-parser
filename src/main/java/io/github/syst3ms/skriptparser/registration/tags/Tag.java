@@ -21,7 +21,7 @@ import java.util.function.Supplier;
  * @see SimpleTag
  * @see DynamicTag
  */
-public abstract class SkriptTag {
+public abstract class Tag {
 
 	private String affected = "";
 	private int priority = 5;
@@ -50,7 +50,7 @@ public abstract class SkriptTag {
 		return priority;
 	}
 
-	public SkriptTag setPriority(int priority) {
+	public Tag setPriority(int priority) {
 		this.priority = priority;
 		return this;
 	}
@@ -64,7 +64,7 @@ public abstract class SkriptTag {
 		return occasional;
 	}
 
-	public SkriptTag setOccasional(boolean occasional) {
+	public Tag setOccasional(boolean occasional) {
 		this.occasional = occasional;
 		return this;
 	}
@@ -92,7 +92,7 @@ public abstract class SkriptTag {
 			return true;
 		if (o == null || getClass() != o.getClass())
 			return false;
-		SkriptTag skriptTag = (SkriptTag) o;
+		Tag skriptTag = (Tag) o;
 		return priority == skriptTag.priority &&
 				occasional == skriptTag.occasional;
 	}

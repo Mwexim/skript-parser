@@ -4,7 +4,6 @@ import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.util.ConsoleColors;
 import io.github.syst3ms.skriptparser.util.StringUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -13,43 +12,80 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class SkriptTags {
-    private static final Comparator<SkriptTag> INFO_COMPARATOR = (t, t2) -> {
+    public static final SimpleTag RESET_TAG = new SimpleTag("reset", 'r', s -> ConsoleColors.RESET + s);
+    private static final Comparator<Tag> INFO_COMPARATOR = (t, t2) -> {
         if (t.getPriority() != t2.getPriority())
             return t2.getPriority() - t.getPriority();
         return priorityValue(t2) - priorityValue(t);
     };
-    private static final List<SkriptTag> tags = new ArrayList<>();
-
-    public static final SimpleTag RESET_TAG = new SimpleTag("reset", 'r', s -> ConsoleColors.RESET + s);
-
-    private static final boolean[] occasionalEnabled = new boolean[1];
+    private static final List<Tag> tags = new ArrayList<>();
+    private static boolean occasionalEnabled;
 
     /**
-     * Parses a string as a {@link SkriptTag}.
+     * Registers a new {@link Tag}.
+     * Note that instances of {@link Tag} itself will not function.
+     * @param tag the tag to be registered
+     */
+    public static void registerTag(Tag tag) {
+        registerTag(tag, false);
+    }
+
+    /**
+     * Registers a new {@link Tag}.
+     * Note that instances of {@link Tag} itself will not function.
+     * @param tag the tag to be registered
+     * @param occasional whether or not the tag is occasional
+     */
+    public static void registerTag(Tag tag, boolean occasional) {
+        registerTag(tag, occasional, 5);
+    }
+
+    /**
+     * Registers a new {@link Tag}.
+     * Note that instances of {@link Tag} itself will not function.
+     * @param tag the tag to be registered
+     * @param occasional whether or not the tag is occasional
+     * @param priority the priority
+     */
+    public static void registerTag(Tag tag, boolean occasional, int priority) {
+        tag.setOccasional(occasional);
+        tag.setPriority(priority);
+        tags.add(tag);
+    }
+
+    /**
+     * @return a list of all currently registered tags
+     */
+    public static List<Tag> getTags() {
+        tags.sort(INFO_COMPARATOR);
+        return tags;
+    }
+
+    /**
+     * Parses a string as a {@link Tag}.
      * @param str the string to parse
      * @param logger the logger
-     * @return the parsed tag, {@code null} if no match was found
+     * @return the parsed tag
      */
-    @Nullable
-    public static SkriptTag parseTag(String str, SkriptLogger logger) {
+    public static Optional<Tag> parseTag(String str, SkriptLogger logger) {
         if (str.isEmpty())
-            return null;
+            return Optional.empty();
         // Quickly see if a tag is the reset tag. This tag is commonly used,
         // and since it's built-in in Skript and has special use-cases, this doesn't hurt.
         if (str.equalsIgnoreCase("&r") || str.equals("<reset>"))
-            return RESET_TAG;
+            return Optional.of(RESET_TAG);
 
         if (str.startsWith("&")) {
             // The tag can only be a simple tag. The matching is very straightforward.
             assert str.length() == 2;
             final String matchString = str.substring(1);
 
-            Optional<SkriptTag> opt = getTags().stream()
+            Optional<Tag> opt = getTags().stream()
                     .filter(t -> t instanceof SimpleTag)
                     .filter(t -> ((SimpleTag) t).matches(matchString, true))
                     .findFirst();
             if (opt.isPresent()) {
-                return opt.get();
+                return opt;
             }
         } else if (str.startsWith("<") && str.endsWith(">") && StringUtils.findClosingIndex(str, '<', '>', 0) == str.length() - 1) {
             // The tag can be all 3 types. We'll need to do some research before we can know which one is applicable.
@@ -60,26 +96,26 @@ public class SkriptTags {
                 assert matchParts.length == 2;
                 final String matchString = matchParts[0];
 
-                Optional<SkriptTag> opt = getTags().stream()
+                Optional<Tag> opt = getTags().stream()
                         .filter(t -> t instanceof NormalTag)
                         .filter(t -> ((NormalTag) t).matches(matchString))
                         .findFirst();
                 if (opt.isPresent()) {
                     NormalTag tag = (NormalTag) opt.get();
                     tag.setParameter(matchParts[1]);
-                    return tag;
+                    return Optional.of(tag);
                 }
             } else {
                 // The tag can be either a simple tag or a dynamic opt. We check the simple tag first.
                 assert matchParts.length == 1;
                 final String matchString = matchParts[0];
 
-                Optional<SkriptTag> opt = getTags().stream()
+                Optional<Tag> opt = getTags().stream()
                         .filter(t -> t instanceof SimpleTag)
                         .filter(t -> ((SimpleTag) t).matches(matchString, false))
                         .findFirst();
                 if (opt.isPresent()) {
-                    return opt.get();
+                    return opt;
                 }
 
                 // It has to be a dynamic tag at this moment.
@@ -90,44 +126,26 @@ public class SkriptTags {
                 if (opt.isPresent()) {
                     DynamicTag tag = (DynamicTag) opt.get();
                     tag.setKey(matchString);
-                    return tag;
+                    return Optional.of(tag);
                 }
             }
         }
         logger.error("No tag matching '" + str + "' was found.", ErrorType.SEMANTIC_ERROR);
-        return null;
-    }
-
-    /**
-     * Registers a new {@link SkriptTag}.
-     * Note that the register only succeeds if the tag has {@link SkriptTag} as superclass.
-     * Instances of {@link SkriptTag} itself will not be registered.
-     * @param tag the tag to be registered
-     */
-    public static void registerTag(SkriptTag tag) {
-        tags.add(tag);
-    }
-
-    /**
-     * @return a list of all currently registered tags
-     */
-    public static List<SkriptTag> getTags() {
-        tags.sort(INFO_COMPARATOR);
-        return tags;
+        return Optional.empty();
     }
 
     public static boolean isOccasionalEnabled() {
-        return occasionalEnabled[0];
+        return occasionalEnabled;
     }
 
     public static <T> T occasionally(Supplier<T> action) {
-        occasionalEnabled[0] = true;
+        occasionalEnabled = true;
         T obj = action.get();
-        occasionalEnabled[0] = false;
+        occasionalEnabled = false;
         return obj;
     }
 
-    private static int priorityValue(SkriptTag tag) {
+    private static int priorityValue(Tag tag) {
        if (tag instanceof NormalTag) {
            return 3;
        } else if (tag instanceof SimpleTag) {
@@ -138,5 +156,4 @@ public class SkriptTags {
            return 0;
        }
     }
-
 }
