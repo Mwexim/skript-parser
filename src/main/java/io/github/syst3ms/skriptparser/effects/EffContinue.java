@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Skips the current looped value and continues to the next one in the list, if it exists.
@@ -52,7 +53,7 @@ public class EffContinue extends Effect {
     }
 
     @Override
-    protected Statement walk(TriggerContext ctx) {
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
         return loop.walk(ctx);
     }
 
