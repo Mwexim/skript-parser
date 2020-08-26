@@ -38,7 +38,8 @@ public class EffContinue extends Effect {
                 loops.add((SecLoop) sec);
             }
         }
-        loop = loops.get(loops.size() - 1);
+        // Closest loop will be the first item
+        loop = loops.get(0);
 
         if (loop == null) {
             parseContext.getLogger().error("You can only continue in a loop!", ErrorType.SEMANTIC_ERROR);

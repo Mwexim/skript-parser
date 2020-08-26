@@ -17,9 +17,9 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  * @name Element
  * @type EXPRESSION
- * @pattern ([the] first|[the] last|[a] random|[the] %*integer%(st|nd|rd|th)) element out [of] %objects%
- * @pattern [the] (first|last) %*integer% elements out [of] %objects%
- * @pattern %objects%\[%*integer%\]
+ * @pattern ([the] first|[the] last|[a] random|[the] %integer%(st|nd|rd|th)) element out [of] %objects%
+ * @pattern [the] (first|last) %integer% elements out [of] %objects%
+ * @pattern %objects%\[%integer%\]
  * @since ALPHA
  * @author Mwexim
  */
@@ -29,10 +29,10 @@ public class ExprElement implements Expression<Object> {
 		Main.getMainRegistration().addExpression(
 				ExprElement.class,
 				Object.class,
-				false,
-				"(0:[the] first|1:[the] last|2:[a] random|3:[the] %*integer%(st|nd|rd|th)) element out [of] %objects%",
-				"[the] (0:first|1:last) %*integer% elements out [of] %objects%",
-				"%objects%\\[%*integer%\\]");
+				true,
+				"(0:[the] first|1:[the] last|2:[a] random|3:[the] %integer%(st|nd|rd|th)) element out [of] %objects%",
+				"[the] (0:first|1:last) %integer% elements out [of] %objects%",
+				"%objects%\\[%integer%\\]");
 	}
 
 	private static final ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -86,10 +86,8 @@ public class ExprElement implements Expression<Object> {
 				return new Object[0];
 			Long r = range.getSingle(ctx).get();
 			index = r.intValue();
-			if (index > values.length && pattern == 1) {
-				return values;
-			} else if (index > values.length) {
-				return new Object[0];
+			if (index > values.length) {
+				return pattern == 1 ? values : new Object[0];
 			} else if (index <= 0) {
 				return new Object[0];
 			}

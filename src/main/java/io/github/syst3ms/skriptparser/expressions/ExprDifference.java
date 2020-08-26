@@ -8,6 +8,7 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
+import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -31,14 +32,15 @@ public class ExprDifference implements Expression<Object> {
         );
     }
 
-    Expression<?> first, second;
-    Arithmetic<Object, Object> math;
+    Expression<Object> first, second;
+    Arithmetic<?, ?> math;
     Class<?> commonSuperClass;
+
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        first = expressions[0];
-        second = expressions[1];
+        first = (Expression<Object>) expressions[0];
+        second = (Expression<Object>) expressions[1];
         var commonType = TypeManager.getByClass(
                 ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())
         );
@@ -53,7 +55,7 @@ public class ExprDifference implements Expression<Object> {
             parseContext.getLogger().error("Can't compare these two values", ErrorType.SEMANTIC_ERROR);
             return false;
         }
-        math = (Arithmetic<Object, Object>) arithmetic.get();
+        math = arithmetic.get();
         return true;
     }
 
@@ -62,14 +64,12 @@ public class ExprDifference implements Expression<Object> {
         return commonSuperClass;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Object[] getValues(TriggerContext ctx) {
-        Object f = first.getSingle(ctx);
-        Object s = second.getSingle(ctx);
-        if (f == null || s == null)
-            return new Object[0];
-
-        return new Object[] {math.difference(f, s)};
+        return DoubleOptional.of(first.getSingle(ctx), second.getSingle(ctx))
+                .mapToOptional((f, s) -> new Object[] {((Arithmetic<Object, Object>) math).difference(f, s)})
+                .orElse(new Object[0]);
     }
 
     @Override
