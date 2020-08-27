@@ -67,7 +67,7 @@ public class ExprDifference implements Expression<Object> {
     @SuppressWarnings("unchecked")
     @Override
     public Object[] getValues(TriggerContext ctx) {
-        return DoubleOptional.of(first.getSingle(ctx), second.getSingle(ctx))
+        return DoubleOptional.ofOptional(first.getSingle(ctx), second.getSingle(ctx))
                 .mapToOptional((f, s) -> new Object[] {((Arithmetic<Object, Object>) math).difference(f, s)})
                 .orElse(new Object[0]);
     }

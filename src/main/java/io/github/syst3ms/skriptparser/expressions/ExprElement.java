@@ -85,9 +85,9 @@ public class ExprElement implements Expression<Object> {
 				return new Object[0];
 			Long r = range.getSingle(ctx).get();
 			index = r.intValue();
-			if (index > values.length) {
-				return pattern == 1 ? values : new Object[0];
-			} else if (index <= 0) {
+			if (index > values.length && pattern == 1) {
+				return values;
+			} else if (index > values.length || index <= 0) {
 				return new Object[0];
 			}
 		}
