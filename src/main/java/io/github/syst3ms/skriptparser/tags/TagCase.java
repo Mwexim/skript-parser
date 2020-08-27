@@ -19,9 +19,10 @@ public class TagCase implements Tag {
 
 	String param;
 	public boolean init(String key, String[] parameters) {
-		if (key.equalsIgnoreCase("case")) {
+		if (key.equalsIgnoreCase("case")
+				&& parameters.length == 1) {
 			param = parameters[0];
-			return parameters.length == 1;
+			return true;
 		}
 		return false;
 	}

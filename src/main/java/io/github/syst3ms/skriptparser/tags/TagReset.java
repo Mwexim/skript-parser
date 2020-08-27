@@ -18,9 +18,9 @@ public class TagReset implements Tag {
 	}
 
 	public boolean init(String key, String[] parameters) {
-		if (key.equalsIgnoreCase("reset") || key.equalsIgnoreCase("r"))
-			return parameters.length == 0;
-		return false;
+		return key.equalsIgnoreCase("reset")
+				|| key.equalsIgnoreCase("r")
+				&& parameters.length == 0;
 	}
 
 	public String getValue(String affected) {
