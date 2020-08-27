@@ -1,6 +1,10 @@
 +
 # Created by https://www.gitignore.io/api/java,gradle,eclipse
 
+### VSCode ###
+
+.vscode/
+
 ### Eclipse ###
 
 .metadata

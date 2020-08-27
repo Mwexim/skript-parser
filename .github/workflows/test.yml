@@ -1,0 +1,23 @@
+name: Build & Test
+
+on: [push, pull_request]
+
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [11, 13]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java-version }}
+
+      - name: Build skript-parser
+        run: ./gradlew build
+
+      - name: Run tests
+        run: ./gradlew test

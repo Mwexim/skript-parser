@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+mainClassName = "io.github.syst3ms.skriptparser.Main"
+
+sourceCompatibility = 1.11
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    compile 'org.jetbrains:annotations:15.0'
+    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+    testCompile "junit:junit:4.12"
+    testRuntime "org.junit.vintage:junit-vintage-engine:5.4.1"
+    testCompile "org.junit.jupiter:junit-jupiter-api:5.4.1"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:5.4.1"
+}
+
+jar {
+    manifest {
+        attributes("Main-Class": mainClassName,
+                "Implementation-Title": "skript-parser",
+                "Implementation-Version": "alpha")
+    }
+}
+
+task copyJar(type: Copy) {
+    from jar
+    into new File(rootProject.projectDir, "build/libs")
+}
+
+build.finalizedBy copyJar

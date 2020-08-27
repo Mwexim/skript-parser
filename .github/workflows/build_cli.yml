@@ -1,0 +1,58 @@
+name: Build CLI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+
+  build-ubuntu-mac:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up JDK 1.11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Build with Gradle
+        run: gradle nativeImage
+
+      - name: Publish artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: skript-${{ matrix.os }}
+          path: src/cli/build/graal/skript
+
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK 1.11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools
+        run: choco install visualstudio2017-workload-vctools
+
+      - name: set env variables and run the Gradle build
+        shell: cmd
+        run: call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+     
+      - name: Build with Gradle
+        run: gradle nativeImage
+
+      - name: Publish artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: skript-windows-latest
+          path: src/cli/build/graal/skript.exe

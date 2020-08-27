@@ -1,0 +1,32 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.palantir.graal' version '0.7.1-16-gb4461f9'
+}
+
+mainClassName = 'com.olyno.skriptcli.App'
+
+sourceCompatibility = 1.11
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.12'
+}
+
+task copyJar(type: Copy) {
+    from jar
+    into new File(rootProject.projectDir, 'build/libs')
+}
+
+graal {
+    graalVersion '20.1.0'
+    javaVersion '11'
+    mainClass mainClassName
+    outputName 'skript'
+}
+
+build.finalizedBy copyJar
