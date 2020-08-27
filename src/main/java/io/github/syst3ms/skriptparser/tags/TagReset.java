@@ -6,11 +6,13 @@ import io.github.syst3ms.skriptparser.registration.tags.Tag;
 public class TagReset implements Tag {
 
 	static {
-		Main.getMainRegistration().addTag(TagReset.class);
+		Main.getMainRegistration().addTag(TagReset.class, 3);
 	}
 
 	public boolean init(String key, String[] parameters) {
-		return true;
+		if (key.equalsIgnoreCase("reset") || key.equalsIgnoreCase("r"))
+			return parameters.length == 0;
+		return false;
 	}
 
 	public String getValue(String affected) {
