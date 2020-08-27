@@ -18,7 +18,6 @@ public class FileUtils {
     public static final Pattern LEADING_WHITESPACE_PATTERN = Pattern.compile("(\\s+)\\S.*");
     public static final String MULTILINE_SYNTAX_TOKEN = "\\";
 
-
     /**
      * Parses a file and returns a list containing all of its lines.
      * <p>
@@ -188,7 +187,7 @@ public class FileUtils {
      * @param cla the class
      * @return the JAR file containing the class
      */
-    public static File getCurrentJarFile(Class<?> cla) throws URISyntaxException {
+    public static File getJarFile(Class<?> cla) throws URISyntaxException {
         return new File(cla.getProtectionDomain().getCodeSource().getLocation().toURI());
     }
 }
