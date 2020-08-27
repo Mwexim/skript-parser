@@ -8,6 +8,7 @@ import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 /**
  * A class containing info about a {@link SyntaxElement} that isn't an {@link Expression} or an {@link SkriptEvent}
  * @param <C> the {@link SyntaxElement} class
+ * @author Mwexim
  */
 public class TagInfo<C extends Tag> {
 	private final Class<C> c;

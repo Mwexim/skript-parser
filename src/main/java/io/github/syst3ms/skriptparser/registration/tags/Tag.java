@@ -12,6 +12,9 @@ import java.util.function.Supplier;
  *     <li>{@code &r}: short tags, no parameters</li>
  * </ul>
  * Note that you can use a backslash ('\') to escape characters inside tags.
+ * @see io.github.syst3ms.skriptparser.tags.TagReset TagReset
+ * @see io.github.syst3ms.skriptparser.tags.TagCase TagCase
+ * @author Mwexim
  */
 public interface Tag {
 

@@ -3,6 +3,14 @@ package io.github.syst3ms.skriptparser.tags;
 import io.github.syst3ms.skriptparser.Main;
 import io.github.syst3ms.skriptparser.registration.tags.Tag;
 
+/**
+ * Applies lowercase or uppercase to the affected string.
+ * @name Case Tag
+ * @type TAG
+ * @pattern <case=lower|upper>
+ * @since ALPHA
+ * @author Mwexim
+ */
 public class TagCase implements Tag {
 
 	static {
