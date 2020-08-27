@@ -1,0 +1,29 @@
+Tag class:
+
+abstract boolean init(String key, String[] parameters, boolean occasional)
+
+abstract String getValue(String affected)
+
+Registering:
+
+register(Class<? extends Tag> c, boolean occasional?, int priority?)
+
+
+Parsing:
+
+loop all registered tags:
+    tag.init() == true
+    return tag
+
+Apply in string:
+loop data (o):
+    String?
+        append o
+    Expression?
+        append o.toString()
+    Tag?
+        int i = findNextIndexOf(Tag.class, currentIndex, values)
+        for values in data from currentIndex to i - 1 (o2):
+            sb2 append o2.toString()
+        append o.getValue(sb2.toString())
+        currentIndex = i - 1

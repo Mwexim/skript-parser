@@ -8,7 +8,7 @@ import java.util.function.UnaryOperator;
 /**
  * A simple tag is a tag that only has a key. The value is omitted and the returned value will always be static.
  */
-public class SimpleTag extends Tag {
+public class SimpleTag extends SkriptTag {
 
 	private final String key;
 	private final Character symbol;

@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  * This means that the returned value is semi-static: it is based on the matched string,
  * but also just gets put before the affected substring.
  */
-public class DynamicTag extends Tag {
+public class DynamicTag extends SkriptTag {
 
 	private final Pattern pattern;
 	private final BinaryOperator<String> function;

@@ -1,104 +1,45 @@
 package io.github.syst3ms.skriptparser.registration.tags;
 
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * A tag is a part of code inside a string that changes certain parts of that string.
- * One could make a tag called {@code <blue>} that colors the substring blue.
- *
- * The substring this tag functions on is defined as such:
+ * Tags are elements one can use inside of strings to change parts of that string easily.
+ * Some examples of valid tags and their behaviour:
  * <ul>
- *     <li>If this is the only tag in the string, this will affect the whole string from the starting index</li>
- *     <li>If there is another tag inside this tag, this will affect the whole string from the starting index,
- *     but the nested tag may also affect parts from the already affected string on its own.</li>
- *     <li>If there comes a {@code reset} tag after this tag, it will affect the string from the starting index to the index of the {@code reset}-tag</li>
+ *     <li>{@code <yellow>, <reset>}: singleton tags, no parameters</li>
+ *     <li>{@code <case=uppercase>, <color=#ffffff}: parameter tags, one parameter</li>
+ *     <li>{@code <link=text,link.to.my/image.png>}: plural tags, multiple parameters</li>
+ *     <li>{@code &r}: short tags, no parameters</li>
  * </ul>
- *
- * @see NormalTag
- * @see SimpleTag
- * @see DynamicTag
+ * Note that you can use a backslash ('\') to escape characters inside tags.
  */
-public abstract class Tag {
-
-	private String affected = "";
-	private int priority = 5;
-	private boolean occasional = false;
+public interface Tag {
 
 	/**
-	 * Returns the applied string.
-	 * @see #getAffected()
-	 * @return the function
+	 * Initialises this Tag before being used. This method is always called before all the others in
+	 * an extending class.
+	 * @param key the key that was matched
+	 * @param parameters an array of strings representing all the parameters that are being passed
+	 *                   to this syntax element. Elements of this array can't be {@code null} or {@link String#isEmpty() empty}.
+	 * @return {@code true} if the tag was initialized successfully, {@code false} otherwise.
 	 */
-	public abstract String getValue();
+	boolean init(String key, String[] parameters);
 
 	/**
-	 * The key of this tag.
-	 * In the tag {@code <tag=value>}, 'tag' is the key.
-	 *
-	 * @return the key of this tag
+	 * Returns a string applied by this tag.
+	 * @param affected the string this tags affects.
+	 * @return the applied string
 	 */
-	public abstract String getKey();
+	String getValue(String affected);
 
 	/**
-	 * Higher priority tags will be checked against first.
-	 * @return the priority, default 5
+	 * If a tag is occasional, it can only be applied to the affected string
+	 * when a developer specifically calls it in an occasional state.
+	 * @return whether or not this tag is occasional, default {@code false}
+	 * 
+	 * @see SkriptTags#occasionally(Supplier) 
 	 */
-	public int getPriority() {
-		return priority;
-	}
-
-	public Tag setPriority(int priority) {
-		this.priority = priority;
-		return this;
-	}
-
-	/**
-	 * When a tag is occasional, it only gets applied to the string when you call the {@link SkriptTags#occasionally(Supplier)} method.
-	 * This is to make sure your tag only gets used when the developer specifically calls that method.
-	 * @return whether or not this tag is occasional, default false
-	 */
-	public boolean isOccasional() {
-		return occasional;
-	}
-
-	public Tag setOccasional(boolean occasional) {
-		this.occasional = occasional;
-		return this;
-	}
-
-	/**
-	 * Gets the affected substring this tag applies to.
-	 * @return the affected string
-	 */
-	@Nullable
-	public String getAffected() {
-		return affected;
-	}
-
-	/**
-	 * Sets the affected substring this tags applies to.
-	 * @param affected the affected string
-	 */
-	public void setAffected(String affected) {
-		this.affected = affected;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-		Tag skriptTag = (Tag) o;
-		return priority == skriptTag.priority &&
-				occasional == skriptTag.occasional;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(priority, occasional);
+	default boolean isOccasional() {
+		return false;
 	}
 }

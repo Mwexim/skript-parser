@@ -8,8 +8,8 @@ import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 import io.github.syst3ms.skriptparser.registration.tags.NormalTag;
+import io.github.syst3ms.skriptparser.registration.tags.SkriptTag;
 import io.github.syst3ms.skriptparser.registration.tags.SkriptTags;
-import io.github.syst3ms.skriptparser.registration.tags.Tag;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import io.github.syst3ms.skriptparser.util.StringUtils;
@@ -185,14 +185,14 @@ public class VariableString implements Expression<String> {
             var o = data[i];
             if (o instanceof Expression) {
                 sb.append(TypeManager.toString(((Expression<?>) o).getValues(ctx)));
-            } else if (o instanceof Tag) {
-                if (((Tag) o).isOccasional() && !occasional)
+            } else if (o instanceof SkriptTag) {
+                if (((SkriptTag) o).isOccasional() && !occasional)
                     continue;
                 if (o.equals(SkriptTags.RESET_TAG)) {
                     resets++;
                     continue;
                 }
-                Tag tag = appendTag((Tag) o, ctx, occasional, ++i, data);
+                SkriptTag tag = appendTag((SkriptTag) o, ctx, occasional, ++i, data);
                 System.out.println(((NormalTag) tag).getParameter());
                 sb.append(tag.getValue());
                 int resetIndex = CollectionUtils.indexOfNth(Arrays.asList(data), SkriptTags.RESET_TAG, resets++);
@@ -215,7 +215,7 @@ public class VariableString implements Expression<String> {
         for (var o : data) {
             if (o instanceof Expression) {
                 sb.append('%').append(((Expression<?>) o).toString(ctx, debug)).append('%');
-            } else if (o instanceof Tag) {
+            } else if (o instanceof SkriptTag) {
                 sb.append(o.toString());
             } else {
                 sb.append(o);
@@ -238,7 +238,7 @@ public class VariableString implements Expression<String> {
         for (var o : data) {
             if (o instanceof String) {
                 sb.append(o);
-            } else if (o instanceof Tag) {
+            } else if (o instanceof SkriptTag) {
                 sb.append(o.toString());
             } else {
                 assert o instanceof Expression;
@@ -250,21 +250,21 @@ public class VariableString implements Expression<String> {
         return sb.toString();
     }
 
-    private Tag appendTag(Tag tag, TriggerContext ctx, boolean occasional, int n, Object[] data) {
+    private SkriptTag appendTag(SkriptTag tag, TriggerContext ctx, boolean occasional, int n, Object[] data) {
         StringBuilder sb = new StringBuilder();
         for (int i = n; i < data.length; i++) {
             Object o = data[i];
             if (o instanceof Expression) {
                 sb.append(TypeManager.toString(((Expression<?>) o).getValues(ctx)));
-            } else if (o instanceof Tag) {
-                if (((Tag) o).isOccasional() && !occasional)
+            } else if (o instanceof SkriptTag) {
+                if (((SkriptTag) o).isOccasional() && !occasional)
                     continue;
                 if (o.equals(SkriptTags.RESET_TAG)) {
                     sb.append(SkriptTags.RESET_TAG.getValue());
                     tag.setAffected(sb.toString());
                     return tag;
                 }
-                sb.append(appendTag((Tag) o, ctx, occasional, ++i, data).getValue());
+                sb.append(appendTag((SkriptTag) o, ctx, occasional, ++i, data).getValue());
             } else {
                 sb.append(o);
             }

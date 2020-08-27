@@ -13,41 +13,41 @@ import java.util.function.Supplier;
 
 public class SkriptTags {
     public static final SimpleTag RESET_TAG = new SimpleTag("reset", 'r', s -> ConsoleColors.RESET + s);
-    private static final Comparator<Tag> INFO_COMPARATOR = (t, t2) -> {
+    private static final Comparator<SkriptTag> INFO_COMPARATOR = (t, t2) -> {
         if (t.getPriority() != t2.getPriority())
             return t2.getPriority() - t.getPriority();
         return priorityValue(t2) - priorityValue(t);
     };
-    private static final List<Tag> tags = new ArrayList<>();
+    private static final List<SkriptTag> tags = new ArrayList<>();
     private static boolean occasionalEnabled;
 
     /**
-     * Registers a new {@link Tag}.
-     * Note that instances of {@link Tag} itself will not function.
+     * Registers a new {@link SkriptTag}.
+     * Note that instances of {@link SkriptTag} itself will not function.
      * @param tag the tag to be registered
      */
-    public static void registerTag(Tag tag) {
+    public static void registerTag(SkriptTag tag) {
         registerTag(tag, false);
     }
 
     /**
-     * Registers a new {@link Tag}.
-     * Note that instances of {@link Tag} itself will not function.
+     * Registers a new {@link SkriptTag}.
+     * Note that instances of {@link SkriptTag} itself will not function.
      * @param tag the tag to be registered
      * @param occasional whether or not the tag is occasional
      */
-    public static void registerTag(Tag tag, boolean occasional) {
+    public static void registerTag(SkriptTag tag, boolean occasional) {
         registerTag(tag, occasional, 5);
     }
 
     /**
-     * Registers a new {@link Tag}.
-     * Note that instances of {@link Tag} itself will not function.
+     * Registers a new {@link SkriptTag}.
+     * Note that instances of {@link SkriptTag} itself will not function.
      * @param tag the tag to be registered
      * @param occasional whether or not the tag is occasional
      * @param priority the priority
      */
-    public static void registerTag(Tag tag, boolean occasional, int priority) {
+    public static void registerTag(SkriptTag tag, boolean occasional, int priority) {
         tag.setOccasional(occasional);
         tag.setPriority(priority);
         tags.add(tag);
@@ -56,18 +56,18 @@ public class SkriptTags {
     /**
      * @return a list of all currently registered tags
      */
-    public static List<Tag> getTags() {
+    public static List<SkriptTag> getTags() {
         tags.sort(INFO_COMPARATOR);
         return tags;
     }
 
     /**
-     * Parses a string as a {@link Tag}.
+     * Parses a string as a {@link SkriptTag}.
      * @param str the string to parse
      * @param logger the logger
      * @return the parsed tag
      */
-    public static Optional<Tag> parseTag(String str, SkriptLogger logger) {
+    public static Optional<SkriptTag> parseTag(String str, SkriptLogger logger) {
         if (str.isEmpty())
             return Optional.empty();
         // Quickly see if a tag is the reset tag. This tag is commonly used,
@@ -80,7 +80,7 @@ public class SkriptTags {
             assert str.length() == 2;
             final String matchString = str.substring(1);
 
-            Optional<Tag> opt = getTags().stream()
+            Optional<SkriptTag> opt = getTags().stream()
                     .filter(t -> t instanceof SimpleTag)
                     .filter(t -> ((SimpleTag) t).matches(matchString, true))
                     .findFirst();
@@ -96,7 +96,7 @@ public class SkriptTags {
                 assert matchParts.length == 2;
                 final String matchString = matchParts[0];
 
-                Optional<Tag> opt = getTags().stream()
+                Optional<SkriptTag> opt = getTags().stream()
                         .filter(t -> t instanceof NormalTag)
                         .filter(t -> ((NormalTag) t).matches(matchString))
                         .findFirst();
@@ -110,7 +110,7 @@ public class SkriptTags {
                 assert matchParts.length == 1;
                 final String matchString = matchParts[0];
 
-                Optional<Tag> opt = getTags().stream()
+                Optional<SkriptTag> opt = getTags().stream()
                         .filter(t -> t instanceof SimpleTag)
                         .filter(t -> ((SimpleTag) t).matches(matchString, false))
                         .findFirst();
@@ -145,7 +145,7 @@ public class SkriptTags {
         return obj;
     }
 
-    private static int priorityValue(Tag tag) {
+    private static int priorityValue(SkriptTag tag) {
        if (tag instanceof NormalTag) {
            return 3;
        } else if (tag instanceof SimpleTag) {
