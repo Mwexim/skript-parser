@@ -1,28 +1,8 @@
-name: Test and Build
+name: Build
 
 on: [push, pull_request]
 
 jobs:
-
-  testing:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java-version: [11, 12, 13]
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up JDK ${{ matrix.java-version }}
-        uses: actions/setup-java@v1
-        with:
-          java-version: ${{ matrix.java-version }}
-
-      - name: Build skript-parser
-        run: ./gradlew build
-
-      - name: Run tests
-        run: ./gradlew test
-
   build:
     runs-on: ubuntu-latest
     steps:
@@ -33,15 +13,12 @@ jobs:
         with:
           java-version: 11
 
-      - name: Build skript-parser
+      - name: Build project
         run: ./gradlew build
-
-      - name: Run tests
-        run: ./gradlew test
 
       - name: Upload Nightly Build
         uses: actions/upload-artifact@v2
         if: success()
         with:
           name: skript-nightly
-          path: build/libs/skript-parser.jar
+          path: build/libs/**
