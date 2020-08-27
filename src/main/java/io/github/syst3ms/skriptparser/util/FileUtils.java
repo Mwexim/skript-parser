@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.util;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -17,6 +18,7 @@ import java.util.stream.StreamSupport;
 public class FileUtils {
     public static final Pattern LEADING_WHITESPACE_PATTERN = Pattern.compile("(\\s+)\\S.*");
     public static final String MULTILINE_SYNTAX_TOKEN = "\\";
+    private static final String OS_SEPARATOR = FileSystems.getDefault().getSeparator();
 
     /**
      * Parses a file and returns a list containing all of its lines.
@@ -156,8 +158,8 @@ public class FileUtils {
         if (!directory.toFile().isDirectory())
             throw new IllegalArgumentException("The provided file isn't a directory!");
         for (var i = 0; i < subPackages.length; i++)
-            subPackages[i] = subPackages[i].replace('.', '\\') + "\\";
-        rootPackage = rootPackage.replace('.', '\\') + "\\";
+            subPackages[i] = subPackages[i].replace(".", OS_SEPARATOR) + OS_SEPARATOR;
+        rootPackage = rootPackage.replace(".", OS_SEPARATOR) + OS_SEPARATOR;
         var iter = Files.walk(directory).map(directory::relativize).map(Path::toString).iterator();
         while (iter.hasNext()) {
             String path = iter.next();
@@ -170,7 +172,7 @@ public class FileUtils {
                     }
                 }
                 if (load && !path.matches(".+\\$\\d+\\.class")) { // It's of very little use to load anonymous classes
-                    final var c = path.replace('\\', '.').substring(0, path.length() - ".class".length());
+                    final var c = path.replace(OS_SEPARATOR, ".").substring(0, path.length() - ".class".length());
                     try {
                         Class.forName(c, true, FileUtils.class.getClassLoader());
                     } catch (final ClassNotFoundException | ExceptionInInitializerError ex) {
