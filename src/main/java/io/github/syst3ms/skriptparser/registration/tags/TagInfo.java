@@ -11,23 +11,17 @@ import io.github.syst3ms.skriptparser.registration.SkriptAddon;
  */
 public class TagInfo<C extends Tag> {
 	private final Class<C> c;
-	private final boolean occasional;
 	private final int priority;
 	private final SkriptAddon registerer;
 
-	public TagInfo(Class<C> c, boolean occasional, int priority, SkriptAddon registerer) {
+	public TagInfo(Class<C> c, int priority, SkriptAddon registerer) {
 		this.c = c;
-		this.occasional = occasional;
 		this.priority = priority;
 		this.registerer = registerer;
 	}
 
 	public Class<C> getSyntaxClass() {
 		return c;
-	}
-
-	public boolean isOccasional() {
-		return occasional;
 	}
 
 	public int getPriority() {

@@ -1,8 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.registration.tags.NormalTag;
-import io.github.syst3ms.skriptparser.registration.tags.SkriptTags;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
@@ -387,24 +385,6 @@ public class DefaultRegistration {
                             .toArray(String[]::new);
                 }
         );
-
-        /*
-         * Tags
-         */
-        SkriptTags.registerTag(SkriptTags.RESET_TAG);
-        SkriptTags.registerTag(new NormalTag(
-                        "case",
-                        (p, s) -> {
-                            if (p.equalsIgnoreCase("upper")) {
-                                System.out.println("Matched");
-                                return s.toUpperCase();
-                            } else if (p.equalsIgnoreCase("lower")) {
-                                System.out.println("Matched2");
-                                return s.toLowerCase();
-                            }
-                            return s;
-                        }),
-                true);
 
         registration.register(); // Ignoring logs here, we control the input
     }

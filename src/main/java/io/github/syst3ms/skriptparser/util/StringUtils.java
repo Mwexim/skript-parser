@@ -143,7 +143,7 @@ public class StringUtils {
     }
 
     /**
-     * Finds the contents until a closing bracket
+     * Finds the contents until a closing bracket is found
      * @param s the string containing the percents
      * @param start where the pair begins
      * @param closingBracket the closing bracket

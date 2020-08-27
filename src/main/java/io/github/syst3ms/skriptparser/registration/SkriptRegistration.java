@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.registration;
 
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
@@ -9,8 +8,12 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.PatternParser;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueTime;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
+import io.github.syst3ms.skriptparser.registration.tags.Tag;
+import io.github.syst3ms.skriptparser.registration.tags.TagInfo;
+import io.github.syst3ms.skriptparser.registration.tags.TagManager;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
@@ -40,6 +43,7 @@ public class SkriptRegistration {
     private final List<Type<?>> types = new ArrayList<>();
     private final List<ConverterInfo<?, ?>> converters = new ArrayList<>();
     private final List<ContextValue<?>> contextValues = new ArrayList<>();
+    private final List<TagInfo<? extends Tag>> tags = new ArrayList<>();
     private boolean newTypes = false;
 
     public SkriptRegistration(SkriptAddon registerer) {
@@ -101,6 +105,13 @@ public class SkriptRegistration {
      */
     public List<ContextValue<?>> getContextValues() {
         return contextValues;
+    }
+
+    /**
+     * @return all currently registered tags
+     */
+    public List<TagInfo<?>> getTags() {
+        return tags;
     }
 
     /**
@@ -331,12 +342,30 @@ public class SkriptRegistration {
     }
 
     /**
+     * Registers a {@link Tag}.
+     * @param c the Tag's class
+     */
+    public void addTag(Class<? extends Tag> c) {
+        tags.add(new TagInfo<>(c, 5, registerer));
+    }
+
+    /**
+     * Registers a {@link Tag}.
+     * @param c the Tag's class
+     * @param priority the parsing priority this Tag has. 5 by default, a lower number means lower priority
+     */
+    public void addTag(Class<? extends Tag> c, int priority) {
+        tags.add(new TagInfo<>(c, priority, registerer));
+    }
+
+    /**
      * Adds all currently registered syntaxes to Skript's usable database.
      */
     public List<LogEntry> register() {
         SyntaxManager.register(this);
         ContextValues.register(this);
         TypeManager.register(this);
+        TagManager.register(this);
         Converters.registerConverters(this);
         Converters.createMissingConverters();
         return logger.close();

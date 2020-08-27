@@ -30,14 +30,14 @@ public class CollectionUtils {
     }
 
     /**
-     * Find the Nth index of an item in a list, skipping over all the items,
-     * as long as the amount of items skipped is smaller than N.
+     * Find the index of an item from a given class in a list, skipping over all these items
+     * as long as the amount of items skipped is smaller than a given amount.
      * @param list the list
-     * @param obj the object
-     * @param n the Nth item you want the index from
+     * @param cls the class of the item
+     * @param n the ordinal you want to get the index from
      * @return the index, {@code -1} if no index was found
      */
-    public static <T> int indexOfNth(List<T> list, T obj, int n) {
+    public static <T> int ordinalIndexOf(List<T> list, Class<? extends T> cls, int n) {
         int index = 0;
         int findTimes = 0;
         if (n == 0)
@@ -45,7 +45,7 @@ public class CollectionUtils {
         if (list.isEmpty())
             return -1;
         for (T o : list) {
-            if (o.equals(obj))
+            if (cls.isAssignableFrom(o.getClass()))
                 findTimes++;
             if (findTimes >= n)
                 return index;
