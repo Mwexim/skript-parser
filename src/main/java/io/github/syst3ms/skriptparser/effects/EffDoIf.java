@@ -44,6 +44,7 @@ public class EffDoIf extends Effect {
         effect = eff.get();
         if (effect instanceof EffDoIf) {
             parseContext.getLogger().error("You can't nest multiple do-if effects!", ErrorType.SEMANTIC_ERROR);
+            return false;
         }
         return true;
     }
