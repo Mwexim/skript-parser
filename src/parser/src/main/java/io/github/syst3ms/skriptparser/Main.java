@@ -70,7 +70,7 @@ public class Main {
         subPackages = sub.toArray(new String[0]);
         try {
             for (String mainPackage : mainPackages) {
-                FileUtils.loadClasses(FileUtils.getCurrentJarFile(Main.class), mainPackage, subPackages);
+                FileUtils.loadClasses(FileUtils.getJarFile(Main.class), mainPackage, subPackages);
             }
             if (standalone) {
                 Path parserPath = Paths.get(Main.class
