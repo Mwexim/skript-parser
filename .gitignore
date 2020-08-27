@@ -118,3 +118,5 @@ gradle-app.setting
 
 # out folder
 out/
+
+src/main/**/*Test.java
