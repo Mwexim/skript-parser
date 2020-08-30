@@ -1,6 +1,9 @@
 name: Build & Test
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   testing:
@@ -17,7 +20,7 @@ jobs:
           java-version: ${{ matrix.java-version }}
 
       - name: Build skript-parser
-        run: ./gradlew build
+        run: gradle build
 
       - name: Run tests
-        run: ./gradlew test
+        run: gradle test

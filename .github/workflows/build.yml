@@ -1,20 +1,30 @@
-name: Build
+name: Build, Test & Upload
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+    branches-ignore:
+      - master
 
 jobs:
-  build:
+  testing:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [11, 13]
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up JDK 1.11
+      - name: Set up JDK ${{ matrix.java-version }}
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: ${{ matrix.java-version }}
 
       - name: Build project
-        run: ./gradlew build
+        run: gradle build
+
+      - name: Run tests
+        run: gradle test
 
       - name: Upload Nightly Build
         uses: actions/upload-artifact@v2
