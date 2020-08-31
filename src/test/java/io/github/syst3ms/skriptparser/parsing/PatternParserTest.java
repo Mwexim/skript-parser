@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class PatternParserTest {

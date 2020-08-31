@@ -1,18 +1,21 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.expressions.ExprLoopValue;
-import io.github.syst3ms.skriptparser.sections.SecLoop;
-import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
+import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
-import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
+import io.github.syst3ms.skriptparser.sections.SecLoop;
+import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -192,4 +195,26 @@ public interface Expression<T> extends SyntaxElement {
         return invert != and;
     }
 
+    @SuppressWarnings("unchecked")
+    static <S extends CodeSection> List<? extends S> getMatchingSections(ParserState parserState,
+                                                                         Class<? extends S> sectionClass) {
+        List<S> result = new ArrayList<>();
+        for (var section : parserState.getCurrentSections()) {
+            if (sectionClass.isAssignableFrom(section.getClass())) {
+                result.add((S) section);
+            }
+        }
+        return result;
+    }
+
+    static <S extends CodeSection> Optional<? extends S> getLinkedSection(ParserState parserState,
+                                                                      Class<? extends S> sectionClass) {
+        return getLinkedSection(parserState, sectionClass, l -> l.stream().findFirst());
+    }
+
+    static <S extends CodeSection> Optional<? extends S> getLinkedSection(ParserState parserState,
+                                                                          Class<? extends S> sectionClass,
+                                                                          Function<? super List<? extends S>, Optional<? extends S>> selector) {
+        return selector.apply(getMatchingSections(parserState, sectionClass));
+    }
 }

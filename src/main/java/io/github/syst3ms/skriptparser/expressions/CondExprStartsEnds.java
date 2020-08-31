@@ -20,12 +20,14 @@ import org.jetbrains.annotations.Nullable;
 public class CondExprStartsEnds extends ConditionalExpression {
 
     static {
-        Main.getMainRegistration()
-                .addExpression(CondExprStartsEnds.class,
-                        Boolean.class,
-                        true,
-                        "%strings% (0:start|1:end)[s] with %string%",
-                        "%strings% do[es](n't| not) (0:start|1:end) with %string%");
+        Main.getMainRegistration().addExpression(
+                CondExprStartsEnds.class,
+                Boolean.class,
+                true,
+                3,
+                "%strings% (0:start|1:end)[s] with %string%",
+                "%strings% do[es](n't| not) (0:start|1:end) with %string%"
+        );
     }
 
     private Expression<String> expr;

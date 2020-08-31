@@ -1,16 +1,16 @@
 package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Main;
-import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
+import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Nullable;

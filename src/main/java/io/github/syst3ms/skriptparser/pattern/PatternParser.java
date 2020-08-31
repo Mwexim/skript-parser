@@ -18,7 +18,7 @@ import java.util.regex.PatternSyntaxException;
  */
 public class PatternParser {
     private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(0[bx])?(\\d+?):(.*)");
-    private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*~])?(=)?(?<types>[\\w/]+)?");
+    private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*^~])?(=)?(?<types>[\\w/]+)?");
 
     /**
      * Parses a pattern and returns a {@link PatternElement}. This method can be called by itself, for example when parsing group constructs.

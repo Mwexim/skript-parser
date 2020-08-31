@@ -28,6 +28,7 @@ public class CondExprDateCompare extends ConditionalExpression {
                 .addExpression(CondExprDateCompare.class,
                         Boolean.class,
                         true,
+                        3,
                         "%date% (was|were)( more|(n't| not) less) than %duration% [ago]",
                         "%date% (was|were)((n't| not) more| less) than %duration% [ago]");
     }

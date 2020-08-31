@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.registration;
 
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
@@ -9,6 +8,7 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.PatternParser;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueTime;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
 import io.github.syst3ms.skriptparser.types.Type;
