@@ -20,6 +20,13 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
 
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+
       - name: Build project
         run: gradle build
 
