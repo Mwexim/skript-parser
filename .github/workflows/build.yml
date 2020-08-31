@@ -7,18 +7,15 @@ on:
       - master
 
 jobs:
-  testing:
+  building:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java-version: [11, 13]
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up JDK ${{ matrix.java-version }}
+      - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: ${{ matrix.java-version }}
+          java-version: 11
 
       - name: Cache Gradle packages
         uses: actions/cache@v2
