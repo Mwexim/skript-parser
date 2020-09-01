@@ -104,7 +104,7 @@ public class ScriptLoader {
                     var booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
                     if (booleanExpression.isEmpty())
                         continue;
-                    booleanExpression = booleanExpression.filter(__ -> parserState.forbidsSyntax(Conditional.class));
+                    booleanExpression = booleanExpression.filter(__ -> !parserState.forbidsSyntax(Conditional.class));
                     booleanExpression.ifPresent(b -> items.add(new Conditional(sec, b, Conditional.ConditionalMode.IF, parserState, logger)));
                     if (booleanExpression.isEmpty()) {
                         logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
@@ -121,7 +121,7 @@ public class ScriptLoader {
                     var booleanExpression = SyntaxParser.parseBooleanExpression(toParse, SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
                     if (booleanExpression.isEmpty())
                         continue;
-                    booleanExpression = booleanExpression.filter(__ -> parserState.forbidsSyntax(Conditional.class));
+                    booleanExpression = booleanExpression.filter(__ -> !parserState.forbidsSyntax(Conditional.class));
                     booleanExpression.ifPresent(
                             b -> ((Conditional) items.get(items.size() - 1)).setFallingClause(
                                     new Conditional(sec, b, Conditional.ConditionalMode.ELSE_IF, parserState, logger)
