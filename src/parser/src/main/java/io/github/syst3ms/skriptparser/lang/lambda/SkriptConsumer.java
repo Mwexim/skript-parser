@@ -8,6 +8,12 @@ import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
+/**
+ * A wrapper that allows running the code contained inside of a section using a simple method, taking in a context and
+ * a variable amount of arguments.
+ *
+ * @param <S> the section containing the code used by this {@code SkriptConsumer}
+ */
 public class SkriptConsumer<S extends ArgumentSection> {
     private final S section;
     private final Function<? super S, Optional<? extends Statement>> starterFunction;
@@ -24,7 +30,13 @@ public class SkriptConsumer<S extends ArgumentSection> {
         this.finisherFunction = finisherFunction;
     }
 
-    public void run(TriggerContext ctx, Object... args) {
+    /**
+     * Runs the {@code SkriptConsumer}.
+     *
+     * @param ctx the {@link TriggerContext} to run the code with
+     * @param args the arguments passed to the code inside, accessible using {@link ArgumentSection#getArguments()}.
+     */
+    public void accept(TriggerContext ctx, Object... args) {
         this.section.setArguments(args);
         var item = starterFunction.apply(section);
         while (item.isPresent()) {
@@ -37,10 +49,24 @@ public class SkriptConsumer<S extends ArgumentSection> {
         finisherFunction.accept(section, item.orElse(null));
     }
 
+    /**
+     * Creates a {@code SkriptConsumer} from a given {@link ArgumentSection}.
+     *
+     * @param section the {@link ArgumentSection}
+     * @param <S> the type of the {@link ArgumentSection}
+     * @return a {@code SkriptConsumer} based on the given {@link ArgumentSection}
+     */
     public static <S extends ArgumentSection> SkriptConsumer<S> create(S section) {
         return new SkriptConsumerBuilder<>(section).build();
     }
-    
+
+    /**
+     * Creates a {@link SkriptConsumerBuilder} from a given {@link ArgumentSection}.
+     *
+     * @param section the {@link ArgumentSection}
+     * @param <S> the type of the {@link ArgumentSection}
+     * @return a {@link SkriptConsumerBuilder} based on the given {@link ArgumentSection}
+     */
     public static <S extends ArgumentSection> SkriptConsumerBuilder<S> builder(S section) {
         return new SkriptConsumerBuilder<>(section);
     }

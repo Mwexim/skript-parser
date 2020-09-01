@@ -59,7 +59,7 @@ public class SecLoop extends ArgumentSection {
 		return Optional.ofNullable(iter)
 				.filter(Iterator::hasNext)
 				.map(it -> {
-					lambda.run(ctx, it.next());
+					lambda.accept(ctx, it.next());
 					return (Statement) this;
 				})
 				.or(() -> {

@@ -70,8 +70,8 @@ public abstract class CodeSection extends Statement {
 
     /**
      * The items returned by this method are not representative of the execution of the code, meaning that all items
-     * in the list may not be all executed. The list should rather be considered as a flat view of all the lines inside the
-     * section. Prefer {@link Statement#runAll(Statement, TriggerContext)} to run the contents of this section
+     * in the list may not be all executed. The list should rather be considered as a flat view of all the lines inside
+     * the section. Prefer {@link Statement#runAll(Statement, TriggerContext)} to run the contents of this section
      * @return all items inside this section
      */
     public List<Statement> getItems() {

@@ -7,27 +7,50 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.lambda.ReturnSection;
 import io.github.syst3ms.skriptparser.lang.lambda.SkriptFunction;
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
+import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Optional;
 
 public class SecFlatMap extends ReturnSection<Object> {
-    private Variable<?> flatMapped;
+    private Expression<?> flatMapped;
     private SkriptFunction<?, ?> flatMapper;
 
     static {
         Main.getMainRegistration().addSection(
                 SecFlatMap.class,
-                "flat map %^objects%|map %^objects% flat"
+                "flat map %~objects%|map %~objects% flat"
         );
     }
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        flatMapped = (Variable<?>) expressions[0];
+        flatMapped = expressions[0];
+        var logger = parseContext.getLogger();
+        if (flatMapped.acceptsChange(ChangeMode.SET).isEmpty()) {
+            logger.error(
+                    "The expression '" +
+                            flatMapped.toString(null, logger.isDebug()) +
+                            "' cannot be changed",
+                    ErrorType.SEMANTIC_ERROR
+            );
+            return false;
+        } else if (flatMapped.acceptsChange(ChangeMode.SET)
+                .filter(cl -> CollectionUtils.contains(cl, flatMapped.getReturnType()))
+                .isEmpty()) {
+            // Why this would happen is beyond me, but it's worth checking regardless
+            logger.error(
+                    "The expression '" +
+                            flatMapped.toString(null, logger.isDebug()) +
+                            "' cannot be changed with values of its own type",
+                    ErrorType.SEMANTIC_ERROR
+            );
+            return false;
+        }
         flatMapper = SkriptFunction.create(this);
         return true;
     }

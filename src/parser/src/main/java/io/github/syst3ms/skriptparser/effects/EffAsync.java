@@ -11,8 +11,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Runs this effect asynchronously.
- * The difference between this and the section {@code async} is due to the fact that this effect will only run the specified action asunc,
- * while the section runs all the effects under the statement async.
+ * The difference between this and the section {@code async} is due to the fact that this effect will only run the specified
+ * action async, while the section runs all the effects under the statement async.
  * If you only want to do one operation async, this is the effect you want to go with.
  *
  * @name Async

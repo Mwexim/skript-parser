@@ -50,7 +50,7 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 	}
 
 	@Override
-	public boolean initialize(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+	public boolean preInitialize(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		loopedString = parseContext.getMatches().get(0).group();
 		discriminant = -1;
 		final Matcher m = Pattern.compile("^(.+)-(\\d+)$").matcher(loopedString);

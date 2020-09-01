@@ -6,6 +6,7 @@ import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.lambda.ReturnSection;
+import io.github.syst3ms.skriptparser.lang.lambda.SkriptFunction;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
@@ -14,6 +15,15 @@ import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Returns one or more values to a corresponding section. Used with {@link SkriptFunction} and {@link ReturnSection}.
+ *
+ * @name Return
+ * @type EFFECT
+ * @pattern return %objects%
+ * @since ALPHA
+ * @author Syst3ms
+ */
 public class EffReturn extends Effect {
     private ReturnSection<?> section;
     private Expression<?> returned;
@@ -25,22 +35,23 @@ public class EffReturn extends Effect {
         );
     }
 
+    // TODO add a way to make this target a specific section out of multiple nested ones
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         returned = expressions[0];
         var logger = parseContext.getLogger();
-        var sec = Expression.getLinkedSection(parseContext.getParserState(), CodeSection.class).orElse(null);
-        if (sec == null) {
+        var sec = Expression.getLinkedSection(parseContext.getParserState(), CodeSection.class);
+        if (sec.isEmpty()) {
             logger.error("Couldn't find a section matching this return statement", ErrorType.SEMANTIC_ERROR);
             return false;
-        } else if (!(sec instanceof ReturnSection)) {
+        } else if (sec.filter(ReturnSection.class::isInstance).isEmpty()) {
             logger.error(
                     "The closest section matching this return statement doesn't accept return values",
                     ErrorType.SEMANTIC_ERROR
             );
             return false;
         }
-        section = (ReturnSection<?>) sec;
+        section = (ReturnSection<?>) sec.get();
         if (section.isSingle() && !returned.isSingle()) {
             logger.error("Only a single return value was expected, but multiple were given", ErrorType.SEMANTIC_ERROR);
             return false;

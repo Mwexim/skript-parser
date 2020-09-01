@@ -15,12 +15,12 @@ public class ExprSingleParameter extends SectionValue<ArgumentSection, Object> {
                 ExprSingleParameter.class,
                 Object.class,
                 true,
-                "[the] (input|value|parameter)"
+                "[the] (input|parameter)"
         );
     }
 
     @Override
-    public boolean initialize(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+    public boolean preInitialize(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         return true;
     }
 
