@@ -58,7 +58,9 @@ public class SecWhile extends CodeSection {
     }
 
     /**
-     * @see SecLoop#getActualNext()
+     * This method exists because SecWhile actually sets itself as its next element with {@link #getNext()}.
+     * This way it has full control over when to stop iterating.
+     * @return the element that is actually after this SecWhile
      */
     @Nullable
     public Statement getActualNext() {

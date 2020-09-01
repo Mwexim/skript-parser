@@ -22,7 +22,10 @@ import org.intellij.lang.annotations.MagicConstant;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -141,7 +144,7 @@ public class SyntaxParser {
             logger.forgetError();
         }
         logger.setContext(ErrorContext.NO_MATCH);
-        logger.error("No expression matching ''" + s + "' was found", ErrorType.NO_MATCH);
+        logger.error("No expression matching '" + s + "' was found", ErrorType.NO_MATCH);
         return Optional.empty();
     }
 

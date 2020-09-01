@@ -26,8 +26,8 @@ import java.util.Optional;
  */
 public abstract class CodeSection extends Statement {
     protected List<Statement> items;
-    private Statement first;
-    private Statement last;
+    protected Statement first;
+    protected Statement last;
 
     /**
      * This methods determines the logic of what is being done to the elements inside of this section.
@@ -65,7 +65,7 @@ public abstract class CodeSection extends Statement {
             item.setParent(this);
         }
         first = items.isEmpty() ? null : items.get(0);
-        last = items.isEmpty() ? null : items.get(items.size() - 1).setNext(getNext().orElse(null));
+        last = items.isEmpty() ? null : items.get(items.size() - 1);
     }
 
     /**
@@ -82,7 +82,7 @@ public abstract class CodeSection extends Statement {
      * @return the first item of this section, or the item after the section if it's empty, or {@code null} if there is
      * no item after this section, in the latter case
      */
-    protected final Optional<? extends Statement> getFirst() {
+    public final Optional<? extends Statement> getFirst() {
         return Optional.ofNullable(first).or(this::getNext);
     }
 

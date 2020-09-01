@@ -11,6 +11,9 @@ import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 /**
  * Generate a random number (double) or integer.
@@ -55,8 +58,33 @@ public class ExprRandomNumber implements Expression<Number> {
                         Relation.SMALLER_OR_EQUAL.is(numComp.apply(l, m)) ? l : m,
                         Relation.SMALLER_OR_EQUAL.is(numComp.apply(l, m)) ? m : l
                     )
-                ).mapToOptional((l, m) -> new Number[]{NumberMath.random(l, m, !isExclusive, random)})
+                )
+                .flatMap((f, s) -> DoubleOptional.ofOptional(handleIntegralDecimal(f), handleIntegralDecimal(s)))
+                .mapToOptional((l, m) -> new Number[]{NumberMath.random(l, m, !isExclusive, random)})
                 .orElse(new Number[0]);
+    }
+
+    private Optional<? extends Number> handleIntegralDecimal(Number n) {
+        if (isInteger == (n instanceof BigInteger || n instanceof Long)) {
+            // Either we want and have integers, or we don't want and don't have integers
+            return Optional.of(n);
+        } else if (isInteger) {
+            // We want integers but the types are decimal
+            if (n instanceof BigDecimal && ((BigDecimal) n).stripTrailingZeros().scale() >= 0) {
+                return Optional.of(((BigDecimal) n).toBigIntegerExact());
+            } else if (n instanceof Double && n.doubleValue() == n.longValue()) {
+                return Optional.of(n.longValue());
+            } else {
+                return Optional.empty();
+            }
+        } else {
+            // We don't want integers but the types are integral
+            if (n instanceof BigInteger) {
+                return Optional.of(new BigDecimal((BigInteger) n));
+            } else {
+                return Optional.of(BigDecimal.valueOf(n.longValue()));
+            }
+        }
     }
 
     @Override

@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.util;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -26,5 +27,10 @@ public class CollectionUtils {
             array[array.length - 1 - i] = temp;
         }
         return array;
+    }
+
+    @SafeVarargs
+    public static <T> boolean contains(T[] array, T... contained) {
+        return List.of(array).containsAll(List.of(contained));
     }
 }
