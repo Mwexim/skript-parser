@@ -29,6 +29,8 @@ This repository currently contains two main branches :
  * **master** : this branch contains a proof-of-concept implementation of the parser, that compiles to an executable JAR file.
  * **skript-library** : this branch contains no implementations, and its purpose is to be used as a base library for any skript-parser-related projects.
 
+If you want to use the parser as CLI, you should have a look in the [skript-cli](https://github.com/SkriptLang/skript-cli) project.
+
 ## Contributing 
 
 If you want to start contributing, simply clone the Git repository and start working from here. I recommend using IntelliJ IDEA, because it's what I use, and some annotations are only understood by it.
