@@ -28,6 +28,19 @@ public class NumberMath {
         throw new IllegalArgumentException();
     }
 
+    public static Number negate(Number n) {
+        if (n instanceof Long) {
+            return -n.longValue();
+        } else if (n instanceof Double) {
+            return -n.doubleValue();
+        } else if (n instanceof BigInteger) {
+            return ((BigInteger) n).negate();
+        } else if (n instanceof BigDecimal) {
+            return ((BigDecimal) n).negate();
+        }
+        throw new IllegalArgumentException();
+    }
+
     public static Number sqrt(Number n) {
         if (n instanceof Long || n instanceof Double) {
             return Math.sqrt(n.doubleValue());

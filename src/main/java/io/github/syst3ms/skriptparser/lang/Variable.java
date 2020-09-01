@@ -12,6 +12,7 @@ import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.Pair;
+import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import io.github.syst3ms.skriptparser.variables.Variables;
 import org.jetbrains.annotations.Nullable;
 
@@ -358,7 +359,7 @@ public class Variable<T> implements Expression<T> {
                         }
                     }
                 } else {
-                    Optional<?> o = get(ctx);
+                    Optional<Object> o = get(ctx);
                     var type = o.flatMap(ob -> (Optional<? extends Type<?>>) TypeManager.getByClass(ob.getClass()));
                     Optional<? extends Arithmetic> a = Optional.empty();
                     Optional<? extends Changer<?>> changer;
@@ -368,10 +369,13 @@ public class Variable<T> implements Expression<T> {
                         for (var d : changeWith) {
                             if (o.isEmpty() || type.isEmpty()) {
                                 type = TypeManager.getByClass(d.getClass());
-                                //Mirre Start
-                                if (type.isPresent() && type.get().getArithmetic().isPresent() || d instanceof Number)
-                                    o = o.map(__ -> d);
-                                //Mirre End
+                                if (type.filter(t -> t.getArithmetic().isPresent()).isPresent())
+                                    o = Optional.of(d);
+                                if (d instanceof Number) {
+                                    o = mode == ChangeMode.REMOVE
+                                            ? Optional.of(NumberMath.negate((Number) d))
+                                            : Optional.of(d);
+                                }
                                 changed = true;
                                 continue;
                             }
@@ -379,22 +383,19 @@ public class Variable<T> implements Expression<T> {
                             Class<?> r = a.get().getRelativeType();
                             var diff = Converters.convert(d, r);
                             if (diff.isPresent()) {
-                                var finalA = a;
-                                o = o.map(ob -> {
-                                    if (mode == ChangeMode.ADD) {
-                                        return finalA.get().add(ob, diff.get());
-                                    } else {
-                                        return finalA.get().subtract(ob, diff.get());
-                                    }
-                                });
+                                if (mode == ChangeMode.ADD) {
+                                    o = Optional.ofNullable(a.get().add(o.orElse(null), diff.get()));
+                                } else {
+                                    o = Optional.ofNullable(a.get().subtract(o.orElse(null), diff.get()));
+                                }
                                 changed = true;
                             }
                         }
                         if (changed)
-                            set(ctx, o);
+                            set(ctx, o.orElse(null));
                     } else if ((changer = type.get().getDefaultChanger()).isPresent() && (cs = changer.get().acceptsChange(mode)) != null) {
-                        var one = (Object[]) Array.newInstance(o.getClass(), 1);
-                        one[0] = o;
+                        var one = (Object[]) Array.newInstance(o.get().getClass(), 1);
+                        one[0] = o.get();
                         var cs2 = new Class<?>[cs.length];
                         for (var i = 0; i < cs.length; i++)
                             cs2[i] = cs[i].isArray() ? cs[i].getComponentType() : cs[i];
