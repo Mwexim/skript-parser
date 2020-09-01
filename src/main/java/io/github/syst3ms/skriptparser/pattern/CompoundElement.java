@@ -42,12 +42,12 @@ public class CompoundElement implements PatternElement {
     public int match(String s, int index, MatchContext context) {
         var i = index;
         for (var element : elements) {
-            context.advanceInPattern();
             var m = element.match(s, i, context);
             if (m == -1) {
                 return -1;
             }
             i = m;
+            context.advanceInPattern();
         }
         if (context.getSource().isEmpty() && i < s.length() - 1)
             return -1;
