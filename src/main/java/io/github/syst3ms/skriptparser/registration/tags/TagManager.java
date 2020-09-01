@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public class TagManager {
     /**
@@ -24,7 +23,6 @@ public class TagManager {
      */
     private static final RecentElementList<TagInfo<?>> recentTags = new RecentElementList<>();
     private static final List<TagInfo<?>> tags = new ArrayList<>();
-    private static boolean occasionalState;
 
 
     public static void register(SkriptRegistration reg) {
@@ -99,16 +97,5 @@ public class TagManager {
             logger.error("Couldn't instantiate class " + info.getSyntaxClass(), ErrorType.EXCEPTION);
         }
         return Optional.empty();
-    }
-
-    public static boolean getOccasionalState() {
-        return occasionalState;
-    }
-
-    public static <T> T occasionally(Supplier<T> action) {
-        occasionalState = true;
-        T obj = action.get();
-        occasionalState = false;
-        return obj;
     }
 }

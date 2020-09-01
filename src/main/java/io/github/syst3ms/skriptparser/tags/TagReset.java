@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.tags;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.registration.tags.Tag;
 
 /**
@@ -14,7 +14,7 @@ import io.github.syst3ms.skriptparser.registration.tags.Tag;
 public class TagReset implements Tag {
 
 	static {
-		Main.getMainRegistration().addTag(TagReset.class, 3);
+		Parser.getMainRegistration().addTag(TagReset.class, 3);
 	}
 
 	public boolean init(String key, String[] parameters) {

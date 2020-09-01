@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
+import io.github.syst3ms.skriptparser.lang.base.TaggedExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -25,7 +26,7 @@ import java.util.regex.Pattern;
  * A string that possibly contains expressions inside it, meaning that its value may be unknown at parse time
  */
 @SuppressWarnings("ConfusingArgumentToVarargsMethod")
-public class VariableString implements Expression<String> {
+public class VariableString extends TaggedExpression {
     public static final Pattern R_LITERAL_CONTENT_PATTERN = Pattern.compile("^(.+?)\\((.+)\\)\\1$"); // It's actually rare to be able to use '.+' raw like this
     /**
      * An array containing raw data for this {@link VariableString}.
@@ -113,7 +114,6 @@ public class VariableString implements Expression<String> {
                     sb.append(c);
                     continue;
                 }
-                System.out.println(content.get());
                 logger.recurse();
                 var tag = TagManager.parseTag(content.get(), logger);
                 logger.callback();
@@ -160,53 +160,56 @@ public class VariableString implements Expression<String> {
     }
 
     @Override
-    public String[] getValues(TriggerContext ctx) {
-        return new String[]{toString(ctx)};
-    }
-
-    @Override
     public Class<? extends String> getReturnType() {
         return String.class;
     }
 
-    /**
-     * @param ctx the event
-     * @return this VariableString represented in the given event. The behaviour of passing {@code null} without
-     * checking {@link #isSimple()} is unspecified.
-     */
     public String toString(TriggerContext ctx) {
+        return toString(ctx, "default");
+    }
+
+    @SuppressWarnings("unchecked")
+    public String toString(TriggerContext ctx, String tagCtx) {
         if (simple)
             return (String) data[0];
 
-        boolean occasional = TagManager.getOccasionalState();
-        int tags = 1;
+        // Filters all non-usable tags away right from the start.
+        var actualData = Arrays.stream(data)
+                .filter(o -> !(o instanceof Tag) || ((Tag) o).isUsable(tagCtx))
+                .toArray();
         var sb = new StringBuilder();
-        for (int i = 0; i < data.length; i++) {
-            var o = data[i];
+        int tags = 1;
+        List<Tag> ongoingTags = new ArrayList<>();
+
+        for (int i = 0; i < actualData.length; i++) {
+            var o = actualData[i];
             if (o instanceof Expression) {
                 sb.append(TypeManager.toString(((Expression<?>) o).getValues(ctx)));
             } else if (o instanceof Tag) {
-                if (((Tag) o).isOccasional() && !occasional) {
-                    tags++;
-                    continue;
-                }
-                int indexOf = CollectionUtils.ordinalIndexOf(Arrays.asList(data), Tag.class, tags);
-                if (indexOf == -1)
-                    indexOf = data.length;
-                var sb2 = new StringBuilder();
-                for (int i2 = i + 1; i2 < indexOf; i2++) {
-                    Object o2 = data[i2];
+                ongoingTags.add((Tag) o);
+                int indexOfNext = CollectionUtils.ordinalConditionalIndexOf(Arrays.asList(actualData), tags, t -> t instanceof Tag);
+                if (indexOfNext == -1)
+                    indexOfNext = actualData.length;
+                var affected = new StringBuilder();
+
+                for (int j = i + 1; j < indexOfNext; j++) {
+                    var o2 = actualData[j];
                     if (o2 instanceof Expression) {
-                        sb2.append(TypeManager.toString(((Expression<?>) o2).getValues(ctx)));
+                        affected.append(TypeManager.toString(((Expression<?>) o2).getValues(ctx)));
                     } else if (o2 instanceof Tag) {
                         throw new IllegalStateException();
                     } else {
-                        sb2.append(o2);
+                        affected.append(o2);
                     }
                 }
-                sb.append(((Tag) o).getValue(sb2.toString()));
+                ongoingTags.removeIf(t -> !t.combinesWith((Class<Tag>) o.getClass()));
+                var fin = ((Tag) o).getValue(affected.toString());
+                for (Tag tag : ongoingTags) {
+                    fin = tag.getValue(fin);
+                }
+                sb.append(fin);
                 tags++;
-                i = indexOf - 1;
+                i = indexOfNext - 1;
             } else {
                 sb.append(o);
             }

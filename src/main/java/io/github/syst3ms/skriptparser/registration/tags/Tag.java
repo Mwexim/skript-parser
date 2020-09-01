@@ -1,7 +1,5 @@
 package io.github.syst3ms.skriptparser.registration.tags;
 
-import java.util.function.Supplier;
-
 /**
  * Tags are elements one can use inside of strings to change parts of that string easily.
  * Some examples of valid tags and their behaviour:
@@ -40,13 +38,25 @@ public interface Tag {
 	String toString(boolean debug);
 
 	/**
-	 * If a tag is occasional, it can only be applied to the affected string
-	 * when a developer specifically calls it in an occasional state.
-	 * @return whether or not this tag is occasional, default {@code false}
-	 * 
-	 * @see TagManager#occasionally(Supplier)
+	 * Check if this tag is usable in a certain tag context. The default context is 'default'.
+	 * @param tagCtx the tag context
+	 * @return whether or not this tag is usable in this context, default true for every context
 	 */
-	default boolean isOccasional() {
+	default boolean isUsable(String tagCtx) {
+		return true;
+	}
+
+	/**
+	 * Some tags can stack on top of each other. A perfect example would be Markdown,
+	 * where one can make a text both bold and italics at the same time.
+	 * If this tag can complement such tag, you should define it here.
+	 *
+	 * Most of the times, you want a two-way connection,
+	 * for example: bold combines with italics and vice-versa.
+	 * @param tag the tag
+	 * @return whether or not this tag can complement the given tag
+	 */
+	default boolean combinesWith(Class<? extends Tag> tag) {
 		return false;
 	}
 }
