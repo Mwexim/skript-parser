@@ -23,7 +23,8 @@ public class ExprStringOccurrence implements Expression<Number> {
 				ExprStringOccurrence.class,
 				Number.class,
 				true,
-				"[the] (0:first|1:last) occurrence of %string% in %string%");
+				"[the] (0:first|1:last) occurrence of %string% in %string%"
+		);
 	}
 
 	private Expression<String> value, expr;

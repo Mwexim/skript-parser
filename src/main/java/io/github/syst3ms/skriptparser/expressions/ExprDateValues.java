@@ -31,7 +31,8 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 				String.class,
 				true,
 				"*[date] %date%",
-				"(0:era|1:(name of month|month name)|2:(name of day [(in|of) week]|week[ ]day name))");
+				"(0:era|1:(name of month|month name)|2:(name of day [(in|of) week]|week[ ]day name))"
+		);
 	}
 
 	int parseMark;
