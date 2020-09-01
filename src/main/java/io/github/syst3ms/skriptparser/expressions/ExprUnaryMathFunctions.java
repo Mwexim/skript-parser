@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -37,6 +37,7 @@ import java.util.function.UnaryOperator;
  * @author Syst3ms
  */
 public class ExprUnaryMathFunctions implements Expression<Number> {
+
 	private static final PatternInfos<UnaryOperator<Number>> PATTERNS = new PatternInfos<>(
 		new Object[][]{
 			{"abs %number%|\\|%number%\\|", (UnaryOperator<Number>) NumberMath::abs},
@@ -62,7 +63,7 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 	private Expression<Number> number;
 
 	static {
-		Main.getMainRegistration().addExpression(
+		Parser.getMainRegistration().addExpression(
 			ExprUnaryMathFunctions.class,
 			Number.class,
 			true,
@@ -80,10 +81,9 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 
 	@Override
 	public Number[] getValues(TriggerContext ctx) {
-		Number num = number.getSingle(ctx);
-		if (num == null)
-			return new Number[0];
-		return new Number[]{PATTERNS.getInfo(pattern).apply(num)};
+		return number.getSingle(ctx)
+				.map(n -> new Number[]{ PATTERNS.getInfo(pattern).apply(n) })
+				.orElse(new Number[0]);
 	}
 
 	@Override

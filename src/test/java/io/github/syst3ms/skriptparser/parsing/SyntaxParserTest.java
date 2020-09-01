@@ -10,49 +10,49 @@ import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
-import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Optional;
 
 import static io.github.syst3ms.skriptparser.lang.TriggerContext.DUMMY;
 import static io.github.syst3ms.skriptparser.parsing.SyntaxParser.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
-@SuppressWarnings({"unchecked", "ConstantConditions"})
+@SuppressWarnings({"unchecked", "ConstantConditions", "OptionalUsedAsFieldOrParameterType"})
 public class SyntaxParserTest {
 
     static {
         TestRegistration.register();
     }
 
-    private void assertExpressionEquals(@Nullable Expression<?> expected, @Nullable Expression<?> actual) {
-        if (expected == actual)
+    private void assertExpressionEquals(Expression<?> expected, Optional< ?extends Expression<?>> actual) {
+        if (actual.filter(expected::equals).isPresent())
             return;
-        if (actual == null)
+        if (actual.isEmpty())
             fail("Null expression");
-        assertArrayEquals(expected.getValues(DUMMY), actual.getValues(DUMMY));
+        assertArrayEquals(expected.getValues(DUMMY), actual.get().getValues(DUMMY));
     }
 
 
-    private void assertExpressionTrue(@Nullable Expression<?> actual) {
+    private void assertExpressionTrue(Optional<? extends Expression<?>> actual) {
         assertExpressionEquals(new SimpleLiteral<>(Boolean.class, true), actual);
     }
 
-    private void assertExpressionTypeEquals(Class<?> expected, @Nullable Expression<?> expr) throws Exception {
-        if (expr == null)
+    private void assertExpressionTypeEquals(Class<?> expected, Optional<? extends Expression<?>> expr) {
+        if (expr.isEmpty())
             fail("Null expression");
-        if (expr.getReturnType() == expected)
+        if (expr.get().getReturnType() == expected)
             return;
-        Object value = expr.getSingle(DUMMY);
-        if (value == null || value.getClass() != expected)
-            fail("Different return types : expected " + expected + ", got " + (value == null ? "null" : value.getClass()));
+        Optional<?> value = expr.get().getSingle(DUMMY);
+        if (value.isEmpty() || value.get().getClass() != expected)
+            fail("Different return types : expected " + expected + ", got " + value.map(Object::getClass).orElse(null));
     }
 
     private <T> PatternType<T> getType(Class<T> c, boolean single) {
-        return new PatternType<>(TypeManager.getByClassExact(c), single);
+        return new PatternType<>(TypeManager.getByClassExact(c).orElseThrow(AssertionError::new), single);
     }
 
     private <T> Literal<T> literal(T... values) {
@@ -80,7 +80,7 @@ public class SyntaxParserTest {
     }
 
     @Test
-    public void standardExpressionsTest() throws Exception {
+    public void standardExpressionsTest() {
         SkriptLogger logger = new SkriptLogger();
         ParserState parserState = new ParserState();
         // CondExprCompare
@@ -149,21 +149,21 @@ public class SyntaxParserTest {
         FileParser fileParser = new FileParser();
         ClassLoader classLoader = getClass().getClassLoader();
         // While test
-        File file = new File(classLoader.getResource("while-test.txt").getCurrentJarFile());
+        File file = new File(classLoader.getResource("while-test.txt").getJarFile());
         List<String> lines = FileUtils.readAllLines(file);
         List<FileElement> elements = fileParser.parseFileLines("while-test", lines, 0, 1);
         FileSection sec = (FileSection) elements.get(0);
         CodeSection whileLoop = parseSection(sec);
         assertTrue("The while loop failed", Statement.runAll(whileLoop, DUMMY));
         // Loop test
-        file = new File(classLoader.getResource("loop-test.txt").getCurrentJarFile());
+        file = new File(classLoader.getResource("loop-test.txt").getJarFile());
         lines = FileUtils.readAllLines(file);
         elements = fileParser.parseFileLines("loop-test", lines, 0, 1);
         sec = (FileSection) elements.get(0);
         CodeSection loop = parseSection(sec);
         assertTrue("The loop failed while running", Statement.runAll(loop, DUMMY));
         // Condition test
-        file = new File(classLoader.getResource("conditions.txt").getCurrentJarFile());
+        file = new File(classLoader.getResource("conditions.txt").getJarFile());
         lines = FileUtils.readAllLines(file);
         elements = fileParser.parseFileLines("conditions", lines, 0, 1);
         sec = (FileSection) elements.get(0);

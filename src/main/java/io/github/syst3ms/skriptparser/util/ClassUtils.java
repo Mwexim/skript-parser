@@ -10,22 +10,22 @@ public class ClassUtils {
      * @return the nearest common superclass of the provided classes, accounting for interfaces
      */
     public static Class<?> getCommonSuperclass(Class<?>... cs) {
-        Class<?> r = cs[0];
+        var r = cs[0];
         outer:
-        for (Class<?> c : cs) {
+        for (var c : cs) {
             if (c.isAssignableFrom(r)) {
                 r = c;
                 continue;
             }
             if (!r.isAssignableFrom(c)) {
-                Class<?> s = c;
+                var s = c;
                 while ((s = s.getSuperclass()) != null) {
                     if (s != Object.class && s.isAssignableFrom(r)) {
                         r = s;
                         continue outer;
                     }
                 }
-                for (Class<?> i : c.getInterfaces()) {
+                for (var i : c.getInterfaces()) {
                     s = getCommonSuperclass(i, r);
                     if (s != Object.class) {
                         r = s;
@@ -40,12 +40,12 @@ public class ClassUtils {
 
     /**
      * Checks whether an array of classes contains a superclass of the second class argument
-     * @param haystack the array of classes to checl
+     * @param haystack the array of classes to check
      * @param needle the class which may have a superclass inside of the array
      * @return whether the first argument contains a superclass of the second argument
      */
     public static boolean containsSuperclass(Class<?>[] haystack, Class<?> needle) {
-        for (Class<?> c : haystack) {
+        for (var c : haystack) {
             if (c.isArray())
                 c = c.getComponentType();
             if (c.isAssignableFrom(needle))

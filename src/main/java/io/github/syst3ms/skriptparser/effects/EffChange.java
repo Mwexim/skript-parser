@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.effects;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
@@ -14,6 +14,8 @@ import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  *  A very general effect that can change many expressions. Many expressions can only be set and/or deleted, while some can have things added to or removed from them.
@@ -52,7 +54,7 @@ public class EffChange extends Effect {
     private boolean assignment; // A simple flag for identifying which syntax was precisely used
 
     static {
-        Main.getMainRegistration().addEffect(EffChange.class, PATTERNS.getPatterns());
+        Parser.getMainRegistration().addEffect(EffChange.class, 3, PATTERNS.getPatterns());
     }
 
     @Override
@@ -73,11 +75,11 @@ public class EffChange extends Effect {
         String changedString = changed.toString(null, logger.isDebug());
         if (changeWith == null) {
             assert mode == ChangeMode.DELETE || mode == ChangeMode.RESET;
-            return changed.acceptsChange(mode) != null;
+            return changed.acceptsChange(mode).isPresent();
         } else {
             Class<?> changeType = changeWith.getReturnType();
-            Class<?>[] acceptance = changed.acceptsChange(mode);
-            if (acceptance == null) {
+            Optional<Class<?>[]> acceptance = changed.acceptsChange(mode);
+            if (acceptance.isEmpty()) {
                 switch (mode) {
                     case SET:
                         logger.error(changedString + " cannot be set to anything", ErrorType.SEMANTIC_ERROR);
@@ -94,12 +96,12 @@ public class EffChange extends Effect {
                     	assert false;
                 }
                 return false;
-            } else if (!ClassUtils.containsSuperclass(acceptance, changeType)) {
+            } else if (!ClassUtils.containsSuperclass(acceptance.get(), changeType)) {
                 boolean array = changeType.isArray();
-                Type<?> type = TypeManager.getByClassExact(changeType);
-                assert type != null;
+                Optional<? extends Type<?>> type = TypeManager.getByClassExact(changeType);
+                assert type.isPresent();
                 String changeTypeName = StringUtils.withIndefiniteArticle(
-                    type.getPluralForms()[array ? 1 : 0],
+                    type.get().getPluralForms()[array ? 1 : 0],
                     array
                 );
                 switch (mode) {

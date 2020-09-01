@@ -1,19 +1,23 @@
 package io.github.syst3ms.skriptparser.registration;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
+import io.github.syst3ms.skriptparser.util.SkriptDate;
+import io.github.syst3ms.skriptparser.util.TimeUtils;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
@@ -23,7 +27,7 @@ import java.util.stream.LongStream;
 public class DefaultRegistration {
 
     public static void register() {
-        SkriptRegistration registration = Main.getMainRegistration();
+        SkriptRegistration registration = Parser.getMainRegistration();
         registration.addType(
                 Object.class,
                 "object",
@@ -234,10 +238,60 @@ public class DefaultRegistration {
                     })
                     .toStringFunction(String::valueOf)
                     .register();
+        registration.newType(Duration.class, "duration", "duration@s")
+                .literalParser(TimeUtils::parseDuration)
+                .toStringFunction(TimeUtils::toStringDuration)
+                .arithmetic(new Arithmetic<Duration, Duration>() {
+                    @Override
+                    public Duration difference(Duration first, Duration second) {
+                        return first.minus(second).abs();
+                    }
+
+                    @Override
+                    public Duration add(Duration value, Duration difference) {
+                        return value.plus(difference);
+                    }
+
+                    @Override
+                    public Duration subtract(Duration value, Duration difference) {
+                        return value.minus(difference);
+                    }
+
+                    @Override
+                    public Class<? extends Duration> getRelativeType() {
+                        return Duration.class;
+                    }
+                })
+                .register();
+        registration.newType(SkriptDate.class, "date", "date@s")
+                .toStringFunction(SkriptDate::toString)
+                .arithmetic(new Arithmetic<SkriptDate, Duration>() {
+                    @Override
+                    public Duration difference(SkriptDate first, SkriptDate second) {
+                        return first.difference(second);
+                    }
+
+                    @Override
+                    public SkriptDate add(SkriptDate value, Duration difference) {
+                        return value.plus(difference);
+                    }
+
+                    @Override
+                    public SkriptDate subtract(SkriptDate value, Duration difference) {
+                        return value.minus(difference);
+                    }
+
+                    @Override
+                    public Class<? extends Duration> getRelativeType() {
+                        return Duration.class;
+                    }
+                })
+                .register();
+
         Comparators.registerComparator(
                 Number.class,
                 Number.class,
-                new Comparator<Number, Number>(true) {
+                new Comparator<>(true) {
                     @SuppressWarnings("unchecked")
                     @Override
                     public Relation apply(Number number, Number number2) {
@@ -247,12 +301,13 @@ public class DefaultRegistration {
                             BigDecimal bd = BigDecimalMath.getBigDecimal(number);
                             BigDecimal bd2 = BigDecimalMath.getBigDecimal(number2);
                             return Relation.get(bd.compareTo(bd2));
-                        } else if ((number instanceof BigInteger || number2 instanceof BigInteger) && (number instanceof Long || number2 instanceof Long)) {
+                        } else if ((number instanceof BigInteger || number2 instanceof BigInteger) &&
+                                (number instanceof Long || number2 instanceof Long)) {
                             BigInteger bi = BigDecimalMath.getBigInteger(number);
                             BigInteger bi2 = BigDecimalMath.getBigInteger(number2);
                             return Relation.get(bi.compareTo(bi2));
                         } else if ((number instanceof Double || number instanceof Long) &&
-                                   (number2 instanceof Double || number2 instanceof Long)) {
+                                (number2 instanceof Double || number2 instanceof Long)) {
                             double d = number.doubleValue() - number2.doubleValue();
                             return Double.isNaN(d) ? Relation.NOT_EQUAL : Relation.get(d);
                         } else {
@@ -312,14 +367,14 @@ public class DefaultRegistration {
         /*
          * Converters
          */
-        Converters.registerConverter(Number.class, Long.class, n -> n instanceof Long ? (Long) n : n.longValue());
+        Converters.registerConverter(Number.class, Long.class, n -> Optional.of(n instanceof Long ? (Long) n : n.longValue()));
         Converters.registerConverter(Number.class, BigInteger.class, n -> {
             if (n instanceof BigInteger) {
-                return (BigInteger) n;
+                return Optional.of((BigInteger) n);
             } else if (n instanceof Long) {
-                return BigInteger.valueOf((Long) n);
+                return Optional.of(BigInteger.valueOf((Long) n));
             } else {
-                return BigInteger.valueOf(n.longValue());
+                return Optional.of(BigInteger.valueOf(n.longValue()));
             }
         });
         registration.register(); // Ignoring logs here, we control the input

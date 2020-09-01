@@ -1,9 +1,11 @@
-apply plugin: 'java'
-apply plugin: 'application'
+plugins {
+    id 'java'
+    id 'application'
+}
 
-mainClassName = "io.github.syst3ms.skriptparser.Main"
+mainClassName = "io.github.syst3ms.skriptparser.Parser"
 
-sourceCompatibility = 1.8
+sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()

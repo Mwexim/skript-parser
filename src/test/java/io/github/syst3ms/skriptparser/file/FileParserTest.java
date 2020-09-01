@@ -4,7 +4,8 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 import org.junit.Test;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +26,7 @@ public class FileParserTest {
     }
 
     @Test
-    public void parseFileLines() throws Exception {
+    public void parseFileLines() {
         FileParser parser = new FileParser();
         assertEquals(
                 Collections.singletonList(simpleFileLine("line", 0, 1)),
@@ -104,8 +105,7 @@ public class FileParserTest {
 
     @Test
     public void readLines() throws Exception {
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("multiline.txt").getFile());
+        Path filePath = Paths.get(ClassLoader.getSystemResource("multiline.txt").toURI());
         assertEquals(
             Arrays.asList(
                 "# Testing multiline syntax",
@@ -113,7 +113,7 @@ public class FileParserTest {
                 "section:",
                 "    with indent"
             ),
-            FileUtils.readAllLines(file)
+            FileUtils.readAllLines(filePath)
         );
     }
 }

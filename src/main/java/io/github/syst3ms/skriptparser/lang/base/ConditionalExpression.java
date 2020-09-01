@@ -4,7 +4,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.expressions.ExprWhether;
 import io.github.syst3ms.skriptparser.lang.Conditional;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.While;
+import io.github.syst3ms.skriptparser.sections.SecWhile;
 
 /**
  * A base class for all boolean expressions (i.e {@linkplain Expression<Boolean>}) that should be treated as
@@ -21,7 +21,7 @@ import io.github.syst3ms.skriptparser.lang.While;
  * Other, non-conditional boolean expressions should implement {@link Expression<Boolean>}
  * @see ExprWhether
  * @see Conditional
- * @see While
+ * @see SecWhile
  */
 public abstract class ConditionalExpression implements Expression<Boolean> {
     private boolean negated = false;

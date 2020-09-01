@@ -3,11 +3,10 @@ package io.github.syst3ms.skriptparser.util;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -17,32 +16,18 @@ public class StringUtils {
     public static final Pattern R_LITERAL_CONTENT_PATTERN = Pattern.compile("(.+?)\\((.+)\\)\\1"); // It's actually rare to be able to use '.+' raw like this
 
     /**
-     * Counts combined occurences of one or more strings in another
-     * @param s the string to find occurences in
-     * @param toFind the strings to find occurences of
-     * @return the amount of total occurences
+     * Counts combined occurrences of one or more strings in another
+     * @param s the string to find occurrences in
+     * @param toFind the strings to find occurrences of
+     * @return the amount of total occurrences
      */
     public static int count(String s, String... toFind) {
-        int count = 0;
-        for (String sequence : toFind) {
-            int occurences = s.length() - s.replace(sequence, "").length();
-            count += occurences / sequence.length();
+        var count = 0;
+        for (var sequence : toFind) {
+            var occurrences = s.length() - s.replace(sequence, "").length();
+            count += occurrences / sequence.length();
         }
         return count;
-    }
-
-    /**
-     * Simply repeats the given string the given amount of times
-     * @param str the string
-     * @param times the amount of times to be repeated
-     * @return the repeated string
-     */
-    public static String repeat(String str, int times) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < times; i++) {
-            sb.append(str);
-        }
-        return sb.toString();
     }
 
     /**
@@ -54,9 +39,9 @@ public class StringUtils {
      * @return the index at which the brace pair closes
      */
     public static int findClosingIndex(String pattern, char opening, char closing, int start) {
-        int n = 0;
-        for (int i = start; i < pattern.length(); i++) {
-            char c = pattern.charAt(i);
+        var n = 0;
+        for (var i = start; i < pattern.length(); i++) {
+            var c = pattern.charAt(i);
             if (c == '\\') {
                 i++;
             } else if (c == closing) {
@@ -79,13 +64,12 @@ public class StringUtils {
      * @param start where the brace pair starts
      * @return the enclosed text
      */
-    @Nullable
-    public static String getEnclosedText(String pattern, char opening, char closing, int start) {
-        int closingBracket = findClosingIndex(pattern, opening, closing, start);
+    public static Optional<String> getEnclosedText(String pattern, char opening, char closing, int start) {
+        var closingBracket = findClosingIndex(pattern, opening, closing, start);
         if (closingBracket == -1) {
-            return null;
+            return Optional.empty();
         } else {
-            return pattern.substring(start + 1, closingBracket);
+            return Optional.of(pattern.substring(start + 1, closingBracket));
         }
     }
 
@@ -99,30 +83,30 @@ public class StringUtils {
     public static int nextSimpleCharacterIndex(String s, int index) {
         if (index < 0)
             throw new StringIndexOutOfBoundsException(index);
-        char[] chars = s.toCharArray();
-        for (int i = index; i < chars.length; i++) {
-            char c = chars[i];
+        var chars = s.toCharArray();
+        for (var i = index; i < chars.length; i++) {
+            var c = chars[i];
             if (c == '\\') {
                 if (i == chars.length - 1)
                     return -1;
                 return i + 1;
             } else if (c == '{') {
-                int closing = findClosingIndex(s, '{', '}', i);
+                var closing = findClosingIndex(s, '{', '}', i);
                 if (closing == -1)
                     return -1;
                 i = closing;
             } else if (c == '"') {
-                int closing = s.indexOf('"', i + 1);
+                var closing = s.indexOf('"', i + 1);
                 if (closing == -1)
                     return -1;
                 i = closing;
             } else if (c == '\'') {
-                int closing = s.indexOf('\'', i + 1);
+                var closing = s.indexOf('\'', i + 1);
                 if (closing == -1)
                     return -1;
                 i = closing;
             } else if (c == 'R' && i < s.length() - 2 && chars[i + 1] == '"') {
-                Matcher m = R_LITERAL_CONTENT_PATTERN.matcher(s).region(i + 2, s.length());
+                var m = R_LITERAL_CONTENT_PATTERN.matcher(s).region(i + 2, s.length());
                 if (!m.lookingAt())
                     return -1;
                 i = m.end() + 1;
@@ -139,24 +123,23 @@ public class StringUtils {
      * @param start where the pair begins
      * @return the content between %%
      */
-    @Nullable
-    public static String getPercentContent(String s, int start) {
-        for (int i = start; i < s.length(); i++) {
-            char c = s.charAt(i);
+    public static Optional<String> getPercentContent(String s, int start) {
+        for (var i = start; i < s.length(); i++) {
+            var c = s.charAt(i);
             if (c == '\\') {
                 i++;
             } else if (c == '{') { // We must ignore variable content
-                int closing = findClosingIndex(s, '{', '}', i);
+                var closing = findClosingIndex(s, '{', '}', i);
                 if (closing == -1)
-                    return null;
+                    return Optional.empty();
                 i = closing;
             } else if (c == '%') {
-                return s.substring(start, i);
+                return Optional.of(s.substring(start, i));
             } else if (c == '}') { // We normally skip over these, this must be an error
-                return null;
+                return Optional.empty();
             }
         }
-        return null; // There were no percents (unclosed percent is handled by VariableString already)
+        return Optional.empty(); // There were no percents (unclosed percent is handled by VariableString already)
     }
 
     /**
@@ -164,35 +147,33 @@ public class StringUtils {
      * @param haystack the string to look in
      * @param needle the string to look for
      * @param start where to look from
-     * @return the index of the first occurence
+     * @return the index of the first occurrence
      */
-    public static int indexOfIgnoreCase(String haystack,
-                                        String needle,
-                                        int start) {
+    public static int indexOfIgnoreCase(String haystack, String needle, int start) {
         if (needle.isEmpty() || haystack.isEmpty()) {
             // Fallback to legacy behavior.
             return haystack.indexOf(needle);
         }
-        for (int i = start; i < haystack.length(); ++i) {
+        for (var i = start; i < haystack.length(); ++i) {
             // Early out, if possible.
             if (i + needle.length() > haystack.length()) {
                 return -1;
             }
 
             // Attempt to match substring starting at position i of haystack.
-            int j = 0;
-            int ii = i;
-            while (ii < haystack.length() && j < needle.length()) {
-                char c = Character.toLowerCase(haystack.charAt(ii));
-                char c2 = Character.toLowerCase(needle.charAt(j));
+            var j = 0;
+            var k = i;
+            while (k < haystack.length() && j < needle.length()) {
+                var c = Character.toLowerCase(haystack.charAt(k));
+                var c2 = Character.toLowerCase(needle.charAt(j));
                 if (c != c2) {
                     break;
                 }
                 j++;
-                ii++;
+                k++;
             }
             // Walked all the way to the end of the needle, return the start
-            // position that this was found.
+            // position that this was found at.
             if (j == needle.length()) {
                 return i;
             }
@@ -206,26 +187,27 @@ public class StringUtils {
      * @param logger the logger
      * @return the split string
      */
-    public static String[] splitVerticalBars(String s, SkriptLogger logger) {
+    public static Optional<String[]> splitVerticalBars(String s, SkriptLogger logger) {
         List<String> split = new ArrayList<>();
-        StringBuilder sb = new StringBuilder();
-        char[] chars = s.toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            char c = chars[i];
+        var sb = new StringBuilder();
+        var chars = s.toCharArray();
+        for (var i = 0; i < chars.length; i++) {
+            var c = chars[i];
             if (c == '\\') {
                 sb.append(c);
                 if (i + 1 < s.length()) {
                     sb.append(chars[++i]);
                 }
             } else if (c == '(' || c == '[') {
-                char closing = c == '(' ? ')' : ']';
-                String text = getEnclosedText(s, c, closing, i);
-                if (text == null) {
+                var closing = c == '(' ? ')' : ']';
+                var text = getEnclosedText(s, c, closing, i);
+                text.ifPresent(st -> sb.append(c).append(st).append(closing));
+                if (text.isPresent()) {
+                    i += text.get().length() + 1;
+                } else {
                     logger.error("Unmatched bracket : '" + s.substring(i) + "'", ErrorType.MALFORMED_INPUT);
-                    return null;
+                    return Optional.empty();
                 }
-                sb.append(c).append(text).append(closing);
-                i += text.length() + 1;
             } else if (c == '|') {
                 split.add(sb.toString());
                 sb.setLength(0);
@@ -234,7 +216,7 @@ public class StringUtils {
             }
         }
         split.add(sb.toString());
-        return split.toArray(new String[0]);
+        return Optional.of(split.toArray(new String[0]));
     }
 
     /**
@@ -243,8 +225,8 @@ public class StringUtils {
      */
     public static String[] getForms(String pluralizable) {
         List<String[]> words = new ArrayList<>();
-        for (String s : pluralizable.split("\\s+")) {
-            String[] split = s.split("@");
+        for (var s : pluralizable.split("\\s+")) {
+            var split = s.split("@");
             switch (split.length) {
                 case 1:
                     words.add(new String[]{s, s});
@@ -259,12 +241,12 @@ public class StringUtils {
                     throw new SkriptParserException("Invalid pluralized word : " + s);
             }
         }
-        String[] pluralized = new String[]{"", ""};
-        for (String[] word : words) {
+        var pluralized = new String[]{"", ""};
+        for (var word : words) {
             pluralized[0] += word[0] + " ";
             pluralized[1] += word[1] + " ";
         }
-        return trimAll(pluralized);
+        return stripAll(pluralized);
     }
 
     /**
@@ -272,9 +254,9 @@ public class StringUtils {
      * @param strings the strings
      * @return the array with all of its contents trimmed
      */
-    private static String[] trimAll(String[] strings) {
-        for (int i = 0; i < strings.length; i++)
-            strings[i] = strings[i].trim();
+    private static String[] stripAll(String[] strings) {
+        for (var i = 0; i < strings.length; i++)
+            strings[i] = strings[i].strip();
         return strings;
     }
 
@@ -285,12 +267,12 @@ public class StringUtils {
      * @return the string with its proper indefinite article
      */
     public static String withIndefiniteArticle(String noun, boolean plural) {
-        noun = noun.trim();
+        noun = noun.strip();
         if (noun.isEmpty())
             return "";
         else if (plural)
             return noun;
-        char first = Character.toLowerCase(noun.charAt(0));
+        var first = Character.toLowerCase(noun.charAt(0));
         switch (first) {
             case 'a':
             case 'e':
@@ -302,5 +284,47 @@ public class StringUtils {
             default:
                 return "a " + noun;
         }
+    }
+
+    public static String camelCase(String str, boolean firstNoCase) {
+        String[] parts = str.split("\\s+");
+        StringBuilder ret = new StringBuilder();
+        for (String part : parts) {
+            if (firstNoCase) {
+                firstNoCase = false;
+                ret.append(part.toLowerCase());
+            } else {
+                ret.append(Character.toUpperCase(part.charAt(0)))
+                        .append(part.substring(1).toLowerCase());
+            }
+        }
+        return ret.toString();
+    }
+
+    public static String reverseCase(String str) {
+        char[] chars = str.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
+            if (Character.isUpperCase(c))
+                chars[i] = Character.toLowerCase(c);
+            else if (Character.isLowerCase(c))
+                chars[i] = Character.toUpperCase(c);
+            else
+                chars[i] = c;
+        }
+        return new String(chars);
+    }
+
+    public static String mirrored(String str) {
+        char[] chars = str.toCharArray();
+        char[] ret = new char[chars.length];
+        for (int i = 0; i < chars.length; i++) {
+            ret[i] = chars[chars.length - i - 1];
+        }
+        return new String(ret);
+    }
+
+    public static String capitalize(String str) {
+        return Character.toUpperCase(str.charAt(0)) + str.substring(1).toLowerCase();
     }
 }

@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -21,7 +21,7 @@ public class ExprTernary implements Expression<Object> {
     private Expression<Object> firstValue, secondValue;
 
     static {
-        Main.getMainRegistration().addExpression(
+        Parser.getMainRegistration().addExpression(
             ExprTernary.class,
             Object.class,
             false,
@@ -42,15 +42,9 @@ public class ExprTernary implements Expression<Object> {
 
     @Override
     public Object[] getValues(TriggerContext ctx) {
-        Boolean check = valueToCheck.getSingle(ctx);
-        Object[] first = firstValue.getValues(ctx);
-        Object[] second = secondValue.getValues(ctx);
-        if (check == null)
-            return new Object[0];
-        Object[] result = check ? first : second;
-        if (result == null)
-            return new Object[0];
-        return result;
+        return valueToCheck.getSingle(ctx)
+                .map(check -> check ? firstValue.getValues(ctx) : secondValue.getValues(ctx))
+                .orElse(new Object[0]);
     }
 
     @Override

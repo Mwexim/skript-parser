@@ -1,24 +1,30 @@
-package io.github.syst3ms.skriptparser.lang;
+package io.github.syst3ms.skriptparser.sections;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.lang.CodeSection;
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.Statement;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * A section that keeps executing its contents while a given condition is met.
  */
 @SuppressWarnings("unchecked")
-public class While extends CodeSection {
+public class SecWhile extends CodeSection {
     @Nullable
     private Statement actualNext;
     private Expression<Boolean> condition;
 
     static {
-        Main.getMainRegistration().addSection(
-                While.class,
+        Parser.getMainRegistration().addSection(
+                SecWhile.class,
                 "while %=boolean%"
         );
     }
@@ -36,10 +42,10 @@ public class While extends CodeSection {
     }
 
     @Override
-    protected Statement walk(TriggerContext ctx) {
-        Boolean cond = condition.getSingle(ctx);
-        if (cond == null || !cond) {
-            return actualNext;
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
+        Optional<? extends Boolean> cond = condition.getSingle(ctx);
+        if (cond.isEmpty() || !cond.get()) {
+            return Optional.ofNullable(actualNext);
         } else {
             return getFirst();
         }
@@ -52,7 +58,7 @@ public class While extends CodeSection {
     }
 
     /**
-     * @see Loop#getActualNext()
+     * @see SecLoop#getActualNext()
      */
     @Nullable
     public Statement getActualNext() {

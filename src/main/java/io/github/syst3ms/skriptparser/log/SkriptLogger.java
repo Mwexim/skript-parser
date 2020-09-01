@@ -1,13 +1,13 @@
 package io.github.syst3ms.skriptparser.log;
 
-import io.github.syst3ms.skriptparser.file.FileElement;
-import io.github.syst3ms.skriptparser.file.FileSection;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import io.github.syst3ms.skriptparser.file.FileElement;
+import io.github.syst3ms.skriptparser.file.FileSection;
 
 /**
  * An object through which Skript can keep track of errors, warnings and other useful information to the one that writes
@@ -38,10 +38,10 @@ public class SkriptLogger {
         List<ErrorContext> c1 = e1.getErrorContext(),
                 c2 = e2.getErrorContext();
         if (!c1.equals(c2)) {
-            String s1 = c1.stream()
+            var s1 = c1.stream()
                     .map(c -> Integer.toString(c.ordinal()))
                     .collect(Collectors.joining());
-            String s2 = c2.stream()
+            var s2 = c2.stream()
                     .map(c -> Integer.toString(c.ordinal()))
                     .collect(Collectors.joining());
             return s1.compareTo(s2);
@@ -83,7 +83,7 @@ public class SkriptLogger {
 
     private List<FileElement> flatten(List<FileElement> fileElements) {
         List<FileElement> list = new ArrayList<>();
-        for (FileElement element : fileElements) {
+        for (var element : fileElements) {
             list.add(element);
             if (element instanceof FileSection) {
                 list.addAll(flatten(((FileSection) element).getElements()));
@@ -223,7 +223,7 @@ public class SkriptLogger {
                 .filter(e -> e.getType() == LogType.ERROR)
                 .min(ERROR_COMPARATOR)
                 .ifPresent(logged::add);
-        for (LogEntry entry : logEntries) { // If no errors have been logged, then all other LogTypes get logged here, DEBUG being the special case
+        for (var entry : logEntries) { // If no errors have been logged, then all other LogTypes get logged here, DEBUG being the special case
             if (entry.getType() != LogType.ERROR) {
                 logged.add(entry);
             }

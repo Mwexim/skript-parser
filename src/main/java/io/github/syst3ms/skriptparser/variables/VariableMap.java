@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 class VariableMap {
@@ -30,11 +31,11 @@ class VariableMap {
                 map.put(name, value);
             }
         }
-        String[] split = splitList(name);
-        Map<String, Object> parent = map;
-        for (int i = 0; i < split.length; i++) {
-            String n = split[i];
-            Object current = parent.get(n);
+        var split = splitList(name);
+        var parent = map;
+        for (var i = 0; i < split.length; i++) {
+            var n = split[i];
+            var current = parent.get(n);
             if (current == null) {
                 if (i == split.length - 1) {
                     if (value != null) {
@@ -59,7 +60,7 @@ class VariableMap {
                     assert value == null;
                     deleteFromHashMap(String
                         .join(Variables.LIST_SEPARATOR, Arrays.copyOfRange(split, 0, i + 1)), (Map<String, Object>) current);
-                    Object v = ((Map<String, Object>) current).get(null);
+                    var v = ((Map<String, Object>) current).get(null);
                     if (v == null) {
                         parent.remove(n);
                     } else {
@@ -91,12 +92,12 @@ class VariableMap {
 
     @SuppressWarnings("unchecked")
     private void deleteFromHashMap(String parent, Map<String, Object> current) {
-        for (Map.Entry<String, Object> e : current.entrySet()) {
+        for (var e : current.entrySet()) {
             if (e.getKey() == null) {
                 continue;
             }
             map.remove(parent + Variables.LIST_SEPARATOR + e.getKey());
-            Object val = e.getValue();
+            var val = e.getValue();
             if (val instanceof Map) {
                 deleteFromHashMap(parent + Variables.LIST_SEPARATOR + e.getKey(), (Map<String, Object>) val);
             }
@@ -108,35 +109,34 @@ class VariableMap {
 	 * <p>
 	 * <b>Do not modify the returned value!</b>
 	 *
-	 * @param name
+	 * @param name name of the variable
 	 * @return an Object for a normal Variable or a Map<String, Object> for a list variable, or null if the variable is not set.
 	 */
     @SuppressWarnings("unchecked")
-    @Nullable
-    public Object getVariable(String name) {
+    public Optional<Object> getVariable(String name) {
         if (!name.endsWith("*")) {
-            return map.get(name);
+            return Optional.ofNullable(map.get(name));
         } else {
-            String[] split = splitList(name);
-            Map<String, Object> current = map;
-            for (int i = 0; i < split.length; i++) {
-                String n = split[i];
+            var split = splitList(name);
+            var current = map;
+            for (var i = 0; i < split.length; i++) {
+                var n = split[i];
                 if (n.equals("*")) {
                     assert i == split.length - 1;
-                    return current;
+                    return Optional.of(current);
                 }
-                Object o = current.get(n);
+                var o = current.get(n);
                 if (o == null) {
-                    return null;
+                    return Optional.empty();
                 }
                 if (o instanceof Map) {
                     current = (Map<String, Object>) o;
                     assert i != split.length - 1;
                 } else {
-                    return null;
+                    return Optional.empty();
                 }
             }
-            return null;
+            return Optional.empty();
         }
     }
 }

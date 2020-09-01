@@ -6,6 +6,8 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * A top-level section, that is not contained in code.
  * Usually declares an event.
@@ -32,8 +34,8 @@ public class Trigger extends CodeSection {
     }
 
     @Override
-    protected Statement walk(TriggerContext ctx) {
-        return event.check(ctx) ? getFirst() : null;
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
+        return getFirst().filter(__ -> event.check(ctx));
     }
 
     @Override

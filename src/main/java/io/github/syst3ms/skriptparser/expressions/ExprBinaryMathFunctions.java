@@ -1,10 +1,11 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
+import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +23,7 @@ import java.util.function.BinaryOperator;
  * @author Syst3ms
  */
 public class ExprBinaryMathFunctions implements Expression<Number> {
-	public static PatternInfos<BinaryOperator<Number>> PATTERNS = new PatternInfos<>(
+	public static final PatternInfos<BinaryOperator<Number>> PATTERNS = new PatternInfos<>(
 		new Object[][] {
 			{"log[arithm] [base] %number% of %number%", (BinaryOperator<Number>) NumberMath::log},
 			{"root %number% of %number%", (BinaryOperator<Number>) (n, r) -> {
@@ -43,7 +44,7 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 	private Expression<Number> first, second;
 
 	static {
-		Main.getMainRegistration().addExpression(
+		Parser.getMainRegistration().addExpression(
 			ExprBinaryMathFunctions.class,
 			Number.class,
 			true,
@@ -62,12 +63,12 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 
 	@Override
 	public Number[] getValues(TriggerContext ctx) {
-		Number f = first.getSingle(ctx);
-		Number s = second.getSingle(ctx);
-		if (f == null || s == null)
-			return new Number[0];
+		DoubleOptional<? extends Number, ? extends Number> args = DoubleOptional.ofOptional(
+				first.getSingle(ctx),
+				second.getSingle(ctx)
+		);
 		BinaryOperator<Number> operator = PATTERNS.getInfo(pattern);
-		return new Number[]{operator.apply(f, s)};
+		return args.mapToOptional((f, s) -> new Number[]{operator.apply(f, s)}).orElse(new Number[0]);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.expressions.ExprLoopValue;
+import io.github.syst3ms.skriptparser.sections.SecLoop;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
@@ -9,10 +10,9 @@ import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -21,8 +21,7 @@ import java.util.function.Predicate;
  */
 public interface Expression<T> extends SyntaxElement {
     /**
-     * Retrieves all values of this Expression. This should never return null ! Doing so will most likely throw a {@linkplain NullPointerException NPE} in
-     * the following instructions.
+     * Retrieves all values of this Expression.
      * @param ctx the event
      * @return an array of the values
      */
@@ -43,9 +42,8 @@ public interface Expression<T> extends SyntaxElement {
      *         shouldn't be changed with the given {@linkplain ChangeMode change mode}. If the change mode is
      *         {@link ChangeMode#DELETE} or {@link ChangeMode#RESET}, then an empty array should be returned.
      */
-    @Nullable
-    default Class<?>[] acceptsChange(ChangeMode mode) {
-        return null;
+    default Optional<Class<?>[]> acceptsChange(ChangeMode mode) {
+        return Optional.empty();
     }
 
     /**
@@ -62,15 +60,14 @@ public interface Expression<T> extends SyntaxElement {
      * @return the single value of this Expression, or {@code null} if it has no value
      * @throws SkriptRuntimeException if the expression returns more than one value
      */
-    @Nullable
-    default T getSingle(TriggerContext e) {
-        T[] values = getValues(e);
+    default Optional<? extends T> getSingle(TriggerContext e) {
+        var values = getValues(e);
         if (values.length == 0) {
-            return null;
+            return Optional.empty();
         } else if (values.length > 1) {
             throw new SkriptRuntimeException("Can't call getSingle on an expression that returns multiple values !");
         } else {
-            return values[0];
+            return Optional.ofNullable(values[0]);
         }
     }
 
@@ -79,7 +76,7 @@ public interface Expression<T> extends SyntaxElement {
      * be overriden.
      */
     default boolean isSingle() {
-        for (ExpressionInfo<?, ?> info : SyntaxManager.getAllExpressions()) {
+        for (var info : SyntaxManager.getAllExpressions()) {
             if (info.getSyntaxClass() == getClass()) {
                 return info.getReturnType().isSingle();
             }
@@ -91,16 +88,16 @@ public interface Expression<T> extends SyntaxElement {
      * @return the return type of this expression. By default, this is defined on registration, but, like {@linkplain #isSingle()}, can be overriden.
      */
     default Class<? extends T> getReturnType() {
-        ExpressionInfo<?, T> info = SyntaxManager.getExpressionExact(this);
-        if (info == null) {
-            throw new SkriptParserException("Unregistered expression class : " + getClass().getName());
-        }
-        return info.getReturnType().getType().getTypeClass();
+        return SyntaxManager.getExpressionExact(this)
+                .orElseThrow(() -> new SkriptParserException("Unregistered expression class : " + getClass().getName()))
+                .getReturnType()
+                .getType()
+                .getTypeClass();
     }
 
     /**
      * @param ctx the event
-     * @return an iterator, used inside of a {@link Loop loop}
+     * @return an iterator of the values of this expression
      */
     default Iterator<? extends T> iterator(TriggerContext ctx) {
         return CollectionUtils.iterator(getValues(ctx));
@@ -113,8 +110,7 @@ public interface Expression<T> extends SyntaxElement {
      * @param <C> the type to convert this Expression to
      * @return a converted Expression, or {@code null} if it couldn't be converted
      */
-    @Nullable
-    default <C> Expression<C> convertExpression(Class<C> to) {
+    default <C> Optional<? extends Expression<C>> convertExpression(Class<C> to) {
         return ConvertedExpression.newInstance(this, to);
     }
 
@@ -125,7 +121,7 @@ public interface Expression<T> extends SyntaxElement {
      * @return whether the given "loop type" describes this expression's elements. By default, returns {@code true} if
      * the parameter is {@code "value"}
      * @see ExprLoopValue
-     * @see Loop
+     * @see SecLoop
      */
     default boolean isLoopOf(String s) {
         return s.equals("value");
@@ -151,23 +147,23 @@ public interface Expression<T> extends SyntaxElement {
 
     /**
      * Checks this expression against the given {@link Predicate}
-     * @param e the event
+     * @param ctx the event
      * @param predicate the predicate
      * @return whether the expression matches the predicate
      */
-    default boolean check(TriggerContext e, Predicate<? super T> predicate) {
-        return check(e, predicate, false);
+    default boolean check(TriggerContext ctx, Predicate<? super T> predicate) {
+        return check(ctx, predicate, false);
     }
 
     /**
      * Checks this expression against the given {@link Predicate}
-     * @param e the event
+     * @param ctx the event
      * @param predicate the predicate
      * @param negated whether the result should be inverted
      * @return whether the expression matches the predicate
      */
-    default boolean check(TriggerContext e, Predicate<? super T> predicate, boolean negated) {
-        return check(getValues(e), predicate, negated, isAndList());
+    default boolean check(TriggerContext ctx, Predicate<? super T> predicate, boolean negated) {
+        return check(getValues(ctx), predicate, negated, isAndList());
     }
 
     /**
@@ -179,20 +175,21 @@ public interface Expression<T> extends SyntaxElement {
      * @param <T> the type of the elements to check
      * @return whether the elements match the given predicate
      */
-    @Contract("null, _, _, _ -> false")
     static <T> boolean check(T[] all, Predicate<? super T> predicate, boolean invert, boolean and) {
-        boolean hasElement = false;
-        for (T t : all) {
+        var hasElement = false;
+        for (var t : all) {
             if (t == null)
                 continue;
             hasElement = true;
-            boolean b = predicate.test(t);
+            var b = predicate.test(t);
             if (and && !b)
                 return invert;
             if (!and && b)
                 return !invert;
         }
-        return hasElement && invert ^ and;
+        if (!hasElement)
+            return invert;
+        return invert != and;
     }
 
 }

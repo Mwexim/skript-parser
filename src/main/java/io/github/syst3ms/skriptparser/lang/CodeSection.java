@@ -5,21 +5,23 @@ import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
+import io.github.syst3ms.skriptparser.sections.SecLoop;
+import io.github.syst3ms.skriptparser.sections.SecWhile;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Represents a section of runnable code. This parser guarantees the existence of {@link Conditional}, {@link Loop} and
- * {@link While}.<br>
+ * Represents a section of runnable code. This parser guarantees the existence of {@link Conditional}, {@link SecLoop} and
+ * {@link SecWhile}.<br>
  * <br>
  * It is important to note that Conditional is the only section to be understood
  * natively by the parser, meaning it won't go through the process of syntax parsing.
  * @see Conditional
- * @see Loop
- * @see While
+ * @see SecLoop
+ * @see SecWhile
  * @see ConditionalExpression
  */
 public abstract class CodeSection extends Statement {
@@ -33,7 +35,7 @@ public abstract class CodeSection extends Statement {
      * In case an extending class just needs to do some additional operations on top of what the default implementation
      * already does, then call {@code super.loadSection(section)} before any such operations.
      * @param section the {@link FileSection} representing this {@linkplain CodeSection}
-     * @param logger
+     * @param logger the logger
      */
     public void loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
         parserState.setSyntaxRestrictions(getAllowedSyntaxes(), isRestrictingExpressions());
@@ -50,7 +52,7 @@ public abstract class CodeSection extends Statement {
     }
 
     @Override
-    protected abstract Statement walk(TriggerContext ctx);
+    public abstract Optional<? extends Statement> walk(TriggerContext ctx);
 
     /**
      * Sets the items inside this lists, and also modifies other fields, reflected through the outputs of {@link #getFirst()},
@@ -59,11 +61,11 @@ public abstract class CodeSection extends Statement {
      */
     public final void setItems(List<Statement> items) {
         this.items = items;
-        for (Statement item : items) {
+        for (var item : items) {
             item.setParent(this);
         }
         first = items.isEmpty() ? null : items.get(0);
-        last = items.isEmpty() ? null : items.get(items.size() - 1).setNext(getNext());
+        last = items.isEmpty() ? null : items.get(items.size() - 1).setNext(getNext().orElse(null));
     }
 
     /**
@@ -80,18 +82,16 @@ public abstract class CodeSection extends Statement {
      * @return the first item of this section, or the item after the section if it's empty, or {@code null} if there is
      * no item after this section, in the latter case
      */
-    @Nullable
-    protected final Statement getFirst() {
-        return first == null ? getNext() : first;
+    protected final Optional<? extends Statement> getFirst() {
+        return Optional.ofNullable(first).or(this::getNext);
     }
 
     /**
      * @return the last item of this section, or the item after the section if it's empty, or {@code null} if there is
      * no item after this section, in the latter case
      */
-    @Nullable
-    protected final Statement getLast() {
-        return last == null ? getNext() : last;
+    protected final Optional<? extends Statement> getLast() {
+        return Optional.ofNullable(last).or(this::getNext);
     }
 
     /**

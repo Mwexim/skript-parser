@@ -1,47 +1,38 @@
-name: Test and Build
+name: Build, Test & Upload
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+    branches-ignore:
+      - master
 
 jobs:
-
-  testing:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java-version: [8, 11, 12, 13]
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up JDK ${{ matrix.java-version }}
-        uses: actions/setup-java@v1
-        with:
-          java-version: ${{ matrix.java-version }}
-
-      - name: Build skript-parser
-        run: ./gradlew build
-
-      - name: Run tests
-        run: ./gradlew test
-
-  build:
+  building:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up JDK 1.8
+      - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: 8
+          java-version: 11
 
-      - name: Build skript-parser
-        run: ./gradlew build
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+
+      - name: Build project
+        run: gradle build
 
       - name: Run tests
-        run: ./gradlew test
+        run: gradle test
 
       - name: Upload Nightly Build
         uses: actions/upload-artifact@v2
         if: success()
         with:
           name: skript-nightly
-          path: build/libs/skript-parser.jar
+          path: build/libs/**

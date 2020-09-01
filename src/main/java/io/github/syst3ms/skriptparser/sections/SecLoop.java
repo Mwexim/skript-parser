@@ -1,7 +1,8 @@
-package io.github.syst3ms.skriptparser.lang;
+package io.github.syst3ms.skriptparser.sections;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -10,12 +11,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.WeakHashMap;
 
 /**
  * A section that iterates over a collection of elements
  */
-public class Loop extends CodeSection {
+public class SecLoop extends CodeSection {
 	private Expression<?> expr;
 	private final transient Map<TriggerContext, Object> current = new WeakHashMap<>();
 	private final transient Map<TriggerContext, Iterator<?>> currentIter = new WeakHashMap<>();
@@ -23,8 +25,8 @@ public class Loop extends CodeSection {
 	private Statement actualNext;
 
 	static {
-		Main.getMainRegistration().addSection(
-			Loop.class,
+		Parser.getMainRegistration().addSection(
+			SecLoop.class,
 			"loop %objects%"
 		);
 	}
@@ -46,7 +48,7 @@ public class Loop extends CodeSection {
 	}
 
 	@Override
-    protected Statement walk(TriggerContext ctx) {
+	public Optional<? extends Statement> walk(TriggerContext ctx) {
 		Iterator<?> iter = currentIter.get(ctx);
 		if (iter == null) {
 			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(ctx) : expr.iterator(ctx);
@@ -60,7 +62,7 @@ public class Loop extends CodeSection {
 		if (iter == null || !iter.hasNext()) {
 			if (iter != null)
 				currentIter.remove(ctx); // a loop inside another loop can be called multiple times in the same event
-			return actualNext;
+			return Optional.ofNullable(actualNext);
 		} else {
 			current.put(ctx, iter.next());
 			return getFirst();
@@ -85,7 +87,7 @@ public class Loop extends CodeSection {
 	}
 
 	@Override
-	public Loop setNext(@Nullable Statement next) {
+	public SecLoop setNext(@Nullable Statement next) {
 		actualNext = next;
 		return this;
 	}
