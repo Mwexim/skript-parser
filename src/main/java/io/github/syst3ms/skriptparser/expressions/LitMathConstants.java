@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -41,7 +41,7 @@ public class LitMathConstants implements Expression<Number> {
     private int pattern;
 
     static {
-        Main.getMainRegistration().addExpression(
+        Parser.getMainRegistration().addExpression(
                 LitMathConstants.class,
                 Number.class,
                 true,

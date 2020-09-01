@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.effects;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
@@ -54,7 +54,7 @@ public class EffChange extends Effect {
     private boolean assignment; // A simple flag for identifying which syntax was precisely used
 
     static {
-        Main.getMainRegistration().addEffect(EffChange.class, 3, PATTERNS.getPatterns());
+        Parser.getMainRegistration().addEffect(EffChange.class, 3, PATTERNS.getPatterns());
     }
 
     @Override

@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.sections;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.log.ErrorType;
@@ -25,7 +25,7 @@ public class SecLoop extends CodeSection {
 	private Statement actualNext;
 
 	static {
-		Main.getMainRegistration().addSection(
+		Parser.getMainRegistration().addSection(
 			SecLoop.class,
 			"loop %objects%"
 		);

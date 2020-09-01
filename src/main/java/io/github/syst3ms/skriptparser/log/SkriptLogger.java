@@ -1,13 +1,13 @@
 package io.github.syst3ms.skriptparser.log;
 
-import io.github.syst3ms.skriptparser.file.FileElement;
-import io.github.syst3ms.skriptparser.file.FileSection;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import io.github.syst3ms.skriptparser.file.FileElement;
+import io.github.syst3ms.skriptparser.file.FileSection;
 
 /**
  * An object through which Skript can keep track of errors, warnings and other useful information to the one that writes

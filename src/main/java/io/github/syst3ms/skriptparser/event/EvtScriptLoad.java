@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.event;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class EvtScriptLoad extends SkriptEvent {
 
     static {
-        Main.getMainRegistration()
+        Parser.getMainRegistration()
                 .newEvent(EvtScriptLoad.class, "script load[ing]")
                 .addContextValue(ScriptLoadContext.class, String.class, "arguments", ScriptLoadContext::getArguments)
                 .setHandledContexts(ScriptLoadContext.class)

@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
@@ -27,7 +27,7 @@ import java.util.stream.LongStream;
 public class DefaultRegistration {
 
     public static void register() {
-        SkriptRegistration registration = Main.getMainRegistration();
+        SkriptRegistration registration = Parser.getMainRegistration();
 
         /*
          * Classes
@@ -396,6 +396,7 @@ public class DefaultRegistration {
                 return Optional.of(BigInteger.valueOf(n.longValue()));
             }
         });
+
         registration.register(); // Ignoring logs here, we control the input
     }
 }

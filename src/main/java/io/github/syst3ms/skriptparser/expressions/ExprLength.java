@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +20,7 @@ import java.util.function.Function;
 public class ExprLength extends PropertyExpression<Number, String> {
 
     static {
-        Main.getMainRegistration().addPropertyExpression(
+        Parser.getMainRegistration().addPropertyExpression(
                 ExprLength.class,
                 Number.class,
                 true,

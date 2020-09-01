@@ -1,13 +1,5 @@
 package io.github.syst3ms.skriptparser;
 
-import io.github.syst3ms.skriptparser.log.LogEntry;
-import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
-import io.github.syst3ms.skriptparser.registration.DefaultRegistration;
-import io.github.syst3ms.skriptparser.registration.SkriptAddon;
-import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
-import io.github.syst3ms.skriptparser.util.ConsoleColors;
-import io.github.syst3ms.skriptparser.util.FileUtils;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,9 +16,20 @@ import java.util.List;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-public class Main {
+import io.github.syst3ms.skriptparser.log.LogEntry;
+import io.github.syst3ms.skriptparser.log.LogType;
+import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
+import io.github.syst3ms.skriptparser.registration.DefaultRegistration;
+import io.github.syst3ms.skriptparser.registration.SkriptAddon;
+import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
+import io.github.syst3ms.skriptparser.util.ConsoleColors;
+import io.github.syst3ms.skriptparser.util.FileUtils;
+
+public class Parser {
     public static final String CONSOLE_FORMAT = "[%tT] %s: %s%n";
     private static SkriptRegistration registration;
+
+    private static List<LogEntry> logs;
 
     public static void main(String[] args) {
         boolean debug = false;
@@ -43,7 +46,8 @@ public class Main {
             scriptName = args[0];
             programArgs = Arrays.copyOfRange(args, 1, args.length);
         }
-        init(scriptName, new String[0], new String[0], programArgs, debug, true);
+        init(new String[0], new String[0], programArgs, true);
+        run(scriptName, debug);
     }
 
     /**
@@ -57,7 +61,7 @@ public class Main {
      * @param debug whether to active debug mode or not
      * @param standalone whether the parser tries to load addons (standalone) or not (library)
      */
-    public static void init(String scriptName, String[] mainPackages, String[] subPackages, String[] programArgs, boolean debug, boolean standalone) {
+    public static void init(String[] mainPackages, String[] subPackages, String[] programArgs, boolean standalone) {
         Skript skript = new Skript(programArgs);
         registration = new SkriptRegistration(skript);
         DefaultRegistration.register();
@@ -70,10 +74,10 @@ public class Main {
         subPackages = sub.toArray(new String[0]);
         try {
             for (String mainPackage : mainPackages) {
-                FileUtils.loadClasses(FileUtils.getCurrentJarFile(Main.class), mainPackage, subPackages);
+                FileUtils.loadClasses(FileUtils.getJarFile(Parser.class), mainPackage, subPackages);
             }
             if (standalone) {
-                Path parserPath = Paths.get(Main.class
+                Path parserPath = Paths.get(Parser.class
                     .getProtectionDomain()
                     .getCodeSource()
                     .getLocation()
@@ -88,7 +92,7 @@ public class Main {
                             try {
                                 URLClassLoader child = new URLClassLoader(
                                     new URL[]{addonPath.toUri().toURL()},
-                                    Main.class.getClassLoader()
+                                    Parser.class.getClassLoader()
                                 );
                                 JarFile jar = new JarFile(addonPath.toString());
                                 Manifest manifest = jar.getManifest();
@@ -115,30 +119,42 @@ public class Main {
             e.printStackTrace();
         }
         Calendar time = Calendar.getInstance();
-        List<LogEntry> logs = registration.register();
+        logs = registration.register();
         if (!logs.isEmpty()) {
-            System.out.print(ConsoleColors.RED.toString());
+            System.out.print(ConsoleColors.PURPLE);
             System.out.println("Registration log :");
         }
         printLogs(logs, time);
-        System.out.print(ConsoleColors.RESET.toString());
         if (!logs.isEmpty()) {
             System.out.println();
         }
+    }
+
+    public static void run(String scriptName, boolean debug) {
+        Calendar time = Calendar.getInstance();
         Path scriptPath = Paths.get(scriptName);
         logs = ScriptLoader.loadScript(scriptPath, debug);
         if (!logs.isEmpty()) {
-            System.out.print(ConsoleColors.RED.toString());
+            System.out.print(ConsoleColors.PURPLE);
             System.out.println("Parsing log :");
         }
         printLogs(logs, time);
-        System.out.print(ConsoleColors.RESET.toString());
         SkriptAddon.getAddons().forEach(SkriptAddon::finishedLoading);
     }
 
     private static void printLogs(List<LogEntry> logs, Calendar time) {
         for (LogEntry log : logs) {
-            System.out.printf(CONSOLE_FORMAT, time, log.getType().name(), log.getMessage());
+            ConsoleColors color = ConsoleColors.WHITE;
+            if (log.getType() == LogType.WARNING) {
+                color = ConsoleColors.YELLOW;
+            } else if (log.getType() == LogType.ERROR) {
+                color = ConsoleColors.RED;
+            } else if (log.getType() == LogType.INFO) {
+                color = ConsoleColors.BLUE;
+            } else if (log.getType() == LogType.DEBUG) {
+                color = ConsoleColors.PURPLE;
+            }
+            System.out.printf(color + CONSOLE_FORMAT + ConsoleColors.RESET, time, log.getType().name(), log.getMessage());
         }
     }
 

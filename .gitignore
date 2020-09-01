@@ -1,6 +1,10 @@
 +
 # Created by https://www.gitignore.io/api/java,gradle,eclipse
 
+### VSCode ###
+
+.vscode/
+
 ### Eclipse ###
 
 .metadata
@@ -115,4 +119,4 @@ gradle-app.setting
 # out folder
 out/
 
-*Test.java
+src/main/**/*Test.java

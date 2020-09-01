@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.ExpressionList;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
@@ -52,7 +52,7 @@ public class CondExprCompare extends ConditionalExpression {
     );
 
     static {
-        Main.getMainRegistration().addExpression(
+        Parser.getMainRegistration().addExpression(
                 CondExprCompare.class,
                 Boolean.class,
                 true,

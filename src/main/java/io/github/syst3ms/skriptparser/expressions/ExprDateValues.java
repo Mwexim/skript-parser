@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
@@ -26,7 +26,7 @@ import java.util.function.Function;
 public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 
 	static {
-		Main.getMainRegistration().addPropertyExpression(
+		Parser.getMainRegistration().addPropertyExpression(
 				ExprDateValues.class,
 				String.class,
 				true,
