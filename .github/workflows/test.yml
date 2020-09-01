@@ -1,21 +1,23 @@
-name: Build, Test & Upload
+name: Build & Test
 
 on:
   push:
-  pull_request:
-    branches-ignore:
+    branches:
       - master
 
 jobs:
-  building:
+  testing:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [11, 13]
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up JDK
+      - name: Set up JDK ${{ matrix.java-version }}
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: ${{ matrix.java-version }}
 
       - name: Cache Gradle packages
         uses: actions/cache@v2
@@ -24,15 +26,8 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
 
-      - name: Build project
+      - name: Build skript-parser
         run: gradle build
 
       - name: Run tests
         run: gradle test
-
-      - name: Upload Nightly Build
-        uses: actions/upload-artifact@v2
-        if: success()
-        with:
-          name: skript-nightly
-          path: build/libs/**

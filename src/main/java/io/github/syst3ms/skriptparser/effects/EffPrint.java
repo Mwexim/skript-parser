@@ -1,11 +1,10 @@
 package io.github.syst3ms.skriptparser.effects;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.registration.tags.TagManager;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -20,7 +19,7 @@ public class EffPrint extends Effect {
     private Expression<String> string;
 
     static {
-        Main.getMainRegistration().addEffect(
+        Parser.getMainRegistration().addEffect(
             EffPrint.class,
             "print %strings% [to [the] console]"
         );
@@ -35,7 +34,7 @@ public class EffPrint extends Effect {
 
     @Override
     public void execute(TriggerContext ctx) {
-        String[] strs = TagManager.occasionally(() -> string.getValues(ctx));
+        String[] strs = string.getValues(ctx);
         if (strs.length == 0)
             return;
 
@@ -46,6 +45,6 @@ public class EffPrint extends Effect {
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return "println " + string.toString(ctx, debug);
+        return "print " + string.toString(ctx, debug);
     }
 }

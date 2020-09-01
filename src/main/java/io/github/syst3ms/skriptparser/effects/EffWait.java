@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.effects;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Statement;
@@ -24,7 +24,7 @@ import java.util.Optional;
 public class EffWait extends Effect {
 
     static {
-        Main.getMainRegistration().addEffect(
+        Parser.getMainRegistration().addEffect(
             EffWait.class,
             "(wait|halt) [for] %duration%"
         );

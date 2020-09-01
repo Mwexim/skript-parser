@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.sections;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
@@ -23,7 +23,7 @@ public class SecWhile extends CodeSection {
     private Expression<Boolean> condition;
 
     static {
-        Main.getMainRegistration().addSection(
+        Parser.getMainRegistration().addSection(
                 SecWhile.class,
                 "while %=boolean%"
         );

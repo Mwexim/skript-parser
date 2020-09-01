@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Variable;
@@ -28,7 +28,7 @@ import java.util.Optional;
 public class ExprAmount extends PropertyExpression<Number, Object> {
 
 	static {
-		Main.getMainRegistration().addPropertyExpression(
+		Parser.getMainRegistration().addPropertyExpression(
 				ExprAmount.class,
 				Number.class,
 				true,

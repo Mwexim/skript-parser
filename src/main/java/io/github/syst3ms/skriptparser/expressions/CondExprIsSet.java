@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
@@ -20,7 +20,7 @@ public class CondExprIsSet extends ConditionalExpression {
     private Expression<?> expr;
 
     static {
-        Main.getMainRegistration().addExpression(
+        Parser.getMainRegistration().addExpression(
                 CondExprIsSet.class,
                 Boolean.class,
                 true,

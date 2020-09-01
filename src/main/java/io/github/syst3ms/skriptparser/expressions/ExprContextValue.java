@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -22,7 +22,7 @@ import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 public class ExprContextValue implements Expression<Object> {
 
 	static {
-		Main.getMainRegistration().addExpression(
+		Parser.getMainRegistration().addExpression(
 			ExprContextValue.class,
 			Object.class,
 			false,

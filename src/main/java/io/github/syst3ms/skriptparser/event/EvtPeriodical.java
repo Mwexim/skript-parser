@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.event;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
@@ -24,7 +24,7 @@ import java.time.Duration;
 public class EvtPeriodical extends SkriptEvent {
 
     static {
-        Main.getMainRegistration()
+        Parser.getMainRegistration()
                 .newEvent(EvtPeriodical.class, "*every %duration%")
                 .setHandledContexts(PeriodicalContext.class)
                 .register();

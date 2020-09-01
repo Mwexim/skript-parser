@@ -49,7 +49,6 @@ public class ExpressionElement implements PatternElement {
             return -1;
         }
         var logger = context.getLogger();
-        logger.recurse();
         var source = context.getSource();
         var possibilityIndex = context.getPatternIndex();
         var flattened = PatternElement.flatten(context.getOriginalElement());
