@@ -34,7 +34,8 @@ public class ExprStringSplitJoin implements Expression<String> {
 				false,
 				"(concat[enate]|join) %strings% [1:[(with|using|by) [[the] delimiter] %string%]]",
 				"(split %string%|%string% split) (at|using|by) [[the] delimiter] %string%",
-				"(split %string%|%string% split) (with|using|by|every) %number% [char[acter]][s]");
+				"(split %string%|%string% split) (with|using|by|every) %number% [char[acter]][s]"
+		);
 	}
 
 	private Expression<String> expr;

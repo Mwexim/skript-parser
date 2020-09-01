@@ -23,7 +23,8 @@ public class ExprDateNow implements Expression<SkriptDate> {
 				ExprDateNow.class,
 				SkriptDate.class,
 				true,
-				"(0:now|1:yesterday|2:tomorrow)");
+				"(0:now|1:yesterday|2:tomorrow)"
+		);
 	}
 
 	int parseMark;

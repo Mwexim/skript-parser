@@ -26,7 +26,8 @@ public class ExprDateFromUnix implements Expression<SkriptDate> {
 				ExprDateFromUnix.class,
 				SkriptDate.class,
 				true,
-				"[the] date (from|of) [the] [1:unix] timestamp %number%");
+				"[the] date (from|of) [the] [1:unix] timestamp %number%"
+		);
 	}
 
 	Expression<Number> timestamp;

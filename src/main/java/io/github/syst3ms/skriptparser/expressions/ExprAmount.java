@@ -33,7 +33,8 @@ public class ExprAmount extends PropertyExpression<Number, Object> {
 				Number.class,
 				true,
 				"~objects",
-				"[1:recursive] (amount|number|size)");
+				"[1:recursive] (amount|number|size)"
+		);
 	}
 
 	private boolean recursive;

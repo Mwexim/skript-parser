@@ -266,6 +266,10 @@ public class ExpressionElement implements PatternElement {
         return sb.append("%").toString();
     }
 
+    public List<PatternType<?>> getTypes() {
+        return types;
+    }
+
     public enum Acceptance {
         ALL,
         EXPRESSIONS_ONLY,
