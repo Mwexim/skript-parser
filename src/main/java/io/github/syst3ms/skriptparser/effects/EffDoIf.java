@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.effects;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 public class EffDoIf extends Effect {
 
     static {
-        Main.getMainRegistration().addEffect(
+        Parser.getMainRegistration().addEffect(
             EffDoIf.class,
             1,
             "if %=boolean%[,] [do] <.+>"

@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.effects;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.sections.SecLoop;
@@ -27,7 +27,7 @@ import java.util.Optional;
 public class EffExit extends Effect {
 
     static {
-        Main.getMainRegistration().addEffect(
+        Parser.getMainRegistration().addEffect(
             EffExit.class,
             "(exit|stop) [the] [trigger]",
                 "(exit|stop) [(a|the [current]|this)] (0:section|1:loop|2:condition[al])",

@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprDifference implements Expression<Object> {
 
     static {
-        Main.getMainRegistration().addExpression(
+        Parser.getMainRegistration().addExpression(
                 ExprDifference.class,
                 Object.class,
                 true,

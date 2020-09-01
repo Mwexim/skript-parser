@@ -1,11 +1,12 @@
 package io.github.syst3ms.skriptparser.sections;
 
-import io.github.syst3ms.skriptparser.Main;
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,13 +22,13 @@ import java.util.concurrent.ThreadLocalRandom;
  * @type SECTION
  * @pattern chance of %number%[\%]
  * @since ALPHA
- * @author Mwexim
+ * @author Mwexim, Syst3ms
  */
 @SuppressWarnings("unchecked")
 public class SecChance extends CodeSection {
 
     static {
-        Main.getMainRegistration().addSection(
+        Parser.getMainRegistration().addSection(
                 SecChance.class,
                 "chance of %number%[1:\\%]"
         );
@@ -47,20 +48,13 @@ public class SecChance extends CodeSection {
 
     @Override
     public Optional<? extends Statement> walk(TriggerContext ctx) {
-        Optional<? extends Number> c = chance.getSingle(ctx);
-        if (c.isEmpty())
-            return getNext();
-        double val = c.get().doubleValue();
-        if (val < 0 || val > (percent ? 100 : 1))
-            return getNext();
-        BigDecimal randomNumber = (BigDecimal) NumberMath.random(BigDecimal.valueOf(0), BigDecimal.valueOf(100), false, random);
-
-        // Tested with 1 000 000 iterations, average margin of error was 0.5%.
-        if (randomNumber.doubleValue() <= (percent ? val : val * 100)) {
-            return getFirst();
-        } else {
-            return getNext();
-        }
+        return chance.getSingle(ctx)
+                .map(BigDecimalMath::getBigDecimal) // We use BigDecimal here not for its magnitude, but its precision
+                .map(b -> b.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : b) // Coerce to 0 at least so that NumberMath#randomBigDecimal doesn't fail
+                .map(b -> percent ? b.divide(BigDecimal.valueOf(100), BigDecimalMath.DEFAULT_ROUNDING_MODE) : b)
+                .filter(b -> b.compareTo(NumberMath.randomBigDecimal(BigDecimal.ZERO, BigDecimal.ONE, random)) <= 0)
+                .flatMap(b -> getFirst().map(s -> (Statement) s)) // Generic shenanigans
+                .or(() -> getNext().map(s -> (Statement) s));
     }
 
     @Override
