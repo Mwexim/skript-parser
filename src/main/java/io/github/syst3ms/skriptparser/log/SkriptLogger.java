@@ -1,13 +1,14 @@
 package io.github.syst3ms.skriptparser.log;
 
+import io.github.syst3ms.skriptparser.file.FileElement;
+import io.github.syst3ms.skriptparser.file.FileSection;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import io.github.syst3ms.skriptparser.file.FileElement;
-import io.github.syst3ms.skriptparser.file.FileSection;
 
 /**
  * An object through which Skript can keep track of errors, warnings and other useful information to the one that writes
@@ -140,13 +141,21 @@ public class SkriptLogger {
         errorContext.addLast(context);
     }
 
-    private void log(String message, LogType type, ErrorType error) {
+    private void log(String message, LogType type, @Nullable ErrorType error, @Nullable String tip) {
         if (open) {
             List<ErrorContext> ctx = new ArrayList<>(errorContext);
             if (line == -1) {
-                logEntries.add(new LogEntry(message, type, line, ctx, error));
+                logEntries.add(new LogEntry(message, type, line, ctx, error, tip));
             } else {
-                logEntries.add(new LogEntry(String.format(LOG_FORMAT, message, line + 1, fileElements.get(line).getLineContent(), fileName), type, line, ctx, error));
+                logEntries.add(new LogEntry(
+                        String.format(
+                                LOG_FORMAT,
+                                message,
+                                line + 1,
+                                fileElements.get(line).getLineContent(),
+                                fileName),
+                        type, line, ctx, error, tip
+                ));
             }
         }
     }
@@ -157,9 +166,19 @@ public class SkriptLogger {
      * @param errorType the error type
      */
     public void error(String message, ErrorType errorType) {
+        error(message, errorType, null);
+    }
+
+    /**
+     * Logs an error message with a tip on how to solve it.
+     * @param message the error message
+     * @param errorType the error type
+     * @param tip the tip for solving the error
+     */
+    public void error(String message, ErrorType errorType, @Nullable String tip) {
         if (!hasError) {
             clearNotError(); // Errors take priority over everything (except DEBUG), so we just delete all other logs
-            log(message, LogType.ERROR, errorType);
+            log(message, LogType.ERROR, errorType, tip);
             hasError = true;
         }
     }
@@ -169,7 +188,7 @@ public class SkriptLogger {
      * @param message the warning message
      */
     public void warn(String message) {
-        log(message, LogType.WARNING, null);
+        log(message, LogType.WARNING, null, null);
     }
 
     /**
@@ -177,7 +196,7 @@ public class SkriptLogger {
      * @param message the info message
      */
     public void info(String message) {
-        log(message, LogType.INFO, null);
+        log(message, LogType.INFO, null, null);
     }
 
     /**
@@ -186,7 +205,7 @@ public class SkriptLogger {
      */
     public void debug(String message) {
         if (debug)
-            log(message, LogType.DEBUG, null);
+            log(message, LogType.DEBUG, null, null);
     }
 
     /**
@@ -218,7 +237,7 @@ public class SkriptLogger {
      * Finishes a logging process by making some logged entries definitive. All non-error logs are made definitive
      * and only the error that has the most priority is made definitive.
      */
-    public void logOutput() {
+    public void finalizeLogs() {
         logEntries.stream()
                 .filter(e -> e.getType() == LogType.ERROR)
                 .min(ERROR_COMPARATOR)

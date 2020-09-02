@@ -36,7 +36,10 @@ public abstract class RestrictedExpression<T> implements Expression<T> {
         }
         if (required == null) {
             var logger = parseContext.getLogger();
-            logger.error(getSpecificErrorMessage() + " : '" + this.toString(null, logger.isDebug()) + "'", ErrorType.SEMANTIC_ERROR);
+            logger.error(
+                    getSpecificErrorMessage() + " : '" + this.toString(null, logger.isDebug()) + "'",
+                    ErrorType.SEMANTIC_ERROR,
+                    "This expression cannot be used everywhere. Refer to the documentation to see the correct usage of this expression");
             return false;
         }
         return initialize(expressions, required, matchedPattern, parseContext);
