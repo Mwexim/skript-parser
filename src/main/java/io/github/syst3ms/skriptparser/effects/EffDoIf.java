@@ -4,7 +4,6 @@ import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
@@ -29,12 +28,13 @@ public class EffDoIf extends Effect {
         );
     }
 
-    ConditionalExpression condition;
+    Expression<Boolean> condition;
     private Effect effect;
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        condition = (ConditionalExpression) expressions[0];
+        condition = (Expression<Boolean>) expressions[0];
         String expr = parseContext.getMatches().get(0).group();
         parseContext.getLogger().recurse();
         var eff = SyntaxParser.parseEffect(expr, parseContext.getParserState(), parseContext.getLogger());
@@ -49,9 +49,10 @@ public class EffDoIf extends Effect {
         return true;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void execute(TriggerContext ctx) {
-        if (condition.check(ctx))
+        if (condition.getSingle(ctx).filter(b -> b).isPresent())
             effect.walk(ctx);
     }
 
