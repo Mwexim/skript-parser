@@ -328,7 +328,7 @@ public class DefaultRegistration {
         Comparators.registerComparator(
                 Duration.class,
                 Duration.class,
-                new Comparator<Duration, Duration>(true) {
+                new Comparator<>(true) {
                     @Override
                     public Relation apply(Duration duration, Duration duration2) {
                         return Relation.get(duration.compareTo(duration2));
