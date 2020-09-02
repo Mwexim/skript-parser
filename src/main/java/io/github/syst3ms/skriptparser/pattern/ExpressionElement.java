@@ -52,13 +52,13 @@ public class ExpressionElement implements PatternElement {
         var source = context.getSource();
         var possibilityIndex = context.getPatternIndex();
         var flattened = PatternElement.flatten(context.getOriginalElement());
-        while (source.isPresent() && possibilityIndex >= flattened.size()) {
+        while (source.isPresent() && possibilityIndex + 1 >= flattened.size()) {
             flattened = PatternElement.flatten(source.get().getOriginalElement());
             possibilityIndex = source.get().getPatternIndex();
             source = source.get().getSource();
         }
         // We look at what could possibly be after the expression in the current syntax
-        var possibleInputs = PatternElement.getPossibleInputs(flattened.subList(possibilityIndex, flattened.size()));
+        var possibleInputs = PatternElement.getPossibleInputs(flattened.subList(possibilityIndex + 1, flattened.size()));
         for (var possibleInput : possibleInputs) {  // We iterate over those possibilities
             if (possibleInput instanceof TextElement) {
                 var text = ((TextElement) possibleInput).getText();

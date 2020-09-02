@@ -2,7 +2,9 @@ package io.github.syst3ms.skriptparser.util;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
+import java.util.function.Predicate;
 
 /**
  * Utility functions for Collection objects
@@ -26,5 +28,31 @@ public class CollectionUtils {
             array[array.length - 1 - i] = temp;
         }
         return array;
+    }
+
+    /**
+     * Find the index of an item, where a given predicate applies,
+     * from a given class in a list, skipping over all these items
+     * as long as the amount of items skipped is smaller than a given amount.
+     * @param list the list
+     * @param n the ordinal you want to get the index from
+     * @param condition the condition
+     * @return the index, {@code -1} if no index was found
+     */
+    public static <T> int ordinalConditionalIndexOf(List<T> list, int n, Predicate<T> condition) {
+        int index = 0;
+        int findTimes = 0;
+        if (n == 0)
+            return -1;
+        if (list.isEmpty())
+            return -1;
+        for (T o : list) {
+            if (condition.test(o))
+                findTimes++;
+            if (findTimes >= n)
+                return index;
+            index++;
+        }
+        return -1;
     }
 }

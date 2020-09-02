@@ -141,7 +141,7 @@ public class SyntaxParser {
             logger.forgetError();
         }
         logger.setContext(ErrorContext.NO_MATCH);
-        logger.error("No expression matching ''" + s + "' was found", ErrorType.NO_MATCH);
+        logger.error("No expression matching '" + s + "' was found", ErrorType.NO_MATCH);
         return Optional.empty();
     }
 

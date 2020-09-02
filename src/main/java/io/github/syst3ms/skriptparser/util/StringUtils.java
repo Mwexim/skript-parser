@@ -1,5 +1,8 @@
 package io.github.syst3ms.skriptparser.util;
 
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.base.TaggedExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
@@ -140,6 +143,25 @@ public class StringUtils {
             }
         }
         return Optional.empty(); // There were no percents (unclosed percent is handled by VariableString already)
+    }
+
+    /**
+     * Finds the contents until a closing bracket is found
+     * @param s the string containing the percents
+     * @param start where the pair begins
+     * @param closingBracket the closing bracket
+     * @return the content until the closing bracket
+     */
+    public static Optional<String> getBracketContent(String s, int start, char closingBracket) {
+        for (int i = start; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '\\') {
+                i++;
+            } else if (c == closingBracket) {
+                return Optional.of(s.substring(start, i));
+            }
+        }
+        return Optional.empty(); // There was no closing bracket
     }
 
     /**
@@ -284,6 +306,22 @@ public class StringUtils {
             default:
                 return "a " + noun;
         }
+    }
+
+    /**
+     * Returns the string values of this expression after applying all tags.
+     * This means if the expression is an instance of {@link TaggedExpression},
+     * it applies all the tags with the given tag context. If not, it will
+     * just return the string values of this expression.
+     * @param expr the single expression
+     * @param ctx the current event
+     * @param tagCtx the tag context
+     * @return the strings with optional tags applied
+     */
+    public static String[] applyTags(Expression<String> expr, TriggerContext ctx, String tagCtx) {
+        if (expr instanceof TaggedExpression)
+            return new String[] {((TaggedExpression) expr).toString(ctx, tagCtx)};
+        return expr.getValues(ctx);
     }
 
     public static String camelCase(String str, boolean firstNoCase) {
