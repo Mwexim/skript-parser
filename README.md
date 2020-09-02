@@ -29,15 +29,7 @@ This repository currently contains two main branches :
  * **master** : this branch contains a proof-of-concept implementation of the parser, that compiles to an executable JAR file.
  * **skript-library** : this branch contains no implementations, and its purpose is to be used as a base library for any skript-parser-related projects.
 
-The **master** branch includes the CLI of the project too.
-
-## Building
-
-To build the project to simple jar files, you have simply to run ``gradle build``. All compiled files will be available in the directory ``build/libs`` at the root of the project.
-
-If you want to build the CLI as native executable, run ``gradle nativeImage``. The CLI will be available at ``src/cli/build/graal/skript.exe``.
-
-*If you are a **Windows** user, you need to set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools if you want to build the CLI as native executable. You can install it easily using [chocolatey](chocolatey.org/): ``choco install visualstudio2017-workload-vctools``*
+If you want to use the parser as CLI, you should have a look in the [skript-cli](https://github.com/SkriptLang/skript-cli) project.
 
 ## Contributing 
 
