@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
+import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import io.github.syst3ms.skriptparser.util.TimeUtils;
@@ -292,20 +293,6 @@ public class DefaultRegistration {
                 .register();
 
         /*
-         * Converters
-         */
-        registration.addConverter(Number.class, Long.class, n -> Optional.of(n instanceof Long ? (Long) n : n.longValue()));
-        registration.addConverter(Number.class, BigInteger.class, n -> {
-            if (n instanceof BigInteger) {
-                return Optional.of((BigInteger) n);
-            } else if (n instanceof Long) {
-                return Optional.of(BigInteger.valueOf((Long) n));
-            } else {
-                return Optional.of(BigInteger.valueOf(n.longValue()));
-            }
-        });
-
-        /*
          * Comparators
          */
         Comparators.registerComparator(
@@ -335,6 +322,16 @@ public class DefaultRegistration {
                             BigDecimal bd2 = BigDecimalMath.getBigDecimal(number2);
                             return Relation.get(bd.compareTo(bd2));
                         }
+                    }
+                }
+        );
+        Comparators.registerComparator(
+                Duration.class,
+                Duration.class,
+                new Comparator<>(true) {
+                    @Override
+                    public Relation apply(Duration duration, Duration duration2) {
+                        return Relation.get(duration.compareTo(duration2));
                     }
                 }
         );
@@ -386,6 +383,20 @@ public class DefaultRegistration {
                 }
         );
 
+        /*
+         * Converters
+         */
+        Converters.registerConverter(Number.class, Long.class, n -> Optional.of(n instanceof Long ? (Long) n : n.longValue()));
+        Converters.registerConverter(Number.class, BigInteger.class, n -> {
+            if (n instanceof BigInteger) {
+                return Optional.of((BigInteger) n);
+            } else if (n instanceof Long) {
+                return Optional.of(BigInteger.valueOf((Long) n));
+            } else {
+                return Optional.of(BigInteger.valueOf(n.longValue()));
+            }
+        });
+      
         registration.register(); // Ignoring logs here, we control the input
     }
 }

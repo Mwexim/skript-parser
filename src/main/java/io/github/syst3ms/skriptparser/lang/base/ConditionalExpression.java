@@ -49,5 +49,5 @@ public abstract class ConditionalExpression implements Expression<Boolean> {
         return new Boolean[]{check(ctx)};
     }
 
-    protected abstract boolean check(TriggerContext ctx);
+    public abstract boolean check(TriggerContext ctx);
 }

@@ -44,7 +44,6 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 			ExprLoopValue.class,
 			Object.class,
 			true,
-			3,
 			"[the] loop-<.+>"
 		);
 	}

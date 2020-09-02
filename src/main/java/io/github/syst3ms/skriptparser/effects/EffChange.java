@@ -54,7 +54,7 @@ public class EffChange extends Effect {
     private boolean assignment; // A simple flag for identifying which syntax was precisely used
 
     static {
-        Parser.getMainRegistration().addEffect(EffChange.class, 3, PATTERNS.getPatterns());
+        Parser.getMainRegistration().addEffect(EffChange.class, PATTERNS.getPatterns());
     }
 
     @Override

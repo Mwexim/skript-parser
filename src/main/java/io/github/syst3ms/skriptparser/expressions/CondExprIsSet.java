@@ -24,7 +24,6 @@ public class CondExprIsSet extends ConditionalExpression {
                 CondExprIsSet.class,
                 Boolean.class,
                 true,
-                2,
                 "%~objects% (is|are)[1:( not|n't)] set"
         );
     }
@@ -37,7 +36,7 @@ public class CondExprIsSet extends ConditionalExpression {
     }
 
     @Override
-    protected boolean check(TriggerContext ctx) {
+    public boolean check(TriggerContext ctx) {
         return isNegated() != (expr == null || expr.getValues(ctx).length == 0);
     }
 

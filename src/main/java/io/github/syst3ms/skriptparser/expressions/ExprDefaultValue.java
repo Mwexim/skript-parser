@@ -20,11 +20,10 @@ public class ExprDefaultValue implements Expression<Object> {
 
     static {
         Parser.getMainRegistration().addExpression(
-            ExprDefaultValue.class,
-            Object.class,
-            false,
-            3,
-            "%objects% (otherwise|?) %objects%"
+                ExprDefaultValue.class,
+                Object.class,
+                false,
+                "%objects% (otherwise|?) %objects%"
         );
     }
 

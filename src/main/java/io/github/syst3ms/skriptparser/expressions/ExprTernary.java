@@ -25,7 +25,6 @@ public class ExprTernary implements Expression<Object> {
             ExprTernary.class,
             Object.class,
             false,
-            2,
             "%objects% if %=boolean%[,] (otherwise|else) %objects%",
             "%=boolean% ? %objects% : %objects%"
         );

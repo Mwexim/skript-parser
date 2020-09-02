@@ -15,6 +15,7 @@ public class ThreadUtils {
 	public static void runAsync(Runnable code) {
 		ExecutorService executor = Executors.newCachedThreadPool();
 		executor.submit(code);
+		executor.shutdown();
 	}
 
 	/**

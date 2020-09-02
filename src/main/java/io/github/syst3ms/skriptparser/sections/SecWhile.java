@@ -64,8 +64,8 @@ public class SecWhile extends CodeSection {
      * @return the element that is actually after this SecWhile
      */
     @Nullable
-    public Statement getActualNext() {
-        return actualNext;
+    public Optional<Statement> getActualNext() {
+        return Optional.ofNullable(actualNext);
     }
 
     @Override
