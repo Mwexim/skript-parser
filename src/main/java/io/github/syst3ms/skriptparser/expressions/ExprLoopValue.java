@@ -62,7 +62,7 @@ public class ExprLoopValue implements Expression<Object> {
 		c = type.map(patternType -> patternType.getType().getTypeClass()).orElse(null);
 		int j = 1;
 		SecLoop loop = null;
-		for (final CodeSection sec : parser.getParserState().getCurrentSections()) {
+		for (CodeSection sec : parser.getParserState().getCurrentSections()) {
 			if (!(sec instanceof SecLoop))
 				continue;
 			final SecLoop l = (SecLoop) sec;

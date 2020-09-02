@@ -99,7 +99,7 @@ public class SecLoop extends CodeSection {
      * @return the element that is actually after this Loop
      */
 	@Nullable
-	public Statement getActualNext() {
-		return actualNext;
+	public Optional<Statement> getActualNext() {
+		return Optional.ofNullable(actualNext);
 	}
 }

@@ -61,8 +61,8 @@ public class SecWhile extends CodeSection {
      * @see SecLoop#getActualNext()
      */
     @Nullable
-    public Statement getActualNext() {
-        return actualNext;
+    public Optional<Statement> getActualNext() {
+        return Optional.ofNullable(actualNext);
     }
 
     @Override

@@ -73,11 +73,11 @@ public class CondExprCompare extends ConditionalExpression {
 
     @SuppressWarnings("null")
     @Override
-    public boolean init(Expression<?>[] vars, int matchedPattern, ParseContext result) {
-        first = vars[0];
-        second = vars[1];
-        if (vars.length == 3)
-            third = vars[2];
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext result) {
+        first = expressions[0];
+        second = expressions[1];
+        if (expressions.length == 3)
+            third = expressions[2];
         SkriptLogger logger = result.getLogger();
         relation = PATTERNS.getInfo(matchedPattern);
         int parseMark = result.getParseMark();

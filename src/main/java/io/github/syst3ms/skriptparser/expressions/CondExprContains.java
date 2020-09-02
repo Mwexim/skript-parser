@@ -47,7 +47,7 @@ public class CondExprContains extends ConditionalExpression {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected boolean check(TriggerContext ctx) {
+    public boolean check(TriggerContext ctx) {
         if (onlyString) {
             Optional<? extends String> f = ((Expression<String>) first).getSingle(ctx);
             Optional<? extends String> s = ((Expression<String>) second).getSingle(ctx);

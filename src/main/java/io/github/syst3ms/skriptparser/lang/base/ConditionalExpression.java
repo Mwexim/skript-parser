@@ -1,9 +1,9 @@
 package io.github.syst3ms.skriptparser.lang.base;
 
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.expressions.ExprWhether;
 import io.github.syst3ms.skriptparser.lang.Conditional;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.sections.SecWhile;
 
 /**
@@ -49,5 +49,5 @@ public abstract class ConditionalExpression implements Expression<Boolean> {
         return new Boolean[]{check(ctx)};
     }
 
-    protected abstract boolean check(TriggerContext ctx);
+    public abstract boolean check(TriggerContext ctx);
 }

@@ -83,7 +83,7 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     @Override
-    public T[] getArray(TriggerContext e) {
+    public T[] getArray(TriggerContext ctx) {
         if (isAndList) {
             return values;
         } else {
