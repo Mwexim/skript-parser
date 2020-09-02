@@ -1,12 +1,12 @@
 package io.github.syst3ms.skriptparser.effects;
 
-import org.jetbrains.annotations.Nullable;
-
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.util.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Prints some text to the console
@@ -35,7 +35,7 @@ public class EffPrint extends Effect {
 
     @Override
     public void execute(TriggerContext ctx) {
-        String[] strs = string.getValues(ctx);
+        String[] strs = StringUtils.applyTags(string, ctx, "console");
         if (strs.length == 0)
             return;
 
@@ -46,6 +46,6 @@ public class EffPrint extends Effect {
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return "println " + string.toString(ctx, debug);
+        return "print " + string.toString(ctx, debug);
     }
 }
