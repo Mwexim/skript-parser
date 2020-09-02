@@ -652,7 +652,8 @@ public class SkriptRegistration {
                 if (!(element instanceof OptionalGroup || e instanceof TextElement && ((TextElement) e).getText().isBlank()))
                     break;
             }
-            return priority;
+            var containsRegex = elements.stream().anyMatch(p -> p instanceof RegexGroup);
+            return containsRegex ? Math.min(priority, 3) : priority;
         }
     }
 }
