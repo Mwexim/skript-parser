@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
  * @pattern lower[ ]case char(acters|s) in %strings%
  * @pattern digit char(acters|s) in %strings%
  * @pattern special char(acters|s) in %strings%
- * @pattern white[]space char(acters|s) in %strings%
+ * @pattern [white[]]space char(acters|s) in %strings%
  * @since ALPHA
  * @author Olyno
  */
