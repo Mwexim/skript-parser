@@ -24,7 +24,6 @@ public class CondExprIsSet extends ConditionalExpression {
                 CondExprIsSet.class,
                 Boolean.class,
                 true,
-                2,
                 "%~objects% (is|are)[1:( not|n't)] set"
         );
     }

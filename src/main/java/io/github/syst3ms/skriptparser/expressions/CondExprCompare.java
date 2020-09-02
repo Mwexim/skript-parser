@@ -56,7 +56,6 @@ public class CondExprCompare extends ConditionalExpression {
                 CondExprCompare.class,
                 Boolean.class,
                 true,
-                2,
                 PATTERNS.getPatterns()
         );
     }

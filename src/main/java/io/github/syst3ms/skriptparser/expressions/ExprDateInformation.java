@@ -30,7 +30,8 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 				Number.class,
 				true,
 				"*[date] %date%",
-				"(0:year|1:month|2:day of year|3:day of month|4:day of week|5:hours|6:minutes|7:seconds)");
+				"(0:year|1:month|2:day of year|3:day of month|4:day of week|5:hours|6:minutes|7:seconds)"
+		);
 	}
 
 	private final static String[] CHOICES = {

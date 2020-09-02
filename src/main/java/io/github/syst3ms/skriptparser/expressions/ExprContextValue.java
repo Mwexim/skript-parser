@@ -23,11 +23,10 @@ public class ExprContextValue implements Expression<Object> {
 
 	static {
 		Parser.getMainRegistration().addExpression(
-			ExprContextValue.class,
-			Object.class,
-			false,
-			3,
-			"[the] [1:(past|previous)|2:(future|next)] context-<.+>"
+				ExprContextValue.class,
+				Object.class,
+				false,
+				"[the] [1:(past|previous)|2:(future|next)] context-<.+>"
 		);
 	}
 
