@@ -46,7 +46,7 @@ public class ScriptLoader {
                     1,
                     logger
             );
-            logger.logOutput();
+            logger.finalizeLogs();
         } catch (IOException e) {
             e.printStackTrace();
             return Collections.emptyList();
@@ -54,7 +54,7 @@ public class ScriptLoader {
         logger.setFileInfo(scriptPath.getFileName().toString(), elements);
         List<UnloadedTrigger> unloadedTriggers = new ArrayList<>();
         for (var element : elements) {
-            logger.logOutput();
+            logger.finalizeLogs();
             logger.nextLine();
             if (element instanceof VoidElement)
                 continue;
@@ -65,19 +65,23 @@ public class ScriptLoader {
                     unloadedTriggers.add(t);
                 });
             } else {
-                logger.error("Can't have code outside of a trigger", ErrorType.STRUCTURE_ERROR);
+                logger.error(
+                        "Can't have code outside of a trigger",
+                        ErrorType.STRUCTURE_ERROR,
+                        "Code always starts with a trigger (or event). Refer to the documentation to see which event you need, or indent this line so it is part of a trigger"
+                );
             }
         }
         unloadedTriggers.sort((a, b) -> b.getTrigger().getEvent().getLoadingPriority() - a.getTrigger().getEvent().getLoadingPriority());
         for (var unloaded : unloadedTriggers) {
-            logger.logOutput();
+            logger.finalizeLogs();
             logger.setLine(unloaded.getLine());
             var loaded = unloaded.getTrigger();
             loaded.loadSection(unloaded.getSection(), unloaded.getParserState(), logger);
             unloaded.getEventInfo().getRegisterer().handleTrigger(loaded);
             triggerMap.putOne(scriptName, loaded);
         }
-        logger.logOutput();
+        logger.finalizeLogs();
         return logger.close();
     }
 
@@ -92,7 +96,7 @@ public class ScriptLoader {
         var elements = section.getElements();
         logger.recurse();
         for (var element : elements) {
-            logger.logOutput();
+            logger.finalizeLogs();
             logger.nextLine();
             if (element instanceof VoidElement)
                 continue;
@@ -114,7 +118,11 @@ public class ScriptLoader {
                     if (items.size() == 0 ||
                             !(items.get(items.size() - 1) instanceof Conditional) ||
                             ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
-                        logger.error("An 'else if' must be placed after an 'if'", ErrorType.STRUCTURE_ERROR);
+                        logger.error(
+                                "An 'else if' must be placed after an 'if'",
+                                ErrorType.STRUCTURE_ERROR,
+                                "Make sure the previous section you used was an 'if'-statement. If not, convert that section to an 'if'-statement or replace this line with one"
+                        );
                         continue;
                     }
                     var toParse = content.substring("else if ".length());
@@ -135,7 +143,12 @@ public class ScriptLoader {
                     if (items.size() == 0 ||
                             !(items.get(items.size() - 1) instanceof Conditional) ||
                             ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
-                        logger.error("An 'else' must be placed after an 'if' or an 'else if'", ErrorType.STRUCTURE_ERROR);
+                        logger.error(
+                                "An 'else' must be placed after an 'if' or an 'else if'",
+                                ErrorType.STRUCTURE_ERROR,
+                                "Make sure the previous section you used was an 'if'-statement (or an 'else if'-statement). If not, convert that section to one of those statements or replace this line with one"
+
+                        );
                         continue;
                     } else if (parserState.forbidsSyntax(Conditional.class)) {
                         logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
@@ -150,7 +163,7 @@ public class ScriptLoader {
                         continue;
                     } else if (parserState.forbidsSyntax(codeSection.get().getClass())) {
                         logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
-                        logger.error("The enclosing section does not allow the use of this section : " + codeSection.get().toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+                        logger.error("The enclosing section does not allow the use of this section: " + codeSection.get().toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
                         continue;
                     }
                     items.add(codeSection.get());
@@ -160,7 +173,7 @@ public class ScriptLoader {
                 SyntaxParser.parseStatement(content, parserState, logger).ifPresent(items::add);
             }
         }
-        logger.logOutput();
+        logger.finalizeLogs();
         for (var i = 0; i + 1 < items.size(); i++) {
             items.get(i).setNext(items.get(i + 1));
         }

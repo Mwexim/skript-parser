@@ -43,7 +43,11 @@ public class FileParser {
             }
             var lineIndentation = FileUtils.getIndentationLevel(line, false);
             if (lineIndentation > expectedIndentation) { // The line is indented too much
-                logger.error("The line is indented too much (line " + (lastLine + i) + ": \"" + content + "\")", ErrorType.STRUCTURE_ERROR);
+                logger.error(
+                        "The line is indented too much (line " + (lastLine + i) + ": \"" + content + "\")",
+                        ErrorType.STRUCTURE_ERROR,
+                        "You only need to indent once (using tabs) after each section. Try to omit some tabs so the line suffices this rule"
+                );
                 continue;
             } else if (lineIndentation < expectedIndentation) { // One indentation behind marks the end of a section
                 return elements;

@@ -110,7 +110,10 @@ public class SyntaxParser {
             if (variable.filter(v -> !v.isSingle() && expectedType.isSingle()).isPresent()) {
                 logger.error("A single value was expected, but " +
                         s +
-                        " represents multiple values.", ErrorType.SEMANTIC_ERROR);
+                        " represents multiple values.",
+                        ErrorType.SEMANTIC_ERROR,
+                        "Use a loop/map to divert each element of this list into single elements"
+                );
                 return Optional.empty();
             } else {
                 return variable;
@@ -177,7 +180,10 @@ public class SyntaxParser {
             if (variable.filter(v -> !v.isSingle()).isPresent()) {
                 logger.error("A single value was expected, but " +
                         s +
-                        " represents multiple values.", ErrorType.SEMANTIC_ERROR);
+                        " represents multiple values.",
+                        ErrorType.SEMANTIC_ERROR,
+                        "Use a loop/map to divert each element of this list into single elements"
+                );
                 return Optional.empty();
             } else {
                 return variable;
@@ -191,13 +197,19 @@ public class SyntaxParser {
                 switch (conditional) {
                     case 0: // Can't be conditional
                         if (ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
-                            logger.error("The boolean expression must not be conditional", ErrorType.SEMANTIC_ERROR);
+                            logger.error("The boolean expression must not be conditional",
+                                    ErrorType.SEMANTIC_ERROR,
+                                    "Rather than a condition, use a simple boolean here. Use 'whether %=boolean%' to convert a condition into a simple boolean"
+                            );
                             return Optional.empty();
                         }
                         break;
                     case 2: // Has to be conditional
                         if (!ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
-                            logger.error("The boolean expression must be conditional", ErrorType.SEMANTIC_ERROR);
+                            logger.error("The boolean expression must be conditional",
+                                    ErrorType.SEMANTIC_ERROR,
+                                    "Rather than a simple boolean, use a condition here, like '{x} is more than 10'"
+                            );
                             return Optional.empty();
                         }
                     case 1: // Can be conditional
@@ -224,13 +236,19 @@ public class SyntaxParser {
                 switch (conditional) {
                     case 0: // Can't be conditional
                         if (ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
-                            logger.error("The boolean expression must not be conditional", ErrorType.SEMANTIC_ERROR);
+                            logger.error("The boolean expression must not be conditional",
+                                    ErrorType.SEMANTIC_ERROR,
+                                    "Rather than a condition, use a simple boolean here. Use 'whether %=boolean%' to convert a condition into a simple boolean"
+                            );
                             return Optional.empty();
                         }
                         break;
                     case 2: // Has to be conditional
                         if (!ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
-                            logger.error("The boolean expression must be conditional", ErrorType.SEMANTIC_ERROR);
+                            logger.error("The boolean expression must be conditional",
+                                    ErrorType.SEMANTIC_ERROR,
+                                    "Rather than a simple boolean, use a condition here, like '{x} is more than 10'"
+                            );
                             return Optional.empty();
                         }
                     case 1: // Can be conditional
@@ -293,7 +311,10 @@ public class SyntaxParser {
                     }
                     if (!expression.isSingle() &&
                             expectedType.isSingle()) {
-                        logger.error("A single value was expected, but '" + s + "' represents multiple values.", ErrorType.SEMANTIC_ERROR);
+                        logger.error("A single value was expected, but '" + s + "' represents multiple values.",
+                                ErrorType.SEMANTIC_ERROR,
+                                "Use a loop/map to divert each element of this list into single elements"
+                        );
                         continue;
                     }
                     if (parserState.isRestrictingExpressions() && parserState.forbidsSyntax(expression.getClass())) {
