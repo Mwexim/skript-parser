@@ -22,7 +22,10 @@ import org.intellij.lang.annotations.MagicConstant;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -54,10 +57,10 @@ public class SyntaxParser {
     /**
      * The pattern type representing {@link Object}
      */
-    @SuppressWarnings({"RedundantCast"}) // Gradle requires the cast, but IntelliJ considers it redundant
+    // Gradle requires the cast, but IntelliJ considers it redundant
     public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class).orElseThrow(AssertionError::new), true);
 
-    @SuppressWarnings({"RedundantCast"}) // Gradle requires the cast, but IntelliJ considers it redundant
+    // Gradle requires the cast, but IntelliJ considers it redundant
     public static final PatternType<Object> OBJECTS_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class).orElseThrow(AssertionError::new), false);
 
     /**
@@ -308,21 +311,6 @@ public class SyntaxParser {
     }
 
     /**
-     * Parses a line of code as an {@link InlineCondition}
-     * @param s the line to be parsed
-     * @param parserState the current parser state
-     * @param logger the logger
-     * @return an inline condition that was successfully parsed, or {@literal null} if the string is empty,
-     * no match was found
-     * or for another reason detailed in an error message
-     */
-    public static Optional<? extends InlineCondition> parseInlineCondition(String s, ParserState parserState, SkriptLogger logger) {
-        return s.isEmpty()
-                ? Optional.empty()
-                : parseBooleanExpression(s, CONDITIONAL, parserState, logger).map(InlineCondition::new);
-    }
-
-    /**
      * Parses a list literal expression (of the form {@code ..., ... and ...}) from the given {@linkplain String}  and {@link PatternType expected return type}
      * @param <T> the type of the list literal
      * @param s the string to be parsed as a list literal
@@ -531,7 +519,7 @@ public class SyntaxParser {
     }
 
     /**
-     * Parses a line of code as a {@link Statement}, either an {@link Effect} or an {@link InlineCondition}
+     * Parses a line of code as a {@link Statement}, basically an {@link Effect}, but other Statements can be added later.
      * @param s the line to be parsed
      * @param parserState the current parser state
      * @param logger the logger
@@ -542,15 +530,6 @@ public class SyntaxParser {
     public static Optional<? extends Statement> parseStatement(String s, ParserState parserState, SkriptLogger logger) {
         if (s.isEmpty())
             return Optional.empty();
-        if (s.regionMatches(true, 0, "continue if ", 0, "continue if ".length())) { // startsWithIgnoreCase
-            var cond = parseInlineCondition(s.substring("continue if ".length()), parserState, logger)
-                    .filter(__ -> parserState.forbidsSyntax(InlineCondition.class));
-            if (cond.isEmpty()) {
-                logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
-                logger.error("Inline conditions are not allowed in this section", ErrorType.SEMANTIC_ERROR);
-            }
-            return cond;
-        }
         var eff = parseEffect(s, parserState, logger);
         if (eff.isEmpty()) {
             return Optional.empty();
