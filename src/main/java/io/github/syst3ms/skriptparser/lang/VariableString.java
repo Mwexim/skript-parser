@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
+import io.github.syst3ms.skriptparser.lang.base.TaggedExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -7,12 +8,16 @@ import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
+import io.github.syst3ms.skriptparser.registration.tags.Tag;
+import io.github.syst3ms.skriptparser.registration.tags.TagManager;
 import io.github.syst3ms.skriptparser.types.TypeManager;
+import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -20,12 +25,13 @@ import java.util.regex.Pattern;
 /**
  * A string that possibly contains expressions inside it, meaning that its value may be unknown at parse time
  */
-public class VariableString implements Expression<String> {
+@SuppressWarnings("ConfusingArgumentToVarargsMethod")
+public class VariableString extends TaggedExpression {
     public static final Pattern R_LITERAL_CONTENT_PATTERN = Pattern.compile("^(.+?)\\((.+)\\)\\1$"); // It's actually rare to be able to use '.+' raw like this
     /**
-	 * An array containing raw data for this {@link VariableString}.
-	 * Contains {@link String} and {@link Expression} elements
-	 */
+     * An array containing raw data for this {@link VariableString}.
+     * Contains {@link String} and {@link Expression} elements
+     */
     private final Object[] data;
     private final boolean simple;
 
@@ -38,7 +44,7 @@ public class VariableString implements Expression<String> {
     /**
      * Creates a new instance of a VariableString.
      * @param s the text to create a new instance from, with its surrounding quotes
-     * @param logger
+     * @param logger the logger
      * @return {@code null} if either:
      * <ul>
      *     <li>The argument isn't quoted correctly</li>
@@ -70,8 +76,8 @@ public class VariableString implements Expression<String> {
     /**
      * Creates a new instance of a VariableString from the text inside a string literal.
      * @param s the content of the string literal, without quotes
-     * @param parserState
-     * @param logger
+     * @param parserState the current parser state
+     * @param logger the logger
      * @return a new instance of a VariableString, or {@code null} if there are unbalanced {@literal %} symbols
      */
     public static Optional<VariableString> newInstance(String s, ParserState parserState, SkriptLogger logger) {
@@ -99,11 +105,44 @@ public class VariableString implements Expression<String> {
                 }
                 data.add(expression.get());
                 i += content.get().length() + 1;
+            } else if (c == '<') {
+                if (i == charArray.length - 1) {
+                    return Optional.empty();
+                }
+                var content = StringUtils.getBracketContent(s, i + 1, '>');
+                if (content.isEmpty()) {
+                    sb.append(c);
+                    continue;
+                }
+                logger.recurse();
+                var tag = TagManager.parseTag(content.get(), logger);
+                logger.callback();
+                if (tag.isEmpty()) {
+                    return Optional.empty();
+                }
+                if (sb.length() > 0) {
+                    data.add(sb.toString());
+                    sb.setLength(0);
+                }
+                data.add(tag.get());
+                i += content.get().length() + ">".length();
             } else if (c == '\\') {
                 if (i + 1 == charArray.length) {
                     return Optional.empty();
                 }
                 sb.append(charArray[++i]);
+            } else if (c == '&') {
+                logger.recurse();
+                var tag = TagManager.parseTag(String.valueOf(charArray[++i]), logger);
+                logger.callback();
+                if (tag.isEmpty()) {
+                    return Optional.empty();
+                }
+                if (sb.length() > 0) {
+                    data.add(sb.toString());
+                    sb.setLength(0);
+                }
+                data.add(tag.get());
             } else {
                 sb.append(c);
             }
@@ -114,36 +153,63 @@ public class VariableString implements Expression<String> {
         return Optional.of(new VariableString(data.toArray()));
     }
 
-    /**
-     * @return whether this VariableString is actually constant and whose value can be known at parse time
-     */
-    public boolean isSimple() {
-        return simple;
-    }
-
-    @Override
-    public String[] getValues(TriggerContext ctx) {
-        return new String[]{toString(ctx)};
-    }
-
     @Override
     @Contract("_, _, _ -> fail")
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * @param ctx the event
-     * @return this VariableString represented in the given event. The behaviour of passing {@code null} without
-     * checking {@link #isSimple()} is unspecified.
-     */
+    @Override
+    public Class<? extends String> getReturnType() {
+        return String.class;
+    }
+
     public String toString(TriggerContext ctx) {
+        return toString(ctx, "default");
+    }
+
+    @SuppressWarnings("unchecked")
+    public String toString(TriggerContext ctx, String tagCtx) {
         if (simple)
             return (String) data[0];
+
+        // Filters all non-usable tags away right from the start.
+        var actualData = Arrays.stream(data)
+                .filter(o -> !(o instanceof Tag) || ((Tag) o).isUsable(tagCtx))
+                .toArray();
         var sb = new StringBuilder();
-        for (var o : data) {
+        int tags = 1;
+        List<Tag> ongoingTags = new ArrayList<>();
+
+        for (int i = 0; i < actualData.length; i++) {
+            var o = actualData[i];
             if (o instanceof Expression) {
-                sb.append(TypeManager.toString((Object[]) ((Expression<?>) o).getValues(ctx)));
+                sb.append(TypeManager.toString(((Expression<?>) o).getValues(ctx)));
+            } else if (o instanceof Tag) {
+                ongoingTags.add((Tag) o);
+                int indexOfNext = CollectionUtils.ordinalConditionalIndexOf(Arrays.asList(actualData), tags, t -> t instanceof Tag);
+                if (indexOfNext == -1)
+                    indexOfNext = actualData.length;
+                var affected = new StringBuilder();
+
+                for (int j = i + 1; j < indexOfNext; j++) {
+                    var o2 = actualData[j];
+                    if (o2 instanceof Expression) {
+                        affected.append(TypeManager.toString(((Expression<?>) o2).getValues(ctx)));
+                    } else if (o2 instanceof Tag) {
+                        throw new IllegalStateException();
+                    } else {
+                        affected.append(o2);
+                    }
+                }
+                ongoingTags.removeIf(t -> !t.combinesWith((Class<Tag>) o.getClass()));
+                var fin = ((Tag) o).getValue(affected.toString());
+                for (Tag tag : ongoingTags) {
+                    fin = tag.getValue(fin);
+                }
+                sb.append(fin);
+                tags++;
+                i = indexOfNext - 1;
             } else {
                 sb.append(o);
             }
@@ -159,11 +225,20 @@ public class VariableString implements Expression<String> {
         for (var o : data) {
             if (o instanceof Expression) {
                 sb.append('%').append(((Expression<?>) o).toString(ctx, debug)).append('%');
+            } else if (o instanceof Tag) {
+                sb.append(((Tag) o).toString(debug));
             } else {
                 sb.append(o);
             }
         }
         return sb.append("\"").toString();
+    }
+
+    /**
+     * @return whether this VariableString is actually constant and whose value can be known at parse time
+     */
+    public boolean isSimple() {
+        return simple;
     }
 
     public String defaultVariableName() {
@@ -173,6 +248,8 @@ public class VariableString implements Expression<String> {
         for (var o : data) {
             if (o instanceof String) {
                 sb.append(o);
+            } else if (o instanceof Tag) {
+                sb.append(((Tag) o).toString(false));
             } else {
                 assert o instanceof Expression;
                 Optional<? extends ExpressionInfo<? extends Expression<?>, ?>> exprInfo = SyntaxManager.getExpressionExact((Expression<?>) o);
@@ -181,10 +258,5 @@ public class VariableString implements Expression<String> {
             }
         }
         return sb.toString();
-    }
-
-    @Override
-    public Class<? extends String> getReturnType() {
-        return String.class;
     }
 }
