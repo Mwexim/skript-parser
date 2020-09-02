@@ -7,6 +7,7 @@ import io.github.syst3ms.skriptparser.parsing.ParserState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * A {@linkplain CodeSection code section} representing a condition. It can either be :
@@ -76,6 +77,26 @@ public class Conditional extends CodeSection {
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
         return mode + (condition != null ? " " + condition.toString(ctx, debug) : "");
+    }
+
+    @Override
+    public boolean checkFinishing(Predicate<? super Statement> finishingTest,
+                                  SkriptLogger logger,
+                                  int currentSectionLine,
+                                  boolean warnUnreachable) {
+        if (mode == ConditionalMode.ELSE) {
+            return super.checkFinishing(finishingTest, logger, currentSectionLine, warnUnreachable);
+        } else if (fallingClause != null) {
+            return super.checkFinishing(finishingTest, logger, currentSectionLine, warnUnreachable)
+                    && fallingClause.checkFinishing(
+                            finishingTest,
+                            logger,
+                            currentSectionLine + items.size() + 1,
+                            warnUnreachable
+                    );
+        } else {
+            return false;
+        }
     }
 
     public enum ConditionalMode {

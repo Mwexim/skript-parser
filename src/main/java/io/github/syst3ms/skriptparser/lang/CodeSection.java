@@ -1,7 +1,9 @@
 package io.github.syst3ms.skriptparser.lang;
 
+import io.github.syst3ms.skriptparser.effects.EffReturn;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
@@ -12,6 +14,7 @@ import org.jetbrains.annotations.Contract;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Represents a section of runnable code. This parser guarantees the existence of {@link Conditional}, {@link SecLoop} and
@@ -36,13 +39,16 @@ public abstract class CodeSection extends Statement {
      * already does, then call {@code super.loadSection(section)} before any such operations.
      * @param section the {@link FileSection} representing this {@linkplain CodeSection}
      * @param logger the logger
+     * @return {@code true} if the items inside of the section were loaded properly, {@code false} if there was a
+     *         problem
      */
-    public void loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+    public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
         parserState.setSyntaxRestrictions(getAllowedSyntaxes(), isRestrictingExpressions());
         parserState.addCurrentSection(this);
         setItems(ScriptLoader.loadItems(section, parserState, logger));
         parserState.removeCurrentSection();
         parserState.clearSyntaxRestrictions();
+        return true;
     }
 
     @Override
@@ -115,5 +121,71 @@ public abstract class CodeSection extends Statement {
      */
     protected boolean isRestrictingExpressions() {
         return false;
+    }
+
+    public boolean checkFinishing(Predicate<? super Statement> finishingTest,
+                                  SkriptLogger logger,
+                                  int currentSectionLine,
+                                  boolean warnUnreachable,
+                                  String errorMessage) {
+        int originalLine = logger.getLine();
+        logger.setLine(currentSectionLine);
+        boolean finished = false;
+        for (Statement statement : items) {
+            /*
+             * There is an error here if you have some random section (like Loop) not ending properly.
+             * Obviously, we shouldn't care about that error, and quickly discard it.
+             */
+            logger.clearErrors();
+            logger.nextLine();
+            if (finished) {
+                if (warnUnreachable) {
+                    // Right now, the section has returned in every case, but yet there are still more items
+                    logger.warn("This line is unreachable");
+                }
+                // Otherwise, we don't wanna do anything
+            } else if (statement instanceof CodeSection) {
+                finished = ((CodeSection) statement).checkFinishing(
+                        finishingTest,
+                        logger,
+                        currentSectionLine + 1,
+                        warnUnreachable,
+                        errorMessage
+                );
+            } else {
+                finished = finishingTest.test(statement);
+            }
+        }
+        if (!finished) {
+            logger.setLine(currentSectionLine);
+            logger.error(errorMessage, ErrorType.SEMANTIC_ERROR);
+        }
+        logger.setLine(originalLine);
+        return finished;
+    }
+
+    public boolean checkFinishing(Predicate<? super Statement> finishingTest,
+                                  SkriptLogger logger,
+                                  int currentSectionLine,
+                                  boolean warnUnreachable) {
+        return checkFinishing(
+                finishingTest,
+                logger,
+                currentSectionLine,
+                warnUnreachable,
+                "The code inside of this section should end in a finishing statement, but it doesn't"
+        );
+    }
+
+    public boolean checkReturns(SkriptLogger logger,
+                                int currentSectionLine,
+                                boolean warnUnreachable) {
+        return checkFinishing(
+                s -> s instanceof EffReturn,
+                logger,
+                currentSectionLine,
+                warnUnreachable,
+                "The code inside of this section should return a value, but it doesn't"
+        );
     }
 }

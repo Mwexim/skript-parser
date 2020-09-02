@@ -30,9 +30,10 @@ public class SecWhile extends CodeSection {
     }
 
     @Override
-    public void loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+    public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
         super.loadSection(section, parserState, logger);
         super.setNext(this);
+        return true;
     }
 
     @Override

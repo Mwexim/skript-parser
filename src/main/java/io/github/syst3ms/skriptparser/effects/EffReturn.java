@@ -40,15 +40,9 @@ public class EffReturn extends Effect {
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         returned = expressions[0];
         var logger = parseContext.getLogger();
-        var sec = Expression.getLinkedSection(parseContext.getParserState(), CodeSection.class);
+        var sec = Expression.getLinkedSection(parseContext.getParserState(), ReturnSection.class);
         if (sec.isEmpty()) {
             logger.error("Couldn't find a section matching this return statement", ErrorType.SEMANTIC_ERROR);
-            return false;
-        } else if (sec.filter(ReturnSection.class::isInstance).isEmpty()) {
-            logger.error(
-                    "The closest section matching this return statement doesn't accept return values",
-                    ErrorType.SEMANTIC_ERROR
-            );
             return false;
         }
         section = (ReturnSection<?>) sec.get();

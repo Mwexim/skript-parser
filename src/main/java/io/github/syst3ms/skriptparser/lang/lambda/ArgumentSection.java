@@ -18,7 +18,7 @@ import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 public abstract class ArgumentSection extends CodeSection {
 
     @Override
-    public void loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+    public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
         parserState.setSyntaxRestrictions(getAllowedSyntaxes(), isRestrictingExpressions());
         parserState.addCurrentSection(this);
         this.items = ScriptLoader.loadItems(section, parserState, logger);
@@ -26,6 +26,7 @@ public abstract class ArgumentSection extends CodeSection {
         this.last = items.isEmpty() ? null : items.get(items.size() - 1);
         parserState.removeCurrentSection();
         parserState.clearSyntaxRestrictions();
+        return true;
     }
 
     private Object[] arguments;
