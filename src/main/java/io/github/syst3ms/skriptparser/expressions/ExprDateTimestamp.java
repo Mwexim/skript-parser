@@ -32,7 +32,8 @@ public class ExprDateTimestamp extends PropertyExpression<Number, SkriptDate> {
 				Number.class,
 				true,
 				"*[date] %date%",
-				"[1:unix] timestamp");
+				"[1:unix] timestamp"
+		);
 	}
 
 	boolean unix;

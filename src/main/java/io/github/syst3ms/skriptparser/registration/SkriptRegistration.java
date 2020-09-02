@@ -6,8 +6,7 @@ import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
-import io.github.syst3ms.skriptparser.pattern.PatternElement;
-import io.github.syst3ms.skriptparser.pattern.PatternParser;
+import io.github.syst3ms.skriptparser.pattern.*;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueTime;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
@@ -445,11 +444,11 @@ public class SkriptRegistration {
 
     public abstract class SyntaxRegistrar<C extends SyntaxElement> implements Registrar {
         protected final Class<C> c;
-        private final List<String> patterns = new ArrayList<>();
-        private int priority;
+        protected final List<String> patterns = new ArrayList<>();
+        protected int priority;
 
         SyntaxRegistrar(Class<C> c, String... patterns) {
-            this(c, 5, patterns);
+            this(c, -1, patterns);
             typeCheck();
         }
 
@@ -503,13 +502,19 @@ public class SkriptRegistration {
         @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
-            super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
+            boolean computePriority = priority == -1;
+            priority = 5;
+            super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(e -> {
+                if (computePriority)
+                    setPriority(Math.min(priority, findAppropriatePriority(e)));
+                elements.add(e);
+            }));
             var type = TypeManager.getByClassExact(returnType);
             if (type.isEmpty()) {
                 logger.error("Couldn't find a type corresponding to the class '" + returnType.getName() + "'", ErrorType.NO_MATCH);
                 return;
             }
-            var info = new ExpressionInfo<>(super.c, elements, registerer, type.get(), isSingle, super.priority);
+            var info = new ExpressionInfo<>(super.c, elements, registerer, type.get(), isSingle, priority);
             expressions.putOne(super.c, info);
         }
     }
@@ -527,8 +532,14 @@ public class SkriptRegistration {
         @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
-            super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
-            var info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
+            boolean computePriority = priority == -1;
+            priority = 5;
+            super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(e -> {
+                if (computePriority)
+                    setPriority(Math.min(priority, findAppropriatePriority(e)));
+                elements.add(e);
+            }));
+            var info = new SyntaxInfo<>(super.c, elements, priority, registerer);
             effects.add(info);
         }
     }
@@ -546,8 +557,14 @@ public class SkriptRegistration {
         @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
-            super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(elements::add));
-            var info = new SyntaxInfo<>(super.c, elements, super.priority, registerer);
+            boolean computePriority = priority == -1;
+            priority = 5;
+            super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(e -> {
+                if (computePriority)
+                    setPriority(Math.min(priority, findAppropriatePriority(e)));
+                elements.add(e);
+            }));
+            var info = new SyntaxInfo<>(super.c, elements, priority, registerer);
             sections.add(info);
         }
     }
@@ -567,15 +584,21 @@ public class SkriptRegistration {
         @Override
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
+            boolean computePriority = priority == -1;
+            priority = 5;
             for (var s : super.patterns) {
                 if (s.startsWith("*")) {
                     s = s.substring(1);
                 } else {
                     s = "[on] " + s;
                 }
-                patternParser.parsePattern(s, logger).ifPresent(elements::add);
+                patternParser.parsePattern(s, logger).ifPresent(e -> {
+                    if (computePriority)
+                        setPriority(Math.min(priority, findAppropriatePriority(e)));
+                    elements.add(e);
+                });
             }
-            var info = new SkriptEventInfo<>(super.c, handledContexts, elements, super.priority, registerer);
+            var info = new SkriptEventInfo<>(super.c, handledContexts, elements, priority, registerer);
             events.add(info);
             registerer.addHandledEvent(this.c);
         }
@@ -632,5 +655,34 @@ public class SkriptRegistration {
 
     private String checkPrefix(String str) {
         return str.startsWith("*") ? str.substring(1) : "%" + str + "%";
+    }
+
+    private int findAppropriatePriority(PatternElement el) {
+        if (el instanceof TextElement) {
+            return 5;
+        } else if (el instanceof RegexGroup) {
+            return 1;
+        } else if (el instanceof ChoiceGroup) {
+            var priority = 5;
+            for (ChoiceElement choice : ((ChoiceGroup) el).getChoices()) {
+                priority = Math.min(priority, findAppropriatePriority(choice.getElement()));
+            }
+            return priority;
+        } else if (el instanceof ExpressionElement) {
+            return 2;
+        } else {
+            assert el instanceof CompoundElement : "a single Optional group as a pattern";
+            var compound = (CompoundElement) el;
+            var elements = compound.getElements();
+            var priority = 5;
+            for (PatternElement element : elements) {
+                var e = element instanceof OptionalGroup ? ((OptionalGroup) element).getElement() : element;
+                priority = Math.min(priority, findAppropriatePriority(e));
+                if (!(element instanceof OptionalGroup || e instanceof TextElement && ((TextElement) e).getText().isBlank()))
+                    break;
+            }
+            var containsRegex = elements.stream().anyMatch(p -> p instanceof RegexGroup);
+            return containsRegex ? Math.min(priority, 3) : priority;
+        }
     }
 }

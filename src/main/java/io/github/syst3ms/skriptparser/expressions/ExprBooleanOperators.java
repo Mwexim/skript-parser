@@ -29,7 +29,6 @@ public class ExprBooleanOperators implements Expression<Boolean> {
                 ExprBooleanOperators.class,
                 Boolean.class,
                 true,
-                2,
                 "not %=boolean%",
                 "%=boolean% or %=boolean%",
                 "%=boolean% and %=boolean%"

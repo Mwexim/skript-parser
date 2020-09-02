@@ -24,12 +24,13 @@ import java.time.Duration;
 public class CondExprDateCompare extends ConditionalExpression {
 
     static {
-        Parser.getMainRegistration()
-                .addExpression(CondExprDateCompare.class,
-                        Boolean.class,
-                        true,
-                        "%date% (was|were)( more|(n't| not) less) than %duration% [ago]",
-                        "%date% (was|were)((n't| not) more| less) than %duration% [ago]");
+        Parser.getMainRegistration().addExpression(
+                CondExprDateCompare.class,
+                Boolean.class,
+                true,
+                "%date% (was|were)( more|(n't| not) less) than %duration% [ago]",
+                "%date% (was|were)((n't| not) more| less) than %duration% [ago]"
+        );
     }
 
     private Expression<SkriptDate> date;
