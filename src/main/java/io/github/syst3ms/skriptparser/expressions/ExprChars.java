@@ -1,24 +1,21 @@
 package io.github.syst3ms.skriptparser.expressions;
 
+import org.jetbrains.annotations.Nullable;
+
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.jetbrains.annotations.Nullable;
-
 /**
  * All uppercase, lowercase, or digit characters in a string.
  *
  * @name Characters
- * @pattern upper[ ]case char(acters|s) in %strings%
- * @pattern lower[ ]case char(acters|s) in %strings%
- * @pattern digit char(acters|s) in %strings%
- * @pattern special char(acters|s) in %strings%
- * @pattern [white[]]space char(acters|s) in %strings%
+ * @pattern upper[ ]case char[acter]s in %strings%
+ * @pattern lower[ ]case char[acter]s in %strings%
+ * @pattern digit char[acter]s in %strings%
+ * @pattern special char[acter]s in %strings%
+ * @pattern [white[]]space char[acter]s in %strings%
  * @since ALPHA
  * @author Olyno
  */
@@ -31,12 +28,12 @@ public class ExprChars implements Expression<String> {
     static {
         Parser.getMainRegistration().addExpression(ExprChars.class,
             String.class,
-            true,
-            "[all] upper[ ]case char(acters|s) in %strings%",
-            "[all] lower[ ]case char(acters|s) in %strings%",
-            "[all] digit char(acters|s) in %strings%",
-            "[all] special char(acters|s) in %strings%",
-            "[all] [white[]]space char(acters|s) in %strings%"
+            false,
+            "[all] upper[ ]case char[acter]s in %strings%",
+            "[all] lower[ ]case char[acter]s in %strings%",
+            "[all] digit char[acter]s in %strings%",
+            "[all] special char[acter]s in %strings%",
+            "[all] [white[]]space char[acter]s in %strings%"
         );
     }
 
@@ -54,51 +51,41 @@ public class ExprChars implements Expression<String> {
     @Override
     public String[] getValues(TriggerContext ctx) {
         StringBuilder allChars = new StringBuilder();
-        List<String> allValues = Arrays.asList(values.getValues(ctx));
+        String content = String.join("", values.getValues(ctx));
         switch (charType) {
             case UPPER_CASE:
-                allValues.forEach(value -> {
-                    for (char character : value.toCharArray()) {
-                        if (Character.isUpperCase(character)) {
-                            allChars.append(character);
-                        }
+                for (char character : content.toCharArray()) {
+                    if (Character.isUpperCase(character)) {
+                        allChars.append(character);
                     }
-                });
+                }
                 break;
             case LOWER_CASE:
-                allValues.forEach(value -> {
-                    for (char character : value.toCharArray()) {
-                        if (Character.isLowerCase(character)) {
-                            allChars.append(character);
-                        }
+                for (char character : content.toCharArray()) {
+                    if (Character.isLowerCase(character)) {
+                        allChars.append(character);
                     }
-                });
+                }
                 break;
             case DIGIT:
-                allValues.forEach(value -> {
-                    for (char character : value.toCharArray()) {
-                        if (Character.isDigit(character)) {
-                            allChars.append(character);
-                        }
+                for (char character : content.toCharArray()) {
+                    if (Character.isDigit(character)) {
+                        allChars.append(character);
                     }
-                });
+                }
             case SPECIAL:
-                allValues.forEach(value -> {
-                    for (char character : value.toCharArray()) {
-                        if (!Character.isLetterOrDigit(character) && !Character.isWhitespace(character)) {
-                            allChars.append(character);
-                        }
+                for (char character : content.toCharArray()) {
+                    if (!Character.isLetterOrDigit(character) && !Character.isWhitespace(character)) {
+                        allChars.append(character);
                     }
-                });
+                }
                 break;
             case WHITE_SPACE:
-                allValues.forEach(value -> {
-                    for (char character : value.toCharArray()) {
-                        if (Character.isWhitespace(character)) {
-                            allChars.append(character);
-                        }
+                for (char character : content.toCharArray()) {
+                    if (Character.isWhitespace(character)) {
+                        allChars.append(character);
                     }
-                });
+                }
                 break;
         }
         return allChars.toString().split("");
