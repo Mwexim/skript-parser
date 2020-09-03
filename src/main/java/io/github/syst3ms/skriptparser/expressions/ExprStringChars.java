@@ -14,11 +14,11 @@ import io.github.syst3ms.skriptparser.registration.PatternInfos;
  * All uppercase, lowercase, or digit characters in a string.
  *
  * @name Characters
- * @pattern [all] upper[ ]case char[acter]s in %strings%
- * @pattern [all] lower[ ]case char[acter]s in %strings%
- * @pattern [all] digit char[acter]s in %strings%
- * @pattern [all] special char[acter]s in %strings%
- * @pattern [all] [white[]]space char[acter]s in %strings%
+ * @pattern [all [of the]] upper[ ]case char[acter]s in %strings%
+ * @pattern [all [of the]] lower[ ]case char[acter]s in %strings%
+ * @pattern [all [of the]] digit char[acter]s in %strings%
+ * @pattern [all [of the]] special char[acter]s in %strings%
+ * @pattern [all [of the]] [white[]]space char[acter]s in %strings%
  * @since ALPHA
  * @author Olyno
  */
@@ -30,11 +30,11 @@ public class ExprStringChars implements Expression<String> {
 
     private final static PatternInfos<Function<Character, Boolean>> PATTERNS = new PatternInfos<>(
         new Object[][]{
-            {"[all] upper[ ]case char[acter]s in %strings%", (Function<Character, Boolean>) Character::isUpperCase},
-            {"[all] lower[ ]case char[acter]s in %strings%", (Function<Character, Boolean>) Character::isLowerCase},
-            {"[all] digit char[acter]s in %strings%", (Function<Character, Boolean>) Character::isDigit},
-            {"[all] special char[acter]s in %strings%", (Function<Character, Boolean>) (c) -> !Character.isLetterOrDigit(c) && !Character.isWhitespace(c)},
-            {"[all] [white[]]space char[acter]s in %strings%", (Function<Character, Boolean>) Character::isWhitespace}
+            {"[all [of the]] upper[ ]case char[acter]s in %strings%", (Function<Character, Boolean>) Character::isUpperCase},
+            {"[all [of the]] lower[ ]case char[acter]s in %strings%", (Function<Character, Boolean>) Character::isLowerCase},
+            {"[all [of the]] digit char[acter]s in %strings%", (Function<Character, Boolean>) Character::isDigit},
+            {"[all [of the]] special char[acter]s in %strings%", (Function<Character, Boolean>) (c) -> !Character.isLetterOrDigit(c) && !Character.isWhitespace(c)},
+            {"[all [of the]] [white[]]space char[acter]s in %strings%", (Function<Character, Boolean>) Character::isWhitespace}
         }
 	);
 
