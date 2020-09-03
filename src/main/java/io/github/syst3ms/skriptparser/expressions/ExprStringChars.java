@@ -19,14 +19,14 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  * @since ALPHA
  * @author Olyno
  */
-public class ExprChars implements Expression<String> {
+public class ExprStringChars implements Expression<String> {
 
     private enum CharType {
         UPPER_CASE, LOWER_CASE, DIGIT, SPECIAL, WHITE_SPACE
     }
 
     static {
-        Parser.getMainRegistration().addExpression(ExprChars.class,
+        Parser.getMainRegistration().addExpression(ExprStringChars.class,
             String.class,
             false,
             "[all] upper[ ]case char[acter]s in %strings%",
