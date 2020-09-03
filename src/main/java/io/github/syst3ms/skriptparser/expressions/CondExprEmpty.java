@@ -44,7 +44,7 @@ public class CondExprEmpty extends ConditionalExpression {
         if (values.length == 0)
             return !isNegated();
         if (values.length == 1)
-            return (values[0] instanceof String == false) != isNegated();
+            return !(values[0] instanceof String) != isNegated();
         if (values instanceof String[]) {
             return (Arrays.stream(values)
                 .filter(value -> !((String) value).isBlank())
