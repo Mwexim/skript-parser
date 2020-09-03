@@ -13,8 +13,8 @@ import java.util.Optional;
  *
  * @name Boolean Operators
  * @pattern not %=boolean%
- * @pattern %=boolean% or %=boolean%
- * @pattern %=boolean% and %=boolean%
+ * @pattern %=boolean% (or|\\|\\|) %=boolean%
+ * @pattern %=boolean% (and|&&) %=boolean%
  * @since ALPHA
  * @author Syst3ms
  */
@@ -30,8 +30,8 @@ public class ExprBooleanOperators implements Expression<Boolean> {
                 Boolean.class,
                 true,
                 "not %=boolean%",
-                "%=boolean% or %=boolean%",
-                "%=boolean% and %=boolean%"
+                "%=boolean% (or|\\|\\|) %=boolean%",
+                "%=boolean% (and|&&) %=boolean%"
         );
     }
 
