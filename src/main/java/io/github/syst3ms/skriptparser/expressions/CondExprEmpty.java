@@ -11,7 +11,7 @@ import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 
 /**
- * Check if a given string or array is empty.
+ * Check if a given string or list is empty.
  *
  * @name Empty
  * @pattern %strings/objects% (is|are)[1:( not|n't)] empty
@@ -42,18 +42,15 @@ public class CondExprEmpty extends ConditionalExpression {
     public boolean check(TriggerContext ctx) {
         Object[] values = expr.getValues(ctx);
         if (values.length == 0)
-            return true != isNegated();
+            return !isNegated();
         if (values.length == 1)
-            return (values[0] instanceof String == false && values[0] == null) != isNegated();
-        long stringValues = Arrays.stream(values)
-            .filter(value -> value instanceof String)
-            .count();
-        if (stringValues == values.length) {
+            return (values[0] instanceof String == false) != isNegated();
+        if (values instanceof String[]) {
             return (Arrays.stream(values)
                 .filter(value -> !((String) value).isBlank())
                 .count() == 0) != isNegated();
         }
-        return false != isNegated();
+        return isNegated();
     }
 
     @Override
