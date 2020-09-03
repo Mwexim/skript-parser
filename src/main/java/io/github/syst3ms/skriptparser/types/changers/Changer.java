@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.types.changers;
 
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 
 /**
  * An interface for anything that can be changed

@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.lang.base;
 
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import org.jetbrains.annotations.Contract;

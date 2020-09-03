@@ -2,7 +2,6 @@ package io.github.syst3ms.skriptparser.pattern;
 
 import io.github.syst3ms.skriptparser.parsing.MatchContext;
 
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

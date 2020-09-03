@@ -30,9 +30,10 @@ public class SecWhile extends CodeSection {
     }
 
     @Override
-    public void loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+    public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
         super.loadSection(section, parserState, logger);
         super.setNext(this);
+        return true;
     }
 
     @Override
@@ -58,7 +59,9 @@ public class SecWhile extends CodeSection {
     }
 
     /**
-     * @see SecLoop#getActualNext()
+     * This method exists because SecWhile actually sets itself as its next element with {@link #getNext()}.
+     * This way it has full control over when to stop iterating.
+     * @return the element that is actually after this SecWhile
      */
     @Nullable
     public Optional<Statement> getActualNext() {

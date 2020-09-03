@@ -15,7 +15,8 @@ import java.math.BigInteger;
 import java.util.Optional;
 
 import static io.github.syst3ms.skriptparser.lang.TriggerContext.DUMMY;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.fail;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class VariablesTest {

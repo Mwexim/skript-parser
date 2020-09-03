@@ -37,12 +37,12 @@ public class SecAsync extends CodeSection {
     }
 
     @Override
-    public void loadSection(@NotNull FileSection section, @NotNull ParserState parserState, SkriptLogger logger) {
-        super.loadSection(section, parserState, logger);
+    public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+        return super.loadSection(section, parserState, logger);
     }
 
     @Override
-    public boolean init(Expression<?> @NotNull [] expressions, int matchedPattern, @NotNull ParseContext parseContext) {
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         return true;
     }
 

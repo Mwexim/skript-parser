@@ -126,7 +126,7 @@ public class SyntaxParser {
             var expr = matchExpressionInfo(s, info, expectedType, parserState, logger);
             if (expr.isPresent()) {
                 recentExpressions.acknowledge(info);
-                logger.clearLogs();
+                logger.clearErrors();
                 return expr;
             }
             logger.forgetError();
@@ -138,7 +138,7 @@ public class SyntaxParser {
             var expr = matchExpressionInfo(s, info, expectedType, parserState, logger);
             if (expr.isPresent()) {
                 recentExpressions.acknowledge(info);
-                logger.clearLogs();
+                logger.clearErrors();
                 return expr;
             }
             logger.forgetError();
@@ -208,7 +208,7 @@ public class SyntaxParser {
                         break;
                 }
                 recentExpressions.acknowledge(info);
-                logger.clearLogs();
+                logger.clearErrors();
                 return expr;
             }
             logger.forgetError();
@@ -241,7 +241,7 @@ public class SyntaxParser {
                         break;
                 }
                 recentExpressions.acknowledge(info);
-                logger.clearLogs();
+                logger.clearErrors();
                 return expr;
             }
             logger.forgetError();
@@ -468,7 +468,7 @@ public class SyntaxParser {
             var eff = matchEffectInfo(s, recentEffect, parserState, logger);
             if (eff.isPresent()) {
                 recentEffects.acknowledge(recentEffect);
-                logger.clearLogs();
+                logger.clearErrors();
                 return eff;
             }
             logger.forgetError();
@@ -480,7 +480,7 @@ public class SyntaxParser {
             var eff = matchEffectInfo(s, remainingEffect, parserState, logger);
             if (eff.isPresent()) {
                 recentEffects.acknowledge(remainingEffect);
-                logger.clearLogs();
+                logger.clearErrors();
                 return eff;
             }
             logger.forgetError();
@@ -558,7 +558,7 @@ public class SyntaxParser {
             var sec = matchSectionInfo(section, recentSection, parserState, logger);
             if (sec.isPresent()) {
                 recentSections.acknowledge(recentSection);
-                logger.clearLogs();
+                logger.clearErrors();
                 return sec;
             }
             logger.forgetError();
@@ -569,7 +569,7 @@ public class SyntaxParser {
             var sec = matchSectionInfo(section, remainingSection, parserState, logger);
             if (sec.isPresent()) {
                 recentSections.acknowledge(remainingSection);
-                logger.clearLogs();
+                logger.clearErrors();
                 return sec;
             }
             logger.forgetError();
@@ -592,13 +592,16 @@ public class SyntaxParser {
                             .newInstance();
                     logger.setContext(ErrorContext.INITIALIZATION);
                     if (!sec.init(
-                            parser.getParsedExpressions().toArray(new Expression[0]),
+                            parser.getParsedExpressions().toArray(Expression[]::new),
                             i,
                             parser.toParseResult()
-                    )) {
+                        )
+                    ) {
                         continue;
                     }
-                    sec.loadSection(section, parserState, logger);
+                    if (!sec.loadSection(section, parserState, logger)) {
+                        continue;
+                    }
                     return Optional.of(sec);
                 } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                     logger.error("Couldn't instantiate class " + info.getSyntaxClass(), ErrorType.EXCEPTION);
@@ -623,7 +626,7 @@ public class SyntaxParser {
             var trigger = matchEventInfo(section, recentEvent, logger);
             if (trigger.isPresent()) {
                 recentEvents.acknowledge(recentEvent);
-                logger.clearLogs();
+                logger.clearErrors();
                 return trigger;
             }
             logger.forgetError();
@@ -635,7 +638,7 @@ public class SyntaxParser {
             var trigger = matchEventInfo(section, remainingEvent, logger);
             if (trigger.isPresent()) {
                 recentEvents.acknowledge(remainingEvent);
-                logger.clearLogs();
+                logger.clearErrors();
                 return trigger;
             }
             logger.forgetError();
