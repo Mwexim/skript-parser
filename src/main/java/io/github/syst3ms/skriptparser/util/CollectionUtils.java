@@ -30,6 +30,11 @@ public class CollectionUtils {
         return array;
     }
 
+    @SafeVarargs
+    public static <T> boolean contains(T[] array, T... contained) {
+        return List.of(array).containsAll(List.of(contained));
+    }
+
     /**
      * Find the index of an item, where a given predicate applies,
      * from a given class in a list, skipping over all these items

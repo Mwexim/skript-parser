@@ -110,8 +110,7 @@ public class EffExit extends Effect {
             }
             return temp.flatMap(Statement::getNext);
         }
-        return stm instanceof SecLoop ? ((SecLoop) stm).getActualNext()
-                : stm instanceof SecWhile ? ((SecWhile) stm).getActualNext()
+        return stm instanceof SecWhile ? ((SecWhile) stm).getActualNext()
                 : (Optional<Statement>) stm.getNext();
     }
 }

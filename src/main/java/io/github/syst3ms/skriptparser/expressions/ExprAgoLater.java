@@ -28,6 +28,7 @@ public class ExprAgoLater implements Expression<SkriptDate> {
 				ExprAgoLater.class,
 				SkriptDate.class,
 				true,
+				3,
 				"%duration% (ago|in the past|1:before [the] [date] %date%)",
 						"%duration% (later|in the future|1:(from|after) [the] [date] %date%)"
 		);

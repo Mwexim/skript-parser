@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.util.FileUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 
 public class TestRegistration {

@@ -205,12 +205,21 @@ public class SkriptLogger {
     }
 
     /**
+     * Clears every log that is an error message.
+     */
+    public void clearErrors() {
+        logEntries.removeIf(entry -> entry.getErrorContext().size() >= errorContext.size() && entry.getType() == LogType.ERROR);
+        setContext(ErrorContext.MATCHING);
+        hasError = false;
+    }
+
+
+    /**
      * Clears every log that is not a debug message.
      */
     public void clearLogs() {
         logEntries.removeIf(entry -> entry.getErrorContext().size() >= errorContext.size() && entry.getType() != LogType.DEBUG);
-        errorContext.removeLast();
-        errorContext.add(ErrorContext.MATCHING);
+        setContext(ErrorContext.MATCHING);
         hasError = false;
     }
 

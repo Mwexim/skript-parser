@@ -22,7 +22,7 @@ public class ConverterUtils {
     public static <F, T> Function<? super F, Optional<? extends T>> createInstanceofConverter(Function<? super F, Optional<? extends T>> conv, Class<T> to) {
         return p -> conv.apply(p)
                 .filter(to::isInstance)
-                .map(t -> (T) t);
+                .map(to::cast);
     }
 
     public static <F, T> Function<?, Optional<? extends T>> createDoubleInstanceofConverter(ConverterInfo<F, ?> conv, Class<T> to) {
@@ -34,7 +34,7 @@ public class ConverterUtils {
                 .filter(from::isInstance)
                 .flatMap(f -> conv.apply((F) f))
                 .filter(to::isInstance)
-                .map(t -> (T) t);
+                .map(to::cast);
     }
 
 }

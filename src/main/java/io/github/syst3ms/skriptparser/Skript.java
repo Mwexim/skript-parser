@@ -1,9 +1,9 @@
 package io.github.syst3ms.skriptparser;
 
 import io.github.syst3ms.skriptparser.event.EvtPeriodical;
+import io.github.syst3ms.skriptparser.event.EvtScriptLoad;
 import io.github.syst3ms.skriptparser.event.PeriodicalContext;
 import io.github.syst3ms.skriptparser.event.ScriptLoadContext;
-import io.github.syst3ms.skriptparser.event.EvtScriptLoad;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;

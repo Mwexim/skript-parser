@@ -257,13 +257,13 @@ public abstract class Converters {
         var p = new Pair<Class<?>, Class<?>>(from, to);
         if (convertersCache.containsKey(p)) // can contain null to denote nonexistence of a converter
             return Optional.ofNullable((Function<? super F, Optional<? extends T>>) convertersCache.get(p));
-        var c = getConverter_i(from, to);
+        var c = getConverterInternal(from, to);
         c.ifPresent(con -> convertersCache.put(p, con));
         return c;
     }
 
     @SuppressWarnings("unchecked")
-    private static <F, T> Optional<Function<? super F, Optional<? extends T>>> getConverter_i(Class<F> from, Class<T> to) {
+    private static <F, T> Optional<Function<? super F, Optional<? extends T>>> getConverterInternal(Class<F> from, Class<T> to) {
         for (var conv : converters) {
             if (conv.getFrom().isAssignableFrom(from) && to.isAssignableFrom(conv.getTo())) {
                 var inf = (ConverterInfo<F, T>) conv;
@@ -284,6 +284,8 @@ public abstract class Converters {
                 return Optional.of((Function<? super F, Optional<? extends T>>) ConverterUtils.createDoubleInstanceofConverter(conv, to));
             }
         }
+        if (from.isAssignableFrom(to) || to.isAssignableFrom(from))
+            return Optional.of((Function<? super F, Optional<? extends T>>) ConverterUtils.createDoubleInstanceofConverter(from, Optional::ofNullable, to));
         return Optional.empty();
     }
 

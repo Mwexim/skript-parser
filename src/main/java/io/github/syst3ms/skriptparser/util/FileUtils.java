@@ -1,16 +1,17 @@
 package io.github.syst3ms.skriptparser.util;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.jar.JarEntry;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
-import java.util.stream.StreamSupport;
 
 /**
  * Utility functions for file parsing
