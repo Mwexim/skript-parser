@@ -1,21 +1,24 @@
 package io.github.syst3ms.skriptparser.expressions;
 
+import java.util.function.Function;
+
 import org.jetbrains.annotations.Nullable;
 
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.registration.PatternInfos;
 
 /**
  * All uppercase, lowercase, or digit characters in a string.
  *
  * @name Characters
- * @pattern upper[ ]case char[acter]s in %strings%
- * @pattern lower[ ]case char[acter]s in %strings%
- * @pattern digit char[acter]s in %strings%
- * @pattern special char[acter]s in %strings%
- * @pattern [white[]]space char[acter]s in %strings%
+ * @pattern [all] upper[ ]case char[acter]s in %strings%
+ * @pattern [all] lower[ ]case char[acter]s in %strings%
+ * @pattern [all] digit char[acter]s in %strings%
+ * @pattern [all] special char[acter]s in %strings%
+ * @pattern [all] [white[]]space char[acter]s in %strings%
  * @since ALPHA
  * @author Olyno
  */
@@ -25,20 +28,26 @@ public class ExprStringChars implements Expression<String> {
         UPPER_CASE, LOWER_CASE, DIGIT, SPECIAL, WHITE_SPACE
     }
 
+    private final static PatternInfos<Function<Character, Boolean>> PATTERNS = new PatternInfos<>(
+        new Object[][]{
+            {"[all] upper[ ]case char[acter]s in %strings%", (Function<Character, Boolean>) Character::isUpperCase},
+            {"[all] lower[ ]case char[acter]s in %strings%", (Function<Character, Boolean>) Character::isLowerCase},
+            {"[all] digit char[acter]s in %strings%", (Function<Character, Boolean>) Character::isDigit},
+            {"[all] special char[acter]s in %strings%", (Function<Character, Boolean>) (c) -> !Character.isLetterOrDigit(c) && !Character.isWhitespace(c)},
+            {"[all] [white[]]space char[acter]s in %strings%", (Function<Character, Boolean>) Character::isWhitespace}
+        }
+	);
+
     static {
         Parser.getMainRegistration().addExpression(ExprStringChars.class,
             String.class,
             false,
-            "[all] upper[ ]case char[acter]s in %strings%",
-            "[all] lower[ ]case char[acter]s in %strings%",
-            "[all] digit char[acter]s in %strings%",
-            "[all] special char[acter]s in %strings%",
-            "[all] [white[]]space char[acter]s in %strings%"
+            PATTERNS.getPatterns()
         );
     }
 
     private Expression<String> values;
-    private CharType charType;
+    CharType charType;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -52,41 +61,9 @@ public class ExprStringChars implements Expression<String> {
     public String[] getValues(TriggerContext ctx) {
         StringBuilder allChars = new StringBuilder();
         String content = String.join("", values.getValues(ctx));
-        switch (charType) {
-            case UPPER_CASE:
-                for (char character : content.toCharArray()) {
-                    if (Character.isUpperCase(character)) {
-                        allChars.append(character);
-                    }
-                }
-                break;
-            case LOWER_CASE:
-                for (char character : content.toCharArray()) {
-                    if (Character.isLowerCase(character)) {
-                        allChars.append(character);
-                    }
-                }
-                break;
-            case DIGIT:
-                for (char character : content.toCharArray()) {
-                    if (Character.isDigit(character)) {
-                        allChars.append(character);
-                    }
-                }
-            case SPECIAL:
-                for (char character : content.toCharArray()) {
-                    if (!Character.isLetterOrDigit(character) && !Character.isWhitespace(character)) {
-                        allChars.append(character);
-                    }
-                }
-                break;
-            case WHITE_SPACE:
-                for (char character : content.toCharArray()) {
-                    if (Character.isWhitespace(character)) {
-                        allChars.append(character);
-                    }
-                }
-                break;
+        for (char character : content.toCharArray()) {
+            if (PATTERNS.getInfo(charType.ordinal()).apply(character))
+                allChars.append(character);
         }
         return allChars.toString().split("");
     }
