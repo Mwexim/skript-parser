@@ -3,12 +3,12 @@ package io.github.syst3ms.skriptparser.event;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 
 /**
- * The periodical context.
+ * The when-event context.
  */
-public class PeriodicalContext implements TriggerContext {
+public class WhenContext implements TriggerContext {
 
     @Override
     public String getName() {
-        return "periodical";
+        return "when";
     }
 }
