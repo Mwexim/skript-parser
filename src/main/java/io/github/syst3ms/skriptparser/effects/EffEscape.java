@@ -25,7 +25,7 @@ public class EffEscape extends Effect {
     static {
         Parser.getMainRegistration().addEffect(
             EffEscape.class,
-            "escape %integer% [(level[s]|line[s])]"
+            "escape %integer% [(level|line)[s]]"
         );
     }
 
