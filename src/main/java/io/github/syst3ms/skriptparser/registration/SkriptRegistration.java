@@ -533,7 +533,7 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             boolean computePriority = priority == -1;
-            priority = 5;
+            priority = computePriority ? 5 : priority;
             super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(e -> {
                 if (computePriority)
                     setPriority(Math.min(priority, findAppropriatePriority(e)));

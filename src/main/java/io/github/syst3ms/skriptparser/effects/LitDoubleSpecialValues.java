@@ -2,12 +2,13 @@ package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import org.jetbrains.annotations.Nullable;
 
-public class LitDoubleSpecialValues implements Expression<Double> {
+public class LitDoubleSpecialValues implements Literal<Double> {
     private static final PatternInfos<Double> PATTERN_INFOS = new PatternInfos<>(new Object[][]{
             {"[positive] infinity", Double.POSITIVE_INFINITY},
             {"(negative |-)infinity", Double.NEGATIVE_INFINITY},
@@ -35,7 +36,7 @@ public class LitDoubleSpecialValues implements Expression<Double> {
     }
 
     @Override
-    public Double[] getValues(TriggerContext ctx) {
+    public Double[] getValues() {
         return new Double[]{PATTERN_INFOS.getInfo(pattern)};
     }
 
