@@ -7,6 +7,7 @@ import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.util.DoubleOptional;
 
 /**
  * The character at a position of a string. The first character is at the position 0.
@@ -23,30 +24,30 @@ public class ExprStringCharAt implements Expression<String> {
 			ExprStringCharAt.class,
 			String.class,
 			true,
-			"char[acter] at [(index|pos[ition])] %number% (of|in) %string%"
+			"char[acter] at [(index|pos[ition])] %integer% (of|in) %string%"
 		);
 	}
 
-	private Expression<Number> position;
+	private Expression<Integer> position;
 	private Expression<String> value;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(final Expression<?> @NotNull [] expressions, final int matchedPattern, @NotNull final ParseContext parseContext) {
-		position = (Expression<Number>) expressions[0];
+		position = (Expression<Integer>) expressions[0];
 		value = (Expression<String>) expressions[1];
 		return true;
 	}
 
 	@Override
 	public String[] getValues(final TriggerContext ctx) {
-		return new String[] {String.valueOf(
-			value.getSingle(ctx).get().charAt(position.getSingle(ctx).get().intValue())
-		)};
+		DoubleOptional<? extends String, ? extends Integer> opt = DoubleOptional.ofOptional(value.getSingle(ctx), position.getSingle(ctx));
+		return opt.mapToOptional((val, pos) -> new String[]{ String.valueOf(val.charAt(pos)) } )
+			.orElse(new String[0]);
 	}
 
 	@Override
 	public String toString(@Nullable final TriggerContext ctx, final boolean debug) {
-		return "character at " + position.getSingle(ctx).get() + " in " + value.toString(ctx, debug);
+		return "character at " + position.toString(ctx, debug) + " in " + value.toString(ctx, debug);
 	}
 }
