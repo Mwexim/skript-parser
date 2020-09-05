@@ -108,7 +108,8 @@ public class SyntaxParser {
         var variable = (Optional<? extends Variable<? extends T>>) Variables.parseVariable(s, expectedType.getType().getTypeClass(), parserState, logger);
         if (variable.isPresent()) {
             if (variable.filter(v -> !v.isSingle() && expectedType.isSingle()).isPresent()) {
-                logger.error("A single value was expected, but " +
+                logger.error(
+                        "A single value was expected, but " +
                         s +
                         " represents multiple values.",
                         ErrorType.SEMANTIC_ERROR,
@@ -178,7 +179,8 @@ public class SyntaxParser {
         var variable = (Optional<? extends Variable<Boolean>>) Variables.parseVariable(s, Boolean.class, parserState, logger);
         if (variable.isPresent()) {
             if (variable.filter(v -> !v.isSingle()).isPresent()) {
-                logger.error("A single value was expected, but " +
+                logger.error(
+                        "A single value was expected, but " +
                         s +
                         " represents multiple values.",
                         ErrorType.SEMANTIC_ERROR,
@@ -197,7 +199,8 @@ public class SyntaxParser {
                 switch (conditional) {
                     case 0: // Can't be conditional
                         if (ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
-                            logger.error("The boolean expression must not be conditional",
+                            logger.error(
+                                    "The boolean expression must not be conditional",
                                     ErrorType.SEMANTIC_ERROR,
                                     "Rather than a condition, use a simple boolean here. Use 'whether %=boolean%' to convert a condition into a simple boolean"
                             );
@@ -206,7 +209,8 @@ public class SyntaxParser {
                         break;
                     case 2: // Has to be conditional
                         if (!ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
-                            logger.error("The boolean expression must be conditional",
+                            logger.error(
+                                    "The boolean expression must be conditional",
                                     ErrorType.SEMANTIC_ERROR,
                                     "Rather than a simple boolean, use a condition here, like '{x} is more than 10'"
                             );
@@ -236,7 +240,8 @@ public class SyntaxParser {
                 switch (conditional) {
                     case 0: // Can't be conditional
                         if (ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
-                            logger.error("The boolean expression must not be conditional",
+                            logger.error(
+                                    "The boolean expression must not be conditional",
                                     ErrorType.SEMANTIC_ERROR,
                                     "Rather than a condition, use a simple boolean here. Use 'whether %=boolean%' to convert a condition into a simple boolean"
                             );
@@ -245,7 +250,8 @@ public class SyntaxParser {
                         break;
                     case 2: // Has to be conditional
                         if (!ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
-                            logger.error("The boolean expression must be conditional",
+                            logger.error(
+                                    "The boolean expression must be conditional",
                                     ErrorType.SEMANTIC_ERROR,
                                     "Rather than a simple boolean, use a condition here, like '{x} is more than 10'"
                             );
@@ -311,7 +317,8 @@ public class SyntaxParser {
                     }
                     if (!expression.isSingle() &&
                             expectedType.isSingle()) {
-                        logger.error("A single value was expected, but '" + s + "' represents multiple values.",
+                        logger.error(
+                                "A single value was expected, but '" + s + "' represents multiple values.",
                                 ErrorType.SEMANTIC_ERROR,
                                 "Use a loop/map to divert each element of this list into single elements"
                         );
@@ -319,7 +326,12 @@ public class SyntaxParser {
                     }
                     if (parserState.isRestrictingExpressions() && parserState.forbidsSyntax(expression.getClass())) {
                         logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
-                        logger.error("The enclosing section does not allow the use of this expression : " + expression.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+                        logger.error(
+                                "The enclosing section does not allow the use of this expression: "
+                                        + expression.toString(null, logger.isDebug()),
+                                ErrorType.SEMANTIC_ERROR,
+                                "The current section limits the usage of syntax. This means that certain syntax cannot be used here, which was the case. Remove this expression entirely and refer to the documentation for the correct usage of this section"
+                        );
                         continue;
                     }
                     return Optional.of(expression);
@@ -556,7 +568,12 @@ public class SyntaxParser {
             return Optional.empty();
         } else if (parserState.forbidsSyntax(eff.get().getClass())) {
             logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
-            logger.error("The enclosing section does not allow the use of this effect : " + eff.get().toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+            logger.error(
+                    "The enclosing section does not allow the use of this effect : "
+                            + eff.get().toString(null, logger.isDebug()),
+                    ErrorType.SEMANTIC_ERROR,
+                    "The current section limits the usage of syntax. This means that certain syntax cannot be used here, which was the case. Remove this effect entirely and refer to the documentation for the correct usage of this section"
+            );
             return Optional.empty();
         } else {
             return eff;

@@ -46,7 +46,7 @@ public class FileParser {
                 logger.error(
                         "The line is indented too much (line " + (lastLine + i) + ": \"" + content + "\")",
                         ErrorType.STRUCTURE_ERROR,
-                        "You only need to indent once (using tabs) after each section. Try to omit some tabs so the line suffices this rule"
+                        "You only need to indent once (using tabs) after each section (a line that ends with a ':'). Try to omit some tabs so the line suffices this rule"
                 );
                 continue;
             } else if (lineIndentation < expectedIndentation) { // One indentation behind marks the end of a section

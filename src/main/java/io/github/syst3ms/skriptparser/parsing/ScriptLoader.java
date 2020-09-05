@@ -119,9 +119,9 @@ public class ScriptLoader {
                             !(items.get(items.size() - 1) instanceof Conditional) ||
                             ((Conditional) items.get(items.size() - 1)).getMode() == Conditional.ConditionalMode.ELSE) {
                         logger.error(
-                                "An 'else if' must be placed after an 'if'",
+                                "An 'else if' must be placed after an 'if' or 'else if'",
                                 ErrorType.STRUCTURE_ERROR,
-                                "Make sure the previous section you used was an 'if'-statement. If not, convert that section to an 'if'-statement or replace this line with one"
+                                "Make sure the previous section you used was an 'if'-statement or 'else-if'-statement. If not, convert that section to one of the two or replace this line"
                         );
                         continue;
                     }
@@ -163,7 +163,12 @@ public class ScriptLoader {
                         continue;
                     } else if (parserState.forbidsSyntax(codeSection.get().getClass())) {
                         logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
-                        logger.error("The enclosing section does not allow the use of this section: " + codeSection.get().toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+                        logger.error(
+                                "The enclosing section does not allow the use of this section: "
+                                        + codeSection.get().toString(null, logger.isDebug()),
+                                ErrorType.SEMANTIC_ERROR,
+                                "The current section limits the usage of syntax. This means that certain syntax cannot be used here, which was the case. Remove the line entirely and refer to the documentation for the correct usage of this section"
+                        );
                         continue;
                     }
                     items.add(codeSection.get());
