@@ -10,7 +10,7 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
 
 /**
- * The character at a position of a string. The first character is at the position 0.
+ * The character at a given position in a string. Note that indices in Skript start at 1.
  *
  * @name Character at
  * @pattern char[acter] at [(index|pos[ition])] %number% (of|in) %string%
