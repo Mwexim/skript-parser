@@ -1,4 +1,4 @@
-package io.github.syst3ms.skriptparser.effects;
+package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
