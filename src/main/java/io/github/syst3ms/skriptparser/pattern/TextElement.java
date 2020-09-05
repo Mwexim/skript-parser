@@ -41,8 +41,10 @@ public class TextElement implements PatternElement {
             return index + start;
         } else if (s.regionMatches(true, index + start, stripped, 0, stripped.length())) {
             if (Character.isWhitespace(text.charAt(text.length() - 1))) {
-                while (end < s.length() && Character.isWhitespace(s.charAt(index + start + stripped.length() - end)))
+                while (index + start + stripped.length() - end < s.length()
+                        && Character.isWhitespace(s.charAt(index + start + stripped.length() - end))) {
                     end++;
+                }
             }
             return index + start + stripped.length() + end; // Adjusting for some of the whitespace we ignored
         } else {
