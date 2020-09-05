@@ -50,8 +50,7 @@ public class LitDoubleSpecialValues implements Literal<Double> {
             case 2:
                 return "NaN";
             default:
-                assert false;
-                return null;
+                throw new IllegalStateException();
         }
     }
 }
