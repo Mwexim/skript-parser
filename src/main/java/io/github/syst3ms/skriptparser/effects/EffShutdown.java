@@ -23,7 +23,7 @@ public class EffShutdown extends Effect {
     static {
         Parser.getMainRegistration().addEffect(
             EffShutdown.class,
-            "shut[ ]down[ [the] current session]" // TODO fix issue with nested optional groups
+            "shut[ ]down [[the] current session]"
         );
     }
 

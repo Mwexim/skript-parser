@@ -58,9 +58,7 @@ public class EffEscape extends Effect {
             current = (Optional<Statement>) current.get().getNext();
             am--;
         }
-        if (current.isEmpty())
-            return Optional.empty();
-        return current.get().getNext();
+        return current.flatMap(Statement::getNext);
     }
 
     @Override
