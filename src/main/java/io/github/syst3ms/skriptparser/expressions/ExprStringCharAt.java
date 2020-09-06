@@ -41,8 +41,8 @@ public class ExprStringCharAt implements Expression<String> {
 
 	@Override
 	public String[] getValues(final TriggerContext ctx) {
-		DoubleOptional<? extends String, ? extends Integer> opt = DoubleOptional.ofOptional(value.getSingle(ctx), position.getSingle(ctx));
-		return opt.filter((val, pos) -> pos > 0)
+		return DoubleOptional.ofOptional(value.getSingle(ctx), position.getSingle(ctx))
+			.filter((val, pos) -> pos > 0 && pos <= val.length())
 			.mapToOptional((val, pos) -> new String[]{ String.valueOf(val.charAt(pos - 1)) } )
 			.orElse(new String[0]);
 	}
