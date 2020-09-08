@@ -1,11 +1,12 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.Parser;
+import io.github.syst3ms.skriptparser.types.Type;
+import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
-import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import io.github.syst3ms.skriptparser.util.TimeUtils;
@@ -291,6 +292,16 @@ public class DefaultRegistration {
                     }
                 })
                 .register();
+        registration.newType(Type.class, "type", "type@s")
+                .literalParser(s -> {
+                    // We don't want this to clash with other syntax.
+                    // Also, the parsing of its own type should not be supported.
+//                    if (s.equalsIgnoreCase("type"))
+//                        return null;
+                    return TypeManager.getByExactName(s.toLowerCase()).orElse(null);
+                })
+                .toStringFunction(Type::toString)
+                .register();
 
         /*
          * Comparators
@@ -386,8 +397,8 @@ public class DefaultRegistration {
         /*
          * Converters
          */
-        Converters.registerConverter(Number.class, Long.class, n -> Optional.of(n instanceof Long ? (Long) n : n.longValue()));
-        Converters.registerConverter(Number.class, BigInteger.class, n -> {
+        registration.addConverter(Number.class, Long.class, n -> Optional.of(n instanceof Long ? (Long) n : n.longValue()));
+        registration.addConverter(Number.class, BigInteger.class, n -> {
             if (n instanceof BigInteger) {
                 return Optional.of((BigInteger) n);
             } else if (n instanceof Long) {
