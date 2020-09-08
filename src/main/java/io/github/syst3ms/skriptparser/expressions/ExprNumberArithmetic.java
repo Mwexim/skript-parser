@@ -295,7 +295,11 @@ public class ExprNumberArithmetic implements Expression<Number> {
         if (second instanceof Literal) {
             Optional<? extends Number> value = ((Literal<? extends Number>) second).getSingle();
             if (value.filter(Operator::isZero).isPresent()) {
-                parseContext.getLogger().error("Cannot divide by 0 !", ErrorType.SEMANTIC_ERROR);
+                parseContext.getLogger().error(
+                        "Cannot divide by 0!",
+                        ErrorType.SEMANTIC_ERROR,
+                        "Make sure the expression/variable you want to divide with does not represent 0, as dividing by 0 results in mathematical issues"
+                );
                 return false;
             }
         }

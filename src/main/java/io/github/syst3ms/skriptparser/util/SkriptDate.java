@@ -55,20 +55,25 @@ public class SkriptDate implements Comparable<SkriptDate> {
         return d < 0 ? -1 : d > 0 ? 1 : 0;
     }
 
-
-
-    @Nullable
     public String toString() {
+        return toString(DATE_FORMAT);
+    }
+
+    /**
+     * The String representation of this date using a certain format
+     * @param format the format
+     * @return the string representation of this date
+     */
+    public String toString(String format) {
         StringBuilder sb = new StringBuilder();
 
-        SimpleDateFormat format = new SimpleDateFormat(
-                DATE_FORMAT,
+        SimpleDateFormat formatted = new SimpleDateFormat(
+                format,
                 DATE_LOCALE);
 
 
-        String str = format.format(new java.util.Date(timestamp));
+        String str = formatted.format(new java.util.Date(timestamp));
         sb.append(str);
-        if (sb.toString().isEmpty()) return null;
 
         return sb.toString();
     }
