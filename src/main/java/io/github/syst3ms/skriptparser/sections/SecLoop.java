@@ -36,7 +36,11 @@ public class SecLoop extends ArgumentSection {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		expr = expressions[0];
 		if (expr.isSingle()) {
-		    parseContext.getLogger().error("Cannot loop a single value", ErrorType.SEMANTIC_ERROR);
+		    parseContext.getLogger().error(
+		    		"Cannot loop a single value",
+				    ErrorType.SEMANTIC_ERROR,
+				    "Remove this loop, because you clearly don't need to loop a single value"
+		    );
 			return false;
 		}
 		lambda = SkriptConsumer.create(this);
