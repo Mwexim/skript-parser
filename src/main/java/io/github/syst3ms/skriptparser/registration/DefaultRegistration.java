@@ -293,14 +293,9 @@ public class DefaultRegistration {
                 })
                 .register();
         registration.newType(Type.class, "type", "type@s")
-                .literalParser(s -> {
-                    // We don't want this to clash with other syntax.
-                    // Also, the parsing of its own type should not be supported.
-//                    if (s.equalsIgnoreCase("type"))
-//                        return null;
-                    return TypeManager.getByExactName(s.toLowerCase()).orElse(null);
-                })
-                .toStringFunction(Type::toString)
+                .literalParser(s -> TypeManager.getByExactName(s.toLowerCase())
+		                .orElse(null))
+                .toStringFunction(Type::getBaseName)
                 .register();
 
         /*

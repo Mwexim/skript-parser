@@ -4,10 +4,10 @@ import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
-import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +42,8 @@ public class ExprParseAs implements Expression<Object> {
 	}
 
 	private Expression<String> expr;
-	private Literal<Type<?>> type;
+	private Expression<Type<?>> type;
+	private Class<?> parseTo;
 	private boolean useFormat;
 	private Expression<String> format;
 
@@ -50,32 +51,46 @@ public class ExprParseAs implements Expression<Object> {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		expr = (Expression<String>) expressions[0];
-		type = (Literal<Type<?>>) expressions[1];
+		type = (Expression<Type<?>>) expressions[1];
+		parseTo = ((Literal<Type<?>>) expressions[1]).getSingle()
+				.orElseThrow(AssertionError::new)
+				.getTypeClass();
+		if (parseTo == String.class) {
+			parseContext.getLogger().error(
+					"Parsing as string is redundant",
+					ErrorType.SEMANTIC_ERROR,
+					"Just remove the expression. There is no need to parse as a string when we already know the expression is a string"
+			);
+			return false;
+		}
 		useFormat = parseContext.getParseMark() == 1;
 		if (useFormat)
 			format = (Expression<String>) expressions[2];
-		assert useFormat && format != null;
+		assert !useFormat || format != null;
 		return true;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object[] getValues(TriggerContext ctx) {
-		return DoubleOptional.ofOptional(expr.getSingle(ctx), type.getSingle())
-				.mapToOptional((s, cls) -> {
-					if (cls.getTypeClass().equals(SkriptDate.class)) {
+		return expr.getSingle(ctx)
+				.map(s -> {
+					if (parseTo == SkriptDate.class) {
 						SimpleDateFormat parseFormat = new SimpleDateFormat(
-								useFormat ? ((Optional<String>) format.getSingle(ctx)).orElse(SkriptDate.DATE_FORMAT) : SkriptDate.DATE_FORMAT,
+								((Optional<String>) format.getSingle(ctx))
+										.filter(__ -> useFormat)
+										.orElse(SkriptDate.DATE_FORMAT),
 								SkriptDate.DATE_LOCALE
 						);
 						try {
 							long timestamp = parseFormat.parse(s).getTime();
-							return new SkriptDate[] {new SkriptDate(timestamp)};
+							return new SkriptDate(timestamp);
 						} catch (ParseException ex) {
 							return null;
 						}
 					} else {
-						return TypeManager.getByClass(cls.getTypeClass())
+						return TypeManager.getByClass(parseTo)
+								.map (t -> (Type<?>) t)
 								.filter(t -> t.getLiteralParser().isPresent())
 								.map(t -> t.getLiteralParser().get().apply(s))
 								.orElse(null);
@@ -87,10 +102,7 @@ public class ExprParseAs implements Expression<Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		var type = this.type.getSingle().map(Type::getTypeClass);
-		if (type.isEmpty())
-			return Object.class;
-		return type.get();
+		return parseTo;
 	}
 
 	@Override
