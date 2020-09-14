@@ -46,7 +46,7 @@ public class ExprDateFromUnix implements Expression<SkriptDate> {
 		return timestamp.getSingle(ctx)
 				.map(
 					t -> new SkriptDate[]{
-							unix ? new SkriptDate(t.longValue() * 1000) : new SkriptDate(t.longValue())
+							SkriptDate.of(unix ? t.longValue() * 1000 : t.longValue())
 					}
 				).orElse(new SkriptDate[0]);
 	}

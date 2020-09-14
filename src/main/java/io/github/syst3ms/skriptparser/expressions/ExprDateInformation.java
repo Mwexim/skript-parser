@@ -17,8 +17,8 @@ import java.util.function.Function;
  *
  * @name Date Information
  * @type EXPRESSION
- * @pattern [the] (year|month|day of year|day of month|day of week|hours|minutes|seconds) of [date] %date%
- * @pattern [date] %date%'[s] (year|month|day of year|day of month|day of week|hours|minutes|seconds)
+ * @pattern [the] (year|month|day of year|day of month|day of week|hours|minutes|seconds|milli[second]s) of [date] %date%
+ * @pattern [date] %date%'[s] (year|month|day of year|day of month|day of week|hours|minutes|seconds|milli[second]s)
  * @since ALPHA
  * @author Mwexim
  */
@@ -30,12 +30,12 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 				Number.class,
 				true,
 				"*[date] %date%",
-				"(0:year|1:month|2:day of year|3:day of month|4:day of week|5:hours|6:minutes|7:seconds)"
+				"(0:year|1:month|2:day of year|3:day of month|4:day of week|5:hours|6:minutes|7:seconds|8:milli[second]s)"
 		);
 	}
 
 	private final static String[] CHOICES = {
-			"year", "month", "day of year", "day of month", "day of week", "hours", "minutes", "seconds"
+			"year", "month", "day of year", "day of month", "day of week", "hours", "minutes", "seconds", "milliseconds"
 	};
 
 	int parseMark;
@@ -61,8 +61,10 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 					return new Number[] {lcd.getMinute()};
 				case 7:
 					return new Number[] {lcd.getSecond()};
+				case 8:
+					return new Number[] {lcd.getNano() / 1_000_000};
 				default:
-					return new Number[0];
+					throw new IllegalStateException();
 			}
 		});
 	}
