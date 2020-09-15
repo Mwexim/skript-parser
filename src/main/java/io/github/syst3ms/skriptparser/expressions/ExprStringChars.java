@@ -1,6 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -24,19 +24,19 @@ import io.github.syst3ms.skriptparser.registration.PatternInfos;
  */
 public class ExprStringChars implements Expression<String> {
 
-    private enum CharType {
-        UPPER_CASE, LOWER_CASE, DIGIT, SPECIAL, WHITE_SPACE
-    }
-
-    private final static PatternInfos<Function<Character, Boolean>> PATTERNS = new PatternInfos<>(
+    private final static PatternInfos<Predicate<Character>> PATTERNS = new PatternInfos<>(
         new Object[][]{
-            {"[all [of the]] upper[ ]case char[acter]s in %strings%", (Function<Character, Boolean>) Character::isUpperCase},
-            {"[all [of the]] lower[ ]case char[acter]s in %strings%", (Function<Character, Boolean>) Character::isLowerCase},
-            {"[all [of the]] digit char[acter]s in %strings%", (Function<Character, Boolean>) Character::isDigit},
-            {"[all [of the]] special char[acter]s in %strings%", (Function<Character, Boolean>) (c) -> !Character.isLetterOrDigit(c) && !Character.isWhitespace(c)},
-            {"[all [of the]] [white[]]space char[acter]s in %strings%", (Function<Character, Boolean>) Character::isWhitespace}
+            {"[all [of the]] upper[ ]case char[acter]s in %strings%", (Predicate<Character>) Character::isUpperCase},
+            {"[all [of the]] lower[ ]case char[acter]s in %strings%", (Predicate<Character>) Character::isLowerCase},
+            {"[all [of the]] digit char[acter]s in %strings%", (Predicate<Character>) Character::isDigit},
+            {"[all [of the]] special char[acter]s in %strings%", (Predicate<Character>) (c) -> !Character.isLetterOrDigit(c) && !Character.isWhitespace(c)},
+            {"[all [of the]] [white[]]space char[acter]s in %strings%", (Predicate<Character>) Character::isWhitespace}
         }
-	);
+    );
+    
+    private String[] CharType = {
+        "upper case", "lower case", "digit", "special", "white space"
+    };
 
     static {
         Parser.getMainRegistration().addExpression(ExprStringChars.class,
@@ -47,13 +47,13 @@ public class ExprStringChars implements Expression<String> {
     }
 
     private Expression<String> values;
-    CharType charType;
+    private int charType;
 
     @Override
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext context) {
         values = (Expression<String>) expressions[0];
-        charType = CharType.values()[matchedPattern];
+        charType = matchedPattern;
         return true;
     }
 
@@ -62,14 +62,15 @@ public class ExprStringChars implements Expression<String> {
         StringBuilder allChars = new StringBuilder();
         String content = String.join("", values.getValues(ctx));
         for (char character : content.toCharArray()) {
-            if (PATTERNS.getInfo(charType.ordinal()).apply(character))
+            if (PATTERNS.getInfo(charType).test(character)) {
                 allChars.append(character);
+            }
         }
         return allChars.toString().split("");
     }
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return "all " + charType.name().replaceAll("_", "").toLowerCase() + " characters in " + values.toString(ctx, debug);
+        return "all " + CharType[charType] + " characters in " + values.toString(ctx, debug);
     }
 }
