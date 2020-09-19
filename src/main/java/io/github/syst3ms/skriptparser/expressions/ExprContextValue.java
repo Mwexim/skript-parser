@@ -5,7 +5,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueTime;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueState;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +30,7 @@ public class ExprContextValue implements Expression<Object> {
 	}
 
 	private String name;
-	private ContextValueTime time;
+	private ContextValueState time;
 	private ContextValue<?> value;
 
 	@Override
@@ -38,13 +38,13 @@ public class ExprContextValue implements Expression<Object> {
 		name = parseContext.getMatches().get(0).group();
 		switch (parseContext.getParseMark()) {
 			case 1:
-				time = ContextValueTime.PAST;
+				time = ContextValueState.PAST;
 				break;
 			case 2:
-				time = ContextValueTime.FUTURE;
+				time = ContextValueState.FUTURE;
 				break;
 			default:
-				time = ContextValueTime.PRESENT;
+				time = ContextValueState.PRESENT;
 		}
 		for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
 			for (ContextValue<?> val : ContextValues.getContextValues()) {
@@ -70,9 +70,9 @@ public class ExprContextValue implements Expression<Object> {
 	@Override
 	public String toString(final @Nullable TriggerContext ctx, final boolean debug) {
 		String state = "";
-		if (time == ContextValueTime.PAST) {
+		if (time == ContextValueState.PAST) {
 			state = "past ";
-		} else if (time == ContextValueTime.FUTURE) {
+		} else if (time == ContextValueState.FUTURE) {
 			state = "future ";
 		}
 		return state + "context-" + name;

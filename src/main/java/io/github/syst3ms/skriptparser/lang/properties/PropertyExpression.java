@@ -1,4 +1,4 @@
-package io.github.syst3ms.skriptparser.lang.base;
+package io.github.syst3ms.skriptparser.lang.properties;
 
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
@@ -34,16 +34,6 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     public void setOwner(Expression<O> owner) {
         this.owner = owner;
     }
-    
-    /**
-     * If this property only relies on one simple method applied to the owner, it can be represented here
-     * using a {@link Function}. This function will be applied in the default implementation of {@link #getValues(TriggerContext)}
-     * supplied by this class.
-     * @return the function that needs to be applied in order to get the correct values.
-     */
-    public Optional<? extends Function<? super O[], ? extends T[]>> getPropertyFunction() {
-        return Optional.empty();
-    }
 
     /**
      * There are 2 kinds of possession:
@@ -76,6 +66,16 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         setOwner((Expression<O>) expressions[0]);
         return true;
+    }
+
+    /**
+     * If this property only relies on one simple method applied to the owner, it can be represented here
+     * using a {@link Function}. This function will be applied in the default implementation of {@link #getValues(TriggerContext)}
+     * supplied by this class.
+     * @return the function that needs to be applied in order to get the correct values.
+     */
+    public Optional<? extends Function<? super O[], ? extends T[]>> getPropertyFunction() {
+        return Optional.empty();
     }
 
     /**
