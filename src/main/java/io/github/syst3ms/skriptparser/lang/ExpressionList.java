@@ -56,14 +56,14 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
-    public T[] getArray(TriggerContext e) {
+    public T[] getArray(TriggerContext ctx) {
         if (and) {
-            return getValues(e);
+            return getValues(ctx);
         } else {
             var shuffle = Arrays.asList(expressions);
             Collections.shuffle(shuffle);
             for (var expr : shuffle) {
-                var values = expr.getValues(e);
+                var values = expr.getValues(ctx);
                 if (values.length > 0)
                     return values;
             }

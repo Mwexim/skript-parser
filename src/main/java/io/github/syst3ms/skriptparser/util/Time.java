@@ -93,7 +93,9 @@ public class Time implements Comparable<Time> {
      * @return the amount of milliseconds that passed since the start of the day
      */
     public int toMillis() {
-        return (int) MIDNIGHT.getTime().until(time, ChronoUnit.MILLIS);
+        var millis = MIDNIGHT.getTime().until(time, ChronoUnit.MILLIS);
+        assert millis >= 0;
+        return (int) millis;
     }
 
     /**
@@ -102,7 +104,7 @@ public class Time implements Comparable<Time> {
      * @return the duration between the instances, or {@link Duration#ZERO ZERO} if one instance is invalid
      */
     public Duration difference(Time other) {
-        return Duration.ofMillis(time.until(other.getTime(), ChronoUnit.MILLIS));
+        return Duration.ofMillis(time.until(other.getTime(), ChronoUnit.MILLIS)).abs();
     }
 
     /**

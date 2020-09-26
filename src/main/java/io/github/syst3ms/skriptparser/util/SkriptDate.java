@@ -58,7 +58,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
 	}
 
 	public Duration difference(SkriptDate other) {
-        return Duration.ZERO.plusMillis(Math.abs(timestamp - other.getTimestamp()));
+        return Duration.ofMillis(timestamp - other.getTimestamp()).abs();
     }
 
     @Override
