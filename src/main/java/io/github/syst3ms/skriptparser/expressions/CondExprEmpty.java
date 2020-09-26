@@ -14,7 +14,8 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  * Check if a given string or list is empty.
  *
  * @name Empty
- * @pattern %strings/objects% (is|are)[1:( not|n't)] empty
+ * @pattern %strings% (is|are)[1:( not|n't)] empty
+ * @pattern %objects% is[1:( not|n't)] [a[n]] empty list
  * @since ALPHA
  * @author Olyno
  */
@@ -25,15 +26,18 @@ public class CondExprEmpty extends ConditionalExpression {
             Boolean.class,
             true,
             2,
-            "%strings/objects% (is|are)[1:( not|n't)] empty"
+            "%strings% (is|are)[1:( not|n't)] empty",
+            "%objects% is[1:( not|n't)] [a[n]] empty list"
         );
     }
 
     private Expression<?> expr;
+    private boolean comparingList;
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         expr = (Expression<?>) expressions[0];
+        comparingList = matchedPattern == 1;
         setNegated(parseContext.getParseMark() == 1);
         return true;
     }
@@ -43,18 +47,18 @@ public class CondExprEmpty extends ConditionalExpression {
         Object[] values = expr.getValues(ctx);
         if (values.length == 0)
             return !isNegated();
-        if (values.length == 1)
-            return !(values[0] instanceof String) != isNegated();
-        if (values instanceof String[]) {
-            return (Arrays.stream(values)
-                .filter(value -> !((String) value).isBlank())
-                .count() == 0) != isNegated();
+        if (values.length == 1) {
+            if (comparingList)
+                return isNegated();
+            return (values[0] instanceof String && ((String) values[0]).isBlank()) != isNegated();
         }
-        return isNegated();
+        if (values instanceof String[] && !comparingList)
+            return Arrays.stream(values).allMatch(value -> ((String) value).isBlank()) != isNegated();
+        return comparingList == isNegated();
     }
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return expr.toString(ctx, debug) + (isNegated() ? " is not " : " is ") + "empty";
+        return expr.toString(ctx, debug) + (isNegated() ? " is not " : " is ") + "empty" + (comparingList ? " list" : "");
     }
 } 
