@@ -45,16 +45,10 @@ public class CondExprEmpty extends ConditionalExpression {
     @Override
     public boolean check(TriggerContext ctx) {
         Object[] values = expr.getValues(ctx);
-        if (values.length == 0)
-            return !isNegated();
-        if (values.length == 1) {
-            if (comparingList)
-                return isNegated();
-            return (values[0] instanceof String && ((String) values[0]).isBlank()) != isNegated();
-        }
-        if (values instanceof String[] && !comparingList)
-            return Arrays.stream(values).allMatch(value -> ((String) value).isBlank()) != isNegated();
-        return comparingList == isNegated();
+        boolean isEmpty = comparingList ? values.length == 0 : Arrays.stream(values)
+            .allMatch(value -> value instanceof String && ((String) value).isBlank());
+        return isEmpty != isNegated();
+
     }
 
     @Override
