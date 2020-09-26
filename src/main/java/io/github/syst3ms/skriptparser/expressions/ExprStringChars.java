@@ -34,7 +34,7 @@ public class ExprStringChars implements Expression<String> {
         }
     );
     
-    private String[] CharType = {
+    private final String[] CHAR_TYPES = {
         "upper case", "lower case", "digit", "special", "white space"
     };
 
@@ -71,6 +71,6 @@ public class ExprStringChars implements Expression<String> {
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return "all " + CharType[charType] + " characters in " + values.toString(ctx, debug);
+        return "all " + CHAR_TYPES[charType] + " characters in " + values.toString(ctx, debug);
     }
 }
