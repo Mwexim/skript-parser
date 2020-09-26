@@ -13,7 +13,7 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 /**
  * Check if a given string or list is empty.
  *
- * @name Empty
+ * @name Is Empty
  * @pattern %strings% (is|are)[1:( not|n't)] empty
  * @pattern %objects% is[1:( not|n't)] [a[n]] empty list
  * @since ALPHA
