@@ -44,11 +44,9 @@ public class ExprDifference implements Expression<Object> {
         var commonType = TypeManager.getByClass(
                 ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())
         );
-        if (commonType.isEmpty()) {
+        if (commonType.isEmpty())
             commonType = TypeManager.getByClassExact(Object.class);
-            assert commonType.isPresent();
-        }
-        var type = commonType.get();
+        var type = commonType.orElseThrow(AssertionError::new);
         var arithmetic = type.getArithmetic();
         commonSuperClass = commonType.get().getTypeClass();
         if (arithmetic.isEmpty()) {
