@@ -1,5 +1,7 @@
 package io.github.syst3ms.skriptparser.expressions;
 
+import org.jetbrains.annotations.Nullable;
+
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
@@ -7,7 +9,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueTime;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A specific context value.
@@ -36,16 +37,7 @@ public class ExprContextValue implements Expression<Object> {
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, ParseContext parseContext) {
 		name = parseContext.getMatches().get(0).group();
-		switch (parseContext.getParseMark()) {
-			case 1:
-				time = ContextValueTime.PAST;
-				break;
-			case 2:
-				time = ContextValueTime.FUTURE;
-				break;
-			default:
-				time = ContextValueTime.PRESENT;
-		}
+		time = ContextValueTime.values()[parseContext.getParseMark()];
 		for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
 			for (ContextValue<?> val : ContextValues.getContextValues()) {
 				if (val.matches(ctx, name, time)) {
