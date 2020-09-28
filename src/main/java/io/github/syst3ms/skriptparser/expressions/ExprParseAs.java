@@ -84,7 +84,7 @@ public class ExprParseAs implements Expression<Object> {
 						);
 						try {
 							long timestamp = parseFormat.parse(s).getTime();
-							return new SkriptDate(timestamp);
+							return SkriptDate.of(timestamp);
 						} catch (ParseException ex) {
 							return null;
 						}

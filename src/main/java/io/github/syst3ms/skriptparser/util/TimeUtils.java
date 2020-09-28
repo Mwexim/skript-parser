@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import static io.github.syst3ms.skriptparser.util.NumberUtils.between;
 import static io.github.syst3ms.skriptparser.util.NumberUtils.parseInt;
 
 public class TimeUtils {
@@ -116,13 +115,13 @@ public class TimeUtils {
             int hours = parseInt(parts[0]);
             if (hours == 24) {
                 hours = 0; // Allows to write 24:00 -> 24:59 instead of 00:00 -> 00:59
-            } else if (!between(hours, 0, 23)) {
+            } else if (hours < 0 || 23 < hours) {
                 return Optional.empty();
             }
             int minutes = parts.length > 1
                     ? parseInt(parts[0])
                     : 0;
-            if (!between(minutes, 0, 59)) {
+            if (0 <= minutes && minutes <= 59) {
                 return Optional.empty();
             }
             return Optional.of(Time.of(hours, minutes, 0, 0));
@@ -130,14 +129,14 @@ public class TimeUtils {
             // Second category
             int hours = parseInt(secondMatcher.group(1));
             if (hours == 12) {
-                hours = 0;
-            } else if (!between(hours, 0, 11)) {
+                hours = 0; // 12 AM is 00:00:00.000 for some weird reason
+            } else if (hours < 0 || 11 < hours) {
                 return Optional.empty();
             }
             int minutes = 0;
             if (secondMatcher.group(3) != null)
                 minutes = parseInt(secondMatcher.group(3));
-            if (!between(minutes, 0, 59)) {
+            if (minutes < 0 || 59 < minutes) {
                 return Optional.empty();
             }
             if (secondMatcher.group(4).equalsIgnoreCase("pm"))
@@ -148,11 +147,11 @@ public class TimeUtils {
             int hours = parseInt(thirdMatcher.group(1));
             if (hours == 24) {
                 hours = 0; // Allows to write 24:00 -> 24:59 instead of 00:00 -> 00:59
-            } else if (!between(hours, 0, 23)) {
+            } else if (hours < 0 || 23 < hours) {
                 return Optional.empty();
             }
             int minutes = parseInt(thirdMatcher.group(2));
-            if (!between(minutes, 0, 59)) {
+            if (minutes < 0 || 59 < minutes) {
                 return Optional.empty();
             }
             int seconds = 0, millis = 0;
@@ -162,7 +161,7 @@ public class TimeUtils {
             if (thirdMatcher.group(7) != null) {
                 millis = parseInt(thirdMatcher.group(7));
             }
-            if (!between(seconds, 0, 59) || !between(millis, 0, 999)) {
+            if (seconds < 0 || 59 < seconds || millis < 0 || 999 < millis) {
                 return Optional.empty();
             }
             return Optional.of(Time.of(hours,minutes, seconds, millis));
