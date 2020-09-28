@@ -36,16 +36,7 @@ public class ExprContextValue implements Expression<Object> {
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, ParseContext parseContext) {
 		name = parseContext.getMatches().get(0).group();
-		switch (parseContext.getParseMark()) {
-			case 1:
-				time = ContextValueState.PAST;
-				break;
-			case 2:
-				time = ContextValueState.FUTURE;
-				break;
-			default:
-				time = ContextValueState.PRESENT;
-		}
+		time = ContextValueState.values()[parseContext.getParseMark()];
 		for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
 			for (ContextValue<?> val : ContextValues.getContextValues()) {
 				if (val.matches(ctx, name, time)) {
