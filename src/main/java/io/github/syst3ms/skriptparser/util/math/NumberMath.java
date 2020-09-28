@@ -58,19 +58,15 @@ public class NumberMath {
     }
 
     public static Number log(Number base, Number n) {
-        if ((n instanceof Long || n instanceof Double) && (base instanceof Long || base instanceof Double)) {
-            return Math.log(n.doubleValue()) / Math.log(base.doubleValue());
+        var bd = bigToBigDecimal(n);
+        var bdBase = bigToBigDecimal(base);
+        if (bdBase.compareTo(BigDecimal.valueOf(2)) == 0) {
+            return BigDecimalMath.log2(bd, BigDecimalMath.DEFAULT_CONTEXT);
+        } else if (bdBase.compareTo(BigDecimal.TEN) == 0) {
+            return BigDecimalMath.log10(bd, BigDecimalMath.DEFAULT_CONTEXT);
         } else {
-            var bd = bigToBigDecimal(n);
-            var bdBase = bigToBigDecimal(base);
-            if (bdBase.compareTo(BigDecimal.valueOf(2)) == 0) {
-                return BigDecimalMath.log2(bd, BigDecimalMath.DEFAULT_CONTEXT);
-            } else if (bdBase.compareTo(BigDecimal.TEN) == 0) {
-                return BigDecimalMath.log10(bd, BigDecimalMath.DEFAULT_CONTEXT);
-            } else {
-                return BigDecimalMath.log(bd, BigDecimalMath.DEFAULT_CONTEXT)
-                                     .divide(BigDecimalMath.log(bdBase, BigDecimalMath.DEFAULT_CONTEXT), BigDecimalMath.DEFAULT_ROUNDING_MODE);
-            }
+            return BigDecimalMath.log(bd, BigDecimalMath.DEFAULT_CONTEXT)
+                    .divide(BigDecimalMath.log(bdBase, BigDecimalMath.DEFAULT_CONTEXT), BigDecimalMath.DEFAULT_ROUNDING_MODE);
         }
     }
 

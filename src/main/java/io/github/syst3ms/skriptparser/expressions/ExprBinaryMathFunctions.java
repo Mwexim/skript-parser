@@ -25,19 +25,19 @@ import java.util.function.BinaryOperator;
 public class ExprBinaryMathFunctions implements Expression<Number> {
 	public static final PatternInfos<BinaryOperator<Number>> PATTERNS = new PatternInfos<>(
 		new Object[][] {
-			{"log[arithm] [base] %number% of %number%", (BinaryOperator<Number>) NumberMath::log},
-			{"root %number% of %number%", (BinaryOperator<Number>) (n, r) -> {
-					if (r.intValue() == 1) {
+				{"log[arithm] [base] %number% of %number%", (BinaryOperator<Number>) NumberMath::log},
+				{"root %number% of %number%", (BinaryOperator<Number>) (n, r) -> {
+					var root = r instanceof BigDecimal ? (BigDecimal) r : new BigDecimal(r.toString());
+					if (root.compareTo(BigDecimal.ONE) == 0) {
 						return n;
-					} else if (r.intValue() == 2) {
+					} else if (root.compareTo(BigDecimal.valueOf(2)) == 0) {
 						return NumberMath.sqrt(n);
-					} else {
-						BigDecimal a = new BigDecimal(n.toString());
-						BigDecimal b = BigDecimal.ONE.divide(new BigDecimal(r.toString()), BigDecimalMath.DEFAULT_CONTEXT);
-						return BigDecimalMath.pow(a, b, BigDecimalMath.DEFAULT_CONTEXT);
 					}
+					var numb = n instanceof BigDecimal ? (BigDecimal) n : new BigDecimal(n.toString());
+					BigDecimal res = BigDecimal.ONE.divide(root, BigDecimalMath.DEFAULT_CONTEXT);
+					return BigDecimalMath.pow(numb, res, BigDecimalMath.DEFAULT_CONTEXT);
 				}
-			}
+				}
 		}
 	);
 	private int pattern;
@@ -68,7 +68,7 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 				second.getSingle(ctx)
 		);
 		BinaryOperator<Number> operator = PATTERNS.getInfo(pattern);
-		return args.mapToOptional((f, s) -> new Number[]{operator.apply(f, s)}).orElse(new Number[0]);
+		return args.mapToOptional((f, s) -> new Number[] {operator.apply(f, s)}).orElse(new Number[0]);
 	}
 
 	@Override
