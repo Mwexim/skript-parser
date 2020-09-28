@@ -10,6 +10,9 @@ public class ClassUtils {
      * @return the nearest common superclass of the provided classes, accounting for interfaces
      */
     public static Class<?> getCommonSuperclass(Class<?>... cs) {
+        if (cs.length == 1)
+            return cs[0];
+
         var r = cs[0];
         outer:
         for (var c : cs) {
