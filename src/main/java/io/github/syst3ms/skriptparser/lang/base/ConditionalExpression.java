@@ -34,7 +34,6 @@ public abstract class ConditionalExpression implements Expression<Boolean> {
         return negated;
     }
 
-
     /**
      * Decides whether the output of a condition should be inverted in order to create a "negated" condition.
      * This was made a built-in method because it is a very common feature of conditions.
