@@ -18,8 +18,6 @@ import org.jetbrains.annotations.Nullable;
  * @author Mwexim
  */
 public class EffShutdown extends Effect {
-    private Expression<String> string;
-
     static {
         Parser.getMainRegistration().addEffect(
             EffShutdown.class,

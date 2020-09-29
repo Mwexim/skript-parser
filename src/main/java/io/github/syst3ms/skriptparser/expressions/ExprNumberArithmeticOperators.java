@@ -14,7 +14,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.util.Optional;
 
 /**
@@ -25,6 +24,7 @@ import java.util.Optional;
  *          <ul>
  *              <li>Two operands of the same type will yield a result of that type, except in the following special cases
  *                  <ul>
+ *                      <li>Trying to divide in general will always return a {@link BigDecimal}</li>
  *                      <li>Trying to divide 0 by 0 will always return {@link Double#NaN} regardless of the original types.</li>
  *                      <li>Trying to divide any other value by 0 will always return {@link Double#POSITIVE_INFINITY} or {@link Double#NEGATIVE_INFINITY}.</li>
  *                  </ul>
@@ -34,7 +34,6 @@ import java.util.Optional;
  *          </ul>
  *      </li>
  *      <li>0<sup>0</sup> is defined to be 1</li>
- *      <li>Longs and doubles will give an arbitrary-precision result in case of overflow/underflow</li>
  * </ul>
  * 
  * @name Arithmetic Operators
@@ -52,120 +51,39 @@ public class ExprNumberArithmeticOperators implements Expression<Number> {
         PLUS('+') {
             @Override
             public Number calculate(Number left, Number right) {
-                if (left instanceof Long && right instanceof Long) {
-                    long l = left.longValue();
-                    long r = right.longValue();
-                    try {
-                        return Math.addExact(l, r);
-                    } catch (ArithmeticException e) {
-                        return BigInteger.valueOf(l).add(BigInteger.valueOf(r));
-                    }
-                } else if (left instanceof BigDecimal || right instanceof BigDecimal) {
-                    if (left instanceof BigDecimal && right instanceof BigDecimal) {
-                        return ((BigDecimal) left).add((BigDecimal) right);
-                    } else if (left instanceof BigDecimal) {
-                        return ((BigDecimal) left).add(BigDecimalMath.getBigDecimal(right));
-                    } else {
-                        return BigDecimalMath.getBigDecimal(left).add((BigDecimal) right);
-                    }
-                } else if (left instanceof BigInteger || right instanceof BigInteger) {
-                    if (left instanceof BigInteger && right instanceof BigInteger) {
-                        return ((BigInteger) left).add((BigInteger) right);
-                    } else if (left instanceof Double || right instanceof Double) {
-                        return BigDecimalMath.getBigDecimal(left).add(BigDecimalMath.getBigDecimal(right));
-                    } else {
-                        return BigDecimalMath.getBigInteger(left).add(BigDecimalMath.getBigInteger(right));
-                    }
+                if (left instanceof BigDecimal || right instanceof BigDecimal) {
+                    var l = BigDecimalMath.getBigDecimal(left);
+                    var r = BigDecimalMath.getBigDecimal(right);
+                    return l.add(r);
                 } else {
-                    // Both Double, or mix of Long and Double
-                    double l = left.doubleValue();
-                    double r = right.doubleValue();
-                    double s = l + r;
-                    if (Double.isInfinite(s) && Double.isFinite(l) && Double.isFinite(r)) {
-                        return BigDecimalMath.getBigDecimal(left).add(BigDecimalMath.getBigDecimal(right));
-                    } else {
-                        return s;
-                    }
+                    assert left instanceof BigInteger && right instanceof BigInteger;
+                    return ((BigInteger) left).add(((BigInteger) right));
                 }
             }
         },
         MINUS('-') {
             @Override
             public Number calculate(Number left, Number right) {
-                if (left instanceof Long && right instanceof Long) {
-                    long l = left.longValue();
-                    long r = right.longValue();
-                    try {
-                        return Math.subtractExact(l, r);
-                    } catch (ArithmeticException e) {
-                        return BigInteger.valueOf(l).subtract(BigInteger.valueOf(r));
-                    }
-                } else if (left instanceof BigDecimal || right instanceof BigDecimal) {
-                    if (left instanceof BigDecimal && right instanceof BigDecimal) {
-                        return ((BigDecimal) left).subtract((BigDecimal) right);
-                    } else if (left instanceof BigDecimal) {
-                        return ((BigDecimal) left).subtract(BigDecimalMath.getBigDecimal(right));
-                    } else {
-                        return BigDecimalMath.getBigDecimal(left).subtract((BigDecimal) right);
-                    }
-                } else if (left instanceof BigInteger || right instanceof BigInteger) {
-                    if (left instanceof BigInteger && right instanceof BigInteger) {
-                        return ((BigInteger) left).subtract((BigInteger) right);
-                    } else if (left instanceof Double || right instanceof Double) {
-                        return BigDecimalMath.getBigDecimal(left).subtract(BigDecimalMath.getBigDecimal(right));
-                    } else {
-                        return BigDecimalMath.getBigInteger(left).subtract(BigDecimalMath.getBigInteger(right));
-                    }
+                if (left instanceof BigDecimal || right instanceof BigDecimal) {
+                    var l = BigDecimalMath.getBigDecimal(left);
+                    var r = BigDecimalMath.getBigDecimal(right);
+                    return l.subtract(r);
                 } else {
-                    // Both Double, or mix of Long and Double
-                    double l = left.doubleValue();
-                    double r = right.doubleValue();
-                    double s = l - r;
-                    if (Double.isInfinite(s) && Double.isFinite(l) && Double.isFinite(r)) {
-                        return BigDecimalMath.getBigDecimal(left).subtract(BigDecimalMath.getBigDecimal(right));
-                    } else {
-                        return s;
-                    }
+                    assert left instanceof BigInteger && right instanceof BigInteger;
+                    return ((BigInteger) left).subtract(((BigInteger) right));
                 }
             }
         },
         MULT('*') {
             @Override
             public Number calculate(Number left, Number right) {
-                if (left instanceof Long && right instanceof Long) {
-                    long l = left.longValue();
-                    long r = right.longValue();
-                    try {
-                        return Math.multiplyExact(l, r);
-                    } catch (ArithmeticException e) {
-                        return BigInteger.valueOf(l).multiply(BigInteger.valueOf(r));
-                    }
-                } else if (left instanceof BigDecimal || right instanceof BigDecimal) {
-                    if (left instanceof BigDecimal && right instanceof BigDecimal) {
-                        return ((BigDecimal) left).multiply((BigDecimal) right);
-                    } else if (left instanceof BigDecimal) {
-                        return ((BigDecimal) left).multiply(BigDecimalMath.getBigDecimal(right));
-                    } else {
-                        return BigDecimalMath.getBigDecimal(left).multiply((BigDecimal) right);
-                    }
-                } else if (left instanceof BigInteger || right instanceof BigInteger) {
-                    if (left instanceof BigInteger && right instanceof BigInteger) {
-                        return ((BigInteger) left).multiply((BigInteger) right);
-                    } else if (left instanceof Double || right instanceof Double) {
-                        return BigDecimalMath.getBigDecimal(left).multiply(BigDecimalMath.getBigDecimal(right));
-                    } else {
-                        return BigDecimalMath.getBigInteger(left).multiply(BigDecimalMath.getBigInteger(right));
-                    }
+                if (left instanceof BigDecimal || right instanceof BigDecimal) {
+                    var l = BigDecimalMath.getBigDecimal(left);
+                    var r = BigDecimalMath.getBigDecimal(right);
+                    return l.multiply(r);
                 } else {
-                    // Both Double, or mix of Long and Double
-                    double l = left.doubleValue();
-                    double r = right.doubleValue();
-                    double s = l * r;
-                    if (Double.isInfinite(s) && Double.isFinite(l) && Double.isFinite(r)) {
-                        return BigDecimalMath.getBigDecimal(left).multiply(BigDecimalMath.getBigDecimal(right));
-                    } else {
-                        return s;
-                    }
+                    assert left instanceof BigInteger && right instanceof BigInteger;
+                    return ((BigInteger) left).multiply(((BigInteger) right));
                 }
             }
         },
@@ -175,11 +93,11 @@ public class ExprNumberArithmeticOperators implements Expression<Number> {
                 if (isZero(left) && isZero(right)) {
                     return Double.NaN;
                 } else if (isZero(right)) {
-                    return Math.copySign(Double.POSITIVE_INFINITY, left.doubleValue());
-                } else if ((left instanceof Long || right instanceof Long) && (left instanceof Double || right instanceof Double)) {
-                    return left.doubleValue() / right.doubleValue();
+                    return BigDecimalMath.getBigDecimal(left).compareTo(BigDecimal.ZERO) < 0
+                            ? Double.NEGATIVE_INFINITY
+                            : Double.POSITIVE_INFINITY;
                 } else {
-                    return BigDecimalMath.getBigDecimal(left).divide(BigDecimalMath.getBigDecimal(right), RoundingMode.HALF_UP);
+                    return BigDecimalMath.getBigDecimal(left).divide(BigDecimalMath.getBigDecimal(right), BigDecimalMath.DEFAULT_CONTEXT);
                 }
             }
         },
@@ -187,45 +105,13 @@ public class ExprNumberArithmeticOperators implements Expression<Number> {
             @Override
             public Number calculate(Number left, Number right) {
                 if (isZero(right)) {
-                    if ((left instanceof Long || left instanceof Double) && (right instanceof Long || right instanceof Double)) {
-                        if (left instanceof Long && right instanceof Long) {
-                            return 1L;
-                        } else {
-                            return 1.0;
-                        }
-                    } else if (left instanceof BigInteger) {
-                        return BigInteger.ONE;
-                    } else {
-                        return BigDecimal.ONE;
-                    }
+                    return left instanceof BigDecimal ? BigDecimal.ONE : BigInteger.ONE;
                 }
-                if (left instanceof Long && right instanceof Long) {
-                    double p = Math.pow(left.doubleValue(), right.doubleValue());
-                    if (Double.isInfinite(p) || p > Long.MAX_VALUE) {
-                        return pow(BigDecimalMath.getBigInteger(left), BigDecimalMath.getBigInteger(right));
-                    } else {
-                        return (long) p;
-                    }
-                } else if (left instanceof BigDecimal || right instanceof BigDecimal) {
+                if (left instanceof BigDecimal || right instanceof BigDecimal) {
                     return BigDecimalMath.pow(BigDecimalMath.getBigDecimal(left), BigDecimalMath.getBigDecimal(right), BigDecimalMath.DEFAULT_CONTEXT);
-                } else if (left instanceof BigInteger || right instanceof BigInteger) {
-                    if (left instanceof BigInteger && right instanceof BigInteger) {
-                        return pow((BigInteger) left, (BigInteger) right);
-                    } else if (left instanceof Long || right instanceof Long) {
-                        return pow(BigDecimalMath.getBigInteger(left), BigDecimalMath.getBigInteger(right));
-                    } else {
-                        return BigDecimalMath.pow(BigDecimalMath.getBigDecimal(left), BigDecimalMath.getBigDecimal(right), BigDecimalMath.DEFAULT_CONTEXT);
-                    }
                 } else {
-                    // mix of Long and Double
-                    double l = left.doubleValue();
-                    double r = right.doubleValue();
-                    double p = Math.pow(l, r);
-                    if (Double.isInfinite(p) && Double.isFinite(l) && Double.isFinite(r)) {
-                        return BigDecimalMath.pow(BigDecimalMath.getBigDecimal(left), BigDecimalMath.getBigDecimal(right), BigDecimalMath.DEFAULT_CONTEXT);
-                    } else {
-                        return p;
-                    }
+                    assert left instanceof BigInteger && right instanceof BigInteger;
+                    return pow((BigInteger) left, (BigInteger) right);
                 }
             }
         };
@@ -244,7 +130,7 @@ public class ExprNumberArithmeticOperators implements Expression<Number> {
         }
 
         private static boolean isZero(Number n) {
-            return n instanceof BigDecimal && ((BigDecimal) n).compareTo(BigDecimal.ZERO) == 0 || n.doubleValue() == 0;
+            return BigDecimalMath.getBigDecimal(n).compareTo(BigDecimal.ZERO) == 0;
         }
 
         private static BigInteger pow(BigInteger x, BigInteger y) {
@@ -310,8 +196,7 @@ public class ExprNumberArithmeticOperators implements Expression<Number> {
     public Number[] getValues(TriggerContext ctx) {
         return DoubleOptional.ofOptional(first.getSingle(ctx), second.getSingle(ctx))
                 .map(f -> (Number) f, s -> (Number) s)
-                .or(() -> DoubleOptional.of(0, 0))
-                .mapToOptional((f, s) -> new Number[]{ op.calculate(f, s) })
+                .mapToOptional((f, s) -> new Number[]{op.calculate(f, s)})
                 .orElse(new Number[0]);
     }
 

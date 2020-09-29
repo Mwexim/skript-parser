@@ -18,7 +18,7 @@ import java.util.function.BinaryOperator;
  *
  * @name Binary Math Functions
  * @pattern log[arithm] [base] %number% of %number%
- * @pattern root %number% of %number%
+ * @pattern (root %number%|[the] %integer%(st|nd|rd|th) root) of %number%
  * @since ALPHA
  * @author Syst3ms
  */
@@ -26,7 +26,7 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 	public static final PatternInfos<BinaryOperator<Number>> PATTERNS = new PatternInfos<>(
 		new Object[][] {
 				{"log[arithm] [base] %number% of %number%", (BinaryOperator<Number>) NumberMath::log},
-				{"root %number% of %number%", (BinaryOperator<Number>) (n, r) -> {
+				{"(root %number%|[the] %integer%(st|nd|rd|th) root) of %number%", (BinaryOperator<Number>) (r, n) -> {
 					var root = r instanceof BigDecimal ? (BigDecimal) r : new BigDecimal(r.toString());
 					if (root.compareTo(BigDecimal.ONE) == 0) {
 						return n;
@@ -40,8 +40,6 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 				}
 		}
 	);
-	private int pattern;
-	private Expression<Number> first, second;
 
 	static {
 		Parser.getMainRegistration().addExpression(
@@ -51,6 +49,9 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 			PATTERNS.getPatterns()
 		);
 	}
+
+	private Expression<Number> first, second;
+	private int pattern;
 
 	@SuppressWarnings("unchecked")
 	@Override

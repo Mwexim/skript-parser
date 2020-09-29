@@ -8,6 +8,7 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.function.Function;
@@ -46,21 +47,21 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 			LocalDateTime lcd = dates[0].toLocalDateTime();
 			switch (parseMark) {
 				case 0:
-					return new Number[] {lcd.getYear()};
+					return new Number[] {BigInteger.valueOf(lcd.getYear())};
 				case 1:
-					return new Number[] {lcd.getMonthValue()};
+					return new Number[] {BigInteger.valueOf(lcd.getMonthValue())};
 				case 2:
-					return new Number[] {lcd.getDayOfYear()};
+					return new Number[] {BigInteger.valueOf(lcd.getDayOfYear())};
 				case 3:
-					return new Number[] {lcd.getDayOfMonth()};
+					return new Number[] {BigInteger.valueOf(lcd.getDayOfMonth())};
 				case 4:
-					return new Number[] {lcd.getDayOfWeek().getValue()};
+					return new Number[] {BigInteger.valueOf(lcd.getDayOfWeek().getValue())};
 				case 5:
-					return new Number[] {lcd.getHour()};
+					return new Number[] {BigInteger.valueOf(lcd.getHour())};
 				case 6:
-					return new Number[] {lcd.getMinute()};
+					return new Number[] {BigInteger.valueOf(lcd.getMinute())};
 				case 7:
-					return new Number[] {lcd.getSecond()};
+					return new Number[] {BigInteger.valueOf(lcd.getSecond())};
 				default:
 					return new Number[0];
 			}

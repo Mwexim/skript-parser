@@ -13,7 +13,7 @@ import java.util.Optional;
  *
  * @name Boolean Operators
  * @pattern not %=boolean%
- * @pattern %=boolean% (or|\\|\\|) %=boolean%
+ * @pattern %=boolean% (or|\|\|) %=boolean%
  * @pattern %=boolean% (and|&&) %=boolean%
  * @since ALPHA
  * @author Syst3ms
