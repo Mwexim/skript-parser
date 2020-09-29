@@ -24,7 +24,7 @@ public class EffDoIf extends Effect {
         Parser.getMainRegistration().addEffect(
             EffDoIf.class,
             1,
-            "if %=boolean%[,] [do] <.+>"
+            "[do] <.+?>[,] if %=boolean%"
         );
     }
 
@@ -43,7 +43,7 @@ public class EffDoIf extends Effect {
             return false;
         effect = eff.get();
         if (effect instanceof EffDoIf) {
-            parseContext.getLogger().error("You can't nest multiple do-if effects!", ErrorType.SEMANTIC_ERROR);
+            parseContext.getLogger().error("You can't nest multiple do if-effects!", ErrorType.SEMANTIC_ERROR);
             return false;
         }
         return true;

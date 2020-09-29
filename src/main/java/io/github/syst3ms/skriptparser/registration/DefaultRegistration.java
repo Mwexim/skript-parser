@@ -73,7 +73,6 @@ public class DefaultRegistration {
                     .arithmetic(new Arithmetic<Number, Number>() {
                         @Override
                         public Number difference(Number first, Number second) {
-                            // Creating BigDecimals and BigIntegers from strings is costly, so we better make checks before resorting to that
                             if (first instanceof BigDecimal || second instanceof BigDecimal) {
                                 var f = BigDecimalMath.getBigDecimal(first);
                                 var s = BigDecimalMath.getBigDecimal(second);
