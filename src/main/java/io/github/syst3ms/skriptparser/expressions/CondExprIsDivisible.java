@@ -7,6 +7,7 @@ import io.github.syst3ms.skriptparser.lang.properties.ConditionalType;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyConditional;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -20,7 +21,7 @@ import java.util.Arrays;
  * @type CONDITION
  * @pattern %numbers% (is|are)[ not|n't] divisible by %integer%
  * @since ALPHA
- * @author Syst3ms
+ * @author Mwexim
  */
 public class CondExprIsDivisible extends PropertyConditional<Number> {
     static {
@@ -49,5 +50,11 @@ public class CondExprIsDivisible extends PropertyConditional<Number> {
                         .filter(d -> BigDecimalMath.getBigInteger(n).mod(d).equals(BigInteger.ZERO))
                         .isPresent()
                 );
+    }
+
+    @Override
+    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+        return getPerformer().toString(ctx, debug) + (isNegated() ? " is not " : " is ")
+                + "divisible by " + divider.toString(ctx, debug);
     }
 }
