@@ -45,7 +45,7 @@ import java.util.Optional;
  * @since ALPHA
  * @author Syst3ms
  */
-public class ExprNumberArithmeticOperators implements Expression<Number> {
+public class ExprArithmeticOperators implements Expression<Number> {
 
     private enum Operator {
         PLUS('+') {
@@ -162,7 +162,7 @@ public class ExprNumberArithmeticOperators implements Expression<Number> {
 
     static {
         Parser.getMainRegistration().addExpression(
-            ExprNumberArithmeticOperators.class,
+            ExprArithmeticOperators.class,
             Number.class,
             true,
             PATTERNS.getPatterns()

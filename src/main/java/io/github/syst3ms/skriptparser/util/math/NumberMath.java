@@ -197,6 +197,29 @@ public class NumberMath {
     }
 
     /**
+     * Checks if a given BigInteger is prime. The certainty of this check is always 100%
+     * @param number the number to check
+     * @return whether or not this number is a prime
+     */
+    public static boolean isPrime(BigInteger number) {
+        // Check via BigInteger.isProbablePrime(certainty)
+        if (!number.isProbablePrime(5))
+            return false;
+
+        // Check if even;
+        var two = BigInteger.TWO;
+        if (!two.equals(number) && BigInteger.ZERO.equals(number.mod(two)))
+            return false;
+
+        // Find divisor if any from 3 to sqrt(number)
+        for (BigInteger i = BigInteger.valueOf(3); i.multiply(i).compareTo(number) < 1; i = i.add(two)) {
+            if (BigInteger.ZERO.equals(number.mod(i))) //check if 'i' is divisor of 'number'
+                return false;
+        }
+        return true;
+    }
+
+    /**
      * Computes a random number between the two given bounds
      *
      * The return type is related to the parameter types in the following way :

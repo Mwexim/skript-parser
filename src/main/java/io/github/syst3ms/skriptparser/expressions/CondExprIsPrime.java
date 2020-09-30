@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.properties.ConditionalType;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyConditional;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
+import io.github.syst3ms.skriptparser.util.math.NumberMath;
 
 import java.util.Arrays;
 
@@ -27,35 +28,18 @@ public class CondExprIsPrime extends PropertyConditional<Number> {
                 CondExprIsPrime.class,
                 "numbers",
                 ConditionalType.BE,
-                "[a] prime [number]"
+                "[a] prime [number[s]]"
         );
     }
 
     @Override
     public boolean check(TriggerContext ctx, Number[] performers) {
         return isNegated() != Arrays.stream(performers)
-                .allMatch(n ->
-                    BigDecimalMath.isIntValue(BigDecimalMath.getBigDecimal(n))
-                            && isPrime(n.intValue())
-                );
-    }
-
-    /*
-     * This method is indeed pretty slow and will often create issues
-     * where the calculations will exponentially take up more time.
-     * I believe this is not an issue, even when we use really high numbers
-     * because of BigInteger.
-     */
-    // TODO implement a better system, possibly making use of the math utils for numbers higher than Integer.MAX_VALUE
-    public static boolean isPrime(int number) {
-        if (number == 1)
-            return false;
-        if (number % 2 == 0)
-            return false;
-        for (int i = 3; i * i <= number; i += 2) {
-            if (number % i == 0)
-                return false;
-        }
-        return true;
+                .allMatch(n -> {
+                    var bd = BigDecimalMath.getBigDecimal(n);
+                    return bd.signum() != -1
+                            && BigDecimalMath.isIntValue(bd)
+                            && NumberMath.isPrime(BigDecimalMath.getBigInteger(bd));
+                });
     }
 }
