@@ -28,7 +28,8 @@ public class CondExprIsPrime extends PropertyConditional<Number> {
                 CondExprIsPrime.class,
                 "numbers",
                 ConditionalType.BE,
-                "[a] prime [number[s]]"
+                "[a] prime [number[s]]",
+                "prime"
         );
     }
 
