@@ -2,7 +2,7 @@
 
 ### What is Skript?
 
-    Skript is a Spigot plugin for Minecraft servers, created by Njol back in 2011. The aim of Skript has been to act as an easy hands-on solution for Minecraft server modification. Plugin development often requires a lot of time to learn and become proficient with Java, that is if you don't just pay someone else to do it for you. Skript code is interpreted from plaintext side, and can be loaded and reloaded on the fly in-game, without any need to compile and build. 
+Skript is a Spigot plugin for Minecraft servers, created by Njol back in 2011. The aim of Skript has been to act as an easy hands-on solution for Minecraft server modification. Plugin development often requires a lot of time to learn and become proficient with Java, that is if you don't just pay someone else to do it for you. Skript code is interpreted from plaintext side, and can be loaded and reloaded on the fly in-game, without any need to compile and build. 
 
 Valid Skript code looks like this:
 ```vba
