@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import static io.github.syst3ms.skriptparser.util.NumberUtils.parseInt;
+import static io.github.syst3ms.skriptparser.util.math.NumberMath.parseInt;
 
 public class TimeUtils {
 
