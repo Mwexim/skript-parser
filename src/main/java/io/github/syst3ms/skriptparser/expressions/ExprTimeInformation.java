@@ -3,11 +3,12 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
+import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.Time;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -44,13 +45,13 @@ public class ExprTimeInformation extends PropertyExpression<Number, Time> {
 		return Optional.of(times -> {
 			switch (parseMark) {
 				case 0:
-					return new Number[] {times[0].getHour()};
+					return new Number[] {BigInteger.valueOf(times[0].getHour())};
 				case 1:
-					return new Number[] {times[0].getMinute()};
+					return new Number[] {BigInteger.valueOf(times[0].getMinute())};
 				case 2:
-					return new Number[] {times[0].getSecond()};
+					return new Number[] {BigInteger.valueOf(times[0].getSecond())};
 				case 3:
-					return new Number[] {times[0].getMillis()};
+					return new Number[] {BigInteger.valueOf(times[0].getMillis())};
 				default:
 					throw new IllegalStateException();
 			}

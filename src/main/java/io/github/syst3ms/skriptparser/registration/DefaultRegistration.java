@@ -1,8 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.types.Type;
-import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
@@ -214,33 +212,6 @@ public class DefaultRegistration {
                     }
                 })
                 .register();
-
-        registration.newType(Time.class, "time", "time@s")
-                .literalParser(s -> TimeUtils.parseTime(s).orElse(null))
-                .toStringFunction(Time::toString)
-                .arithmetic(new Arithmetic<Time, Duration>() {
-                    @Override
-                    public Duration difference(Time first, Time second) {
-                        return first.difference(second);
-                    }
-
-                    @Override
-                    public Time add(Time value, Duration difference) {
-                        return value.plus(difference);
-                    }
-
-                    @Override
-                    public Time subtract(Time value, Duration difference) {
-                        return value.minus(difference);
-                    }
-
-                    @Override
-                    public Class<? extends Duration> getRelativeType() {
-                        return Duration.class;
-                    }
-                })
-                .register();
-
 
         registration.newType(Time.class, "time", "time@s")
                 .literalParser(s -> TimeUtils.parseTime(s).orElse(null))

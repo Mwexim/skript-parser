@@ -9,6 +9,8 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.Time;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
+
 /**
  * Midnight and noon time constants and the ability to use
  * expressions like {@code 12 o' clock} for literal usage.
@@ -30,7 +32,7 @@ public class LitTimeConstants implements Literal<Time> {
         );
     }
 
-    private Literal<Long> hours;
+    private Literal<BigInteger> hours;
     private boolean onClock;
     private boolean midnight;
 
@@ -40,10 +42,11 @@ public class LitTimeConstants implements Literal<Time> {
         onClock = matchedPattern == 1;
         midnight = parseContext.getParseMark() == 0;
         if (onClock) {
-            hours = (Literal<Long>) expressions[0];
+            hours = (Literal<BigInteger>) expressions[0];
             if (hours.getSingle().isPresent()) {
-                long h = hours.getSingle().get();
-                if (h < 0 || 24 < h) {
+                var h = hours.getSingle().get();
+                if (h.compareTo(BigInteger.ZERO) < 0
+                        || h.compareTo(BigInteger.valueOf(24)) > 0) {
                     parseContext.getLogger().error("The given hour ('"
                                     + h + "') is not in between 0 and 24",
                             ErrorType.SEMANTIC_ERROR
