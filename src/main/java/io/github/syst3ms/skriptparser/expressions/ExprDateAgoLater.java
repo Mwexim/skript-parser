@@ -21,11 +21,11 @@ import java.util.Optional;
  * @since ALPHA
  * @author Mwexim
  */
-public class ExprAgoLater implements Expression<SkriptDate> {
+public class ExprDateAgoLater implements Expression<SkriptDate> {
 
 	static {
 		Parser.getMainRegistration().addExpression(
-				ExprAgoLater.class,
+				ExprDateAgoLater.class,
 				SkriptDate.class,
 				true,
 				3,

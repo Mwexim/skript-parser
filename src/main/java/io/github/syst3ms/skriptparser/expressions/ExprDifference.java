@@ -39,18 +39,32 @@ public class ExprDifference implements Expression<Object> {
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        first = (Expression<Object>) expressions[0];
-        second = (Expression<Object>) expressions[1];
+        var converted = Expression.convertPair(expressions[0], expressions[1]);
+        first = (Expression<Object>) converted.getFirst();
+        second = (Expression<Object>) converted.getSecond();
+
         var commonType = TypeManager.getByClass(
                 ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())
         );
-        if (commonType.isEmpty())
+
+        if (commonType.isEmpty()) {
             commonType = TypeManager.getByClassExact(Object.class);
+        }
         var type = commonType.orElseThrow(AssertionError::new);
         var arithmetic = type.getArithmetic();
         commonSuperClass = commonType.get().getTypeClass();
         if (arithmetic.isEmpty()) {
-            parseContext.getLogger().error("Can't compare these two values", ErrorType.SEMANTIC_ERROR);
+            var firstType = TypeManager.getByClass(first.getReturnType());
+            var secondType = TypeManager.getByClass(second.getReturnType());
+            assert firstType.isPresent() && secondType.isPresent();
+            parseContext.getLogger().error(
+                    "Can't compare these two values"
+                            + " (types '"
+                            + firstType.get().getBaseName()
+                            + "' and '"
+                            + secondType.get().getBaseName()
+                            + "' are inconvertible)",
+                    ErrorType.SEMANTIC_ERROR);
             return false;
         }
         math = arithmetic.get();

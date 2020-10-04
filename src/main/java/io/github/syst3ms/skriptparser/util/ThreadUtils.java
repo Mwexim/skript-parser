@@ -39,4 +39,14 @@ public class ThreadUtils {
 		scheduler.scheduleAtFixedRate(code, duration.toMillis(), duration.toMillis(), TimeUnit.MILLISECONDS);
 	}
 
+	/**
+	 * Runs certain code periodically.
+	 * @param code the runnable that needs to be executed
+	 * @param initialDelay the initial delay
+	 * @param duration the delay
+	 */
+	public static void runPeriodically(Runnable code, Duration initialDelay, Duration duration) {
+		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+		scheduler.scheduleAtFixedRate(code, initialDelay.toMillis(), duration.toMillis(), TimeUnit.MILLISECONDS);
+	}
 }
