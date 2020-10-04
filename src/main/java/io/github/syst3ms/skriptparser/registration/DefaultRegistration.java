@@ -9,6 +9,7 @@ import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
+import io.github.syst3ms.skriptparser.util.Time;
 import io.github.syst3ms.skriptparser.util.TimeUtils;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 
@@ -162,6 +163,7 @@ public class DefaultRegistration {
                     })
                     .toStringFunction(String::valueOf)
                     .register();
+
         registration.newType(Duration.class, "duration", "duration@s")
                 .literalParser(s -> TimeUtils.parseDuration(s).orElse(null))
                 .toStringFunction(TimeUtils::toStringDuration)
@@ -187,6 +189,7 @@ public class DefaultRegistration {
                     }
                 })
                 .register();
+
         registration.newType(SkriptDate.class, "date", "date@s")
                 .toStringFunction(SkriptDate::toString)
                 .arithmetic(new Arithmetic<SkriptDate, Duration>() {
@@ -212,10 +215,57 @@ public class DefaultRegistration {
                 })
                 .register();
 
-        registration.newType(Type.class, "type", "type@s")
-                .literalParser(s -> TypeManager.getByExactName(s.toLowerCase())
-		                .orElse(null))
-                .toStringFunction(Type::getBaseName)
+        registration.newType(Time.class, "time", "time@s")
+                .literalParser(s -> TimeUtils.parseTime(s).orElse(null))
+                .toStringFunction(Time::toString)
+                .arithmetic(new Arithmetic<Time, Duration>() {
+                    @Override
+                    public Duration difference(Time first, Time second) {
+                        return first.difference(second);
+                    }
+
+                    @Override
+                    public Time add(Time value, Duration difference) {
+                        return value.plus(difference);
+                    }
+
+                    @Override
+                    public Time subtract(Time value, Duration difference) {
+                        return value.minus(difference);
+                    }
+
+                    @Override
+                    public Class<? extends Duration> getRelativeType() {
+                        return Duration.class;
+                    }
+                })
+                .register();
+
+
+        registration.newType(Time.class, "time", "time@s")
+                .literalParser(s -> TimeUtils.parseTime(s).orElse(null))
+                .toStringFunction(Time::toString)
+                .arithmetic(new Arithmetic<Time, Duration>() {
+                    @Override
+                    public Duration difference(Time first, Time second) {
+                        return first.difference(second);
+                    }
+
+                    @Override
+                    public Time add(Time value, Duration difference) {
+                        return value.plus(difference);
+                    }
+
+                    @Override
+                    public Time subtract(Time value, Duration difference) {
+                        return value.minus(difference);
+                    }
+
+                    @Override
+                    public Class<? extends Duration> getRelativeType() {
+                        return Duration.class;
+                    }
+                })
                 .register();
 
         /*
@@ -296,7 +346,8 @@ public class DefaultRegistration {
                 return Optional.of(BigInteger.valueOf(n.longValue()));
             }
         });
-      
+        registration.addConverter(SkriptDate.class, Time.class, da -> Optional.of(Time.of(da)));
+
         registration.register(); // Ignoring logs here, we control the input
     }
 }
