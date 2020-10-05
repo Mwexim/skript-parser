@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
@@ -35,7 +34,7 @@ public class ExprPrimeNumber implements Expression<Number> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(Expression<?> @NotNull [] expressions, int matchedPattern, @NotNull ParseContext parseContext) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		ordinal = (Expression<BigInteger>) expressions[0];
 		return true;
 	}
@@ -43,7 +42,16 @@ public class ExprPrimeNumber implements Expression<Number> {
 	@Override
 	public Number[] getValues(TriggerContext ctx) {
 		return ordinal.getSingle(ctx)
+				.filter(n -> n.compareTo(BigInteger.ZERO) > 0)
 				.map(n -> {
+					if (NumberMath.getCachedPrimes().size() <= n.intValue()) {
+						return new Number[] {
+								NumberMath.getCachedPrimes().stream()
+										.sorted()
+										.skip(n.intValue() - 1)
+										.findFirst().orElseThrow(AssertionError::new)
+						};
+					}
 					int candidate, count;
 					for (candidate = 2, count = 0; count < n.intValue(); candidate++) {
 						if (NumberMath.isPrime(BigInteger.valueOf(candidate)))
@@ -57,6 +65,6 @@ public class ExprPrimeNumber implements Expression<Number> {
 
 	@Override
 	public String toString(@Nullable TriggerContext ctx, boolean debug) {
-		return "prime number " + ordinal.toString(ctx, debug);
+		return "prime no. " + ordinal.toString(ctx, debug);
 	}
 }

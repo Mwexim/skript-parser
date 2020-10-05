@@ -3,6 +3,10 @@ package io.github.syst3ms.skriptparser.util.math;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -14,6 +18,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class NumberMath {
     private static final BigDecimal RADIANS_TO_DEGREES = new BigDecimal(180).divide(BigDecimalMath.pi(BigDecimalMath.DEFAULT_CONTEXT), BigDecimalMath.DEFAULT_CONTEXT);
     private static final BigDecimal DEGREES_TO_RADIANS = BigDecimalMath.pi(BigDecimalMath.DEFAULT_CONTEXT).divide(new BigDecimal(180), BigDecimalMath.DEFAULT_CONTEXT);
+    // All cached primes. Some prime numbers are cached by default.
+    private static final Set<BigInteger> cachedPrimes = new HashSet<>(sieveOfEratosthenes(1000));
 
     public static Number abs(Number n) {
         if (n instanceof Long) {
@@ -202,18 +208,30 @@ public class NumberMath {
      * @return whether or not this number is a prime
      */
     public static boolean isPrime(BigInteger number) {
-        // Check via BigInteger.isProbablePrime(certainty)
+        // 0. Check if the number is of the form 6x±1 for values higher than 3.
+        if (!number.subtract(BigInteger.ONE).mod(BigInteger.valueOf(6)).equals(BigInteger.ZERO)
+                && !number.add(BigInteger.ONE).mod(BigInteger.valueOf(6)).equals(BigInteger.ZERO)
+                && number.compareTo(BigInteger.valueOf(3)) > 0)
+            return false;
+
+        // 1. Check in the cached primes.
+        if (cachedPrimes.contains(number))
+            return true;
+
+        // 2. Check via BigInteger.isProbablePrime(certainty)
+        // If this returns false, it is definitely not a prime.
         if (!number.isProbablePrime(5))
             return false;
 
-        // Check if even;
-        var two = BigInteger.TWO;
-        if (!two.equals(number) && BigInteger.ZERO.equals(number.mod(two)))
-            return false;
+        // 3. If the number is not too high, we can compute new primes and add them to the cached list.
+        if (number.compareTo(BigInteger.valueOf(10_000_000)) < 0) {
+            cachedPrimes.addAll(sieveOfEratosthenes(number.intValue() + 1));
+            return cachedPrimes.contains(number);
+        }
 
-        // Find divisor if any from 3 to sqrt(number)
-        for (BigInteger i = BigInteger.valueOf(3); i.multiply(i).compareTo(number) < 1; i = i.add(two)) {
-            if (BigInteger.ZERO.equals(number.mod(i))) //check if 'i' is divisor of 'number'
+        // 4. Find the prime using trail division, only accounting for 6x+1 or 6x-1.
+        for (BigInteger i = BigInteger.valueOf(3); i.multiply(i).compareTo(number) < 1; i = i.add(BigInteger.TWO)) {
+            if (BigInteger.ZERO.equals(number.mod(i))) // Check if i is divisor of number
                 return false;
         }
         return true;
@@ -355,8 +373,41 @@ public class NumberMath {
         }
     }
 
+    /**
+     * Java program to print all primes smaller than or equal to
+     * n using Sieve of Eratosthenes
+     */
+    private static List<BigInteger> sieveOfEratosthenes(int n) {
+        boolean[] primes = new boolean[n+1];
+        for (int i = 0; i < n; i++)
+            primes[i] = true;
+
+        for (int p = 2; p * p <= n; p++) {
+            // If prime[p] is not changed, then it is a prime
+            if (primes[p]) {
+                // Update all multiples of p
+                for (int i = p * 2; i <= n; i += p)
+                    primes[i] = false;
+            }
+        }
+
+        List<BigInteger> computedPrimes = new ArrayList<>();
+        for (int i = 2; i <= n; i++) {
+            if (primes[i])
+                computedPrimes.add(BigInteger.valueOf(i));
+        }
+        return computedPrimes;
+    }
+
     private static BigDecimal bigToBigDecimal(Number n) {
         return n instanceof BigDecimal ? (BigDecimal) n : new BigDecimal((BigInteger) n);
     }
 
+    public static Set<BigInteger> getCachedPrimes() {
+        return cachedPrimes;
+    }
+
+    public static void addCachedPrimes(int until) {
+        cachedPrimes.addAll(sieveOfEratosthenes(until));
+    }
 }
