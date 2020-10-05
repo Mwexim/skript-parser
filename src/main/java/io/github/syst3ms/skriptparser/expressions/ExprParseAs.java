@@ -77,9 +77,7 @@ public class ExprParseAs implements Expression<Object> {
 				.map(s -> {
 					if (parseTo == SkriptDate.class) {
 						SimpleDateFormat parseFormat = new SimpleDateFormat(
-								((Optional<String>) format.getSingle(ctx))
-										.filter(__ -> useFormat)
-										.orElse(SkriptDate.DATE_FORMAT),
+								useFormat ? ((Optional<String>) format.getSingle(ctx)).orElse(SkriptDate.DATE_FORMAT) : SkriptDate.DATE_FORMAT,
 								SkriptDate.DATE_LOCALE
 						);
 						try {
