@@ -239,8 +239,6 @@ public interface Expression<T> extends SyntaxElement {
                     ClassUtils.getCommonSuperclass(secondConverted.get().getReturnType(), first.getReturnType())
             );
             if (commonType.isPresent() && !commonType.get().equals(objectType)) {
-                System.out.println("- " + first.getSingle(TriggerContext.DUMMY));
-                System.out.println(secondConverted.get().getSingle(TriggerContext.DUMMY));
                 return new Pair<>(first, secondConverted.get());
             }
         }
