@@ -4,9 +4,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -19,7 +18,7 @@ public class NumberMath {
     private static final BigDecimal RADIANS_TO_DEGREES = new BigDecimal(180).divide(BigDecimalMath.pi(BigDecimalMath.DEFAULT_CONTEXT), BigDecimalMath.DEFAULT_CONTEXT);
     private static final BigDecimal DEGREES_TO_RADIANS = BigDecimalMath.pi(BigDecimalMath.DEFAULT_CONTEXT).divide(new BigDecimal(180), BigDecimalMath.DEFAULT_CONTEXT);
     // All cached primes. Some prime numbers are cached by default.
-    private static final Set<BigInteger> cachedPrimes = new HashSet<>(sieveOfEratosthenes(1000));
+    private static final LinkedList<Integer> cachedPrimes = new LinkedList<>(sieveOfEratosthenes(1000));
 
     public static Number abs(Number n) {
         if (n instanceof Long) {
@@ -208,30 +207,39 @@ public class NumberMath {
      * @return whether or not this number is a prime
      */
     public static boolean isPrime(BigInteger number) {
-        // 0. Check if the number is of the form 6x±1 for values higher than 3.
+        // 1. Check if the number is of the form 6x±1 for values higher than 3.
         if (!number.subtract(BigInteger.ONE).mod(BigInteger.valueOf(6)).equals(BigInteger.ZERO)
                 && !number.add(BigInteger.ONE).mod(BigInteger.valueOf(6)).equals(BigInteger.ZERO)
                 && number.compareTo(BigInteger.valueOf(3)) > 0)
             return false;
 
-        // 1. Check in the cached primes.
-        if (cachedPrimes.contains(number))
+        // 2. Check in the cached primes.
+        if (cachedPrimes.contains(number.intValue()))
             return true;
 
-        // 2. Check via BigInteger.isProbablePrime(certainty)
-        // If this returns false, it is definitely not a prime.
-        if (!number.isProbablePrime(5))
-            return false;
-
         // 3. If the number is not too high, we can compute new primes and add them to the cached list.
-        if (number.compareTo(BigInteger.valueOf(10_000_000)) < 0) {
-            cachedPrimes.addAll(sieveOfEratosthenes(number.intValue() + 1));
-            return cachedPrimes.contains(number);
+        // Prevents costly ln() invocation.
+        BigInteger threshold =
+                number.intValue() - cachedPrimes.getLast() < 100_000
+                        ? BigInteger.ZERO
+                        : number.divide(BigInteger.valueOf(ln(number).intValue()))
+                                .subtract(BigInteger.valueOf(cachedPrimes.size()));
+        // We only want to compute a maximum of 100 000 new primes at a time.
+        if (number.compareTo(BigInteger.valueOf(10_000_000)) < 0
+                && threshold.compareTo(BigInteger.valueOf(100_000)) < 0) {
+            cachedPrimes.addAll(sieveOfEratosthenes(cachedPrimes.getLast() + 1, number.intValue()));
+            return cachedPrimes.contains(number.intValue());
         }
 
         // 4. Find the prime using trail division, only accounting for 6x+1 or 6x-1.
-        for (BigInteger i = BigInteger.valueOf(3); i.multiply(i).compareTo(number) < 1; i = i.add(BigInteger.TWO)) {
-            if (BigInteger.ZERO.equals(number.mod(i))) // Check if i is divisor of number
+        for (BigInteger i = BigInteger.ONE;
+             i.multiply(i.multiply(BigInteger.valueOf(36))).compareTo(number) < 1;
+             i = i.add(BigInteger.ONE)) {
+            var lower = i.multiply(BigInteger.valueOf(6)).subtract(BigInteger.ONE);
+            var upper = i.multiply(BigInteger.valueOf(6)).add(BigInteger.ONE);
+            // Check if lower or upper is divisor of number
+            if (BigInteger.ZERO.equals(number.mod(lower))
+                    || BigInteger.ZERO.equals(number.mod(upper)))
                 return false;
         }
         return true;
@@ -375,26 +383,54 @@ public class NumberMath {
 
     /**
      * Java program to print all primes smaller than or equal to
-     * n using Sieve of Eratosthenes
+     * n using Sieve of Eratosthenes.
+     * @param end the end, exclusive
+     * @return the primes up until the end bound
      */
-    private static List<BigInteger> sieveOfEratosthenes(int n) {
-        boolean[] primes = new boolean[n+1];
-        for (int i = 0; i < n; i++)
-            primes[i] = true;
+    private static List<Integer> sieveOfEratosthenes(int end) {
+        return sieveOfEratosthenes(2, end);
+    }
 
-        for (int p = 2; p * p <= n; p++) {
-            // If prime[p] is not changed, then it is a prime
-            if (primes[p]) {
-                // Update all multiples of p
-                for (int i = p * 2; i <= n; i += p)
-                    primes[i] = false;
+    /**
+     * Java program to print all primes smaller than or equal to
+     * n using Sieve of Eratosthenes.
+     * @param start the start, inclusive
+     * @param end the end, inclusive
+     * @return the primes between the two bounds
+     * @author Syst3ms
+     */
+    private static List<Integer> sieveOfEratosthenes(int start, int end) {
+        // Start and end are inclusive
+        int size = end - start + 1;
+        boolean[] isComposite = new boolean[size];
+        List<Integer> computedPrimes = new ArrayList<>();
+
+        // We first disqualify multiples of primes that have been generated before
+        if (cachedPrimes != null) {
+            for (int gen : cachedPrimes)  {
+                if (gen * gen > end)
+                    break;
+
+                int offset = (gen - start % gen) % gen;
+                for (int i = offset; i < size; i += gen) {
+                    isComposite[i] |= (start + i) % gen == 0;
+                }
             }
         }
-
-        List<BigInteger> computedPrimes = new ArrayList<>();
-        for (int i = 2; i <= n; i++) {
-            if (primes[i])
-                computedPrimes.add(BigInteger.valueOf(i));
+        for (int p = start; p < start + size; p++) {
+            if (!isComposite[p - start]) {
+                computedPrimes.add(p);
+                int mult;
+                try {
+                    mult = Math.multiplyExact(p, p);
+                } catch (ArithmeticException ex) {
+                    // Overflow is present. This means we don't have to change other indices.
+                    continue;
+                }
+                for (int i = mult; i < size + start; i += p) {
+                    isComposite[i - start] = true;
+                }
+            }
         }
         return computedPrimes;
     }
@@ -403,11 +439,7 @@ public class NumberMath {
         return n instanceof BigDecimal ? (BigDecimal) n : new BigDecimal((BigInteger) n);
     }
 
-    public static Set<BigInteger> getCachedPrimes() {
+    public static LinkedList<Integer> getCachedPrimes() {
         return cachedPrimes;
-    }
-
-    public static void addCachedPrimes(int until) {
-        cachedPrimes.addAll(sieveOfEratosthenes(until));
     }
 }
