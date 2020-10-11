@@ -6,8 +6,6 @@ import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
-import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * Length of a string.
@@ -31,8 +29,8 @@ public class ExprLength extends PropertyExpression<Number, String> {
     }
 
     @Override
-    public Optional<? extends Function<? super String[], ? extends Number[]>> getPropertyFunction() {
-        return Optional.of(strings -> new Number[]{BigInteger.valueOf(strings[0].length())});
+    public Number[] getProperty(String[] owners) {
+        return new Number[] {BigInteger.valueOf(owners[0].length())};
     }
 
     @Override

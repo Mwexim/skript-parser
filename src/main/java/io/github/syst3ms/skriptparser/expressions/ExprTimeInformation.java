@@ -9,8 +9,6 @@ import io.github.syst3ms.skriptparser.util.Time;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
-import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * Information of a certain time.
@@ -40,30 +38,28 @@ public class ExprTimeInformation extends PropertyExpression<Number, Time> {
 
 	int parseMark;
 
-	@Override
-	public Optional<? extends Function<? super Time[], ? extends Number[]>> getPropertyFunction() {
-		return Optional.of(times -> {
-			switch (parseMark) {
-				case 0:
-					return new Number[] {BigInteger.valueOf(times[0].getHour())};
-				case 1:
-					return new Number[] {BigInteger.valueOf(times[0].getMinute())};
-				case 2:
-					return new Number[] {BigInteger.valueOf(times[0].getSecond())};
-				case 3:
-					return new Number[] {BigInteger.valueOf(times[0].getMillis())};
-				default:
-					throw new IllegalStateException();
-			}
-		});
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		parseMark = parseContext.getParseMark();
 		setOwner((Expression<Time>) expressions[0]);
 		return true;
+	}
+
+	@Override
+	public Number[] getProperty(Time[] owners) {
+		switch (parseMark) {
+			case 0:
+				return new Number[] {BigInteger.valueOf(owners[0].getHour())};
+			case 1:
+				return new Number[] {BigInteger.valueOf(owners[0].getMinute())};
+			case 2:
+				return new Number[] {BigInteger.valueOf(owners[0].getSecond())};
+			case 3:
+				return new Number[] {BigInteger.valueOf(owners[0].getMillis())};
+			default:
+				throw new IllegalStateException();
+		}
 	}
 
 	@Override
