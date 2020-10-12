@@ -46,10 +46,7 @@ public class ExprPrimeNumber implements Expression<Number> {
 				.map(n -> {
 					if (NumberMath.getCachedPrimes().size() <= n.intValue()) {
 						return new Number[] {
-								NumberMath.getCachedPrimes().stream()
-										.sorted()
-										.skip(n.intValue() - 1)
-										.findFirst().orElseThrow(AssertionError::new)
+								NumberMath.getCachedPrimes().get(n.intValue())
 						};
 					}
 					int candidate, count;

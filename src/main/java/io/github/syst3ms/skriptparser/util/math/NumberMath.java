@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -18,7 +18,7 @@ public class NumberMath {
     private static final BigDecimal RADIANS_TO_DEGREES = new BigDecimal(180).divide(BigDecimalMath.pi(BigDecimalMath.DEFAULT_CONTEXT), BigDecimalMath.DEFAULT_CONTEXT);
     private static final BigDecimal DEGREES_TO_RADIANS = BigDecimalMath.pi(BigDecimalMath.DEFAULT_CONTEXT).divide(new BigDecimal(180), BigDecimalMath.DEFAULT_CONTEXT);
     // All cached primes. Some prime numbers are cached by default.
-    private static final LinkedList<Integer> cachedPrimes = new LinkedList<>(sieveOfEratosthenes(1000));
+    private static final ArrayList<Integer> cachedPrimes = new ArrayList<>(sieveOfEratosthenes(1000));
 
     public static Number abs(Number n) {
         if (n instanceof Long) {
@@ -214,20 +214,20 @@ public class NumberMath {
             return false;
 
         // 2. Check in the cached primes.
-        if (cachedPrimes.contains(number.intValue()))
+        if (Collections.binarySearch(cachedPrimes, number.intValue()) >= 0)
             return true;
 
         // 3. If the number is not too high, we can compute new primes and add them to the cached list.
         // Prevents costly ln() invocation.
         BigInteger threshold =
-                number.intValue() - cachedPrimes.getLast() < 100_000
+                number.intValue() - cachedPrimes.get(cachedPrimes.size() - 1) < 10_000
                         ? BigInteger.ZERO
                         : number.divide(BigInteger.valueOf(ln(number).intValue()))
                                 .subtract(BigInteger.valueOf(cachedPrimes.size()));
         // We only want to compute a maximum of 100 000 new primes at a time.
         if (number.compareTo(BigInteger.valueOf(10_000_000)) < 0
-                && threshold.compareTo(BigInteger.valueOf(100_000)) < 0) {
-            cachedPrimes.addAll(sieveOfEratosthenes(cachedPrimes.getLast() + 1, number.intValue()));
+                && threshold.compareTo(BigInteger.valueOf(10_000)) < 0) {
+            cachedPrimes.addAll(sieveOfEratosthenes(cachedPrimes.get(cachedPrimes.size() - 1) + 1, number.intValue()));
             return cachedPrimes.contains(number.intValue());
         }
 
@@ -439,7 +439,7 @@ public class NumberMath {
         return n instanceof BigDecimal ? (BigDecimal) n : new BigDecimal((BigInteger) n);
     }
 
-    public static LinkedList<Integer> getCachedPrimes() {
+    public static ArrayList<Integer> getCachedPrimes() {
         return cachedPrimes;
     }
 }
