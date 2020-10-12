@@ -10,6 +10,7 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.Optional;
 
@@ -57,9 +58,11 @@ public class ExprAmount extends PropertyExpression<Number, Object> {
 		if (recursive) {
 			Optional<Object> var = ((Variable<?>) getOwner()).getRaw(ctx);
 			if (var.isPresent())
-				return new Number[] {getRecursiveSize((Map<String, ?>) var.get())}; // Should already be a Map
+				return new Number[] {
+						BigInteger.valueOf(getRecursiveSize((Map<String, ?>) var.get()))
+			};
 		}
-		return new Number[] {getOwner().getValues(ctx).length};
+		return new Number[] {BigInteger.valueOf(getOwner().getValues(ctx).length)};
 	}
 
 	@Override

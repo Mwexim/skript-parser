@@ -35,6 +35,7 @@ public abstract class PropertyConditional<P> extends ConditionalExpression imple
     private String performerName;
     private ConditionalType conditionalType;
     private String propertyName;
+    private String propertyRepresentation;
 
     public Expression<P> getPerformer() {
         return performer;
@@ -73,7 +74,8 @@ public abstract class PropertyConditional<P> extends ConditionalExpression imple
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return toString(ctx, debug, performer, conditionalType, propertyName);
+        return toString(ctx, debug, performer, conditionalType,
+                propertyRepresentation != null ? propertyRepresentation :propertyName);
     }
 
     private String toString(@Nullable TriggerContext ctx, boolean debug,
@@ -98,11 +100,13 @@ public abstract class PropertyConditional<P> extends ConditionalExpression imple
     @SuppressWarnings("unchecked")
     @Override
     public void register(SkriptRegistration reg, Object... args) {
-        if (args.length != 3)
-            throw new IllegalArgumentException("A PropertyCondition needs exactly 3 arguments");
+        if (args.length < 3 || 4 < args.length)
+            throw new IllegalArgumentException("A PropertyCondition needs exactly 3 or 4 arguments");
         performerName = (String) args[0];
         conditionalType = (ConditionalType) args[1];
         propertyName = (String) args[2];
+        if (args.length == 4)
+            propertyRepresentation = (String) args[3];
 
         reg.addExpression(getClass(),
                 Boolean.class,

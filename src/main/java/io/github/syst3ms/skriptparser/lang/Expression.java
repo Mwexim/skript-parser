@@ -7,6 +7,7 @@ import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 import io.github.syst3ms.skriptparser.sections.SecLoop;
+import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
@@ -206,41 +207,42 @@ public interface Expression<T> extends SyntaxElement {
      *     <li>If failed, the same instances are returned as a pair.</li>
      * </ul>
      * Otherwise, a pair of the same instances is returned.
+     * Note that all these operation fail if the converted type would be the Object type.
      * @param first the first expression
      * @param second the second expression
      * @return the converted expressions as a pair
      */
     static <T, U> Pair<Expression<?>, Expression<?>> convertPair(Expression<T> first, Expression<U> second) {
-        // If the common superclass of these expressions are not a valid type,
-        // Then we'll need to convert them
+        // If the common superclass is an invalid type or is the Object type representation, we'll need toi convert.
         var commonType = TypeManager.getByClass(
                 ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())
         );
+        Type<Object> objectType = TypeManager.getByClassExact(Object.class).orElseThrow(AssertionError::new);
 
-        if (commonType.isPresent()) {
+        if (commonType.isPresent() && !commonType.get().equals(objectType))
             return new Pair<>(first, second);
-        } else {
-            // We convert the expressions because their types currently are not similar.
-            var firstConverted = first.convertExpression(second.getReturnType());
-            if (firstConverted.isPresent()) {
-                commonType = TypeManager.getByClass(
-                        ClassUtils.getCommonSuperclass(firstConverted.get().getReturnType(), second.getReturnType())
-                );
-                if (commonType.isPresent()) {
-                    return new Pair<>(firstConverted.get(), second);
-                }
-            } else {
-                var secondConverted = second.convertExpression(first.getReturnType());
-                if (secondConverted.isPresent()) {
-                    commonType = TypeManager.getByClass(
-                            ClassUtils.getCommonSuperclass(secondConverted.get().getReturnType(), first.getReturnType())
-                    );
-                    if (commonType.isPresent()) {
-                        return new Pair<>(first, secondConverted.get());
-                    }
-                }
+
+        // We convert the expressions because their types currently are not similar.
+        var firstConverted = first.convertExpression(second.getReturnType());
+        if (firstConverted.isPresent()) {
+            commonType = TypeManager.getByClass(
+                    ClassUtils.getCommonSuperclass(firstConverted.get().getReturnType(), second.getReturnType())
+            );
+            if (commonType.isPresent() && !commonType.get().equals(objectType)) {
+                return new Pair<>(firstConverted.get(), second);
             }
         }
+
+        var secondConverted = second.convertExpression(first.getReturnType());
+        if (secondConverted.isPresent()) {
+            commonType = TypeManager.getByClass(
+                    ClassUtils.getCommonSuperclass(secondConverted.get().getReturnType(), first.getReturnType())
+            );
+            if (commonType.isPresent() && !commonType.get().equals(objectType)) {
+                return new Pair<>(first, secondConverted.get());
+            }
+        }
+
         return new Pair<>(first, second);
     }
 

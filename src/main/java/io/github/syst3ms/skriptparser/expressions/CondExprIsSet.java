@@ -10,7 +10,7 @@ import io.github.syst3ms.skriptparser.lang.properties.PropertyConditional;
  *
  * @name Is Set
  * @type CONDITION
- * @pattern %objects% (is|are)[ not|n't] set
+ * @pattern %~objects% (is|are)[ not|n't] set
  * @since ALPHA
  * @author Syst3ms
  */

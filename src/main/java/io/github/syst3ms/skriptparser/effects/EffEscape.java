@@ -8,6 +8,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
 import java.util.Optional;
 
 /**
@@ -29,12 +30,12 @@ public class EffEscape extends Effect {
         );
     }
 
-    private Expression<Long> amount;
+    private Expression<BigInteger> amount;
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        amount = (Expression<Long>) expressions[0];
+        amount = (Expression<BigInteger>) expressions[0];
         return true;
     }
 
@@ -48,7 +49,7 @@ public class EffEscape extends Effect {
     public Optional<? extends Statement> walk(TriggerContext ctx) {
         if (amount.getSingle(ctx).isEmpty())
             return getNext();
-        long am = amount.getSingle(ctx).get();
+        var am = amount.getSingle(ctx).get().intValue(); // BigInteger can convert to int.
 
         Optional<Statement> current = Optional.of(this);
         while (am > 0) {

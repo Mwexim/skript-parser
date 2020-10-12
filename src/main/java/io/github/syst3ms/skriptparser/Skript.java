@@ -54,7 +54,7 @@ public class Skript extends SkriptAddon {
         }
         for (Trigger trigger : periodicalTriggers) {
             var ctx = new PeriodicalContext();
-            var dur = ((EvtPeriodical) trigger.getEvent()).getDuration().getSingle(ctx).orElseThrow(AssertionError::new);
+            var dur = ((EvtPeriodical) trigger.getEvent()).getDuration().getSingle().orElseThrow(AssertionError::new);
             ThreadUtils.runPeriodically(() -> Statement.runAll(trigger, ctx), dur);
         }
         for (Trigger trigger : whenTriggers) {
