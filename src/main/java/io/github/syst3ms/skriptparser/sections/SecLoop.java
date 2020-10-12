@@ -1,16 +1,15 @@
 package io.github.syst3ms.skriptparser.sections;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.Statement;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.lang.Variable;
+import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.lambda.ArgumentSection;
 import io.github.syst3ms.skriptparser.lang.lambda.SkriptConsumer;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
@@ -20,28 +19,55 @@ import java.util.WeakHashMap;
  * A section that iterates over a collection of elements
  */
 public class SecLoop extends ArgumentSection {
-	private Expression<?> expr;
-	private final transient Map<TriggerContext, Object> current = new WeakHashMap<>();
-	private final transient Map<TriggerContext, Iterator<?>> currentIter = new WeakHashMap<>();
-	private SkriptConsumer<SecLoop> lambda;
-
 	static {
 		Parser.getMainRegistration().addSection(
-			SecLoop.class,
-			"loop %objects%"
+				SecLoop.class,
+				"loop %*integer% times",
+				"loop %objects%"
 		);
 	}
 
+	private Expression<?> expr;
+	private Literal<BigInteger> times;
+	private SkriptConsumer<SecLoop> lambda;
+	private boolean isNumericLoop;
+	private final transient Map<TriggerContext, Object> current = new WeakHashMap<>();
+	private final transient Map<TriggerContext, Iterator<?>> currentIter = new WeakHashMap<>();
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		expr = expressions[0];
-		if (expr.isSingle()) {
-		    parseContext.getLogger().error(
-		    		"Cannot loop a single value",
-				    ErrorType.SEMANTIC_ERROR,
-				    "Remove this loop, because you clearly don't need to loop a single value"
-		    );
-			return false;
+		isNumericLoop = matchedPattern == 0;
+		if (isNumericLoop) {
+			times = (Literal<BigInteger>) expressions[0];
+			var t = ((Optional<BigInteger>) times.getSingle()).orElse(BigInteger.ONE);
+			if (t.intValue() <= 0) {
+				parseContext.getLogger().error("Cannot loop a negative or zero amount of times", ErrorType.SEMANTIC_ERROR);
+				return false;
+			} else if (t.intValue() == 1) {
+				parseContext.getLogger().error(
+						"Cannot loop a single time",
+						ErrorType.SEMANTIC_ERROR,
+						"Remove this loop, because looping something one time can be achieved without a loop-statement"
+				);
+				return false;
+			}
+
+			var range = (BigInteger[]) Ranges.getRange(BigInteger.class).orElseThrow()
+					.getFunction()
+					// Upper bound is inclusive
+					.apply(BigInteger.ONE, t);
+			expr = new SimpleLiteral<>(BigInteger.class, range);
+		} else {
+			expr = expressions[0];
+			if (expr.isSingle()) {
+				parseContext.getLogger().error(
+						"Cannot loop a single value",
+						ErrorType.SEMANTIC_ERROR,
+						"Remove this loop, because you clearly don't need to loop a single value"
+				);
+				return false;
+			}
 		}
 		lambda = SkriptConsumer.create(this);
 		return true;
@@ -75,12 +101,12 @@ public class SecLoop extends ArgumentSection {
 
 	@Override
 	public String toString(@Nullable TriggerContext ctx, boolean debug) {
-		return "loop " + expr.toString(ctx, debug);
+		return "loop " + (isNumericLoop ? times.toString(ctx, debug) + " times" : expr.toString(ctx, debug));
 	}
 
 	@Nullable
-	public Object getCurrent(TriggerContext e) {
-		return current.get(e);
+	public Object getCurrent(TriggerContext ctx) {
+		return current.get(ctx);
 	}
 
     /**
