@@ -22,13 +22,13 @@ public class SecLoop extends ArgumentSection {
 	static {
 		Parser.getMainRegistration().addSection(
 				SecLoop.class,
-				"loop %*integer% times",
+				"loop %integer% times",
 				"loop %objects%"
 		);
 	}
 
 	private Expression<?> expr;
-	private Literal<BigInteger> times;
+	private Expression<BigInteger> times;
 	private SkriptConsumer<SecLoop> lambda;
 	private boolean isNumericLoop;
 	private final transient Map<TriggerContext, Object> current = new WeakHashMap<>();
@@ -39,25 +39,22 @@ public class SecLoop extends ArgumentSection {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		isNumericLoop = matchedPattern == 0;
 		if (isNumericLoop) {
-			times = (Literal<BigInteger>) expressions[0];
-			var t = ((Optional<BigInteger>) times.getSingle()).orElse(BigInteger.ONE);
-			if (t.intValue() <= 0) {
-				parseContext.getLogger().error("Cannot loop a negative or zero amount of times", ErrorType.SEMANTIC_ERROR);
-				return false;
-			} else if (t.intValue() == 1) {
-				parseContext.getLogger().error(
-						"Cannot loop a single time",
-						ErrorType.SEMANTIC_ERROR,
-						"Remove this loop, because looping something one time can be achieved without a loop-statement"
-				);
-				return false;
+			times = (Expression<BigInteger>) expressions[0];
+			// We can do some certainty checks with Literals.
+			if (times instanceof Literal<?>) {
+				var t = ((Optional<BigInteger>) ((Literal<BigInteger>) times).getSingle()).orElse(BigInteger.ONE);
+				if (t.intValue() <= 0) {
+					parseContext.getLogger().error("Cannot loop a negative or zero amount of times", ErrorType.SEMANTIC_ERROR);
+					return false;
+				} else if (t.intValue() == 1) {
+					parseContext.getLogger().error(
+							"Cannot loop a single time",
+							ErrorType.SEMANTIC_ERROR,
+							"Remove this loop, because looping something once can be achieved without a loop-statement"
+					);
+					return false;
+				}
 			}
-
-			var range = (BigInteger[]) Ranges.getRange(BigInteger.class).orElseThrow()
-					.getFunction()
-					// Upper bound is inclusive
-					.apply(BigInteger.ONE, t);
-			expr = new SimpleLiteral<>(BigInteger.class, range);
 		} else {
 			expr = expressions[0];
 			if (expr.isSingle()) {
@@ -75,6 +72,20 @@ public class SecLoop extends ArgumentSection {
 
 	@Override
 	public Optional<? extends Statement> walk(TriggerContext ctx) {
+		if (isNumericLoop) {
+			var range = (BigInteger[]) times.getSingle(ctx)
+					.map(t -> Ranges.getRange(BigInteger.class).orElseThrow()
+							.getFunction()
+							.apply(BigInteger.ONE, t)) // Upper bound is inclusive
+					.orElse(new BigInteger[0]);
+			/*
+			 * We just set the looped expression to a range from 1 to the amount of times.
+			 * This allows the usage of 'loop-number' to see the iteration,
+			 * something that is lacking in the main Skript project.
+			 */
+			expr = new SimpleLiteral<>(BigInteger.class, range);
+		}
+
 		Iterator<?> iter = currentIter.get(ctx);
 		if (iter == null) {
 			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(ctx) : expr.iterator(ctx);
