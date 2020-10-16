@@ -36,7 +36,7 @@ public abstract class ExecutableExpression<T>
     public void register(SkriptRegistration reg, Object... args) {
         Class<T> type = (Class<T>) args[0];
         boolean isSingle = (boolean) args[1];
-        String[] patterns = (String[]) Arrays.copyOfRange(args, 2, args.length);
+        String[] patterns = Arrays.copyOfRange(args, 2, args.length, String[].class);
 
         // The actual registration
         reg.addExpression(getClass(), type, isSingle, patterns);
