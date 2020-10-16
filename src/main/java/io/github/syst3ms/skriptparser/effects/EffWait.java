@@ -29,8 +29,8 @@ import java.util.function.Consumer;
 public class EffWait extends Effect {
     static {
         Parser.getMainRegistration().addEffect(
-            EffWait.class,
-            "(wait|halt) [for] %duration%",
+                EffWait.class,
+                "(wait|halt) [for] %duration%",
                 "(wait|halt) (0:until|1:while) %=boolean% [for %*duration%]"
         );
     }

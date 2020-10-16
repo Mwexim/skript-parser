@@ -74,15 +74,13 @@ public class SecLoop extends ArgumentSection {
 	public Optional<? extends Statement> walk(TriggerContext ctx) {
 		if (isNumericLoop) {
 			var range = (BigInteger[]) times.getSingle(ctx)
+					.filter(t -> t.compareTo(BigInteger.ZERO) > 0)
 					.map(t -> Ranges.getRange(BigInteger.class).orElseThrow()
 							.getFunction()
 							.apply(BigInteger.ONE, t)) // Upper bound is inclusive
 					.orElse(new BigInteger[0]);
-			/*
-			 * We just set the looped expression to a range from 1 to the amount of times.
-			 * This allows the usage of 'loop-number' to see the iteration,
-			 * something that is lacking in the main Skript project.
-			 */
+			// We just set the looped expression to a range from 1 to the amount of times.
+			// This allows the usage of 'loop-number' to get the current iteration
 			expr = new SimpleLiteral<>(BigInteger.class, range);
 		}
 
