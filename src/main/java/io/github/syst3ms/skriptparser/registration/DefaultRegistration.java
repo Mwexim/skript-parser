@@ -173,7 +173,7 @@ public class DefaultRegistration {
 
         registration.newType(Color.class, "color", "color@s")
                 .literalParser(s -> {
-                    var match = Color.COLOR_PATTERN.matcher(s);
+                    var match = Color.COLOR_PATTERN.matcher(s.toLowerCase());
                     if (match.matches()) {
                         return Color.of(s.replaceAll("&", "#"));
                     }

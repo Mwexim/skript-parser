@@ -26,12 +26,20 @@ public class Color {
     public static Color PINK = of(0xff00ff);
     public static Color PURPLE = of(0x800080);
 
-    private final byte red, green, blue;
+    private final int red, green, blue;
 
-    private Color(byte r, byte g, byte b) {
-        red = r;
-        green = g;
-        blue = b;
+    private Color(int r, int g, int b) {
+        if (0 <= r && r < 256
+                && 0 <= g && g < 256
+                && 0 <= b && b < 256) {
+            red = r;
+            green = g;
+            blue = b;
+        } else {
+            throw new IllegalArgumentException(
+                    String.format("Red, green and blue values are not in range 0-255: found %s,%s,%s", r, g, b)
+            );
+        }
     }
 
     /**
@@ -41,7 +49,7 @@ public class Color {
      * @param b the blue value
      * @return a new Color instance
      */
-    public static Color of(byte r, byte g, byte b) {
+    public static Color of(int r, int g, int b) {
         return new Color(r, g, b);
     }
 
@@ -54,7 +62,7 @@ public class Color {
         int r = (hex & 0xFF0000) >> 16;
         int g = (hex & 0xFF00) >> 8;
         int b = (hex & 0xFF);
-        return new Color((byte) r, (byte) g, (byte) b);
+        return new Color(r, g, b);
     }
 
     /**
@@ -120,21 +128,21 @@ public class Color {
     /**
      * @return the red value of this color
      */
-    public byte getRed() {
+    public int getRed() {
         return red;
     }
 
     /**
      * @return the green value of this color
      */
-    public byte getGreen() {
+    public int getGreen() {
         return green;
     }
 
     /**
      * @return the blue value of this color
      */
-    public byte getBlue() {
+    public int getBlue() {
         return blue;
     }
 

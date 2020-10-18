@@ -26,7 +26,7 @@ public class ExprColorFromRGB implements Expression<Color> {
 				ExprColorFromRGB.class,
 				Color.class,
 				true,
-				"[the] color (from|of) [the] rgb [value] %integer%, %integer%(,| and) %integer%"
+				"[[the] color (from|of)] [the] rgb [value] %integer%, %integer%(,| and) %integer%"
 		);
 	}
 
@@ -49,7 +49,7 @@ public class ExprColorFromRGB implements Expression<Color> {
 		if (0 <= r && r < 256
 				&& 0 <= g && g < 256
 				&& 0 <= b && b < 256)
-			return new Color[] {Color.of((byte) r, (byte) g, (byte) b)};
+			return new Color[] {Color.of(r, g, b)};
 		return new Color[0];
 	}
 
