@@ -73,7 +73,7 @@ public class SecLoop extends ArgumentSection {
 	@Override
 	public Optional<? extends Statement> walk(TriggerContext ctx) {
 		if (isNumericLoop) {
-			var range = (BigInteger[]) times.getSingle(ctx)
+			BigInteger[] range = (BigInteger[]) times.getSingle(ctx)
 					.filter(t -> t.compareTo(BigInteger.ZERO) > 0)
 					.map(t -> Ranges.getRange(BigInteger.class).orElseThrow()
 							.getFunction()
