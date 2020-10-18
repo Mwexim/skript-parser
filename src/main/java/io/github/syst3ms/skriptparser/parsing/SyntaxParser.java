@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.parsing;
 
+import io.github.syst3ms.skriptparser.expressions.ExprBooleanOperators;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
@@ -118,6 +119,24 @@ public class SyntaxParser {
                 return Optional.empty();
             } else {
                 return variable;
+            }
+        }
+        // The isList variable's sole purpose is to prevent us from exchanging boolean operators with lists.
+        boolean isList = s.toLowerCase().startsWith("list ");
+        if (isList) {
+            s = s.substring("list ".length());
+        }
+        if (!isList) {
+            // We parse boolean operators first to prevent clutter while parsing.
+            var operatorInfo = (ExpressionInfo<ExprBooleanOperators, Boolean>) SyntaxManager.getAllExpressions()
+                    .stream()
+                    .filter(i -> i.getSyntaxClass() == ExprBooleanOperators.class)
+                    .findFirst()
+                    .orElseThrow();
+            var booleanOperator = matchExpressionInfo(s, operatorInfo, expectedType, parserState, logger);
+            if (booleanOperator.isPresent()) {
+                logger.clearErrors();
+                return booleanOperator;
             }
         }
         if (!expectedType.isSingle()) {
