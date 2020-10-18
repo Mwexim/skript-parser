@@ -1,6 +1,8 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.Parser;
+import io.github.syst3ms.skriptparser.types.Type;
+import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
@@ -9,6 +11,7 @@ import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import io.github.syst3ms.skriptparser.util.Time;
 import io.github.syst3ms.skriptparser.util.TimeUtils;
+import io.github.syst3ms.skriptparser.util.color.Color;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 
 import java.math.BigDecimal;
@@ -162,6 +165,27 @@ public class DefaultRegistration {
                     .toStringFunction(String::valueOf)
                     .register();
 
+        registration.newType(Type.class, "type", "type@s")
+                .literalParser(s -> TypeManager.getByExactName(s.toLowerCase())
+                        .orElse(null))
+                .toStringFunction(Type::getBaseName)
+                .register();
+
+        registration.newType(Color.class, "color", "color@s")
+                .literalParser(s -> {
+                    var match = Color.COLOR_PATTERN.matcher(s);
+                    if (match.matches()) {
+                        return Color.of(s.replaceAll("&", "#"));
+                    }
+                    try {
+                        return Color.ofLiteral(s);
+                    } catch (IllegalArgumentException ignored) {
+                        return null;
+                    }
+                })
+                .toStringFunction(Color::toString)
+                .register();
+
         registration.newType(Duration.class, "duration", "duration@s")
                 .literalParser(s -> TimeUtils.parseDuration(s).orElse(null))
                 .toStringFunction(TimeUtils::toStringDuration)
@@ -262,6 +286,7 @@ public class DefaultRegistration {
                     }
                 }
         );
+
         Comparators.registerComparator(
                 Duration.class,
                 Duration.class,
@@ -293,6 +318,7 @@ public class DefaultRegistration {
                     }
                 }
         );
+
         // Actually a character range
         Ranges.registerRange(
                 String.class,
@@ -317,6 +343,7 @@ public class DefaultRegistration {
                 return Optional.of(BigInteger.valueOf(n.longValue()));
             }
         });
+
         registration.addConverter(SkriptDate.class, Time.class, da -> Optional.of(Time.of(da)));
 
         registration.register(); // Ignoring logs here, we control the input
