@@ -30,13 +30,7 @@ public class ExprColorValues extends PropertyExpression<BigInteger, Color> {
 				BigInteger.class,
 				false,
 				"color",
-				"(0:rgb (value|color)|1:red value|2:green value|3:blue value)"
-		);
-		Parser.getMainRegistration().addExpression(
-				ExprColorValues.class,
-				BigInteger.class,
-				false,
-				"%color% as rgb"
+				"(0:rgb [(value|color)]|1:red value|2:green value|3:blue value)"
 		);
 	}
 

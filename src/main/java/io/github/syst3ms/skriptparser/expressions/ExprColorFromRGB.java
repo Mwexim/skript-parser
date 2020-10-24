@@ -16,7 +16,7 @@ import java.math.BigInteger;
  *
  * @name Color from RGB
  * @type EXPRESSION
- * @pattern [the] color (from|of) [the] rgb [value] %integer%, %integer%(,| and) %integer%
+ * @pattern [[the] color (from|of)] [the] rgb [value] %integer%, %integer%(,| and) %integer%
  * @since ALPHA
  * @author Mwexim
  */
@@ -55,6 +55,6 @@ public class ExprColorFromRGB implements Expression<Color> {
 
 	@Override
 	public String toString(@Nullable TriggerContext ctx, boolean debug) {
-		return "color from rgb " + red.toString(ctx, debug) + ", " + green.toString(ctx, debug) + ", " + blue.toString(ctx, debug);
+		return "color from rgb " + red.toString(ctx, debug) + ", " + green.toString(ctx, debug) + " and " + blue.toString(ctx, debug);
 	}
 }
