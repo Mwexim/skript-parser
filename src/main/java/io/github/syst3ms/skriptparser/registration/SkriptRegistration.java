@@ -344,6 +344,10 @@ public class SkriptRegistration {
     public <T extends Enum<T>> TypeRegistrar<T> newEnumType(Class<T> c, String name, String pattern) {
         return new TypeRegistrar<>(c, name, pattern)
                 .literalParser(s -> {
+                    // We won't allow ugly syntax.
+                    // Otherwise, a field like 'MY_ENUM_CONSTANT' would allow 'my enum_constant'.
+                    if (s.contains("_"))
+                        return null;
                     s = s.replaceAll(" ", "_").toUpperCase();
                     try {
                         return Enum.valueOf(c, s);
@@ -351,7 +355,7 @@ public class SkriptRegistration {
                         return null;
                     }
                 })
-                .toStringFunction(o -> o.toString().replaceAll(" ", "_").toLowerCase());
+                .toStringFunction(o -> o.toString().replaceAll("_", " ").toLowerCase());
     }
 
     /**
@@ -368,6 +372,10 @@ public class SkriptRegistration {
     public <T extends Enum<T>> void addEnumType(Class<T> c, String name, String pattern) {
         new TypeRegistrar<>(c, name, pattern)
                 .literalParser(s -> {
+                    // We won't allow ugly syntax.
+                    // Otherwise, a field like 'MY_ENUM_CONSTANT' would allow 'my enum_constant'.
+                    if (s.contains("_"))
+                        return null;
                     s = s.replaceAll(" ", "_").toUpperCase();
                     try {
                         return Enum.valueOf(c, s);
@@ -375,7 +383,7 @@ public class SkriptRegistration {
                         return null;
                     }
                 })
-                .toStringFunction(o -> o.toString().replaceAll(" ", "_").toLowerCase())
+                .toStringFunction(o -> o.toString().replaceAll("_", " ").toLowerCase())
                 .register();
     }
 
