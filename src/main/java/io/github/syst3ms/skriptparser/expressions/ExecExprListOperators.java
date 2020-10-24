@@ -113,6 +113,8 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 				if (b1 > b2) {
 					list.change(ctx, new Object[0], ChangeMode.SET);
 					return new Object[0];
+				} else if (b1 == b2) {
+					return new Object[0]; // There's nothing to change here.
 				}
 				list.change(
 						ctx,
