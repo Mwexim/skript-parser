@@ -60,13 +60,13 @@ public class EffWait extends Effect {
         throw new UnsupportedOperationException();
     }
 
-    @SuppressWarnings({"unchecked", "ConstantConditions"})
+    @SuppressWarnings("unchecked")
     @Override
     public Optional<? extends Statement> walk(TriggerContext ctx) {
-        if (isConditional) {
-            if (getNext().isEmpty())
-                return Optional.empty();
+        if (getNext().isEmpty())
+            return Optional.empty();
 
+        if (isConditional) {
             // The code we want to run each check.
             Consumer<ExecutorService> code = exec -> {
                 if (condition.getSingle(ctx).filter(b -> negated == b).isPresent()) {
@@ -106,8 +106,6 @@ public class EffWait extends Effect {
             Optional<? extends Duration> dur = duration.getSingle(ctx);
             if (dur.isEmpty())
                 return getNext();
-            if (getNext().isEmpty())
-                return Optional.empty();
 
             ThreadUtils.runAfter(() -> Statement.runAll(getNext().get(), ctx), dur.get());
         }
