@@ -121,9 +121,8 @@ public class SyntaxParser {
                 return variable;
             }
         }
-        // The isList variable's sole purpose is to prevent us from exchanging boolean operators with lists.
-        boolean isList = s.toLowerCase().startsWith("list ");
-        if (isList) {
+        // This is to prevent us from exchanging boolean operators with lists.
+        if (s.toLowerCase().startsWith("list ")) {
             s = s.substring("list ".length());
         } else {
             // We parse boolean operators first to prevent clutter while parsing.
