@@ -125,8 +125,7 @@ public class SyntaxParser {
         boolean isList = s.toLowerCase().startsWith("list ");
         if (isList) {
             s = s.substring("list ".length());
-        }
-        if (!isList) {
+        } else {
             // We parse boolean operators first to prevent clutter while parsing.
             var operatorInfo = (ExpressionInfo<ExprBooleanOperators, Boolean>) SyntaxManager.getAllExpressions()
                     .stream()
