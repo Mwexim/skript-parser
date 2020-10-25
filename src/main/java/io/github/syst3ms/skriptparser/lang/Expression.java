@@ -7,9 +7,13 @@ import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 import io.github.syst3ms.skriptparser.sections.SecLoop;
+import io.github.syst3ms.skriptparser.types.Type;
+import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
+import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
+import io.github.syst3ms.skriptparser.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -33,8 +37,8 @@ public interface Expression<T> extends SyntaxElement {
     /*
      * This is staying until we figure out a better way to implement this
      */
-    default T[] getArray(TriggerContext e) {
-        return getValues(e);
+    default T[] getArray(TriggerContext ctx) {
+        return getValues(ctx);
     }
 
     /**
@@ -59,12 +63,12 @@ public interface Expression<T> extends SyntaxElement {
 
     /**
      * Gets a single value out of this Expression
-     * @param e the event
+     * @param ctx the event
      * @return the single value of this Expression, or {@code null} if it has no value
      * @throws SkriptRuntimeException if the expression returns more than one value
      */
-    default Optional<? extends T> getSingle(TriggerContext e) {
-        var values = getValues(e);
+    default Optional<? extends T> getSingle(TriggerContext ctx) {
+        var values = getValues(ctx);
         if (values.length == 0) {
             return Optional.empty();
         } else if (values.length > 1) {
@@ -193,6 +197,53 @@ public interface Expression<T> extends SyntaxElement {
         if (!hasElement)
             return invert;
         return invert != and;
+    }
+
+    /**
+     * Checks if these two expressions have a common superclass. If not, the following process is started:
+     * <ol>
+     *     <li>The first expression is converted to the second one.</li>
+     *     <li>If failed, the second one is converted to the first one.</li>
+     *     <li>If failed, the same instances are returned as a pair.</li>
+     * </ul>
+     * Otherwise, a pair of the same instances is returned.
+     * Note that all these operation fail if the converted type would be the Object type.
+     * @param first the first expression
+     * @param second the second expression
+     * @return the converted expressions as a pair
+     */
+    static <T, U> Pair<Expression<?>, Expression<?>> convertPair(Expression<T> first, Expression<U> second) {
+        // If the common superclass is an invalid type or is the Object type representation, we'll need toi convert.
+        var commonType = TypeManager.getByClass(
+                ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())
+        );
+        Type<Object> objectType = TypeManager.getByClassExact(Object.class).orElseThrow(AssertionError::new);
+
+        if (commonType.isPresent() && !commonType.get().equals(objectType))
+            return new Pair<>(first, second);
+
+        // We convert the expressions because their types currently are not similar.
+        var firstConverted = first.convertExpression(second.getReturnType());
+        if (firstConverted.isPresent()) {
+            commonType = TypeManager.getByClass(
+                    ClassUtils.getCommonSuperclass(firstConverted.get().getReturnType(), second.getReturnType())
+            );
+            if (commonType.isPresent() && !commonType.get().equals(objectType)) {
+                return new Pair<>(firstConverted.get(), second);
+            }
+        }
+
+        var secondConverted = second.convertExpression(first.getReturnType());
+        if (secondConverted.isPresent()) {
+            commonType = TypeManager.getByClass(
+                    ClassUtils.getCommonSuperclass(secondConverted.get().getReturnType(), first.getReturnType())
+            );
+            if (commonType.isPresent() && !commonType.get().equals(objectType)) {
+                return new Pair<>(first, secondConverted.get());
+            }
+        }
+
+        return new Pair<>(first, second);
     }
 
     @SuppressWarnings("unchecked")

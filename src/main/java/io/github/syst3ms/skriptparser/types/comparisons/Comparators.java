@@ -22,10 +22,9 @@ public class Comparators {
 
     /**
      * Registers a {@link Comparator}.
-     *
-     * @param t1
-     * @param t2
-     * @param c
+     * @param t1 class of first type
+     * @param t2 class of second type
+     * @param c the comparator
      * @throws IllegalArgumentException if any given class is equal to <code>Object.class</code>
      */
     public static <T1, T2> void registerComparator(Class<T1> t1, Class<T2> t2, Comparator<T1, T2> c) {

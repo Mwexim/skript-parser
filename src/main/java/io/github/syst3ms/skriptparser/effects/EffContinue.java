@@ -42,7 +42,7 @@ public class EffContinue extends Effect {
         loop = loops.get(0);
 
         if (loop == null) {
-            parseContext.getLogger().error("You can only continue in a loop!", ErrorType.SEMANTIC_ERROR);
+            parseContext.getLogger().error("You can only use the 'continue' in a loop!", ErrorType.SEMANTIC_ERROR);
             return false;
         }
         return true;

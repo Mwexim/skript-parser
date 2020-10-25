@@ -1,14 +1,14 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.lang.*;
-import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
+import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.pattern.*;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueTime;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueState;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
 import io.github.syst3ms.skriptparser.registration.tags.Tag;
 import io.github.syst3ms.skriptparser.registration.tags.TagInfo;
@@ -22,6 +22,7 @@ import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Function;
 
@@ -111,6 +112,19 @@ public class SkriptRegistration {
      */
     public List<TagInfo<?>> getTags() {
         return tags;
+    }
+
+    /**
+     * Registers a syntax class that can register itself.
+     * @param c the syntax' class
+     * @param args the arguments
+     */
+    public void addSelfRegisteringElement(Class<? extends SelfRegistrable> c, Object... args) {
+        try {
+            c.getDeclaredConstructor().newInstance().register(this, args);
+        } catch (InstantiationException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            logger.error("Couldn't instantiate class '" + c.getName() + "'", ErrorType.EXCEPTION);
+        }
     }
 
     /**
@@ -503,7 +517,7 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             boolean computePriority = priority == -1;
-            priority = 5;
+            priority = computePriority ? 5 : priority;
             super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(e -> {
                 if (computePriority)
                     setPriority(Math.min(priority, findAppropriatePriority(e)));
@@ -533,7 +547,7 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             boolean computePriority = priority == -1;
-            priority = 5;
+            priority = computePriority ? 5 : priority;
             super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(e -> {
                 if (computePriority)
                     setPriority(Math.min(priority, findAppropriatePriority(e)));
@@ -558,7 +572,7 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             boolean computePriority = priority == -1;
-            priority = 5;
+            priority = computePriority ? 5 : priority;
             super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(e -> {
                 if (computePriority)
                     setPriority(Math.min(priority, findAppropriatePriority(e)));
@@ -585,7 +599,7 @@ public class SkriptRegistration {
         public void register() {
             List<PatternElement> elements = new ArrayList<>();
             boolean computePriority = priority == -1;
-            priority = 5;
+            priority = computePriority ? 5 : priority;
             for (var s : super.patterns) {
                 if (s.startsWith("*")) {
                     s = s.substring(1);
@@ -640,7 +654,7 @@ public class SkriptRegistration {
          * @param <T2> the type class
          * @return the registrar
          */
-        public final <C extends TriggerContext, T2> EventRegistrar<T> addContextValue(Class<C> context, Class<T2> type, String name, Function<C, T2[]> contextFunction, ContextValueTime time) {
+        public final <C extends TriggerContext, T2> EventRegistrar<T> addContextValue(Class<C> context, Class<T2> type, String name, Function<C, T2[]> contextFunction, ContextValueState time) {
             contextValues.add(new ContextValue<>(context, type, name, (Function<TriggerContext, T2[]>) contextFunction, time));
             return this;
         }

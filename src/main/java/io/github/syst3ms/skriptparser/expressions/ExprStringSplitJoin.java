@@ -7,6 +7,7 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -21,7 +22,7 @@ import java.util.regex.Pattern;
  * @type EXPRESSION
  * @pattern (concat[enate]|join) %strings% [(with|using|by) [[the] delimiter] %string%]
  * @pattern (split %string%|%string% split) (at|using|by) [[the] delimiter] %string%
- * @pattern (split %string%|%string% split) (with|using|by|every) %number% [char[acter][s]]
+ * @pattern (split %string%|%string% split) (with|using|by|every) %integer% [char[acter][s]]
  * @since ALPHA
  * @author Mwexim
  */
@@ -34,13 +35,13 @@ public class ExprStringSplitJoin implements Expression<String> {
 				false,
 				"(concat[enate]|join) %strings% [1:[(with|using|by) [[the] delimiter] %string%]]",
 				"(split %string%|%string% split) (at|using|by) [[the] delimiter] %string%",
-				"(split %string%|%string% split) (with|using|by|every) %number% [char[acter]][s]"
+				"(split %string%|%string% split) (with|using|by|every) %integer% [char[acter]][s]"
 		);
 	}
 
 	private Expression<String> expr;
 	private Expression<String> delimiter;
-	private Expression<Number> chars;
+	private Expression<BigInteger> chars;
 
 	int pattern;
 	boolean delimiterPresent;
@@ -58,7 +59,7 @@ public class ExprStringSplitJoin implements Expression<String> {
 		} else if (pattern == 1) {
 			delimiter = (Expression<String>) expressions[1];
 		} else {
-			chars = (Expression<Number>) expressions[1];
+			chars = (Expression<BigInteger>) expressions[1];
 		}
 		return true;
 	}

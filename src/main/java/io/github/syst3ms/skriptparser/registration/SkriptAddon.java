@@ -24,7 +24,7 @@ public abstract class SkriptAddon {
     }
 
     /**
-     * When a {@linkplain Trigger} is successfully parsed, it is "broadcasted" to all addons through this method,
+     * When a {@linkplain Trigger} is successfully parsed, it is "broadcast" to all addons through this method,
      * in the hopes that one of them will be able to handle it.
      * @param trigger the trigger to be handled
      * @see #canHandleEvent(SkriptEvent)

@@ -193,7 +193,8 @@ public class CondExprCompare extends ConditionalExpression {
             if (third == null) {
                 return relation.isEqualOrInverse() || comp.supportsOrdering();
             } else if (!comp.supportsOrdering()) {
-                logger.error(errorString(first, logger.isDebug()) +
+                logger.error(
+                        errorString(first, logger.isDebug()) +
                         " cannot be ordered between " +
                         errorString(second, logger.isDebug()) +
                         " and " +

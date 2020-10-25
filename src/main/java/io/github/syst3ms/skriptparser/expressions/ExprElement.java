@@ -7,7 +7,9 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -18,6 +20,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * @type EXPRESSION
  * @pattern ([the] first|[the] last|[a] random|[the] %integer%(st|nd|rd|th)) element out [of] %objects%
  * @pattern [the] (first|last) %integer% elements out [of] %objects%
+ * @pattern %integer% random elements out [of] %objects%
  * @pattern %objects%\[%integer%\]
  * @since ALPHA
  * @author Mwexim
@@ -31,13 +34,14 @@ public class ExprElement implements Expression<Object> {
 				true,
 				"(0:[the] first|1:[the] last|2:[a] random|3:[the] %integer%(st|nd|rd|th)) element out [of] %objects%",
 				"[the] (0:first|1:last) %integer% elements out [of] %objects%",
+				"%integer% random elements out [of] %objects%",
 				"%objects%\\[%integer%\\]");
 	}
 
 	private static final ThreadLocalRandom random = ThreadLocalRandom.current();
 
 	private Expression<Object> expr;
-	private Expression<Long> range;
+	private Expression<BigInteger> range;
 	private int pattern;
 	private int parseMark;
 
@@ -50,20 +54,23 @@ public class ExprElement implements Expression<Object> {
 		switch (pattern) {
 			case 0:
 				if (parseMark == 3) {
-					range = (Expression<Long>) expressions[0];
+					range = (Expression<BigInteger>) expressions[0];
 					expr = (Expression<Object>) expressions[1];
 				} else {
 					expr = (Expression<Object>) expressions[0];
 				}
 				break;
 			case 1:
-				range = (Expression<Long>) expressions[0];
+			case 2:
+				range = (Expression<BigInteger>) expressions[0];
 				expr = (Expression<Object>) expressions[1];
 				break;
-			default:
+			case 3:
 				expr = (Expression<Object>) expressions[0];
-				range = (Expression<Long>) expressions[1];
+				range = (Expression<BigInteger>) expressions[1];
 				break;
+			default:
+				throw new IllegalStateException();
 		}
 		return true;
 	}
@@ -78,16 +85,15 @@ public class ExprElement implements Expression<Object> {
 		Object[] values = expr.getValues(ctx);
 		if (values.length == 0)
 			return new Object[0];
-		int index = 0;
+		int r = 0;
 
 		if (range != null) {
 			if (range.getSingle(ctx).isEmpty())
 				return new Object[0];
-			Long r = range.getSingle(ctx).get();
-			index = r.intValue();
-			if (index > values.length && pattern == 1) {
+			r = range.getSingle(ctx).get().intValue();
+			if (r > values.length && pattern == 1) {
 				return values;
-			} else if (index > values.length || index <= 0) {
+			} else if (r > values.length || r <= 0) {
 				return new Object[0];
 			}
 		}
@@ -102,18 +108,22 @@ public class ExprElement implements Expression<Object> {
 					case 2:
 						return new Object[] {values[NumberMath.random(0, values.length - 1, true, random).intValue()]};
 					case 3:
-						return new Object[] {values[index - 1]};
+						return new Object[] {values[r - 1]};
 					default:
 						return new Object[0];
 				}
 			case 1:
 				if (parseMark == 0) {
-					return Arrays.copyOfRange(values, 0, index);
+					return Arrays.copyOfRange(values, 0, r);
 				} else {
-					return Arrays.copyOfRange(values, values.length - index, values.length);
+					return Arrays.copyOfRange(values, values.length - r, values.length);
 				}
 			case 2:
-				return new Object[] {values[index - 1]};
+				var shuffled = Arrays.asList(values);
+				Collections.shuffle(shuffled, random);
+				return shuffled.subList(0, r).toArray();
+			case 3:
+				return new Object[] {values[r - 1]};
 			default:
 				return new Object[0];
 		}
@@ -123,12 +133,13 @@ public class ExprElement implements Expression<Object> {
 	public String toString(@Nullable TriggerContext ctx, boolean debug) {
 		switch (pattern) {
 			case 0:
-			case 2:
+			case 3:
 				return "element out of " + expr.toString(ctx, debug);
 			case 1:
+			case 2:
 				return "elements out of " + expr.toString(ctx, debug);
 			default:
-				return "";
+				throw new IllegalStateException();
 		}
 	}
 }
