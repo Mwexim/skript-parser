@@ -1,17 +1,16 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import java.util.Arrays;
-import java.util.Collections;
-
-import org.jetbrains.annotations.Nullable;
-
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
- * Reverses, shuffle or order given list.
+ * Reverse, shuffle or order a given list.
  *
  * @name Mutable List
  * @pattern reverse[d] %objects%
@@ -21,11 +20,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  * @author Olyno
  */
 public class ExprMutableList implements Expression<Object> {
-
-    private enum MutableType {
-        REVERSE, SHUFFLE, SORT
-    }
-
     static {
         Parser.getMainRegistration().addExpression(
             ExprMutableList.class,
@@ -38,13 +32,13 @@ public class ExprMutableList implements Expression<Object> {
     }
 
     private Expression<Object> list;
-    private MutableType type;
+    private int type;
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         list = (Expression<Object>) expressions[0];
-        type = MutableType.values()[matchedPattern];
+        type = matchedPattern;
         return true;
     }
 
@@ -52,22 +46,27 @@ public class ExprMutableList implements Expression<Object> {
     public Object[] getValues(TriggerContext ctx) {
         Object[] values = list.getValues(ctx);
         switch (type) {
-            case REVERSE:
+            case 0:
                 Collections.reverse(Arrays.asList(values));
                 break;
-            case SHUFFLE:
+            case 1:
                 Collections.shuffle(Arrays.asList(values));
                 break;
-            case SORT:
+            case 2:
                 Arrays.sort(values);
                 break;
-
+            default:
+                throw new IllegalStateException();
         }
         return values;
     }
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        return type.name().replaceAll("_", "").toLowerCase() + " " + list.toString(ctx, debug);
+        return (type == 0
+                ? "reversed " : type == 1
+                ? "shuffled "
+                : "sorted ")
+                + list.toString(ctx, debug);
     }
 }
