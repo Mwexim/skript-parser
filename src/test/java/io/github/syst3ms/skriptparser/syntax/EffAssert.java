@@ -6,6 +6,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.types.TypeManager;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -21,17 +22,20 @@ public class EffAssert extends Effect {
 	static {
 		Parser.getMainRegistration().addEffect(
 				EffAssert.class,
-				"assert %=boolean%"
+				"assert %=boolean% [with [message] %string%]"
 		);
 	}
 
 	private Expression<Boolean> condition;
+	private Expression<String> message;
 	private SkriptLogger logger;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		condition = (Expression<Boolean>) expressions[0];
+		if (expressions.length == 2)
+			message = (Expression<String>) expressions[1];
 		logger = parseContext.getLogger();
 		return true;
 	}
@@ -41,8 +45,10 @@ public class EffAssert extends Effect {
 		condition.getSingle(ctx)
 				.filter(b -> (Boolean) b)
 				.orElseThrow(() -> new AssertionError(
-						"Assertion in script '" + logger.getFileName() + " failed"
+						message == null
+								? "Assertion in script '" + logger.getFileName() + " failed"
 								+ " ('" + condition.toString(TriggerContext.DUMMY, logger.isDebug()) + "')"
+								: message.getSingle(ctx).map(s -> (String) s).orElse(TypeManager.EMPTY_REPRESENTATION) + " (in '" + logger.getFileName() + "')"
 				));
 	}
 

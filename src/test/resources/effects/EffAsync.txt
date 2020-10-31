@@ -2,4 +2,4 @@ test:
 	set {var} to false
 	async set {var} to true
 	# There is always a thread initiation delay.
-	assert {var} is false
+	assert {var} is false with "{var} was set to true before the main thread could resolve"

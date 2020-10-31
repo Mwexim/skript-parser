@@ -4,4 +4,4 @@ test:
 		if loop-value < 3:
 			continue
 		add 1 to {var}
-	assert {var} = 3
+	assert {var} = 3 with "'continue statement didn't work properly: %{var}% != 3"

@@ -1,0 +1,2 @@
+test:
+	assert false with "false condition was run" if false
