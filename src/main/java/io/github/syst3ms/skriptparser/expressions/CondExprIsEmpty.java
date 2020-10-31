@@ -46,9 +46,9 @@ public class CondExprIsEmpty extends ConditionalExpression {
     @Override
     public boolean check(TriggerContext ctx) {
         var values = expr.getValues(ctx);
-        return isNegated() != (isList
+        return isNegated() != (isList && values.length != 1
                 ? values.length == 0
-                : Arrays.stream(values).allMatch(val -> ((String) val).isBlank()));
+                : Arrays.stream(values).allMatch(val -> val instanceof String && ((String) val).isBlank()));
     }
 
     @Override
