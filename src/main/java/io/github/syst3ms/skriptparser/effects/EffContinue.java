@@ -55,7 +55,8 @@ public class EffContinue extends Effect {
 
     @Override
     public Optional<? extends Statement> walk(TriggerContext ctx) {
-        return loop.walk(ctx);
+        loop.walk(ctx);
+        return Optional.empty();
     }
 
     @Override
