@@ -7,6 +7,8 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
+
 /**
  * The character at a given position in a string. Note that indices in Skript start at 1.
  *
@@ -25,13 +27,13 @@ public class ExprStringCharAt implements Expression<String> {
 		);
 	}
 
-	private Expression<Integer> position;
+	private Expression<BigInteger> position;
 	private Expression<String> value;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		position = (Expression<Integer>) expressions[0];
+		position = (Expression<BigInteger>) expressions[0];
 		value = (Expression<String>) expressions[1];
 		return true;
 	}
@@ -39,8 +41,9 @@ public class ExprStringCharAt implements Expression<String> {
 	@Override
 	public String[] getValues(TriggerContext ctx) {
 		return DoubleOptional.ofOptional(value.getSingle(ctx), position.getSingle(ctx))
-			.filter((val, pos) -> pos > 0 && pos <= val.length())
-			.mapToOptional((val, pos) -> new String[] {String.valueOf(val.charAt(pos - 1))})
+			.filter((val, pos) -> pos.compareTo(BigInteger.ZERO) > 0
+					&& pos.compareTo(BigInteger.valueOf(val.length())) <=0)
+			.mapToOptional((val, pos) -> new String[] {String.valueOf(val.charAt(pos.intValue() - 1))})
 			.orElse(new String[0]);
 	}
 
