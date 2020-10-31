@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.event;
 
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -25,17 +26,17 @@ public class EvtPeriodical extends SkriptEvent {
 
     static {
         Parser.getMainRegistration()
-                .newEvent(EvtPeriodical.class, "*every %duration%")
+                .newEvent(EvtPeriodical.class, "*every %*duration%")
                 .setHandledContexts(PeriodicalContext.class)
                 .register();
     }
 
-    private Expression<Duration> duration;
+    private Literal<Duration> duration;
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        duration = (Expression<Duration>) expressions[0];
+        duration = (Literal<Duration>) expressions[0];
         return true;
     }
 
@@ -49,7 +50,7 @@ public class EvtPeriodical extends SkriptEvent {
         return "every " + duration.toString(ctx, debug);
     }
 
-    public Expression<Duration> getDuration() {
+    public Literal<Duration> getDuration() {
         return duration;
     }
 }

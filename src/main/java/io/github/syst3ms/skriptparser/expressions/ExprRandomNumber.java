@@ -11,6 +11,9 @@ import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 /**
  * Generate a random number (double) or integer.
@@ -22,10 +25,6 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author WeeskyBDW
  */
 public class ExprRandomNumber implements Expression<Number> {
-    private Expression<Number> lowerNumber, maxNumber;
-    private final ThreadLocalRandom random = ThreadLocalRandom.current();
-    private boolean isInteger, isExclusive;
-    private Comparator<? super Number, ? super Number> numComp;
 
     static {
         Parser.getMainRegistration().addExpression(
@@ -36,6 +35,11 @@ public class ExprRandomNumber implements Expression<Number> {
                 "[a] random number [1:strictly] (from|between) %number% (to|and) %number%"
         );
     }
+
+    private final ThreadLocalRandom random = ThreadLocalRandom.current();
+    private Expression<Number> lowerNumber, maxNumber;
+    private boolean isInteger, isExclusive;
+    private Comparator<? super Number, ? super Number> numComp;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -55,8 +59,27 @@ public class ExprRandomNumber implements Expression<Number> {
                         Relation.SMALLER_OR_EQUAL.is(numComp.apply(l, m)) ? l : m,
                         Relation.SMALLER_OR_EQUAL.is(numComp.apply(l, m)) ? m : l
                     )
-                ).mapToOptional((l, m) -> new Number[]{NumberMath.random(l, m, !isExclusive, random)})
+                )
+                .flatMap((f, s) -> DoubleOptional.ofOptional(handleIntegralDecimal(f), handleIntegralDecimal(s)))
+                .mapToOptional((l, m) -> new Number[]{NumberMath.random(l, m, !isExclusive, random)})
                 .orElse(new Number[0]);
+    }
+
+    private Optional<? extends Number> handleIntegralDecimal(Number n) {
+        if (isInteger == n instanceof BigInteger) {
+            // Either we want and have integers, or we don't want and don't have integers
+            return Optional.of(n);
+        } else if (isInteger) {
+            // We want integers but the types are decimal
+            if (n instanceof BigDecimal && ((BigDecimal) n).stripTrailingZeros().scale() >= 0) {
+                return Optional.of(((BigDecimal) n).toBigIntegerExact());
+            } else {
+                return Optional.empty();
+            }
+        } else {
+            // We don't want integers but the types are integral
+            return Optional.of(new BigDecimal((BigInteger) n));
+        }
     }
 
     @Override

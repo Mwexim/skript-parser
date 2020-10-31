@@ -21,13 +21,14 @@ import java.util.Optional;
  * @since ALPHA
  * @author Mwexim
  */
-public class ExprAgoLater implements Expression<SkriptDate> {
+public class ExprDateAgoLater implements Expression<SkriptDate> {
 
 	static {
 		Parser.getMainRegistration().addExpression(
-				ExprAgoLater.class,
+				ExprDateAgoLater.class,
 				SkriptDate.class,
 				true,
+				3,
 				"%duration% (ago|in the past|1:before [the] [date] %date%)",
 						"%duration% (later|in the future|1:(from|after) [the] [date] %date%)"
 		);

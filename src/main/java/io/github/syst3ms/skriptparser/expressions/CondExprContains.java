@@ -5,9 +5,9 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -28,6 +28,7 @@ public class CondExprContains extends ConditionalExpression {
                 CondExprContains.class,
                 Boolean.class,
                 true,
+                2,
                 "%string% [1:does(n't| not)] contain[s] %string%",
                 "%objects% [1:do[es](n't| not)] contain[s] %object%"
         );
@@ -55,7 +56,7 @@ public class CondExprContains extends ConditionalExpression {
         } else {
             Object[] f = ((Expression<Object>) first).getValues(ctx);
             Object[] s = ((Expression<Object>) second).getValues(ctx);
-            return isNegated() != Arrays.asList(f).containsAll(Arrays.asList(s));
+            return isNegated() != CollectionUtils.contains(f, s);
         }
     }
 

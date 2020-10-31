@@ -4,11 +4,10 @@ import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueTime;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueState;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
 import org.jetbrains.annotations.Nullable;
-
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 
 /**
  * A specific context value.
@@ -31,22 +30,13 @@ public class ExprContextValue implements Expression<Object> {
 	}
 
 	private String name;
-	private ContextValueTime time;
+	private ContextValueState time;
 	private ContextValue<?> value;
 
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, ParseContext parseContext) {
 		name = parseContext.getMatches().get(0).group();
-		switch (parseContext.getParseMark()) {
-			case 1:
-				time = ContextValueTime.PAST;
-				break;
-			case 2:
-				time = ContextValueTime.FUTURE;
-				break;
-			default:
-				time = ContextValueTime.PRESENT;
-		}
+		time = ContextValueState.values()[parseContext.getParseMark()];
 		for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
 			for (ContextValue<?> val : ContextValues.getContextValues()) {
 				if (val.matches(ctx, name, time)) {
@@ -71,9 +61,9 @@ public class ExprContextValue implements Expression<Object> {
 	@Override
 	public String toString(final @Nullable TriggerContext ctx, final boolean debug) {
 		String state = "";
-		if (time == ContextValueTime.PAST) {
+		if (time == ContextValueState.PAST) {
 			state = "past ";
-		} else if (time == ContextValueTime.FUTURE) {
+		} else if (time == ContextValueState.FUTURE) {
 			state = "future ";
 		}
 		return state + "context-" + name;

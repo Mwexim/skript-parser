@@ -3,11 +3,12 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
+import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.function.Function;
@@ -17,8 +18,8 @@ import java.util.function.Function;
  *
  * @name Date Information
  * @type EXPRESSION
- * @pattern [the] (year|month|day of year|day of month|day of week|hours|minutes|seconds) of [date] %date%
- * @pattern [date] %date%'[s] (year|month|day of year|day of month|day of week|hours|minutes|seconds)
+ * @pattern [the] (year|month|day of year|day of month|day of week|hours|minutes|seconds|milli[second]s) of [date] %date%
+ * @pattern [date] %date%'[s] (year|month|day of year|day of month|day of week|hours|minutes|seconds|milli[second]s)
  * @since ALPHA
  * @author Mwexim
  */
@@ -30,12 +31,12 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 				Number.class,
 				true,
 				"*[date] %date%",
-				"(0:year|1:month|2:day of year|3:day of month|4:day of week|5:hours|6:minutes|7:seconds)"
+				"(0:year|1:month|2:day of year|3:day of month|4:day of week|5:hours|6:minutes|7:seconds|8:milli[second]s)"
 		);
 	}
 
 	private final static String[] CHOICES = {
-			"year", "month", "day of year", "day of month", "day of week", "hours", "minutes", "seconds"
+			"year", "month", "day of year", "day of month", "day of week", "hours", "minutes", "seconds", "milliseconds"
 	};
 
 	int parseMark;
@@ -46,23 +47,25 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 			LocalDateTime lcd = dates[0].toLocalDateTime();
 			switch (parseMark) {
 				case 0:
-					return new Number[] {lcd.getYear()};
+					return new Number[] {BigInteger.valueOf(lcd.getYear())};
 				case 1:
-					return new Number[] {lcd.getMonthValue()};
+					return new Number[] {BigInteger.valueOf(lcd.getMonthValue())};
 				case 2:
-					return new Number[] {lcd.getDayOfYear()};
+					return new Number[] {BigInteger.valueOf(lcd.getDayOfYear())};
 				case 3:
-					return new Number[] {lcd.getDayOfMonth()};
+					return new Number[] {BigInteger.valueOf(lcd.getDayOfMonth())};
 				case 4:
-					return new Number[] {lcd.getDayOfWeek().getValue()};
+					return new Number[] {BigInteger.valueOf(lcd.getDayOfWeek().getValue())};
 				case 5:
-					return new Number[] {lcd.getHour()};
+					return new Number[] {BigInteger.valueOf(lcd.getHour())};
 				case 6:
-					return new Number[] {lcd.getMinute()};
+					return new Number[] {BigInteger.valueOf(lcd.getMinute())};
 				case 7:
-					return new Number[] {lcd.getSecond()};
+					return new Number[] {BigInteger.valueOf(lcd.getSecond())};
+				case 8:
+					return new Number[] {BigInteger.valueOf(lcd.getNano() / 1_000_000)};
 				default:
-					return new Number[0];
+					throw new IllegalStateException();
 			}
 		});
 	}

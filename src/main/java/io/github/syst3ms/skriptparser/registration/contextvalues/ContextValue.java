@@ -12,7 +12,7 @@ public class ContextValue<T> {
     private final Class<T> type;
     private final String name;
     private final Function<TriggerContext, T[]> contextFunction;
-    private final ContextValueTime time;
+    private final ContextValueState time;
 
     /**
      * Construct a context value.
@@ -22,7 +22,7 @@ public class ContextValue<T> {
      * @param contextFunction the function to apply to the context
      */
     public ContextValue(Class<? extends TriggerContext> context, Class<T> type, String name, Function<TriggerContext, T[]> contextFunction) {
-        this(context, type, name, contextFunction, ContextValueTime.PRESENT);
+        this(context, type, name, contextFunction, ContextValueState.PRESENT);
     }
 
     /**
@@ -33,7 +33,7 @@ public class ContextValue<T> {
      * @param contextFunction the function to apply to the context
      * @param time            whether this value represent a present, past or future state
      */
-    public ContextValue(Class<? extends TriggerContext> context, Class<T> type, String name, Function<TriggerContext, T[]> contextFunction, ContextValueTime time) {
+    public ContextValue(Class<? extends TriggerContext> context, Class<T> type, String name, Function<TriggerContext, T[]> contextFunction, ContextValueState time) {
         this.context = context;
         this.type = type;
         this.name = name;
@@ -71,11 +71,11 @@ public class ContextValue<T> {
     /**
      * @return whether this happens in the present, past or future
      */
-    public ContextValueTime getTime() {
+    public ContextValueState getTime() {
         return time;
     }
 
-    public boolean matches(Class<? extends TriggerContext> handledContext, String name, ContextValueTime time) {
+    public boolean matches(Class<? extends TriggerContext> handledContext, String name, ContextValueState time) {
         return handledContext.equals(this.context)
                 && this.name.equalsIgnoreCase(name)
                 && this.time.equals(time);

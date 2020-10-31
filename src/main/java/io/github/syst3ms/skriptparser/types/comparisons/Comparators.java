@@ -22,10 +22,9 @@ public class Comparators {
 
     /**
      * Registers a {@link Comparator}.
-     *
-     * @param t1
-     * @param t2
-     * @param c
+     * @param t1 class of first type
+     * @param t2 class of second type
+     * @param c the comparator
      * @throws IllegalArgumentException if any given class is equal to <code>Object.class</code>
      */
     public static <T1, T2> void registerComparator(Class<T1> t1, Class<T2> t2, Comparator<T1, T2> c) {
@@ -55,13 +54,13 @@ public class Comparators {
         var p = new Pair<Class<?>, Class<?>>(f, s);
         if (comparatorsQuickAccess.containsKey(p))
             return Optional.ofNullable((Comparator<? super F, ? super S>) comparatorsQuickAccess.get(p));
-        var comp = getComparator_i(f, s);
+        var comp = getComparatorInternal(f, s);
         comp.ifPresent(c -> comparatorsQuickAccess.put(p, c));
         return comp;
     }
 
     @SuppressWarnings("unchecked")
-    private static <F, S> Optional<? extends Comparator<? super F, ? super S>> getComparator_i(Class<F> f, Class<S> s) {
+    private static <F, S> Optional<? extends Comparator<? super F, ? super S>> getComparatorInternal(Class<F> f, Class<S> s) {
         // perfect match
         for (var info : comparators) {
             if (info.getFirstClass().isAssignableFrom(f) && info.getSecondClass().isAssignableFrom(s)) {

@@ -52,7 +52,7 @@ public class TagManager {
             var tag = matchTagInfo(toParse, recentTag, logger);
             if (tag.isPresent()) {
                 recentTags.acknowledge(recentTag);
-                logger.clearLogs();
+                logger.clearErrors();
                 return tag;
             }
             logger.forgetError();
@@ -64,7 +64,7 @@ public class TagManager {
             var tag = matchTagInfo(toParse, remainingTag, logger);
             if (tag.isPresent()) {
                 recentTags.acknowledge(remainingTag);
-                logger.clearLogs();
+                logger.clearErrors();
                 return tag;
             }
             logger.forgetError();

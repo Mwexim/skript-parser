@@ -1,8 +1,9 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.Literal;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +18,7 @@ import java.math.BigDecimal;
  * @since ALPHA
  * @author Syst3ms
  */
-public class LitMathConstants implements Expression<Number> {
+public class LitMathConstants implements Literal<Number> {
     private static final BigDecimal PHI = new BigDecimal(
         "1.61803398874989484820458683436563811772030917980576286213544862270526046281890" +
             "244970720720418939113748475408807538689175212663386222353693179318006076672635" +
@@ -56,28 +57,30 @@ public class LitMathConstants implements Expression<Number> {
     }
 
     @Override
-    public Number[] getValues(TriggerContext ctx) {
-        if (pattern == 0) {
-            return new Number[]{BigDecimalMath.pi(BigDecimalMath.DEFAULT_CONTEXT)};
-        } else if (pattern == 1) {
-            return new Number[]{BigDecimalMath.e(BigDecimalMath.DEFAULT_CONTEXT)};
-        } else if (pattern == 2) {
-            return new Number[]{PHI};
-        } else {
-            throw new IllegalStateException();
+    public Number[] getValues() {
+        switch (pattern) {
+            case 0:
+                return new Number[]{BigDecimalMath.pi(BigDecimalMath.DEFAULT_CONTEXT)};
+            case 1:
+                return new Number[]{BigDecimalMath.e(BigDecimalMath.DEFAULT_CONTEXT)};
+            case 2:
+                return new Number[]{PHI};
+            default:
+                throw new IllegalStateException();
         }
     }
 
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        if (pattern == 0) {
-            return "pi";
-        } else if (pattern == 1) {
-            return "e";
-        } else if (pattern == 2) {
-            return "phi";
-        } else {
-            throw new IllegalStateException();
+        switch (pattern) {
+            case 0:
+                return "pi";
+            case 1:
+                return "e";
+            case 2:
+                return "phi";
+            default:
+                throw new IllegalStateException();
         }
     }
 }
