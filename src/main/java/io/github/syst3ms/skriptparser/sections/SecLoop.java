@@ -88,10 +88,11 @@ public class SecLoop extends ArgumentSection {
 		if (iter == null) {
 			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(ctx) : expr.iterator(ctx);
 			if (iter != null) {
-				if (iter.hasNext())
+				if (iter.hasNext()) {
 					currentIter.put(ctx, iter);
-				else
+				} else {
 					iter = null;
+				}
 			}
 		}
 		Iterator<?> finalIter = iter;

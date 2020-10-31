@@ -1,0 +1,17 @@
+test:
+	assert {var} is not set
+	set {var} to 5
+	assert {var} = 5
+	add 4 to {var}
+	assert {var} = 9
+	remove 20 from {var}
+	assert {var} = -11
+	delete {var}
+	assert {var} is not set
+
+	{list::*} = "Hello", "World", "Have a", "great" and "day"
+	assert size of {list::*} = 5
+	{list::*} -= "Hello"
+	assert size of {list::*} = 4
+	clear {list::*}
+	assert size of {list::*} = 0

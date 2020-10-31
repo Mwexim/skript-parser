@@ -1,0 +1,7 @@
+test:
+	{var} = 0
+	loop range from 1 to 5:
+		if loop-value < 3:
+			continue
+		add 1 to {var}
+	assert {var} = 3

@@ -279,4 +279,8 @@ public class SkriptLogger {
     public boolean isDebug() {
         return debug;
     }
+
+    public String getFileName() {
+        return fileName;
+    }
 }

@@ -1,0 +1,53 @@
+package io.github.syst3ms.skriptparser.syntax;
+
+import io.github.syst3ms.skriptparser.Parser;
+import io.github.syst3ms.skriptparser.lang.Effect;
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import org.jetbrains.annotations.Nullable;
+
+/**
+ * Assert a condition. When false, this will throw an error.
+ * Cannot be used outside of tests.
+ *
+ * @name Assert
+ * @pattern assert %=boolean%
+ * @since ALPHA
+ * @author Mwexim
+ */
+public class EffAssert extends Effect {
+	static {
+		Parser.getMainRegistration().addEffect(
+				EffAssert.class,
+				"assert %=boolean%"
+		);
+	}
+
+	private Expression<Boolean> condition;
+	private SkriptLogger logger;
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+		condition = (Expression<Boolean>) expressions[0];
+		logger = parseContext.getLogger();
+		return true;
+	}
+
+	@Override
+	public void execute(TriggerContext ctx) {
+		condition.getSingle(ctx)
+				.filter(b -> (Boolean) b)
+				.orElseThrow(() -> new AssertionError(
+						"Assertion in script '" + logger.getFileName() + " failed"
+								+ " ('" + condition.toString(TriggerContext.DUMMY, logger.isDebug()) + "')"
+				));
+	}
+
+	@Override
+	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+		return "assert " + condition.toString(ctx, debug);
+	}
+}
