@@ -27,8 +27,8 @@ public class CondExprIsEmpty extends ConditionalExpression {
                 Boolean.class,
                 true,
                 5,
-                "%strings% (is|are)[1:( not|n't)] empty",
-                "%objects% is[1:( not|n't)] [an] empty list"
+                "%objects% is[1:( not|n't)] empty",
+                "%strings% (is|are)[1:( not|n't)] [an] empty string[s]"
         );
     }
 
@@ -38,7 +38,7 @@ public class CondExprIsEmpty extends ConditionalExpression {
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         expr = expressions[0];
-        isList = matchedPattern == 1;
+        isList = matchedPattern == 0;
         setNegated(parseContext.getParseMark() == 1);
         return true;
     }
