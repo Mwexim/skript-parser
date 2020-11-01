@@ -7,8 +7,6 @@ import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-
 /**
  * Check if a given string or list is empty.
  * Note that multiple strings will all be checked for blankness.
@@ -48,7 +46,7 @@ public class CondExprIsEmpty extends ConditionalExpression {
         var values = expr.getValues(ctx);
         return isNegated() != (isList && values.length != 1
                 ? values.length == 0
-                : val instanceof String[] && ((String) val[0]).isBlank());
+                : values instanceof String[] && ((String) values[0]).isBlank());
     }
 
     @Override
