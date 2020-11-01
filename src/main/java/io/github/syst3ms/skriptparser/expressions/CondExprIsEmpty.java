@@ -48,7 +48,7 @@ public class CondExprIsEmpty extends ConditionalExpression {
         var values = expr.getValues(ctx);
         return isNegated() != (isList && values.length != 1
                 ? values.length == 0
-                : Arrays.stream(values).allMatch(val -> val instanceof String && ((String) val).isBlank()));
+                : val instanceof String[] && ((String) val[0]).isBlank());
     }
 
     @Override
