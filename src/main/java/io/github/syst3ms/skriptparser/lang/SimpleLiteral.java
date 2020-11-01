@@ -111,7 +111,7 @@ public class SimpleLiteral<T> implements Literal<T> {
 
     @Override
     public Iterator<T> iterator(TriggerContext context) {
-        if (!isSingle())
+        if (isSingle())
             throw new SkriptRuntimeException("Can't loop a single literal !");
         return CollectionUtils.iterator(values);
     }

@@ -7,7 +7,7 @@ import io.github.syst3ms.skriptparser.registration.tags.Tag;
  * A tag that resets all currently ongoing tags.
  * @name Reset Tag
  * @type TAG
- * @pattern <reset>, &r
+ * @pattern reset, r
  * @since ALPHA
  * @author Mwexim
  */

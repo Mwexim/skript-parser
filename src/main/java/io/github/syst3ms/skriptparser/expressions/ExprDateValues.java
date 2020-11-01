@@ -10,8 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
-import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * Names of certain values of a date, for example the name of the month.
@@ -37,35 +35,33 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 
 	int parseMark;
 
-	@Override
-	public Optional<? extends Function<? super SkriptDate[], ? extends String[]>> getPropertyFunction() {
-		return Optional.of(dates -> {
-			LocalDateTime lcd = dates[0].toLocalDateTime();
-			switch (parseMark) {
-				case 0:
-					return new String[] {lcd.toLocalDate().getEra().getDisplayName(
-							TextStyle.FULL, SkriptDate.DATE_LOCALE
-					)};
-				case 1:
-					return new String[] {lcd.getMonth().getDisplayName(
-							TextStyle.FULL, SkriptDate.DATE_LOCALE
-					)};
-				case 2:
-					return new String[] {lcd.getDayOfWeek().getDisplayName(
-							TextStyle.FULL, SkriptDate.DATE_LOCALE
-					)};
-				default:
-					return new String[0];
-			}
-		});
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		parseMark = parseContext.getParseMark();
 		setOwner((Expression<SkriptDate>) expressions[0]);
 		return true;
+	}
+
+	@Override
+	public String[] getProperty(SkriptDate[] owners) {
+		LocalDateTime lcd = owners[0].toLocalDateTime();
+		switch (parseMark) {
+			case 0:
+				return new String[] {
+						lcd.toLocalDate().getEra().getDisplayName(TextStyle.FULL, SkriptDate.DATE_LOCALE)
+				};
+			case 1:
+				return new String[] {
+						lcd.getMonth().getDisplayName(TextStyle.FULL, SkriptDate.DATE_LOCALE)
+				};
+			case 2:
+				return new String[] {
+						lcd.getDayOfWeek().getDisplayName(TextStyle.FULL, SkriptDate.DATE_LOCALE)
+				};
+			default:
+				throw new IllegalStateException();
+		}
 	}
 
 	@Override
