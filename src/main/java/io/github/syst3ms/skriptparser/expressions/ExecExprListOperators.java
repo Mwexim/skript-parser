@@ -10,8 +10,8 @@ import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Stream;
 
 /**
  * Basic list operators with the following behavior:
@@ -32,44 +32,74 @@ import java.util.stream.Stream;
  * @type EXPRESSION
  * @pattern pop %objects%
  * @pattern (shift|poll) %objects%
- * @pattern splice %objects% from %integer% [1:to %integer%]
+ * @pattern splice %objects% (from %integer% to %integer%|starting (at|from) %integer%|up to %integer%) [[with] step %integer%]
  * @since ALPHA
  * @author Mwexim
  * @see ExprElement
  */
 public class ExecExprListOperators extends ExecutableExpression<Object> {
-
 	static {
 		Parser.getMainRegistration().addSelfRegisteringElement(
 				ExecExprListOperators.class,
 				Object.class,
 				false,
+				"extract [the] (0:last|1:first|2:%integer%(st|nd|rd|th)) element out [of] %objects%",
 				"pop %objects%",
 				"(shift|poll) %objects%",
-				"splice %objects% from %integer% [1:to %integer%]"
+				"splice %objects% (0:from %integer% to %integer%|1:starting (at|from) %integer%|2:up to %integer%) [[with] step %integer%]"
 		);
 	}
 
-	private int pattern;
+	private int type;
 	private Expression<Object> list;
+	private Expression<BigInteger> index;
 	private Expression<BigInteger> lower;
 	private Expression<BigInteger> upper;
+	private Expression<BigInteger> step;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		pattern = matchedPattern;
-		list = (Expression<Object>) expressions[0];
-		if (pattern == 2) {
-			lower = (Expression<BigInteger>) expressions[1];
-			if (parseContext.getParseMark() == 1)
-				upper = (Expression<BigInteger>) expressions[2];
+		switch (matchedPattern) {
+			case 0:
+				type = parseContext.getParseMark();
+				list = (Expression<Object>) (type == 2 ? expressions[1] : expressions[0]);
+				if (type == 2)
+					index = (Expression<BigInteger>) expressions[0];
+				break;
+			case 1:
+			case 2:
+				type = matchedPattern - 1;
+				list = (Expression<Object>) expressions[0];
+				break;
+			case 3:
+				type = 3;
+				list = (Expression<Object>) expressions[0];
+				switch (parseContext.getParseMark()) {
+					case 0:
+						lower = (Expression<BigInteger>) expressions[1];
+						upper = (Expression<BigInteger>) expressions[2];
+						if (expressions.length == 4)
+							step = (Expression<BigInteger>) expressions[3];
+						break;
+					case 1:
+						lower = (Expression<BigInteger>) expressions[1];
+						if (expressions.length == 3)
+							step = (Expression<BigInteger>) expressions[2];
+						break;
+					case 2:
+						upper = (Expression<BigInteger>) expressions[1];
+						if (expressions.length == 3)
+							step = (Expression<BigInteger>) expressions[2];
+						break;
+					default:
+						throw new IllegalStateException();
+				}
 		}
-
 		var logger = parseContext.getLogger();
 		if (list.acceptsChange(ChangeMode.SET).isEmpty()) {
 			logger.error(
-					list.toString(null, logger.isDebug()) + " cannot be changed accordingly",
+					list.toString(null, logger.isDebug()) + " is static and cannot be changed",
 					ErrorType.SEMANTIC_ERROR
 			);
 			return false;
@@ -90,7 +120,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 		if (values.length == 0)
 			return new Object[0];
 
-		switch (pattern) {
+		switch (type) {
 			case 0:
 				list.change(ctx, Arrays.copyOfRange(values, 0, values.length - 1), ChangeMode.SET);
 				return new Object[] {values[values.length - 1]};
@@ -98,32 +128,52 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 				list.change(ctx, Arrays.copyOfRange(values, 1, values.length), ChangeMode.SET);
 				return new Object[] {values[0]};
 			case 2:
-				var low = lower.getSingle(ctx);
-				if (low.isEmpty() || low.get().compareTo(BigInteger.ZERO) <= 0) {
-					list.change(ctx, new Object[0], ChangeMode.SET);
+				int ind = index.getSingle(ctx)
+						.filter(n -> n.signum() > 0 && n.compareTo(BigInteger.valueOf(values.length)) <= 0)
+						.map(n -> n.intValue() - 1)
+						.orElse(-1);
+				if (ind == -1) {
 					return new Object[0];
 				}
-				int b1 = low.get().intValue() - 1;
-				int b2 = upper != null
-						? upper.getSingle(ctx)
-								.filter(u -> u.compareTo(BigInteger.valueOf(values.length)) <= 0)
-								.map(u -> (BigInteger) u)
-								.orElse(BigInteger.valueOf(values.length)).intValue()
+				var skipped = new Object[values.length - 1];
+				for (int i = 0, k = 0; i < values.length; i++) {
+					if (i == ind) {
+						continue;
+					}
+					skipped[k++] = values[i];
+				}
+				list.change(ctx, skipped, ChangeMode.SET);
+				return new Object[] {values[ind]};
+			case 3:
+				var low = lower != null
+						? lower.getSingle(ctx).filter(n -> n.signum() > 0).map(n -> n.intValue() - 1).orElse(-1)
+						: 0;
+				var up = upper != null
+						? upper.getSingle(ctx).filter(n -> n.compareTo(BigInteger.valueOf(values.length)) <= 0).map(BigInteger::intValue).orElse(values.length)
 						: values.length;
-				if (b1 > b2) {
+				var st = step != null
+						? step.getSingle(ctx).filter(n -> n.signum() > 0 && n.compareTo(BigInteger.valueOf(values.length)) <= 0).map(BigInteger::intValue).orElse(-1)
+						: 1;
+
+				if (low == -1 || up == -1 || up == 0 || st == -1 || low > up) {
 					list.change(ctx, new Object[0], ChangeMode.SET);
 					return new Object[0];
-				} else if (b1 == b2) {
-					return new Object[0]; // There's nothing to change here.
+				} else if (low == up) {
+					// Nothing to change
+					return new Object[0];
 				}
-				list.change(
-						ctx,
-						Stream.of(Arrays.copyOfRange(values, 0, b1), Arrays.copyOfRange(values, b2, values.length))
-								.flatMap(Stream::of)
-								.toArray(),
-						ChangeMode.SET
-				);
-				return Arrays.copyOfRange(values, b1, b2);
+				var spliced = new ArrayList<>();
+				var changed = new Object[values.length - up + low];
+				for (int i = 0, k = 0; i < values.length; i++) {
+					if (i >= low && i < up && (i - low) % st == 0) {
+						spliced.add(values[i]);
+					} else {
+						changed[k++] = values[i];
+					}
+				}
+
+				list.change(ctx, changed, ChangeMode.SET);
+				return spliced.toArray(new Object[0]);
 			default:
 				throw new IllegalStateException();
 		}
@@ -131,12 +181,12 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 
 	@Override
 	public boolean isSingle() {
-		return pattern == 0 || pattern == 1;
+		return type == 0 || type == 1;
 	}
 
 	@Override
 	public String toString(@Nullable TriggerContext ctx, boolean debug) {
-		switch (pattern) {
+		switch (type) {
 			case 0:
 				return "pop " + list.toString(ctx, debug);
 			case 1:
