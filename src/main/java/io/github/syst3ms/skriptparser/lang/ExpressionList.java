@@ -81,6 +81,11 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
+    public boolean isSingle() {
+        return single;
+    }
+
+    @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
         var sb = new StringBuilder();
         for (var i = 0; i < expressions.length; i++) {
