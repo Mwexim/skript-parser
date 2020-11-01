@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 public class ThreadUtils {
 
 	/**
-	 * Run certain code once on a separate thread
+	 * Run certain code once on a separate thread. The thread is shut down after the code ran.
 	 * @param code the runnable that needs to be executed
 	 */
 	public static void runAsync(Runnable code) {
@@ -19,7 +19,7 @@ public class ThreadUtils {
 	}
 
 	/**
-	 * Run certain code once after a certain delay.
+	 * Run certain code once after a certain delay. The thread is shut down after the code ran.
 	 * @param code the runnable that needs to be executed
 	 * @param duration the delay
 	 */
@@ -35,8 +35,7 @@ public class ThreadUtils {
 	 * @param duration the delay
 	 */
 	public static void runPeriodically(Runnable code, Duration duration) {
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleAtFixedRate(code, duration.toMillis(), duration.toMillis(), TimeUnit.MILLISECONDS);
+		runPeriodically(code, duration, duration);
 	}
 
 	/**
@@ -48,5 +47,44 @@ public class ThreadUtils {
 	public static void runPeriodically(Runnable code, Duration initialDelay, Duration duration) {
 		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 		scheduler.scheduleAtFixedRate(code, initialDelay.toMillis(), duration.toMillis(), TimeUnit.MILLISECONDS);
+	}
+
+	/**
+	 * Runs certain code periodically but with a final bound.
+	 * @param code the runnable that needs to be executed
+	 * @param duration the delay
+	 * @param maxTime the duration this thread will be opened in milliseconds
+	 */
+	public static void runPeriodicallyBounded(Runnable code, Duration duration, Duration maxTime) {
+		runPeriodicallyBounded(code, duration, duration, maxTime);
+	}
+
+	/**
+	 * Runs certain code periodically but with a final bound.
+	 * @param code the runnable that needs to be executed
+	 * @param initialDelay the initial delay
+	 * @param duration the delay
+	 * @param maxTime the duration this thread will be opened in milliseconds
+	 */
+	public static void runPeriodicallyBounded(Runnable code, Duration initialDelay, Duration duration, Duration maxTime) {
+		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+		scheduler.scheduleAtFixedRate(code, initialDelay.toMillis(), duration.toMillis(), TimeUnit.MILLISECONDS);
+		scheduler.schedule(scheduler::shutdownNow, maxTime.toMillis(), TimeUnit.MILLISECONDS);
+	}
+
+	/**
+	 * Builds a new thread using an {@link ExecutorService}, allowing various utility methods.
+	 * @return the created thread
+	 */
+	public static ExecutorService buildAsync() {
+		return Executors.newCachedThreadPool();
+	}
+
+	/**
+	 * Builds a new thread using an {@link ScheduledExecutorService}, allowing various utility methods.
+	 * @return the created thread
+	 */
+	public static ScheduledExecutorService buildPeriodic() {
+		return Executors.newSingleThreadScheduledExecutor();
 	}
 }

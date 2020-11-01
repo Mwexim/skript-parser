@@ -130,7 +130,17 @@ public class VariableString extends TaggedExpression {
                 if (i + 1 == charArray.length) {
                     return Optional.empty();
                 }
-                sb.append(charArray[++i]);
+                char next = charArray[++i];
+                switch (next) {
+                    case 'n':
+                        sb.append(System.lineSeparator());
+                        break;
+                    case 't':
+                        sb.append('\t');
+                        break;
+                    default:
+                        sb.append(c);
+                }
             } else if (c == '&') {
                 logger.recurse();
                 var tag = TagManager.parseTag(String.valueOf(charArray[++i]), logger);
@@ -168,7 +178,6 @@ public class VariableString extends TaggedExpression {
         return toString(ctx, "default");
     }
 
-    @SuppressWarnings("unchecked")
     public String toString(TriggerContext ctx, String tagCtx) {
         if (simple)
             return (String) data[0];
@@ -178,7 +187,7 @@ public class VariableString extends TaggedExpression {
                 .filter(o -> !(o instanceof Tag) || ((Tag) o).isUsable(tagCtx))
                 .toArray();
         var sb = new StringBuilder();
-        int tags = 1;
+        int currentTags = 1;
         List<Tag> ongoingTags = new ArrayList<>();
 
         for (int i = 0; i < actualData.length; i++) {
@@ -187,7 +196,7 @@ public class VariableString extends TaggedExpression {
                 sb.append(TypeManager.toString(((Expression<?>) o).getValues(ctx)));
             } else if (o instanceof Tag) {
                 ongoingTags.add((Tag) o);
-                int indexOfNext = CollectionUtils.ordinalConditionalIndexOf(Arrays.asList(actualData), tags, t -> t instanceof Tag);
+                int indexOfNext = CollectionUtils.ordinalConditionalIndexOf(actualData, ++currentTags, t -> t instanceof Tag);
                 if (indexOfNext == -1)
                     indexOfNext = actualData.length;
                 var affected = new StringBuilder();
@@ -202,13 +211,12 @@ public class VariableString extends TaggedExpression {
                         affected.append(o2);
                     }
                 }
-                ongoingTags.removeIf(t -> !t.combinesWith((Class<Tag>) o.getClass()));
-                var fin = ((Tag) o).getValue(affected.toString());
+                ongoingTags.removeIf(t -> !o.equals(t) && !((Tag) o).combinesWith(t.getClass()));
+                var fin = affected.toString();
                 for (Tag tag : ongoingTags) {
                     fin = tag.getValue(fin);
                 }
                 sb.append(fin);
-                tags++;
                 i = indexOfNext - 1;
             } else {
                 sb.append(o);
