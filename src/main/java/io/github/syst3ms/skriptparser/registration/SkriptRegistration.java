@@ -335,7 +335,7 @@ public class SkriptRegistration {
      * The {@link TypeRegistrar#literalParser(Function) literalParser(Function)}
      * and {@link TypeRegistrar#toStringFunction(Function) toStringFunction(Function)} methods
      * are implemented at default.
-     * Note that the represented Enum's values need to be in the {@code UPPER_CASE_SNAKE} convention.
+     * Note that the represented Enum's values need to be in the {@code SCREAMING_CASE_SNAKE} convention.
      * @param c the class the Type represents
      * @param pattern the Type's pattern
      * @param <T> the represented class
