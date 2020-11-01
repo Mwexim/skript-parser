@@ -9,8 +9,6 @@ import io.github.syst3ms.skriptparser.util.SkriptDate;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
-import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * The timestamp of a date.
@@ -39,23 +37,20 @@ public class ExprDateTimestamp extends PropertyExpression<Number, SkriptDate> {
 
 	boolean unix;
 
-	@Override
-	public Optional<? extends Function<? super SkriptDate[], ? extends Number[]>> getPropertyFunction() {
-		return Optional.of(
-				dates -> new Number[] {
-					unix
-						? BigInteger.valueOf(Math.floorDiv(dates[0].getTimestamp(), 1000))
-						: BigInteger.valueOf(dates[0].getTimestamp())
-				}
-		);
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		unix = parseContext.getParseMark() == 1;
 		setOwner((Expression<SkriptDate>) expressions[0]);
 		return true;
+	}
+
+	@Override
+	public Number[] getProperty(SkriptDate[] owners) {
+		return new Number[] {
+				unix ? BigInteger.valueOf(Math.floorDiv(owners[0].getTimestamp(), 1000))
+						: BigInteger.valueOf(owners[0].getTimestamp())
+		};
 	}
 
 	@Override
