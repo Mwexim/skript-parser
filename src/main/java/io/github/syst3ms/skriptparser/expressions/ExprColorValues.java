@@ -9,8 +9,6 @@ import io.github.syst3ms.skriptparser.util.color.Color;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
-import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * Certain color values of a given color.
@@ -19,7 +17,6 @@ import java.util.function.Function;
  * @type EXPRESSION
  * @pattern [the] (0:rgb (value|color)|1:red [value]|2:green [value]|3:blue [value]) of %color%
  * @pattern %color%'[s] (0:rgb (value|color)|1:red [value]|2:green [value]|3:blue [value])
- * @pattern %color% as rgb
  * @since ALPHA
  * @author Mwexim
  */
@@ -45,26 +42,24 @@ public class ExprColorValues extends PropertyExpression<BigInteger, Color> {
 	}
 
 	@Override
-	public Optional<? extends Function<? super Color[], ? extends BigInteger[]>> getPropertyFunction() {
-		return Optional.of(colors -> {
-			Color c = colors[0];
-			switch (parseMark) {
-				case 0:
-					return new BigInteger[] {
-							BigInteger.valueOf(c.getRed()),
-							BigInteger.valueOf(c.getGreen()),
-							BigInteger.valueOf(c.getBlue())
-					};
-				case 1:
-					return new BigInteger[] {BigInteger.valueOf(c.getRed())};
-				case 2:
-					return new BigInteger[] {BigInteger.valueOf(c.getGreen())};
-				case 3:
-					return new BigInteger[] {BigInteger.valueOf(c.getBlue())};
-				default:
-					throw new IllegalStateException();
-			}
-		});
+	public BigInteger[] getProperty(Color[] owners) {
+		Color c = owners[0];
+		switch (parseMark) {
+			case 0:
+				return new BigInteger[] {
+						BigInteger.valueOf(c.getRed()),
+						BigInteger.valueOf(c.getGreen()),
+						BigInteger.valueOf(c.getBlue())
+				};
+			case 1:
+				return new BigInteger[] {BigInteger.valueOf(c.getRed())};
+			case 2:
+				return new BigInteger[] {BigInteger.valueOf(c.getGreen())};
+			case 3:
+				return new BigInteger[] {BigInteger.valueOf(c.getBlue())};
+			default:
+				throw new IllegalStateException();
+		}
 	}
 
 	@Override
@@ -76,7 +71,7 @@ public class ExprColorValues extends PropertyExpression<BigInteger, Color> {
 	public String toString(@Nullable TriggerContext ctx, boolean debug) {
 		switch (parseMark) {
 			case 0:
-				return getOwner().toString(ctx, debug) + " as rgb";
+				return "rgb value of " + getOwner().toString(ctx, debug);
 			case 1:
 				return "red value of " + getOwner().toString(ctx, debug);
 			case 2:
