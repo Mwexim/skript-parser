@@ -7,6 +7,7 @@ import io.github.syst3ms.skriptparser.lang.base.ExecutableExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
+import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
@@ -18,15 +19,16 @@ import java.util.Arrays;
  * <ul>
  *      <li>{@code pop} removes the last element and returns that removed element.</li>
  *      <li>{@code shift/poll} removes the first element and returns that removed element.</li>
+ *      <li>{@code extract} removes a specific (or just the first/last element) and returns that removed element</li>
  *      <li>{@code splice} removes elements in a certain bound and returns those removed elements.</li>
  * </ul>
  * These are all changing operators, which mean they apply the operator on the source list
  * and return other elements accordingly to the operator type. If the list is not changeable,
  * then these operators will not work.
- * Note that indices in Skript start at one and that the upper bound of the {@code splice} operator
- * is inclusive.
- * If the lower/upper bound is not a part of the list, an empty list will be returned, except for when the
- * upper bound is higher than the size of the list. In that case, the list size will be taken as upper bound.
+ * Note that indices in Skript start at one and that both the lower and upper bounds are inclusive.
+ * The step function can be used in the {@code splice} pattern to skip over certain values. Note that
+ * when a negative step function is used, the list is reversed as well as the lower and upper bounds,
+ * which means the lower bound must be higher than the upper bound.
  *
  * @name List Operators
  * @type EXPRESSION
@@ -152,27 +154,36 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 						? upper.getSingle(ctx).filter(n -> n.compareTo(BigInteger.valueOf(values.length)) <= 0).map(BigInteger::intValue).orElse(values.length)
 						: values.length;
 				var st = step != null
-						? step.getSingle(ctx).filter(n -> n.signum() > 0 && n.compareTo(BigInteger.valueOf(values.length)) <= 0).map(BigInteger::intValue).orElse(-1)
+						? step.getSingle(ctx).filter(n -> n.signum() != 0 && n.compareTo(BigInteger.valueOf(-values.length)) >= 0 && n.compareTo(BigInteger.valueOf(values.length)) <= 0).map(BigInteger::intValue).orElse(0)
 						: 1;
 
-				if (low == -1 || up == -1 || up == 0 || st == -1 || low > up) {
+				if (st < 0) {
+					CollectionUtils.reverseArray(values);
+					st = -st;
+					int temp = low;
+					low = up - 1;
+					up = temp + 1;
+				}
+				if (low == -1 || up == -1 || up == 0 || st == 0 || low > up) {
 					list.change(ctx, new Object[0], ChangeMode.SET);
 					return new Object[0];
 				} else if (low == up) {
 					// Nothing to change
 					return new Object[0];
 				}
+
 				var spliced = new ArrayList<>();
-				var changed = new Object[values.length - up + low];
-				for (int i = 0, k = 0; i < values.length; i++) {
+				var changed = new ArrayList<>();
+				for (int i = 0; i < values.length; i++) {
 					if (i >= low && i < up && (i - low) % st == 0) {
 						spliced.add(values[i]);
 					} else {
-						changed[k++] = values[i];
+						System.out.println(values[i]);
+						changed.add(values[i]);
 					}
 				}
 
-				list.change(ctx, changed, ChangeMode.SET);
+				list.change(ctx, changed.toArray(), ChangeMode.SET);
 				return spliced.toArray(new Object[0]);
 			default:
 				throw new IllegalStateException();
