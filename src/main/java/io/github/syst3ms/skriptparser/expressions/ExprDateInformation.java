@@ -10,8 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * Information of a certain date.
@@ -41,41 +39,39 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 
 	int parseMark;
 
-	@Override
-	public Optional<? extends Function<? super SkriptDate[], ? extends Number[]>> getPropertyFunction() {
-		return Optional.of(dates -> {
-			LocalDateTime lcd = dates[0].toLocalDateTime();
-			switch (parseMark) {
-				case 0:
-					return new Number[] {BigInteger.valueOf(lcd.getYear())};
-				case 1:
-					return new Number[] {BigInteger.valueOf(lcd.getMonthValue())};
-				case 2:
-					return new Number[] {BigInteger.valueOf(lcd.getDayOfYear())};
-				case 3:
-					return new Number[] {BigInteger.valueOf(lcd.getDayOfMonth())};
-				case 4:
-					return new Number[] {BigInteger.valueOf(lcd.getDayOfWeek().getValue())};
-				case 5:
-					return new Number[] {BigInteger.valueOf(lcd.getHour())};
-				case 6:
-					return new Number[] {BigInteger.valueOf(lcd.getMinute())};
-				case 7:
-					return new Number[] {BigInteger.valueOf(lcd.getSecond())};
-				case 8:
-					return new Number[] {BigInteger.valueOf(lcd.getNano() / 1_000_000)};
-				default:
-					throw new IllegalStateException();
-			}
-		});
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		parseMark = parseContext.getParseMark();
 		setOwner((Expression<SkriptDate>) expressions[0]);
 		return true;
+	}
+
+	@Override
+	public Number[] getProperty(SkriptDate[] owners) {
+		LocalDateTime lcd = owners[0].toLocalDateTime();
+		switch (parseMark) {
+			case 0:
+				return new Number[] {BigInteger.valueOf(lcd.getYear())};
+			case 1:
+				return new Number[] {BigInteger.valueOf(lcd.getMonthValue())};
+			case 2:
+				return new Number[] {BigInteger.valueOf(lcd.getDayOfYear())};
+			case 3:
+				return new Number[] {BigInteger.valueOf(lcd.getDayOfMonth())};
+			case 4:
+				return new Number[] {BigInteger.valueOf(lcd.getDayOfWeek().getValue())};
+			case 5:
+				return new Number[] {BigInteger.valueOf(lcd.getHour())};
+			case 6:
+				return new Number[] {BigInteger.valueOf(lcd.getMinute())};
+			case 7:
+				return new Number[] {BigInteger.valueOf(lcd.getSecond())};
+			case 8:
+				return new Number[] {BigInteger.valueOf(lcd.getNano() / 1_000_000)};
+			default:
+				throw new IllegalStateException();
+		}
 	}
 
 	@Override
