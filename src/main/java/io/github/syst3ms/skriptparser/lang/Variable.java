@@ -259,7 +259,7 @@ public class Variable<T> implements Expression<T> {
             case DELETE:
                 if (list) {
                     var rem = new ArrayList<String>();
-                    var o = (Map<String, Object>) getRaw(ctx).orElseThrow(AssertionError::new);
+                    var o = (Map<String, Object>) getRaw(ctx).orElse(null);
                     if (o == null)
                         return;
                     for (var i : o.entrySet()) {

@@ -17,6 +17,42 @@ class VariableMap {
     }
 
     /**
+     * Returns the internal value of the requested variable.
+     * <p>
+     * <b>Do not modify the returned value!</b>
+     *
+     * @param name name of the variable
+     * @return an Object for a normal Variable or a Map<String, Object> for a list variable, or null if the variable is not set.
+     */
+    @SuppressWarnings("unchecked")
+    public Optional<Object> getVariable(String name) {
+        if (!name.endsWith("*")) {
+            return Optional.ofNullable(map.get(name));
+        } else {
+            var split = splitList(name);
+            var current = map;
+            for (var i = 0; i < split.length; i++) {
+                var n = split[i];
+                if (n.equals("*")) {
+                    assert i == split.length - 1;
+                    return Optional.of(current);
+                }
+                var o = current.get(n);
+                if (o == null) {
+                    return Optional.empty();
+                }
+                if (o instanceof Map) {
+                    current = (Map<String, Object>) o;
+                    assert i != split.length - 1;
+                } else {
+                    return Optional.empty();
+                }
+            }
+            return Optional.empty();
+        }
+    }
+
+    /**
 	 * Sets a variable.
 	 *
 	 * @param name  The variable's name. Can be a "list variable::*" (<tt>value</tt> must be <tt>null</tt> in this case)
@@ -90,6 +126,13 @@ class VariableMap {
         }
     }
 
+    /**
+     * Clears all variables
+     */
+    public void clearVariables() {
+        map.clear();
+    }
+
     @SuppressWarnings("unchecked")
     private void deleteFromHashMap(String parent, Map<String, Object> current) {
         for (var e : current.entrySet()) {
@@ -101,42 +144,6 @@ class VariableMap {
             if (val instanceof Map) {
                 deleteFromHashMap(parent + Variables.LIST_SEPARATOR + e.getKey(), (Map<String, Object>) val);
             }
-        }
-    }
-
-    /**
-	 * Returns the internal value of the requested variable.
-	 * <p>
-	 * <b>Do not modify the returned value!</b>
-	 *
-	 * @param name name of the variable
-	 * @return an Object for a normal Variable or a Map<String, Object> for a list variable, or null if the variable is not set.
-	 */
-    @SuppressWarnings("unchecked")
-    public Optional<Object> getVariable(String name) {
-        if (!name.endsWith("*")) {
-            return Optional.ofNullable(map.get(name));
-        } else {
-            var split = splitList(name);
-            var current = map;
-            for (var i = 0; i < split.length; i++) {
-                var n = split[i];
-                if (n.equals("*")) {
-                    assert i == split.length - 1;
-                    return Optional.of(current);
-                }
-                var o = current.get(n);
-                if (o == null) {
-                    return Optional.empty();
-                }
-                if (o instanceof Map) {
-                    current = (Map<String, Object>) o;
-                    assert i != split.length - 1;
-                } else {
-                    return Optional.empty();
-                }
-            }
-            return Optional.empty();
         }
     }
 }

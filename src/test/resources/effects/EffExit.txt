@@ -1,0 +1,35 @@
+test:
+	birth:
+		if true:
+			if true:
+				exit this section
+				assert false
+			set {flag::1} to true
+
+			if true:
+				exit 2 conditionals
+				assert false
+			assert false
+		death
+
+	birth:
+		if true:
+			while true:
+				while true:
+					exit all loops
+					assert false
+				assert false
+			set {flag::2} to true
+			stop this section
+			assert false
+		death
+
+		# Flags
+		assert {flag::1} is set with "{flag::1} was not set"
+		assert {flag::2} is set with "{flag::2} was not set"
+
+	delete {flag::1}
+	delete {flag::2}
+
+	stop
+	assert false

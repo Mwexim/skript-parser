@@ -24,6 +24,7 @@ public class EffContinue extends Effect {
     static {
         Parser.getMainRegistration().addEffect(
             EffContinue.class,
+            4,
             "continue"
         );
     }
@@ -38,13 +39,14 @@ public class EffContinue extends Effect {
                 loops.add((SecLoop) sec);
             }
         }
-        // Closest loop will be the first item
-        loop = loops.get(0);
-
-        if (loop == null) {
+        if (loops.size() == 0) {
             parseContext.getLogger().error("You can only use the 'continue' in a loop!", ErrorType.SEMANTIC_ERROR);
             return false;
         }
+        // Closest loop will be the first item
+        loop = loops.get(0);
+        assert loop != null;
+
         return true;
     }
 
