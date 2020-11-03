@@ -23,7 +23,7 @@ public class Color {
         entry("DARK_YELLOW", of(0x808000)),
         entry("LIME", of(0x00ff00)),
         entry("GREEN", of(0x008000)),
-        entry("AQUA", of(0x0000ff)),
+        entry("AQUA", of(0x00ffff)),
         entry("CYAN", of(0x008080)),
         entry("BLUE", of(0x0000ff)),
         entry("DARK_BLUE", of(0x000080)),
