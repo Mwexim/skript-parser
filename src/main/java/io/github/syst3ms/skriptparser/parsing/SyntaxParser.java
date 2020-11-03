@@ -64,7 +64,7 @@ public class SyntaxParser {
     // Gradle requires the cast, but IntelliJ considers it redundant
     public static final PatternType<Object> OBJECTS_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class).orElseThrow(AssertionError::new), false);
 
-    public static final ExpressionInfo<ExprBooleanOperators, Boolean> EXPRESSION_BOOLEANOPERATORS
+    public static final ExpressionInfo<ExprBooleanOperators, Boolean> EXPRESSION_BOOLEAN_OPERATORS
             = (ExpressionInfo<ExprBooleanOperators, Boolean>) SyntaxManager.getAllExpressions().stream()
             .filter(i -> i.getSyntaxClass() == ExprBooleanOperators.class)
             .findFirst()
@@ -132,9 +132,9 @@ public class SyntaxParser {
             s = s.substring("list ".length());
         } else {
             // We parse boolean operators first to prevent clutter while parsing.
-            var booleanOperator = matchExpressionInfo(s, EXPRESSION_BOOLEANOPERATORS, expectedType, parserState, logger);
+            var booleanOperator = matchExpressionInfo(s, EXPRESSION_BOOLEAN_OPERATORS, expectedType, parserState, logger);
             if (booleanOperator.isPresent()) {
-                recentExpressions.acknowledge(EXPRESSION_BOOLEANOPERATORS);
+                recentExpressions.acknowledge(EXPRESSION_BOOLEAN_OPERATORS);
                 logger.clearErrors();
                 return booleanOperator;
             }
