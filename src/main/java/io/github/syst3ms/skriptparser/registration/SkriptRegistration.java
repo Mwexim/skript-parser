@@ -309,6 +309,17 @@ public class SkriptRegistration {
     }
 
     /**
+     * Starts a registration process for a {@link Type}
+     * @param c the class the Type represents
+     * @param pattern the Type's pattern
+     * @param <T> the represented class
+     * @return an {@link TypeRegistrar}
+     */
+    public <T> TypeRegistrar<T> newType(Class<T> c, String name, String pattern) {
+        return new TypeRegistrar<>(c, name, pattern);
+    }
+
+    /**
      * Registers a {@link Type}
      * @param c the class the Type represents
      * @param pattern the Type's pattern
@@ -319,14 +330,61 @@ public class SkriptRegistration {
     }
 
     /**
-     * Starts a registration process for a {@link Type}
+     * Starts the registration process for an {@link Enum} as a {@link Type}.
+     * <br>
+     * The {@link TypeRegistrar#literalParser(Function) literalParser(Function)}
+     * and {@link TypeRegistrar#toStringFunction(Function) toStringFunction(Function)} methods
+     * are implemented at default.
+     * Note that the represented Enum's values need to be in the {@code SCREAMING_SNAKE_CASE} convention.
      * @param c the class the Type represents
      * @param pattern the Type's pattern
      * @param <T> the represented class
      * @return an {@link TypeRegistrar}
      */
-    public <T> TypeRegistrar<T> newType(Class<T> c, String name, String pattern) {
-        return new TypeRegistrar<>(c, name, pattern);
+    public <T extends Enum<T>> TypeRegistrar<T> newEnumType(Class<T> c, String name, String pattern) {
+        return new TypeRegistrar<>(c, name, pattern)
+                .literalParser(s -> {
+                    // We won't allow ugly syntax.
+                    // Otherwise, a field like 'MY_ENUM_CONSTANT' would allow 'my enum_constant'.
+                    if (s.contains("_"))
+                        return null;
+                    s = s.replaceAll(" ", "_").toUpperCase();
+                    try {
+                        return Enum.valueOf(c, s);
+                    } catch (IllegalArgumentException ignored) {
+                        return null;
+                    }
+                })
+                .toStringFunction(o -> o.toString().replaceAll("_", " ").toLowerCase());
+    }
+
+    /**
+     * Registers an {@link Enum} as a {@link Type}.
+     * <br>
+     * The {@link TypeRegistrar#literalParser(Function) literalParser(Function)}
+     * and {@link TypeRegistrar#toStringFunction(Function) toStringFunction(Function)} methods
+     * are implemented at default.
+     * Note that the represented Enum's values need to be in the {@code SCREAMING_SNAKE_CASE} convention.
+     * @param c the class the Type represents
+     * @param pattern the Type's pattern
+     * @param <T> the represented class
+     */
+    public <T extends Enum<T>> void addEnumType(Class<T> c, String name, String pattern) {
+        new TypeRegistrar<>(c, name, pattern)
+                .literalParser(s -> {
+                    // We won't allow ugly syntax.
+                    // Otherwise, a field like 'MY_ENUM_CONSTANT' would allow 'my enum_constant'.
+                    if (s.contains("_"))
+                        return null;
+                    s = s.replaceAll(" ", "_").toUpperCase();
+                    try {
+                        return Enum.valueOf(c, s);
+                    } catch (IllegalArgumentException ignored) {
+                        return null;
+                    }
+                })
+                .toStringFunction(o -> o.toString().replaceAll("_", " ").toLowerCase())
+                .register();
     }
 
     /**
