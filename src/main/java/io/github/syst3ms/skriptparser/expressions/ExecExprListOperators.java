@@ -178,7 +178,6 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 					if (i >= low && i < up && (i - low) % st == 0) {
 						spliced.add(values[i]);
 					} else {
-						System.out.println(values[i]);
 						changed.add(values[i]);
 					}
 				}
