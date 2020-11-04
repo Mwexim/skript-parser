@@ -46,8 +46,8 @@ public class SecBirth extends CodeSection {
         while (!item.equals(getNext())) {
             item = item.flatMap(val -> val.walk(ctx));
         }
-        if (currentBirths.containsKey(this)) {
-            throw new SkriptRuntimeException("Birth section was not killed afterwards");
+        if (!currentBirths.containsKey(this)) {
+            throw new SkriptRuntimeException("birth section was not killed afterwards");
         }
         currentBirths.remove(this);
         return getNext();

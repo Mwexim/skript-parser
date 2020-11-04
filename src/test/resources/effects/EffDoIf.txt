@@ -1,2 +1,2 @@
 test:
-	assert false with "false condition was run" if false
+	assert false with "False condition was run" if false

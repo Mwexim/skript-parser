@@ -1,3 +1,0 @@
-test:
-	shutdown
-	assert false with "script was not shut down"

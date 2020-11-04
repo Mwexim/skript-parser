@@ -3,13 +3,13 @@ test:
 		if true:
 			if true:
 				exit this section
-				assert false
+				assert false with "'exit one'-statement didn't work properly"
 			set {flag::1} to true
 
 			if true:
 				exit 2 conditionals
-				assert false
-			assert false
+				assert false with "'exit 2 conditionals'-statement didn't work properly"
+			assert false with "'exit 2 conditionals'-statement didn't work properly"
 		death
 
 	birth:
@@ -17,11 +17,11 @@ test:
 			while true:
 				while true:
 					exit all loops
-					assert false
-				assert false
+					assert false with "'exit all loops'-statement didn't work properly"
+				assert false with "'exit all loops'-statement didn't work properly"
 			set {flag::2} to true
-			stop this section
-			assert false
+			stop this conditional
+			assert false with "'exit this conditional'-statement didn't work properly"
 		death
 
 		# Flags
@@ -32,4 +32,4 @@ test:
 	delete {flag::2}
 
 	stop
-	assert false
+	assert false with "'exit'-statement didn't work properly"

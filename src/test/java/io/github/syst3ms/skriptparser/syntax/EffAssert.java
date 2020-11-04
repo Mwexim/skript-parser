@@ -6,6 +6,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.parsing.SyntaxParserTest;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,13 +44,14 @@ public class EffAssert extends Effect {
 	@Override
 	public void execute(TriggerContext ctx) {
 		condition.getSingle(ctx)
-				.filter(b -> (Boolean) b)
-				.orElseThrow(() -> new AssertionError(
+				.filter(b -> !b)
+				.ifPresent(__ -> SyntaxParserTest.addError(new AssertionError(
 						message == null
-								? "Assertion in script '" + logger.getFileName() + " failed"
-								+ " ('" + condition.toString(TriggerContext.DUMMY, logger.isDebug()) + "')"
-								: message.getSingle(ctx).map(s -> (String) s).orElse(TypeManager.EMPTY_REPRESENTATION) + " (in '" + logger.getFileName() + "')"
-				));
+								? "Assertion failed ('"
+								+ condition.toString(TriggerContext.DUMMY, logger.isDebug()) + "', "
+								+ logger.getFileName() + ")"
+								: message.getSingle(ctx).map(s -> (String) s).orElse(TypeManager.EMPTY_REPRESENTATION) + " (" + logger.getFileName() + ")"
+				)));
 	}
 
 	@Override
