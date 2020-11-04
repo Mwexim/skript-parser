@@ -39,12 +39,9 @@ public class SyntaxParserTest {
                 Variables.clearVariables();
             }
         }
-        System.out.println(errorsFound);
-
         // For some weird reason some errors are duplicated
         Set<String> duplicateErrors = new HashSet<>();
         errorsFound.removeIf(val -> !duplicateErrors.add(val.getMessage()));
-        System.out.println(errorsFound);
 
         MultipleFailureException.assertEmpty(errorsFound);
     }
