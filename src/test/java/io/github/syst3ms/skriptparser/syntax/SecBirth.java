@@ -5,12 +5,14 @@ import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
+import io.github.syst3ms.skriptparser.parsing.SyntaxParserTest;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -33,10 +35,13 @@ public class SecBirth extends CodeSection {
         );
     }
 
-    private static final Map<SecBirth, EffDeath> currentBirths = new HashMap<>();
+    private static final List<EffDeath> currentDeaths = new ArrayList<>();
+
+    private SkriptLogger logger;
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        logger = parseContext.getLogger();
         return true;
     }
 
@@ -46,10 +51,13 @@ public class SecBirth extends CodeSection {
         while (!item.equals(getNext())) {
             item = item.flatMap(val -> val.walk(ctx));
         }
-        if (!currentBirths.containsKey(this)) {
-            throw new SkriptRuntimeException("birth section was not killed afterwards");
+        if (currentDeaths.isEmpty()) {
+            SyntaxParserTest.addError(new SkriptRuntimeException(
+                    "Birth section was not killed afterwards ("
+                    + logger.getFileName() + ")"
+            ));
         }
-        currentBirths.remove(this);
+        currentDeaths.clear();
         return getNext();
     }
 
@@ -58,7 +66,11 @@ public class SecBirth extends CodeSection {
         return "birth";
     }
 
-    public static Map<SecBirth, EffDeath> getBirths() {
-        return currentBirths;
+    public static void addDeath(EffDeath death) {
+        currentDeaths.add(death);
+    }
+
+    public static void removeDeath(EffDeath death) {
+        currentDeaths.remove(death);
     }
 }

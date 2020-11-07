@@ -27,11 +27,9 @@ public class EffDeath extends Effect {
 		);
 	}
 
-	private List<CodeSection> currentSections;
-
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		currentSections = parseContext.getParserState().getCurrentSections();
+		List<CodeSection> currentSections = parseContext.getParserState().getCurrentSections();
 		if (currentSections.stream().noneMatch(s -> s instanceof SecBirth)) {
 			parseContext.getLogger().error("'death'-statements cannot be used outside of a 'birth'-section", ErrorType.SEMANTIC_ERROR);
 			return false;
@@ -41,10 +39,7 @@ public class EffDeath extends Effect {
 
 	@Override
 	public void execute(TriggerContext ctx) {
-		currentSections.stream()
-				.filter(s -> s instanceof SecBirth)
-				.findFirst()
-				.ifPresent(s -> SecBirth.getBirths().put((SecBirth) s, this));
+		SecBirth.addDeath(this);
 	}
 
 	@Override

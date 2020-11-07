@@ -1,0 +1,9 @@
+test:
+	set {var} to "Hello World"
+	assert length of {var} = 11 with "length of {var} didn't work: %length of {var}% != 11"
+
+	set {var2} to R"something(Hello World)something" # R-literal strings will probably be removed in 0.2
+	assert {var} = {var2}
+
+	set {list::*} to range from "d" to "j"
+	assert {list::*} = "d", "e", "f", "g", "h", "i" and "j"

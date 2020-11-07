@@ -1,6 +1,5 @@
 # Each normal test starts with this trigger.
 test:
-
 	# Assertion with error message
 	assert "true" is "true" with "Basic logic failed"
 

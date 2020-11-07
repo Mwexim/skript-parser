@@ -26,7 +26,6 @@ public class SyntaxParserTest {
         String[] folders = {"effects", "expressions", "literals", "sections", "tags"};
         for (String folder : folders) {
             for (File file : getResourceFolderFiles(folder)) {
-                System.out.println(file.getName());
                 if (file.getName().startsWith("-"))
                     continue;
                 var logs = ScriptLoader.loadScript(file.toPath(), false);

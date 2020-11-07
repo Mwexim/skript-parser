@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.types.ranges.RangeInfo;
@@ -29,8 +28,6 @@ import java.util.function.BiFunction;
 public class ExprRange implements Expression<Object> {
     private Expression<?> from, to;
     private RangeInfo<?, ?> range;
-    @Nullable
-    private Comparator<?, ?> comparator;
 
     static {
         Parser.getMainRegistration().addExpression(
@@ -46,7 +43,6 @@ public class ExprRange implements Expression<Object> {
         from = expressions[0];
         to = expressions[1];
         range = Ranges.getRange(ClassUtils.getCommonSuperclass(from.getReturnType(), to.getReturnType())).orElse(null);
-        comparator = Comparators.getComparator(from.getReturnType(), to.getReturnType()).orElse(null);
         if (range == null) {
             SkriptLogger logger = parseContext.getLogger();
             logger.error("Cannot get a range between " + from.toString(null, logger.isDebug()) + " and " + to.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
@@ -61,8 +57,7 @@ public class ExprRange implements Expression<Object> {
         return DoubleOptional.ofOptional(from.getSingle(ctx), to.getSingle(ctx))
                 .mapToOptional((f, t) -> {
                     // This is safe... right?
-                    if (comparator != null
-                            && ((Comparator<Object, Object>) comparator).apply(f, t).is(Relation.GREATER)) {
+                    if (Comparators.compare(f, t) == Relation.GREATER) {
                         return CollectionUtils.reverseArray(
                                 (Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.getFunction()).apply(t, f)
                         );
