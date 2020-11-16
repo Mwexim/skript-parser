@@ -6,10 +6,8 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.parsing.SyntaxParserTest;
 import io.github.syst3ms.skriptparser.types.TypeManager;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -45,12 +43,13 @@ public class EffAssert extends Effect {
 
 	@Override
 	public void execute(TriggerContext ctx) {
-		assertTrue(condition.getSingle(ctx).get(), message == null
-			? "Assertion failed ('"
-			+ condition.toString(TriggerContext.DUMMY, logger.isDebug()) + "', "
-			+ logger.getFileName() + ")"
-			: message.getSingle(ctx).map(s -> (String) s).orElse(TypeManager.EMPTY_REPRESENTATION) + " (" + logger.getFileName() + ")"
-		);
+		condition.getSingle(ctx)
+				.filter(val -> (Boolean) !val)
+				.ifPresent(__ -> SyntaxParserTest.addError(new AssertionError(
+						message == null
+								? "Assertion failed ('" + condition.toString(TriggerContext.DUMMY, logger.isDebug()) + "', " + logger.getFileName() + ")"
+								: message.getSingle(ctx).map(s -> (String) s).orElse(TypeManager.EMPTY_REPRESENTATION) + " (" + logger.getFileName() + ")"
+				)));
 	}
 
 	@Override

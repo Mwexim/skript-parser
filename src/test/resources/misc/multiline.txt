@@ -1,7 +1,3 @@
-# Author(s):
-# 	- Syst3ms
-# Date: 2019/03/17
-
 # Testing multiline syntax
 no \
 indent

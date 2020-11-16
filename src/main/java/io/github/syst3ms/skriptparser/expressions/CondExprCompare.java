@@ -400,7 +400,12 @@ public class CondExprCompare extends ConditionalExpression {
             for (Object f : firstValues) {
                 boolean isContained = false;
                 for (Object s : secondValues) {
-                    if (comp.apply(f, s).is(Relation.EQUAL)) {
+                    if (comp == null) {
+                        if (Comparators.compare(f, s).is(Relation.EQUAL)) {
+                            isContained = true;
+                            break;
+                        }
+                    } else if (comp.apply(f, s).is(Relation.EQUAL)) {
                         isContained = true;
                         break;
                     }
