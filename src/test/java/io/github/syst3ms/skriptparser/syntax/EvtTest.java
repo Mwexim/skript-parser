@@ -20,9 +20,9 @@ import org.jetbrains.annotations.Nullable;
 public class EvtTest extends SkriptEvent {
 	static {
 		Parser.getMainRegistration()
-				.newEvent(EvtTest.class, "*test [[only] when %=boolean%]")
-				.setHandledContexts(TestContext.class)
-				.register();
+			.newEvent(EvtTest.class, "*test [[only] when %=boolean%]")
+			.setHandledContexts(TestContext.class)
+			.register();
 	}
 
 	private Expression<Boolean> condition;
@@ -38,7 +38,7 @@ public class EvtTest extends SkriptEvent {
 	@Override
 	public boolean check(TriggerContext ctx) {
 		return ctx instanceof TestContext
-				&& (condition == null || condition.getSingle(ctx).filter(Boolean::booleanValue).isPresent());
+			&& (condition == null || condition.getSingle(ctx).filter(Boolean::booleanValue).isPresent());
 	}
 
 	@Override

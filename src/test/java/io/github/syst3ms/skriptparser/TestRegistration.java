@@ -21,18 +21,18 @@ public class TestRegistration {
 		DefaultRegistration.register();
 		try {
 			FileUtils.loadClasses(
-					Path.of("build/classes/java/main"),
-					"io.github.syst3ms.skriptparser",
-					"effects",
-					"expressions",
-					"lang",
-					"sections",
-					"tags"
+				Path.of("build/classes/java/main"),
+				"io.github.syst3ms.skriptparser",
+				"effects",
+				"expressions",
+				"lang",
+				"sections",
+				"tags"
 			);
 			FileUtils.loadClasses(
-					Path.of("build/classes/java/test"),
-					"io.github.syst3ms.skriptparser",
-					"syntax"
+				Path.of("build/classes/java/test"),
+				"io.github.syst3ms.skriptparser",
+				"syntax"
 			);
 		} catch (IOException e) {
 			e.printStackTrace();

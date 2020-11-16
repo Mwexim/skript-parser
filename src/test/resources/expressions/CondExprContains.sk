@@ -1,0 +1,15 @@
+test:
+	set {list::*} to "a", 2 and true
+	set {var} to "Hello World"
+	assert {list::*} contains "a" with "{list::*} should contain 'a': %{list::*}%"
+	assert {list::*} contains 2 with "{list::*} should contain 2: %{list::*}%"
+	assert {list::*} contains true with "{list::*} should contain true: %{list::*}%"
+	assert {list::*} does not contain 5 with "{list::*} should not contain 5: %{list::*}%"
+	assert {var} contains "Hello" with "{var} should contain 'Hello': %{var}%"
+	assert {var} contains "World" with "{var} should contain 'World': %{var}%"
+	assert {list::*} does not contain "Skript" with "{var} should not contain 'Skript': %{var}%"
+	
+	set {nested::1::*} to "a", 2 and true
+	assert {nested::1::*} contains "a" with "{nested::1::*} should contain 'a': %{nested::1::*}%"
+	assert {nested::1::*} contains 2 with "{nested::1::*} should contain 2: %{nested::1::*}%"
+	assert {nested::1::*} contains true with "{nested::1::*} should contain true: %{nested::1::*}%"

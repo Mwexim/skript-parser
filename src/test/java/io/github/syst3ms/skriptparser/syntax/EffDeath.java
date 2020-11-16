@@ -22,8 +22,8 @@ import java.util.List;
 public class EffDeath extends Effect {
 	static {
 		Parser.getMainRegistration().addEffect(
-				EffDeath.class,
-				"death"
+			EffDeath.class,
+			"death"
 		);
 	}
 

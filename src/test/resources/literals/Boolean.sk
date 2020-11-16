@@ -1,5 +1,5 @@
 test:
-	assert true wih "Basic true failed"
+	assert true with "Basic true failed"
 
 	set {var} to not false
 	assert {var} with "Variable boolean failed: %{var}%"

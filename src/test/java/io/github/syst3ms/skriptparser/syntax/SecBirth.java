@@ -30,8 +30,8 @@ import java.util.Optional;
 public class SecBirth extends CodeSection {
     static {
         Parser.getMainRegistration().addSection(
-                SecBirth.class,
-                "birth"
+            SecBirth.class,
+            "birth"
         );
     }
 
@@ -53,8 +53,8 @@ public class SecBirth extends CodeSection {
         }
         if (currentDeaths.isEmpty()) {
             SyntaxParserTest.addError(new SkriptRuntimeException(
-                    "Birth section was not killed afterwards ("
-                    + logger.getFileName() + ")"
+                "Birth section was not killed afterwards ("
+                + logger.getFileName() + ")"
             ));
         }
         currentDeaths.clear();
