@@ -1,3 +1,8 @@
+# Author(s):
+#	- CHarcoalToast
+# 	- Mwexim
+# Date: 2020/10/31
+
 test:
 	{var} = 0
 	loop 5 times:

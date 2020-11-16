@@ -1,3 +1,7 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/11/15
+
 test:
 	set {var} to 1000
 	set {var2} to 1000.0

@@ -1,3 +1,7 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/11/04
+
 test:
 	set {list::*} to range from 1 to 7
 	assert size of {list::*} = 7 with "size of {list::*} was not 7: %{list::*}%"

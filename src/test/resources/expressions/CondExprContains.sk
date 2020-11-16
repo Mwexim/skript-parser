@@ -1,3 +1,7 @@
+# Author(s):
+# 	- Olyno
+# Date: 2020/11/16
+
 test:
 	set {list::*} to "a", 2 and true
 	set {var} to "Hello World"

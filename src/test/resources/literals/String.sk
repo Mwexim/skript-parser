@@ -1,3 +1,7 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/11/07
+
 test:
 	set {var} to "Hello World"
 	assert length of {var} = 11 with "length of {var} didn't work: %length of {var}% != 11"

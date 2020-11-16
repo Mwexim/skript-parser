@@ -1,3 +1,8 @@
+# Author(s):
+#	- CHarcoalToast
+# 	- Mwexim
+# Date: 2020/10/31
+
 test:
 	assert {var} is not set with "{var} was set at script launch"
 	set {var} to 5
