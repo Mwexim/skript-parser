@@ -3,7 +3,7 @@
 # Date: 2020/11/03
 
 test:
-	birth:
+	birth with "Birth section was not killed ('exit 2 conditionals')":
 		if true:
 			if true:
 				exit this section
@@ -16,7 +16,7 @@ test:
 			assert false with "'exit 2 conditionals'-statement didn't work properly"
 		death
 
-	birth:
+	birth with "Birth section was not killed ('exit all loops' or 'exit this conditional')":
 		if true:
 			while true:
 				while true:
