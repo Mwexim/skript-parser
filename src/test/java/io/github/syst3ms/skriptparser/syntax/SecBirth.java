@@ -9,6 +9,7 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParserTest;
+import io.github.syst3ms.skriptparser.types.TypeManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ import java.util.Optional;
  *
  * @name Birth
  * @type SECTION
- * @pattern birth
+ * @pattern birth [with [message] %string%]
  * @since ALPHA
  * @author Mwexim
  */
@@ -31,17 +32,21 @@ public class SecBirth extends CodeSection {
     static {
         Parser.getMainRegistration().addSection(
             SecBirth.class,
-            "birth"
+            "birth [with [message] %string%]"
         );
     }
 
     private static final List<EffDeath> currentDeaths = new ArrayList<>();
 
+    private Expression<String> message;
     private SkriptLogger logger;
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         logger = parseContext.getLogger();
+        if (expressions.length == 1)
+            message = (Expression<String>) expressions[0];
         return true;
     }
 
@@ -53,8 +58,9 @@ public class SecBirth extends CodeSection {
         }
         if (currentDeaths.isEmpty()) {
             SyntaxParserTest.addError(new SkriptRuntimeException(
-                "Birth section was not killed afterwards ("
-                + logger.getFileName() + ")"
+                    message == null
+                            ? "Birth section was not killed afterwards (" + logger.getFileName() + ")"
+                            : message.getSingle(ctx).map(s -> (String) s).orElse(TypeManager.EMPTY_REPRESENTATION) + " (" + logger.getFileName() + ")"
             ));
         }
         currentDeaths.clear();

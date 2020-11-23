@@ -10,11 +10,7 @@ import org.junit.runners.model.MultipleFailureException;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class SyntaxParserTest {
     static {
@@ -24,9 +20,9 @@ public class SyntaxParserTest {
     private static final List<Throwable> errorsFound = new ArrayList<>();
 
     @TestFactory
-    public Iterator<DynamicTest> syntaxTest() throws Exception {
+    public Iterator<DynamicTest> syntaxTest() {
         String[] folders = {"effects", "expressions", "literals", "sections", "tags"};
-        ArrayList<DynamicTest> testsList = new ArrayList<DynamicTest>();
+        ArrayList<DynamicTest> testsList = new ArrayList<>();
         for (String folder : folders) {
             for (File file : getResourceFolderFiles(folder)) {
                 if (file.getName().startsWith("-"))
@@ -39,17 +35,21 @@ public class SyntaxParserTest {
                             logs.forEach(log -> errorsFound.add(new SkriptParserException(log.getMessage())));
                         }
                         SkriptAddon.getAddons().forEach(SkriptAddon::finishedLoading);
+
+                        // For some weird reason some errors are duplicated
+                        var allErrors = new ArrayList<>(errorsFound);
+                        Set<String> duplicateErrors = new HashSet<>();
+                        allErrors.removeIf(val -> !duplicateErrors.add(val.getMessage()));
+
                         // Reset variables
                         Variables.clearVariables();
+                        errorsFound.clear();
+
+                        MultipleFailureException.assertEmpty(allErrors);
                     })
                 );
             }
         }
-        // For some weird reason some errors are duplicated
-        Set<String> duplicateErrors = new HashSet<>();
-        errorsFound.removeIf(val -> !duplicateErrors.add(val.getMessage()));
-
-        MultipleFailureException.assertEmpty(errorsFound);
         return testsList.iterator();
     }
 

@@ -44,7 +44,7 @@ public class EffAssert extends Effect {
 	@Override
 	public void execute(TriggerContext ctx) {
 		condition.getSingle(ctx)
-				.filter(val -> (Boolean) !val)
+				.filter(val -> !val.booleanValue())
 				.ifPresent(__ -> SyntaxParserTest.addError(new AssertionError(
 						message == null
 								? "Assertion failed ('" + condition.toString(TriggerContext.DUMMY, logger.isDebug()) + "', " + logger.getFileName() + ")"

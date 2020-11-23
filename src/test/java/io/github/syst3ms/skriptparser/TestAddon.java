@@ -30,5 +30,8 @@ public class TestAddon extends SkriptAddon {
         for (Trigger trigger : testTriggers) {
             Statement.runAll(trigger, new TestContext());
         }
+
+        // Clear triggers for next test.
+        testTriggers.clear();
     }
 }
