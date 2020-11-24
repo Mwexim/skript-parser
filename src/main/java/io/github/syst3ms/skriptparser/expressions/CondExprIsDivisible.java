@@ -44,10 +44,12 @@ public class CondExprIsDivisible extends PropertyConditional<Number> {
 
     @Override
     public boolean check(TriggerContext ctx, Number[] performers) {
+        if (performers.length == 0)
+            return isNegated();
         return isNegated() != Arrays.stream(performers)
-                .allMatch(n -> divider.getSingle(ctx)
-                        .filter(__ -> BigDecimalMath.isIntValue(BigDecimalMath.getBigDecimal(n)))
-                        .filter(d -> BigDecimalMath.getBigInteger(n).mod(d).equals(BigInteger.ZERO))
+                .allMatch(val -> divider.getSingle(ctx)
+                        .filter(__ -> BigDecimalMath.isIntValue(BigDecimalMath.getBigDecimal(val)))
+                        .filter(d -> BigDecimalMath.getBigInteger(val).mod(d).equals(BigInteger.ZERO))
                         .isPresent()
                 );
     }
