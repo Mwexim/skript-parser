@@ -12,7 +12,6 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
-import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -38,17 +37,6 @@ public class SecFilter extends ReturnSection<Boolean> {
                     "The expression '" +
                             filtered.toString(null, logger.isDebug()) +
                             "' cannot be changed",
-                    ErrorType.SEMANTIC_ERROR
-            );
-            return false;
-        } else if (filtered.acceptsChange(ChangeMode.SET)
-                .filter(cl -> CollectionUtils.contains(cl, filtered.getReturnType()))
-                .isEmpty()) {
-            // Why this would happen is beyond me, but it's worth checking regardless
-            logger.error(
-                    "The expression '" +
-                            filtered.toString(null, logger.isDebug()) +
-                            "' cannot be changed with values of its own type",
                     ErrorType.SEMANTIC_ERROR
             );
             return false;

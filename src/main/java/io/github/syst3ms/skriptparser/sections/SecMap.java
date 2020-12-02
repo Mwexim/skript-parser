@@ -12,7 +12,6 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
-import io.github.syst3ms.skriptparser.util.ClassUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -38,17 +37,6 @@ public class SecMap extends ReturnSection<Object> {
                     "The expression '" +
                             mapped.toString(null, logger.isDebug()) +
                             "' cannot be changed",
-                    ErrorType.SEMANTIC_ERROR
-            );
-            return false;
-        } else if (mapped.acceptsChange(ChangeMode.SET)
-                .filter(cl -> ClassUtils.containsSuperclass(cl, mapped.getReturnType()))
-                .isEmpty()) {
-            // Why this would happen is beyond me, but it's worth checking regardless
-            logger.error(
-                    "The expression '" +
-                            mapped.toString(null, logger.isDebug()) +
-                            "' cannot be changed with values of its own type",
                     ErrorType.SEMANTIC_ERROR
             );
             return false;
