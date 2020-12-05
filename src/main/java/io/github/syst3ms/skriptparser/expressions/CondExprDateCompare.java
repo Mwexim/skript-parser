@@ -47,10 +47,11 @@ public class CondExprDateCompare extends ConditionalExpression {
 
     @Override
     public boolean check(TriggerContext ctx) {
-        DoubleOptional<? extends SkriptDate, ? extends Duration> opt = DoubleOptional.ofOptional(date.getSingle(ctx), duration.getSingle(ctx));
-        return opt.filter(
-                (dat, dur) -> isNegated() != (dat.getTimestamp() < SkriptDate.now().getTimestamp() - dur.toMillis())
-        ).isPresent();
+        return DoubleOptional.ofOptional(date.getSingle(ctx), duration.getSingle(ctx))
+                .filter(
+                        (dat, dur) -> isNegated() != (dat.getTimestamp() < SkriptDate.now().getTimestamp() - dur.toMillis())
+                )
+                .isPresent();
     }
 
     @Override
