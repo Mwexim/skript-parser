@@ -1,0 +1,10 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/05
+
+test:
+	# These are some general tests on tags, to test if they combine correctly into a string.
+	# For the specific tests, refer to the 'tags' directory.
+	set {var} to "He<case=upper>llo, <tab>my <reset>name i<case=lower><break>s MWEXIM A&rND I am the creator of this test."
+	set {var2} to "HeLLO, 	MY name i\ns mwexim aND I am the creator of this test."
+	assert {var} = {var2} with "Multiple tags didn't combine correctly: {var} (%{var}%) != %{var2}%"

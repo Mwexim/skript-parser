@@ -1,0 +1,7 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/05
+
+test:
+	assert "Hello <case=lower>WOrLd!" = "Hello world!" with "'lower case'-tag failed"
+	assert "Hel<case=upper>lo wO<case=lower>RLD!" = "HelLO WOrld!" with "Combination of lower- and uppercase failed"

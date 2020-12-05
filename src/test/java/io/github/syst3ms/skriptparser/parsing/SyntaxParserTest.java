@@ -23,7 +23,7 @@ public class SyntaxParserTest {
 
     @TestFactory
     public Iterator<DynamicNode> syntaxTest() {
-        String[] folders = {"effects", "expressions", "literals", "sections", "tags"};
+        String[] folders = {"effects", "expressions", "literals", "sections", "tags", "general"};
         ArrayList<DynamicNode> containerList = new ArrayList<>();
         for (String folder : folders) {
             ArrayList<DynamicTest> testsList = new ArrayList<>();
