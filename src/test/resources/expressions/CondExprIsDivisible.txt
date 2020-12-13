@@ -1,0 +1,8 @@
+# Author(s):
+# 	- Olyno
+# Date: 2020/12/06
+
+test:
+	set {var} to 10
+	assert {var} is divisible by 2 with "{var} should be divisible by 2: %{var}%"
+	assert {var} is not divisible by 3 with "{var} should not be divisible by 3: %{var}%"

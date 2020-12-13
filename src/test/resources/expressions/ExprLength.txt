@@ -1,0 +1,12 @@
+# Author(s):
+# 	- Olyno
+# Date: 2020/12/06
+
+test:
+	set {var} to "Hello World"
+	assert length of {var} is 11 with "length of {var} should be 11: %{var}%"
+
+	delete {var}
+	assert length of {var} is 0 with "length of {var} should be 0: %{var}%"
+	
+	assert length of {list::*} is 0 with "length of {list::*} should be 0: %{list::*}%"

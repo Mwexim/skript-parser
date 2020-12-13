@@ -1,0 +1,16 @@
+# Author(s):
+# 	- Olyno
+# Date: 2020/12/13
+
+test:
+	set {var} to join "Hello" and "World" with " "
+	assert {var} is "Hello World" with "{var} should be ""Hello World"": %{var}%"
+
+	set {list::*} to split "Hello World" at " "
+	assert {list::*} is "Hello" and "World" with "{list::*} should be ""Hello"" and ""World"": %{list::*}%"
+
+	set {list2::*} to "Hello World" split at " "
+	assert {list2::*} is "Hello" and "World" with "{list2::*} should be ""Hello"" and ""World"": %{list2::*}%"
+
+	set {list3::*} to "ABC" split every 1 chars
+	assert {list3::*} is "A", "B" and "C" with "{list3::*} should be ""A"", ""B"" and ""C"": %{list3::*}%"

@@ -1,0 +1,12 @@
+# Author(s):
+# 	- Olyno
+# Date: 2020/12/06
+
+test:
+    set {list::1::*} to 3, "b" and "c"
+	set {list::2::*} to "  ", "      " and ""
+    set {var} to "a"
+    assert {list::1::*} is not a empty list with "{list::1::*} should not be a empty list: %{list::1::*}%"
+    assert {var} is not empty with "{var} should not be empty: %{var}%"
+    assert {list::2::*} is a empty list with "{list::2::*} should be a empty list: %{list::2::*}%"
+    assert {list::3::*} is a empty list with "{list::3::*} should be a empty list: %{list::3::*}%"

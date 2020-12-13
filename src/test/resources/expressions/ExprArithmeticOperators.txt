@@ -1,0 +1,15 @@
+# Author(s):
+# 	- Olyno
+# Date: 2020/12/06
+
+test:
+	set {list::1} to 12 / 2
+	set {list::2} to 2 * 3
+	set {list::3} to 2 + 2
+	set {list::4} to 6 - 2
+	set {list::5} to 2 ^ 2
+	assert {list::1} = 6 with "{list::1} should be 6: %{list::1}%"
+	assert {list::2} = 6 with "{list::2} should be 6: %{list::2}%"
+	assert {list::3} = 4 with "{list::3} should be 4: %{list::3}%"
+	assert {list::4} = 4 with "{list::4} should be 4: %{list::4}%"
+	assert {list::5} = 4 with "{list::5} should be 4: %{list::5}%"
