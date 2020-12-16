@@ -2,7 +2,6 @@ package io.github.syst3ms.skriptparser.util;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
 
@@ -32,7 +31,7 @@ public class CollectionUtils {
 
     @SafeVarargs
     public static <T> boolean contains(T[] array, T... contained) {
-        return List.of(array).containsAll(List.of(contained));
+        return Arrays.asList(array).containsAll(Arrays.asList(contained));
     }
 
     /**

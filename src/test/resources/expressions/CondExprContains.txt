@@ -17,3 +17,4 @@ test:
 	assert {nested::1::*} contains "a" with "{nested::1::*} should contain 'a': %{nested::1::*}%"
 	assert {nested::1::*} contains 2 with "{nested::1::*} should contain 2: %{nested::1::*}%"
 	assert {nested::1::*} contains true with "{nested::1::*} should contain true: %{nested::1::*}%"
+	assert {nested::*} does not contain "a" with "{nested::*} should not contain value 'a' of its nested nodes: %{nested::*}%"
