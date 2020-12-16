@@ -286,7 +286,7 @@ public class SyntaxParser {
             var element = patterns.get(i);
             logger.setContext(ErrorContext.MATCHING);
             var parser = new MatchContext(element, parserState, logger);
-            if (element.match(s, 0, parser) != -1) {
+            if (element.match(s, 0, parser) == s.length()) {
                 try {
                     var expression = (Expression<? extends T>) info.getSyntaxClass()
                             .getDeclaredConstructor()
@@ -529,7 +529,7 @@ public class SyntaxParser {
             var element = patterns.get(i);
             logger.setContext(ErrorContext.MATCHING);
             var parser = new MatchContext(element, parserState, logger);
-            if (element.match(s, 0, parser) != -1) {
+            if (element.match(s, 0, parser) == s.length()) {
                 try {
                     var eff = info.getSyntaxClass()
                             .getDeclaredConstructor()
