@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
+import io.github.syst3ms.skriptparser.lang.base.ExecutableExpression;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -25,7 +26,7 @@ public abstract class Statement implements SyntaxElement {
         Optional<? extends Statement> item = Optional.of(start);
         try {
             while (item.isPresent())
-                item = item.flatMap(i -> i.walk(context));
+                item = item.flatMap(i -> i.walk(context, true));
             return true;
         } catch (StackOverflowError so) {
             System.err.println("The script repeated itself infinitely !");
@@ -86,11 +87,26 @@ public abstract class Statement implements SyntaxElement {
 
     /**
      * By default, runs {@link #run(TriggerContext)} ; returns {@link #getNext()} if it returns true, or {@code null} otherwise.
-     * Note : if this method is overridden, then the implementation of {@linkplain #run(TriggerContext)} doesn't matter.
+     * Note that if this method is overridden, then the implementation of {@linkplain #run(TriggerContext)} doesn't matter.
+     * @param ctx the event
+     * @param clearCache whether or not some of the ongoing cache should be cleared
+     * @return the next item to be ran, or {@code null} if this is the last item to be executed
+     */
+    public final Optional<? extends Statement> walk(TriggerContext ctx, boolean clearCache) {
+        if (clearCache) {
+            // Clear all cache needed to be cleared.
+            ExecutableExpression.getCachedValues().clear();
+        }
+        return walk(ctx);
+    }
+
+    /**
+     * By default, runs {@link #run(TriggerContext)} ; returns {@link #getNext()} if it returns true, or {@code null} otherwise.
+     * Note that if this method is overridden, then the implementation of {@linkplain #run(TriggerContext)} doesn't matter.
      * @param ctx the event
      * @return the next item to be ran, or {@code null} if this is the last item to be executed
      */
-    public Optional<? extends Statement> walk(TriggerContext ctx) {
+    protected Optional<? extends Statement> walk(TriggerContext ctx) {
         var proceed = run(ctx);
         if (proceed) {
             return getNext();

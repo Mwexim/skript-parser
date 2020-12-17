@@ -7,6 +7,8 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A base class for syntax that can be used as {@link Expression} or {@link Effect}.
@@ -26,10 +28,22 @@ public abstract class ExecutableExpression<T>
         extends Effect
         implements Expression<T>, SelfRegistrable {
 
+    private final static Map<ExecutableExpression<?>, Object[]> cachedValues = new HashMap<>();
+
     @Override
     protected void execute(TriggerContext ctx) {
-        getValues(ctx);
+        getAppliedValues(ctx);
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public T[] getValues(TriggerContext ctx) {
+        if (!cachedValues.containsKey(this))
+            cachedValues.put(this, getAppliedValues(ctx));
+        return (T[]) cachedValues.get(this);
+    }
+
+    public abstract T[] getAppliedValues(TriggerContext ctx);
 
     @SuppressWarnings("unchecked")
     @Override
@@ -41,5 +55,9 @@ public abstract class ExecutableExpression<T>
         // The actual registration
         reg.addExpression(getClass(), type, isSingle, patterns);
         reg.addEffect(getClass(), patterns);
+    }
+
+    public static Map<ExecutableExpression<?>, Object[]> getCachedValues() {
+        return cachedValues;
     }
 }

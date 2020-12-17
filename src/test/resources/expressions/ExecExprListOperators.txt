@@ -5,17 +5,17 @@
 test:
 	set {list::*} to "a", "b", "c", "d", "e", "f" and "g"
 	set {var} to pop {list::*}
-	assert {list::*} does not contain "g" with "{list::*} should not contain ""g"" anymore: %{list::*}%"
-	assert {var} is "g" with "{var} should be ""g"": %{var}%"
-	
-	set {var} to shift {list::*}
-	assert {list::*} does not contain "a" with "{list::*} should not contain ""a"" anymore: %{list::*}%"
-	assert {var} is "a" with "{var} should be ""a"": %{var}%"
-	
-	set {var} to extract 2 element out of {list::*}
-	assert {list::*} does not contain "c" with "{list::*} should not contain ""c"" anymore: %{list::*}%"
-	assert {var} is "c" with "{var} should be ""c"": %{var}%"
+	assert {list::*} does not contain "g" with "{list::*} should not contain 'g' anymore: %{list::*}%"
+	assert {var} is "g" with "{var} should be 'g': %{var}%"
 
-	set {list::2::*} to splice {list::*} from 1 to 3
-	assert {list::*} does not contain "b", "d" and "e" with "{list::*} should not contain ""b"", ""d"" and ""e"" anymore: %{list::*}%"
-	assert {list::2::*} contains "b", "d" and "e" with "{list::2::*} should contain ""b"", ""d"" and ""e"": %{list::2::*}%"
+#	set {var} to shift {list::*}
+#	assert {list::*} does not contain "a" with "{list::*} should not contain 'a' anymore: %{list::*}%"
+#	assert {var} is "a" with "{var} should be 'a': %{var}%"
+#
+#	set {var} to extract 2nd element out of {list::*}
+#	assert {list::*} does not contain "c" with "{list::*} should not contain 'c' anymore: %{list::*}%"
+#	assert {var} is "c" with "{var} should be 'c': %{var}%"
+
+#	set {spliced::*} to splice {list::*} from 1 to 3
+#	assert {list::*} does not contain "b", "d" and "e" with "{list::*} should not contain 'b', 'd' and 'e' anymore: %{list::*}%"
+#	assert {spliced::*} contains "b", "d" and "e" with "{spliced::*} should contain 'b', 'd' and 'e': %{spliced::*}%"

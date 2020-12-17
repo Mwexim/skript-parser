@@ -10,7 +10,6 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.util.ThreadUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -52,7 +51,7 @@ public class SecAsync extends CodeSection {
         Optional<? extends Statement>[] item = new Optional[]{getFirst()};
         ThreadUtils.runAsync(() -> {
             while (!item[0].equals(getNext())) // Calling equals() on optionals calls equals() on their values
-                item[0] = item[0].flatMap(i -> i.walk(ctx));
+                item[0] = item[0].flatMap(i -> i.walk(ctx, true));
         });
         return getNext();
     }

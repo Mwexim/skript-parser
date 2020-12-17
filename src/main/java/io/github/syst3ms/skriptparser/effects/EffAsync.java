@@ -44,7 +44,7 @@ public class EffAsync extends Effect {
 
     @Override
     public void execute(TriggerContext ctx) {
-        ThreadUtils.runAsync(() -> effect.walk(ctx));
+        ThreadUtils.runAsync(() -> effect.walk(ctx, true));
     }
 
     @Override

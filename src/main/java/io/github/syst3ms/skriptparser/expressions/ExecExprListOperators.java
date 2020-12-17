@@ -32,6 +32,7 @@ import java.util.Arrays;
  *
  * @name List Operators
  * @type EXPRESSION
+ * @pattern extract [the] (last|first|%integer%(st|nd|rd|th)) element out [of] %objects%
  * @pattern pop %objects%
  * @pattern (shift|poll) %objects%
  * @pattern splice %objects% (from %integer% to %integer%|starting (at|from) %integer%|up to %integer%) [[with] step %integer%]
@@ -52,6 +53,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 		);
 	}
 
+	// 0 = last, 1 = first, 2 = indexed, 3 = spliced
 	private int type;
 	private Expression<Object> list;
 	private Expression<BigInteger> index;
@@ -101,7 +103,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 		var logger = parseContext.getLogger();
 		if (list.acceptsChange(ChangeMode.SET).isEmpty()) {
 			logger.error(
-					list.toString(null, logger.isDebug()) + " is static and cannot be changed",
+					list.toString(null, logger.isDebug()) + " is constant and cannot be changed",
 					ErrorType.SEMANTIC_ERROR
 			);
 			return false;
@@ -117,7 +119,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 	}
 
 	@Override
-	public Object[] getValues(TriggerContext ctx) {
+	public Object[] getAppliedValues(TriggerContext ctx) {
 		var values = list.getValues(ctx);
 		if (values.length == 0)
 			return new Object[0];
@@ -202,6 +204,8 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 			case 1:
 				return "poll " + list.toString(ctx, debug);
 			case 2:
+				return "extract element number " + index.toString(ctx, debug) + " from " + list.toString(ctx, debug);
+			case 3:
 				return "splice " + list.toString(ctx, debug) + " from " + lower.toString(ctx, debug)
 						+ (upper != null ? upper.toString(ctx, debug) : "");
 			default:
