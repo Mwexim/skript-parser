@@ -3,7 +3,6 @@ package io.github.syst3ms.skriptparser.util;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -66,7 +65,7 @@ public class Time implements Comparable<Time> {
     }
 
     public static Time of (SkriptDate date) {
-        return new Time(LocalTime.ofInstant(Instant.ofEpochMilli(date.getTimestamp()), ZoneId.systemDefault()));
+        return new Time(LocalTime.ofInstant(Instant.ofEpochMilli(date.getTimestamp()), SkriptDate.ZONE_ID));
     }
 
     public int getHour() {

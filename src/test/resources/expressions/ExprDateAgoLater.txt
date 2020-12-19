@@ -1,0 +1,16 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/18
+
+test:
+	set {now} to now
+
+	set {list::1} to {now}
+	remove 5 hours from {list::1}
+	set {list::2} to 5 hours before {now}
+	assert {list::1} = {list::2} with "{list::1} should equal {list::2} (in the past): %{list::1}% != %{list::2}% (respectively)"
+
+	set {list::1} to {now}
+	add 1 day, 3 hours and 25 minutes to {list::1}
+	set {list::2} to (1 day, 3 hours and 25 minutes) from {now}
+	assert {list::1} = {list::2} with "{list::1} should equal {list::2} (in the future): %{list::1}% != %{list::2}% (respectively)"

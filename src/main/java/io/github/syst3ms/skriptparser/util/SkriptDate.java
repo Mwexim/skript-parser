@@ -15,6 +15,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
     // TODO make a config for this
     public final static String DATE_FORMAT = "EEEE dd MMMM yyyy HH:mm:ss.SSS zzzXXX";
     public final static Locale DATE_LOCALE = new Locale("US");
+    public final static ZoneId ZONE_ID = ZoneId.systemDefault();
 
     public final static int MILLIS_PER_DAY = 86400000;
 
@@ -53,7 +54,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * @return the current day like it would just start
      */
 	public static SkriptDate today() {
-	    var localDate = LocalDate.now().atStartOfDay(ZoneId.systemDefault());
+	    var localDate = LocalDate.now().atStartOfDay(ZONE_ID);
 	    return SkriptDate.of(localDate.toEpochSecond() * 1000);
 	}
 
@@ -138,7 +139,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
      */
     public LocalDateTime toLocalDateTime() {
         Instant in = new java.util.Date(timestamp).toInstant();
-        return in.atOffset(ZoneOffset.systemDefault().getRules().getOffset(in)).toLocalDateTime();
+        return in.atOffset(SkriptDate.ZONE_ID.getRules().getOffset(in)).toLocalDateTime();
     }
 
     @Override
