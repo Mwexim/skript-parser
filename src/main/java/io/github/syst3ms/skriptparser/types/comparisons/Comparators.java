@@ -28,7 +28,7 @@ public class Comparators {
      * @throws IllegalArgumentException if any given class is equal to <code>Object.class</code>
      */
     public static <T1, T2> void registerComparator(Class<T1> t1, Class<T2> t2, Comparator<T1, T2> c) {
-        if (t1 == Object.class && t2 == Object.class)
+        if (t1 == Object.class || t2 == Object.class)
             throw new IllegalArgumentException("You must not add a comparator for Objects");
         comparators.add(new ComparatorInfo<>(t1, t2, c));
     }
