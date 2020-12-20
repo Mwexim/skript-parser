@@ -8,7 +8,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import org.jetbrains.annotations.Nullable;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 
@@ -50,15 +49,15 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 		switch (parseMark) {
 			case 0:
 				return new String[] {
-						lcd.toLocalDate().getEra().getDisplayName(TextStyle.FULL, SkriptDate.DATE_LOCALE)
+						lcd.toLocalDate().getEra().getDisplayName(TextStyle.SHORT, SkriptDate.DATE_LOCALE)
 				};
 			case 1:
 				return new String[] {
-						new SimpleDateFormat("MMM", SkriptDate.DATE_LOCALE).format(lcd)
+						lcd.getMonth().getDisplayName(TextStyle.FULL, SkriptDate.DATE_LOCALE)
 				};
 			case 2:
 				return new String[] {
-						new SimpleDateFormat("EEE", SkriptDate.DATE_LOCALE).format(lcd)
+						lcd.getDayOfWeek().getDisplayName(TextStyle.FULL, SkriptDate.DATE_LOCALE)
 				};
 			default:
 				throw new IllegalStateException();
