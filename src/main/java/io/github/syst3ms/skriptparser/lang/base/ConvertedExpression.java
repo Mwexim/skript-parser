@@ -31,10 +31,35 @@ public class ConvertedExpression<F, T> implements Expression<T> {
         this.converter = converter;
     }
 
+    /**
+     * Creates a new instance that converts the result by using the registered converters.
+     * @param v the source Expression
+     * @param to the Class to convert to
+     * @param <F> the original return type
+     * @param <T> the converted return type
+     * @return an optional ConvertedExpression instance
+     */
     @SuppressWarnings("unchecked")
     public static <F, T> Optional<? extends ConvertedExpression<F, T>> newInstance(Expression<F> v, Class<T> to) {
         return Converters.getConverter(v.getReturnType(), to)
                 .map(c -> new ConvertedExpression<>(v, to, (Function<? super F, Optional<? extends T>>) c));
+    }
+
+    /**
+     * Creates a new instance that simply casts the values to the converted Class.
+     * @param v the source Expression
+     * @param to the Class to cast to
+     * @param <T> the converted return type
+     * @return a ConvertedExpression instance
+     */
+    public static <T> ConvertedExpression<Object, T> newCastInstance(Expression<Object> v, Class<T> to) {
+        return new ConvertedExpression<>(v, to, value -> {
+            try {
+                return Optional.of(to.cast(value));
+            } catch (ClassCastException ignored) {
+                return Optional.empty();
+            }
+        });
     }
 
     @Override

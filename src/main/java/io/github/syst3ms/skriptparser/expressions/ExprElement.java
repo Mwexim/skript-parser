@@ -76,11 +76,6 @@ public class ExprElement implements Expression<Object> {
 	}
 
 	@Override
-	public boolean isSingle() {
-		return pattern != 0;
-	}
-
-	@Override
 	public Object[] getValues(TriggerContext ctx) {
 		Object[] values = expr.getValues(ctx);
 		if (values.length == 0)
@@ -127,6 +122,16 @@ public class ExprElement implements Expression<Object> {
 			default:
 				return new Object[0];
 		}
+	}
+
+	@Override
+	public boolean isSingle() {
+		return pattern != 0;
+	}
+
+	@Override
+	public Class<?> getReturnType() {
+		return expr.getReturnType();
 	}
 
 	@Override

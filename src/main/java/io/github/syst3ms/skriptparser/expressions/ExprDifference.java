@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Variable;
+import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.Type;
@@ -14,7 +15,6 @@ import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Array;
 import java.util.Optional;
 
 /**
@@ -39,11 +39,10 @@ public class ExprDifference implements Expression<Object> {
     }
 
     private Expression<?> first, second;
+    private boolean variablePresent;
     @SuppressWarnings("rawtypes")
     @Nullable
-    private Arithmetic math;
-    private Class<?> mathType;
-    private boolean bothVariables;
+    private Arithmetic arithmetic;
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
@@ -51,20 +50,15 @@ public class ExprDifference implements Expression<Object> {
         second = expressions[1];
         Optional<? extends Type<?>> type;
 
-        if (first instanceof Variable<?> && second instanceof Variable<?>) {
-            bothVariables = true;
-            type = TypeManager.getByClassExact(Object.class);
-        } else if (first instanceof Literal<?> && second instanceof Literal<?>) {
-            var firstConverted = first.convertExpression(Object.class);
-            var secondConverted = second.convertExpression(Object.class);
-            if (firstConverted.isEmpty() || secondConverted.isEmpty())
-                return false;
-            first = firstConverted.get();
-            second = secondConverted.get();
+        if (first instanceof Literal<?> && second instanceof Literal<?>) {
             type = TypeManager.getByClass(
                     ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())
             );
+        } else if (first instanceof Variable<?> && second instanceof Variable<?>) {
+            variablePresent = true;
+            type = TypeManager.getByClassExact(Object.class);
         } else {
+            // If the values are Literals, we want to use that to convert them as much as possible.
             if (first instanceof Literal<?>) {
                 var firstConverted = first.convertExpression(second.getReturnType());
                 if (firstConverted.isEmpty())
@@ -77,17 +71,24 @@ public class ExprDifference implements Expression<Object> {
                 second = secondConverted.get();
             }
 
-            if (first instanceof Variable) {
+            // If one value is a Variable, we do not know its type at parse-time.
+            if (first instanceof Variable<?>) {
+                variablePresent = true;
                 first = first.convertExpression(second.getReturnType()).orElseThrow();
-            } else if (second instanceof Variable) {
+                type = TypeManager.getByClass(second.getReturnType());
+            } else if (second instanceof Variable<?>) {
+                variablePresent = true;
                 second = second.convertExpression(first.getReturnType()).orElseThrow();
+                type = TypeManager.getByClass(first.getReturnType());
+            } else {
+                type = TypeManager.getByClass(
+                        ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())
+                );
             }
-            type = TypeManager.getByClass(
-                    ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())
-            );
         }
+
         assert type.isPresent();
-        if (!type.get().getTypeClass().equals(Object.class) && type.get().getArithmetic().isEmpty()) {
+        if (!variablePresent && type.get().getArithmetic().isEmpty()) {
             var firstType = TypeManager.getByClass(first.getReturnType());
             var secondType = TypeManager.getByClass(second.getReturnType());
             assert firstType.isPresent() && secondType.isPresent();
@@ -102,19 +103,11 @@ public class ExprDifference implements Expression<Object> {
             );
             return false;
         }
-        if (bothVariables) {
-            mathType = Object.class; // Initialize less.
-        } else {
+        if (!variablePresent) {
             assert type.get().getArithmetic().isPresent();
-            math = type.get().getArithmetic().get();
-            mathType = math.getRelativeType();
+            arithmetic = type.get().getArithmetic().get();
         }
         return true;
-    }
-
-    @Override
-    public Class<?> getReturnType() {
-        return mathType;
     }
 
     @SuppressWarnings("unchecked")
@@ -122,22 +115,38 @@ public class ExprDifference implements Expression<Object> {
     public Object[] getValues(TriggerContext ctx) {
         return DoubleOptional.ofOptional(first.getSingle(ctx), second.getSingle(ctx))
                 .mapToOptional((f, s) -> {
-                    Object[] diff = (Object[]) Array.newInstance(mathType, 1);
-
-                    // The Arithmetic field isn't initialized here.
-                    if (bothVariables) {
+                    // The arithmetic field isn't initialized here.
+                    if (variablePresent) {
+                        assert f.getClass() == s.getClass();
                         var type = TypeManager.getByClass(f.getClass()).orElseThrow();
                         var variableMath = type.getArithmetic();
                         if (variableMath.isEmpty())
                             return null;
-                        math = variableMath.get();
+                        arithmetic = variableMath.get();
                     }
 
-                    assert math != null;
-                    diff[0] = math.difference(f, s);
-                    return diff;
+                    assert arithmetic != null;
+                    return new Object[] {arithmetic.difference(f, s)};
                 })
-                .orElse((Object[]) Array.newInstance(mathType, 0));
+                .orElse(new Object[0]);
+    }
+
+    @Override
+    public Class<?> getReturnType() {
+        //System.out.println(first.getClass() + " / " + second.getClass() + " / " + ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType()));
+        return arithmetic != null
+                ? arithmetic.getRelativeType()
+                : ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType());
+    }
+
+    @Override
+    public <C> Optional<? extends Expression<C>> convertExpression(Class<C> to) {
+        if (first instanceof Variable<?> && second instanceof Variable<?>) {
+            // It's only in this particular case that we need to convert it manually.
+            return Optional.of(ConvertedExpression.newCastInstance(this, to));
+        } else {
+            return ConvertedExpression.newInstance(this, to);
+        }
     }
 
     @Override
