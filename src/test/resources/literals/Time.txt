@@ -1,0 +1,15 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/22
+
+test:
+	assert 7h = 07h00 with "First pattern comparison failed"
+	throws 25h
+	throws 16h60
+
+	assert 7:23PM = 07:23 pm with "Basic second pattern comparison failed"
+	assert 12:45PM = 0:45 pm with "Special case of second pattern comparison failed"
+	throws 13:34 pm
+
+	assert 16:45:23 = 16:45:23.000 with "Basic third pattern comparison failed"
+
