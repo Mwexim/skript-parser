@@ -1,0 +1,12 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/22
+
+test:
+	# Number
+	set {list::*} to range from 1 to 5
+	assert {list::*} = 1, 2, 3, 4 and 5
+
+	# Character
+	set {list::*} to range from "d" to "j"
+    assert {list::*} = "d", "e", "f", "g", "h", "i" and "j"

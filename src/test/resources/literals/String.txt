@@ -10,6 +10,3 @@ test:
 	assert {var} = {var2}
 
 	assert "Hello \tWorld!" = "Hello 	World!" with "'\t'-character did not work."
-
-	set {list::*} to range from "d" to "j"
-	assert {list::*} = "d", "e", "f", "g", "h", "i" and "j"

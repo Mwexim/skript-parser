@@ -10,6 +10,3 @@ test:
 	assert {var} = {var2} with "{var} (%{var}%) != {var2} (%{var2}%)"
 	assert {var2} = {var3} with "{var2} (%{var2}%) != {var3} (%{var3}%)"
 	assert {var3} = {var4} with "{var3} (%{var3}%) != {var4} (%{var4}%)"
-
-	set {list::*} to range from 1 to 5
-	assert {list::*} = 1, 2, 3, 4 and 5
