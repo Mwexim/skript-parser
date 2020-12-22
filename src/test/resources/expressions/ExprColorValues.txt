@@ -1,0 +1,10 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/22
+
+test:
+	set {var} to &a903fc
+	assert rgb of {var} = 169, 3, 252 with "RGB value should be 169, 3, 252: %rgb of {var}%"
+	assert red value of {var} = 169 with "Red value should be 169: %red value of {var}%"
+	assert green value of {var} = 3 with "Red value should be 3: %green value of {var}%"
+	assert blue value of {var} = 252 with "Red value should be 252: %blue value of {var}%"
