@@ -1,0 +1,13 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/22
+
+test:
+	set {list::*} to 1, "Hello" and 3 hours
+	assert reversed {list::*} = (3 hours, "Hello" and 1) with "Reversed {list::*} should be 3 hours, 'Hello' and 1: %reversed {list::*}%"
+
+	set {list::*} to 5, 3, 7 and 2
+	assert sorted {list::*} = 2, 3, 5 and 7 with "Sorted {list::*} should be 2, 3, 5 and 7: %sorted {list::*}%"
+
+	set {list::*} to "d", "a" and "p"
+    assert sorted {list::*} = "a", "d" and "p" with "Sorted {list::*} should be 'a', 'd' and 'p': %sorted {list::*}%"

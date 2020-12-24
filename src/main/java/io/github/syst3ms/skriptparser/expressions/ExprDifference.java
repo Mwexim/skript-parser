@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Variable;
-import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.Type;
@@ -133,20 +132,9 @@ public class ExprDifference implements Expression<Object> {
 
     @Override
     public Class<?> getReturnType() {
-        //System.out.println(first.getClass() + " / " + second.getClass() + " / " + ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType()));
         return arithmetic != null
                 ? arithmetic.getRelativeType()
-                : ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType());
-    }
-
-    @Override
-    public <C> Optional<? extends Expression<C>> convertExpression(Class<C> to) {
-        if (first instanceof Variable<?> && second instanceof Variable<?>) {
-            // It's only in this particular case that we need to convert it manually.
-            return Optional.of(ConvertedExpression.newCastInstance(this, to));
-        } else {
-            return ConvertedExpression.newInstance(this, to);
-        }
+                : ClassUtils.getCommonSuperclass(false, first.getReturnType(), second.getReturnType());
     }
 
     @Override

@@ -126,7 +126,7 @@ public class ExprElement implements Expression<Object> {
 
 	@Override
 	public boolean isSingle() {
-		return pattern != 0;
+		return pattern == 0 || pattern == 3;
 	}
 
 	@Override

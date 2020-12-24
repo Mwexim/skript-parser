@@ -217,27 +217,27 @@ public class CondExprCompare extends ConditionalExpression {
     @SuppressWarnings({"unchecked"})
     private boolean initialize() {
         Expression<?> third = this.third;
-        if (first.getReturnType() == Object.class) {
-            Optional<? extends Expression<Object>> e = first.convertExpression(Object.class);
-            if (e.isEmpty()) {
-                return false;
-            }
-            first = e.get();
-        }
-        if (second.getReturnType() == Object.class) {
-            Optional<? extends Expression<Object>> e = second.convertExpression(Object.class);
-            if (e.isEmpty()) {
-                return false;
-            }
-            second = e.get();
-        }
-        if (third != null && third.getReturnType() == Object.class) {
-            Optional<? extends Expression<Object>> e = third.convertExpression(Object.class);
-            if (e.isEmpty()) {
-                return false;
-            }
-            this.third = third = e.get();
-        }
+//        if (first.getReturnType() == Object.class) {
+//            Optional<? extends Expression<Object>> e = first.convertExpression(Object.class);
+//            if (e.isEmpty()) {
+//                return false;
+//            }
+//            first = e.get();
+//        }
+//        if (second.getReturnType() == Object.class) {
+//            Optional<? extends Expression<Object>> e = second.convertExpression(Object.class);
+//            if (e.isEmpty()) {
+//                return false;
+//            }
+//            second = e.get();
+//        }
+//        if (third != null && third.getReturnType() == Object.class) {
+//            Optional<? extends Expression<Object>> e = third.convertExpression(Object.class);
+//            if (e.isEmpty()) {
+//                return false;
+//            }
+//            this.third = third = e.get();
+//        }
         Class<?> f = first.getReturnType();
         Class<?> s = third == null
                 ? second.getReturnType()
