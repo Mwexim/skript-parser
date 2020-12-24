@@ -1,0 +1,17 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/24
+
+test:
+	set {var} to "1_000_000" parsed as number
+	assert {var} = 1000000 with "{var} should be a number and equal 1000000: %{var}%"
+
+	throws "Hello World" parsed as string
+
+	set {var} to "false" parsed as boolean
+	assert {var} = false with "{var} should be a boolean and equal false: %{var}%"
+
+	set {var} to ("2020-09-25" parsed as date using format "yyyy-MM-dd")
+	assert year of {var} = 2020 with "Years of {var} (date) should be 2020: %years of {var}%"
+	assert months of {var} = 9 with "Months of {var} (date) should be 9: %months of {var}%"
+	assert day in month of {var} = 25 with "Day in month of {var} (date) should be 25: %day in month of {var}%"

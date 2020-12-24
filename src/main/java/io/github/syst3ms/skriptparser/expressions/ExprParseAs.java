@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
+import java.util.TimeZone;
 
 /**
  * The object parsed as a given type.
@@ -80,6 +81,8 @@ public class ExprParseAs implements Expression<Object> {
 								useFormat ? ((Optional<String>) format.getSingle(ctx)).orElse(SkriptDate.DATE_FORMAT) : SkriptDate.DATE_FORMAT,
 								SkriptDate.DATE_LOCALE
 						);
+						// We need to parse from the correct time zone.
+						parseFormat.setTimeZone(TimeZone.getTimeZone(SkriptDate.getZoneId()));
 						try {
 							long timestamp = parseFormat.parse(s).getTime();
 							return SkriptDate.of(timestamp);

@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.sections.SecLoop;
+import io.github.syst3ms.skriptparser.sections.SecWhile;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -29,14 +30,15 @@ public class EffContinue extends Effect {
         );
     }
 
-    private SecLoop loop;
+    private CodeSection loop;
 
+    // TODO make it possible to continue nested loops
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        List<SecLoop> loops = new ArrayList<>();
+        List<CodeSection> loops = new ArrayList<>();
         for (CodeSection sec : parseContext.getParserState().getCurrentSections()) {
-            if (sec instanceof SecLoop) {
-                loops.add((SecLoop) sec);
+            if (sec instanceof SecLoop || sec instanceof SecWhile) {
+                loops.add(sec);
             }
         }
         if (loops.size() == 0) {
