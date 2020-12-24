@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
  *
  * @name Date Information
  * @type EXPRESSION
- * @pattern [the] (year|month|day of year|day of month|day of week|hours|minutes|seconds|milli[second]s) of [date] %date%
- * @pattern [date] %date%'[s] (year|month|day of year|day of month|day of week|hours|minutes|seconds|milli[second]s)
+ * @pattern [the] (year[s]|month[s]|day[s] (of|in) year|day[s] (of|in) month|day[s] (of|in) week|hour[s]|minute[s]|second[s]|milli[second][s]) of [date] %date%
+ * @pattern [date] %date%'[s] (year[s]|month[s]|day[s] (of|in) year|day[s] (of|in) month|day[s] (of|in) week|hour[s]|minute[s]|second[s]|milli[second][s])
  * @since ALPHA
  * @author Mwexim
  */
@@ -28,8 +28,9 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 				ExprDateInformation.class,
 				Number.class,
 				true,
+				4,
 				"*[date] %date%",
-				"(0:year|1:month|2:day of year|3:day of month|4:day of week|5:hours|6:minutes|7:seconds|8:milli[second]s)"
+				"(0:year[s]|1:month[s]|2:day[s] (of|in) year|3:day[s] (of|in) month|4:day[s] (of|in) week|5:hour[s]|6:minute[s]|7:second[s]|8:milli[second][s])"
 		);
 	}
 

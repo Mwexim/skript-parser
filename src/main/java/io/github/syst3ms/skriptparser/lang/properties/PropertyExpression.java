@@ -48,7 +48,6 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
      * If this property only relies on one simple method applied to the owner, it can be represented
      * using this method. This function will be applied in the default implementation of {@link #getValues(TriggerContext)}
      * supplied by this class.
-     *
      * @param owners the owners of this property, never is empty
      * @return the return values of this property
      */
@@ -59,7 +58,6 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
 
     /**
      * A simple default method that will apply {@link #getProperty(Object[])} on the {@link #owner} of this property.
-     *
      * @param ctx the event
      * @return the values of this property after applying the {@link #getProperty(Object[])} function on the owner.
      */

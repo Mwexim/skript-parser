@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.util.SkriptDate;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.time.ZoneOffset;
 
@@ -51,18 +50,9 @@ public class TestRegistration {
 		try {
 			Field zoneId = SkriptDate.class.getDeclaredField("ZONE_ID");
 			zoneId.setAccessible(true);
-			removeModifiers(zoneId, Modifier.FINAL);
 			zoneId.set(null, ZoneOffset.UTC);
 		} catch (NoSuchFieldException | IllegalAccessException e) {
 			e.printStackTrace();
-		}
-	}
-
-	private static void removeModifiers(Field field, int... modifiers) throws NoSuchFieldException, IllegalAccessException {
-		Field modifiersField = Field.class.getDeclaredField("modifiers");
-		modifiersField.setAccessible(true);
-		for (int mod : modifiers) {
-			modifiersField.setInt(field, field.getModifiers() & ~mod);
 		}
 	}
 }

@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.util;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -64,8 +63,9 @@ public class Time implements Comparable<Time> {
         return new Time(time);
     }
 
-    public static Time of (SkriptDate date) {
-        return new Time(LocalTime.ofInstant(Instant.ofEpochMilli(date.getTimestamp()), SkriptDate.ZONE_ID));
+    public static Time of(SkriptDate date) {
+        var lcd = date.toLocalDateTime();
+        return new Time(LocalTime.of(lcd.getHour(), lcd.getMinute(), lcd.getSecond(), lcd.getNano()));
     }
 
     public int getHour() {

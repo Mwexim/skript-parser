@@ -15,13 +15,9 @@ public class SkriptDate implements Comparable<SkriptDate> {
     // TODO make a config for this
     public final static String DATE_FORMAT = "EEEE dd MMMM yyyy HH:mm:ss.SSS zzzXXX";
     public final static Locale DATE_LOCALE = Locale.US;
-    public final static ZoneId ZONE_ID = ZoneId.systemDefault();
-
+    private static ZoneId ZONE_ID = ZoneId.systemDefault();
     public final static int MILLIS_PER_DAY = 86400000;
 
-    /**
-     * Timestamp. Should always be in computer time/UTC/GMT+0.
-     */
     private long timestamp;
 
     private SkriptDate(long timestamp) {
@@ -58,8 +54,8 @@ public class SkriptDate implements Comparable<SkriptDate> {
 	    return SkriptDate.of(localDate.toEpochSecond() * 1000);
 	}
 
-	public Duration difference(SkriptDate other) {
-        return Duration.ofMillis(timestamp - other.getTimestamp()).abs();
+    public static ZoneId getZoneId() {
+        return ZONE_ID;
     }
 
     @Override
@@ -97,6 +93,15 @@ public class SkriptDate implements Comparable<SkriptDate> {
      */
     public long getTimestamp() {
         return timestamp;
+    }
+
+    /**
+     * Get the difference between 2 dates.
+     * @param other the other date
+     * @return the duration between the dates
+     */
+    public Duration difference(SkriptDate other) {
+        return Duration.ofMillis(timestamp - other.getTimestamp()).abs();
     }
 
     /**
