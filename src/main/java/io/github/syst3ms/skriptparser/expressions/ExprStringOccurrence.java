@@ -7,8 +7,11 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
+
 /**
  * The index of the first or last occurrence of a given string in a string.
+ * Note that indices in Skript start at 1.
  *
  * @name Occurrence
  * @type EXPRESSION
@@ -30,6 +33,7 @@ public class ExprStringOccurrence implements Expression<Number> {
 	private Expression<String> value, expr;
 	private boolean first;
 
+	// TODO let this support nth occurrence
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
@@ -46,7 +50,7 @@ public class ExprStringOccurrence implements Expression<Number> {
 				.filter(i -> i != -1)
 				.map(i -> {
 					// Return i + 1, since Skript indices start at 1.
-					return new Number[]{i + 1};
+					return new Number[]{BigInteger.valueOf(i + 1)};
 				})
 				.orElse(new Number[0]);
 	}
