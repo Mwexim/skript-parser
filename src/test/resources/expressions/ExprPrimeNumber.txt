@@ -12,6 +12,6 @@ test:
 	# Note that this should not be a heavy task for the parser to find.
 	# If the process time of this test is high, and you are reviewing it because of that,
 	# it probably means that the prime finder-mechanism is not as efficient anymore.
-	# Advised process time: under 0.050s
-	set {var} to the 10000th prime number
-    assert {var} = 104729 with "The 10000th prime number should be 104729: %{var}%"
+	# Advised process time: under 0.300s
+	set {var} to the 5000th prime number
+    assert {var} = 48611 with "The 5000th prime number should be 48611: %{var}%"

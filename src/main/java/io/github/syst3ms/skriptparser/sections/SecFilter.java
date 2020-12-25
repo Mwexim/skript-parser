@@ -32,7 +32,8 @@ public class SecFilter extends ReturnSection<Boolean> {
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         filtered = expressions[0];
         var logger = parseContext.getLogger();
-        if (filtered.acceptsChange(ChangeMode.SET).isEmpty()) {
+        if (filtered.acceptsChange(ChangeMode.SET).isEmpty()
+                || filtered.acceptsChange(ChangeMode.DELETE).isEmpty()) {
             logger.error(
                     "The expression '" +
                             filtered.toString(null, logger.isDebug()) +
@@ -60,7 +61,11 @@ public class SecFilter extends ReturnSection<Boolean> {
                         .orElse(false)
                 )
                 .toArray();
-        filtered.change(ctx, filteredValues, ChangeMode.SET);
+        if (filteredValues.length == 0) {
+            filtered.change(ctx, new Object[0], ChangeMode.DELETE);
+        } else {
+            filtered.change(ctx, filteredValues, ChangeMode.SET);
+        }
         return getNext();
     }
 

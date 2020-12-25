@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.lang.lambda;
 
+import io.github.syst3ms.skriptparser.effects.EffReturn;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Statement;
 
@@ -16,7 +17,7 @@ import java.util.function.Function;
 public class SkriptFunctionBuilder<S extends ReturnSection<T>, T> {
     private final S section;
     private Function<? super S, Optional<? extends Statement>> starterFunction = CodeSection::getFirst;
-    private BiFunction<? super S, ? super Statement, Optional<T[]>> stepFunction = (sec, stat) -> sec.getReturned();
+    private BiFunction<? super S, ? super Statement, Optional<T[]>> stepFunction = (sec, stat) -> sec.getReturned().filter(__ -> stat instanceof EffReturn);
     private BiConsumer<? super S, ? super Statement> finisherFunction = (a, b) -> {};
 
     SkriptFunctionBuilder(S section) {
