@@ -29,6 +29,7 @@ import java.util.function.Predicate;
 public interface Expression<T> extends SyntaxElement {
     /**
      * Retrieves all values of this Expression.
+     * Note that this method may have possible side-effects.
      * @param ctx the event
      * @return an array of the values
      */
