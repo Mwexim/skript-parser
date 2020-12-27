@@ -4,15 +4,13 @@ import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * An object that stores data about the current parsing, on the scale of the entire trigger.
  */
 public class ParserState {
-    private Class<? extends TriggerContext>[] currentContexts;
+    private Set<Class<? extends TriggerContext>> currentContexts = new HashSet<>();
     private final LinkedList<CodeSection> currentSections = new LinkedList<>();
     private List<Class<? extends SyntaxElement>> allowedSyntaxes = Collections.emptyList();
     private boolean restrictingExpressions = false;
@@ -20,8 +18,16 @@ public class ParserState {
     /**
      * @return the {@link TriggerContext}s handled by the currently parsed event
      */
-    public Class<? extends TriggerContext>[] getCurrentContexts() {
+    public Set<Class<? extends TriggerContext>> getCurrentContexts() {
         return currentContexts;
+    }
+
+    /**
+     * Sets the {@link TriggerContext}s handled by the currently parsed event
+     * @param currentContexts the handled {@link TriggerContext}s
+     */
+    public void setCurrentContexts(Set<Class<? extends TriggerContext>> currentContexts) {
+        this.currentContexts = currentContexts;
     }
 
     /**
@@ -29,14 +35,6 @@ public class ParserState {
      */
     public List<CodeSection> getCurrentSections() {
         return Collections.unmodifiableList(currentSections);
-    }
-
-    /**
-     * Sets the {@link TriggerContext}s handled by the currently parsed event
-     * @param currentContexts the handled {@link TriggerContext}s
-     */
-    public void setCurrentContexts(Class<? extends TriggerContext>[] currentContexts) {
-        this.currentContexts = currentContexts;
     }
 
     /**

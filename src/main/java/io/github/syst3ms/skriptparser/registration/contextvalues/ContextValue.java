@@ -1,6 +1,8 @@
 package io.github.syst3ms.skriptparser.registration.contextvalues;
 
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.types.PatternType;
+import io.github.syst3ms.skriptparser.types.Type;
 
 import java.util.function.Function;
 
@@ -9,7 +11,7 @@ import java.util.function.Function;
  */
 public class ContextValue<T> {
     private final Class<? extends TriggerContext> context;
-    private final Class<T> type;
+    private final PatternType<T> type;
     private final String name;
     private final Function<TriggerContext, T[]> contextFunction;
     private final ContextValueState time;
@@ -21,7 +23,7 @@ public class ContextValue<T> {
      * @param name            the suffix of this value
      * @param contextFunction the function to apply to the context
      */
-    public ContextValue(Class<? extends TriggerContext> context, Class<T> type, String name, Function<TriggerContext, T[]> contextFunction) {
+    public ContextValue(Class<? extends TriggerContext> context, PatternType<T> type, String name, Function<TriggerContext, T[]> contextFunction) {
         this(context, type, name, contextFunction, ContextValueState.PRESENT);
     }
 
@@ -33,7 +35,7 @@ public class ContextValue<T> {
      * @param contextFunction the function to apply to the context
      * @param time            whether this value represent a present, past or future state
      */
-    public ContextValue(Class<? extends TriggerContext> context, Class<T> type, String name, Function<TriggerContext, T[]> contextFunction, ContextValueState time) {
+    public ContextValue(Class<? extends TriggerContext> context, PatternType<T> type, String name, Function<TriggerContext, T[]> contextFunction, ContextValueState time) {
         this.context = context;
         this.type = type;
         this.name = name;
@@ -46,10 +48,17 @@ public class ContextValue<T> {
     }
 
     /**
-     * @return the returned type of this context value
+     * @return the PatternType associated with this context value
      */
-    public Class<T> getType() {
+    public PatternType<T> getPatternType() {
         return type;
+    }
+
+    /**
+     * @return the Type returned by this context value
+     */
+    public Type<T> getType() {
+        return type.getType();
     }
 
     /**
