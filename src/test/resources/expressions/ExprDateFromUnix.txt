@@ -1,0 +1,12 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/19
+
+test:
+	set {var} to date from unix timestamp 1_234_567_890
+	assert year of {var} = 2009 with "Year of timestamp should be 2009: %year of {var}%"
+	assert month of {var} = 2 with "Month of timestamp should be 2 (February): %month of {var}%"
+	assert day of month of {var} = 13 with "Day of month of timestamp should be 13: %day of month of {var}%"
+	assert hours of {var} = 23 with "Hours of timestamp should be 23: %hours of {var}%"
+	assert minutes of {var} = 31 with "Minutes of timestamp should be 31: %minutes of {var}%"
+	assert seconds of {var} = 30 with "Seconds of timestamp should be 30: %seconds of {var}%"

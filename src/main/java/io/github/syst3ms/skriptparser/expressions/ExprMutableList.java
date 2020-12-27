@@ -62,6 +62,11 @@ public class ExprMutableList implements Expression<Object> {
     }
 
     @Override
+    public Class<?> getReturnType() {
+        return list.getReturnType();
+    }
+
+    @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
         return (type == 0
                 ? "reversed " : type == 1

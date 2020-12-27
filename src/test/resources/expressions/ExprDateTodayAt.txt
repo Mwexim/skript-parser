@@ -1,0 +1,10 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/19
+
+test:
+	# Don't run this test at 23:59:59.999 :P
+	set {now} to now
+	set {today} to today at 5PM
+	assert day of month of {now} = day of month of {today} with "Days of {now} and {today} are not equal: %day of month of {now}% != %day of month of {today}% (respectively)"
+	assert hours of {today} = 17 with "Hours of {today} should be 17: %hours of {today}%"

@@ -27,7 +27,7 @@ public class LitTimeConstants implements Literal<Time> {
                 LitTimeConstants.class,
                 Time.class,
                 true,
-                "(noon|midday|1:midnight)",
+                "(0:noon|0:midday|1:midnight)",
                 "%*integer% o'[ ]clock"
         );
     }
@@ -40,7 +40,7 @@ public class LitTimeConstants implements Literal<Time> {
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         onClock = matchedPattern == 1;
-        midnight = parseContext.getParseMark() == 0;
+        midnight = parseContext.getParseMark() == 1;
         if (onClock) {
             hours = (Literal<BigInteger>) expressions[0];
             if (hours.getSingle().isPresent()) {

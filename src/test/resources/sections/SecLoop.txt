@@ -1,0 +1,19 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/02
+
+test:
+	set {list::*} to range from 5 to 8
+	set {var} to 0
+	set {_n} to 0
+	loop {list::*}:
+		add 1 to {_n}
+		add loop-value to {var}
+		assert loop-index = "%{_n}%" with "loop-index expression is not %{_n}%: %loop-index%"
+	assert {var} = 5 + 6 + 7 + 8 with "loop-value expression failed: %{var}% != 5 + 6 + 7 + 8"
+
+	set {var} to 0
+	loop 3 times:
+		add loop-number to {var}
+	assert {var} = 1 + 2 + 3 with "loop-number expression in iterative loop-statement failed: %{var}% != 1 + 2 + 3"
+

@@ -35,6 +35,8 @@ public class CondExprIsPrime extends PropertyConditional<Number> {
 
     @Override
     public boolean check(TriggerContext ctx, Number[] performers) {
+        if (performers.length == 0)
+            return isNegated();
         return isNegated() != Arrays.stream(performers)
                 .allMatch(n -> {
                     var bd = BigDecimalMath.getBigDecimal(n);

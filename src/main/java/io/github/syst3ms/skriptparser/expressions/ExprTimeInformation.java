@@ -15,8 +15,8 @@ import java.math.BigInteger;
  *
  * @name Date Information
  * @type EXPRESSION
- * @pattern [the] (hours|minutes|seconds|milli[second]s) of [time] %time%
- * @pattern [time] %time%'[s] (hours|minutes|seconds|milli[second]s)
+ * @pattern [the] (hour[s]|minute[s]|second[s]|milli[second][s]) of [time] %time%
+ * @pattern [time] %time%'[s] (hour[s]|minute[s]|second[s]|milli[second][s])
  * @since ALPHA
  * @author Mwexim
  */
@@ -27,8 +27,9 @@ public class ExprTimeInformation extends PropertyExpression<Number, Time> {
 				ExprTimeInformation.class,
 				Number.class,
 				true,
+				5,
 				"*[time] %time%",
-				"(0:hours|1:minutes|2:seconds|3:milli[second]s)"
+				"(0:hour[s]|1:minute[s]|2:second[s]|3:milli[second][s])"
 		);
 	}
 

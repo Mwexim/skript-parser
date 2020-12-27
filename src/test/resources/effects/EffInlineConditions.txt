@@ -1,0 +1,13 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/11/03
+
+test:
+	birth:
+		if true:
+			continue if false
+			assert false
+		death # The inline condition should continue code with less indentation
+
+	continue if false
+	assert false

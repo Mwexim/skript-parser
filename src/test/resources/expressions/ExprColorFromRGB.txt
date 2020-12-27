@@ -1,0 +1,7 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/22
+
+test:
+	set {var} to color from rgb 169, 3, 252
+	assert {var} = &a903fc with "Colors do not match: %{var}% != %&a903fc%"

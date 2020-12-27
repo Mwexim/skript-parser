@@ -1,0 +1,8 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/19
+
+test:
+	set {var} to date from unix timestamp 1_234_567
+	assert timestamp of {var} = 1_234_567_000 with "Milliseconds-timestamp failed: %{var}% != 1,234,567,000"
+	assert unix timestamp of {var} = 1_234_567 with "Seconds-timestamp failed: %{var}% != 1,234,567"

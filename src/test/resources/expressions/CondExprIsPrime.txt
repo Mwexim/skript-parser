@@ -1,0 +1,17 @@
+# Author(s):
+# 	- Olyno
+# Date: 2020/12/06
+
+test:
+	set {list::1::*} to 11, 13 and 23
+	set {list::2::*} to 7, 10 and 15
+	set {list::3::*} to 7, 13 and 15
+	assert {list::1::*} are prime with "{list::1::*} should be prime numbers: %{list::1::*}%"
+	assert {list::2::*} are not prime with "{list::2::*} should not all be prime numbers: %{list::2::*}%"
+	assert {list::3::*} are not prime with "{list::3::*} should not all be prime numbers: %{list::3::*}%"
+
+	set {var} to 13
+	assert {var} is prime with "{var} should be a prime number: %{var}%"
+	
+	set {var} to 12
+	assert {var} is not prime with "{var} should not be a prime number: %{var}%"

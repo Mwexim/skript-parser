@@ -44,9 +44,9 @@ public class ExprPrimeNumber implements Expression<Number> {
 		return ordinal.getSingle(ctx)
 				.filter(n -> n.compareTo(BigInteger.ZERO) > 0)
 				.map(n -> {
-					if (NumberMath.getCachedPrimes().size() <= n.intValue()) {
+					if (NumberMath.getCachedPrimes().size() >= n.intValue()) {
 						return new Number[] {
-								NumberMath.getCachedPrimes().get(n.intValue())
+								BigInteger.valueOf(NumberMath.getCachedPrimes().get(n.intValue() - 1))
 						};
 					}
 					int candidate, count;
@@ -62,6 +62,6 @@ public class ExprPrimeNumber implements Expression<Number> {
 
 	@Override
 	public String toString(@Nullable TriggerContext ctx, boolean debug) {
-		return "prime no. " + ordinal.toString(ctx, debug);
+		return "prime number " + ordinal.toString(ctx, debug);
 	}
 }

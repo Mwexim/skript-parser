@@ -101,7 +101,7 @@ public class TimeUtils {
 
         var firstMatcher = Pattern.compile("\\d?\\dh(\\d\\d)?").matcher(str);
         var secondMatcher = Pattern.compile("(\\d?\\d)(:(\\d\\d))? ?(am|pm)", Pattern.CASE_INSENSITIVE).matcher(str);
-        var thirdMatcher = Pattern.compile("(\\d?\\d):(\\d\\d)(:(\\d\\d(\\.(\\d\\d\\d))?))?").matcher(str);
+        var thirdMatcher = Pattern.compile("(\\d?\\d):(\\d\\d)(:((\\d\\d)(\\.(\\d\\d\\d))?))?").matcher(str);
 
         /*
          * We will sort time literals in 3 categories:
@@ -118,10 +118,10 @@ public class TimeUtils {
             } else if (hours < 0 || 23 < hours) {
                 return Optional.empty();
             }
-            int minutes = parts.length > 1
-                    ? parseInt(parts[0])
-                    : 0;
-            if (0 <= minutes && minutes <= 59) {
+            int minutes = (parts.length > 1
+                    ? parseInt(parts[1])
+                    : 0);
+            if (minutes < 0 || 59 < minutes) {
                 return Optional.empty();
             }
             return Optional.of(Time.of(hours, minutes, 0, 0));

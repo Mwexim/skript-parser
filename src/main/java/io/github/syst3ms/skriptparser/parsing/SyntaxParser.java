@@ -286,7 +286,7 @@ public class SyntaxParser {
             var element = patterns.get(i);
             logger.setContext(ErrorContext.MATCHING);
             var parser = new MatchContext(element, parserState, logger);
-            if (element.match(s, 0, parser) != -1) {
+            if (element.match(s, 0, parser) == s.length()) {
                 try {
                     var expression = (Expression<? extends T>) info.getSyntaxClass()
                             .getDeclaredConstructor()
@@ -430,7 +430,7 @@ public class SyntaxParser {
                     literals[i] = new SimpleLiteral<>(String.class, (String) exp.getSingle(TriggerContext.DUMMY).orElseThrow(AssertionError::new));
                 }
             }
-            var returnType = ClassUtils.getCommonSuperclass(Arrays.stream(literals).map(Literal::getReturnType).toArray(Class[]::new));
+            var returnType = ClassUtils.getCommonSuperclass(false, Arrays.stream(literals).map(Literal::getReturnType).toArray(Class[]::new));
             return Optional.of(new LiteralList<>(
                     (Literal<? extends T>[]) literals,
                     (Class<T>) returnType,
@@ -438,7 +438,7 @@ public class SyntaxParser {
             ));
         } else {
             Expression<?>[] exprs = expressions.toArray(new Expression[0]);
-            var returnType = ClassUtils.getCommonSuperclass(Arrays.stream(exprs).map(Expression::getReturnType).toArray(Class[]::new));
+            var returnType = ClassUtils.getCommonSuperclass(false, Arrays.stream(exprs).map(Expression::getReturnType).toArray(Class[]::new));
             return Optional.of(new ExpressionList<>(
                     (Expression<? extends T>[]) exprs,
                     (Class<T>) returnType,
@@ -529,7 +529,7 @@ public class SyntaxParser {
             var element = patterns.get(i);
             logger.setContext(ErrorContext.MATCHING);
             var parser = new MatchContext(element, parserState, logger);
-            if (element.match(s, 0, parser) != -1) {
+            if (element.match(s, 0, parser) == s.length()) {
                 try {
                     var eff = info.getSyntaxClass()
                             .getDeclaredConstructor()

@@ -93,7 +93,7 @@ public class EffChange extends Effect {
                         break;
                     case DELETE:
                     case RESET:
-                    	assert false;
+                    	throw new IllegalStateException();
                 }
                 return false;
             } else if (!ClassUtils.containsSuperclass(acceptance.get(), changeType)) {
@@ -117,7 +117,7 @@ public class EffChange extends Effect {
                         break;
                     case DELETE:
                     case RESET:
-                    	assert false;
+                    	throw new IllegalStateException();
                 }
                 return false;
             }
@@ -154,8 +154,7 @@ public class EffChange extends Effect {
             case REMOVE_ALL:
                 return String.format("remove all %s from %s", changedWithString, changedString);
             default:
-                assert false;
-                return "!!!unknown change mode!!!";
+                throw new IllegalStateException();
         }
     }
 

@@ -1,0 +1,15 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/19
+
+test:
+	set {var} to date from timestamp 13_243_546_576_055
+	assert year of {var} = 2389 with "Year of timestamp should be 2389: %year of {var}%"
+	assert month of {var} = 9 with "Month of timestamp should be 9 (February): %month of {var}%"
+	assert day of year of {var} = 245 with "Day of year of timestamp should be 245: %day of year of {var}%"
+	assert day of month of {var} = 2 with "Day of month of timestamp should be 2: %day of month of {var}%"
+	assert day of week of {var} = 6 with "Day of week of timestamp should be 6: %day of week of {var}%"
+	assert hours of {var} = 18 with "Hours of timestamp should be 18: %hours of {var}%"
+	assert minutes of {var} = 56 with "Minutes of timestamp should be 56: %minutes of {var}%"
+	assert seconds of {var} = 16 with "Seconds of timestamp should be 16: %seconds of {var}%"
+	assert milliseconds of {var} = 55 with "Milliseconds of timestamp should be 55: %milliseconds of {var}%"

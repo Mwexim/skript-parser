@@ -28,7 +28,7 @@ public class Comparators {
      * @throws IllegalArgumentException if any given class is equal to <code>Object.class</code>
      */
     public static <T1, T2> void registerComparator(Class<T1> t1, Class<T2> t2, Comparator<T1, T2> c) {
-        if (t1 == Object.class && t2 == Object.class)
+        if (t1 == Object.class || t2 == Object.class)
             throw new IllegalArgumentException("You must not add a comparator for Objects");
         comparators.add(new ComparatorInfo<>(t1, t2, c));
     }
@@ -61,7 +61,7 @@ public class Comparators {
 
     @SuppressWarnings("unchecked")
     private static <F, S> Optional<? extends Comparator<? super F, ? super S>> getComparatorInternal(Class<F> f, Class<S> s) {
-        // perfect match
+        // Perfect match
         for (var info : comparators) {
             if (info.getFirstClass().isAssignableFrom(f) && info.getSecondClass().isAssignableFrom(s)) {
                 return Optional.ofNullable((Comparator<? super F, ? super S>) info.getComparator());
@@ -70,8 +70,8 @@ public class Comparators {
             }
         }
 
-        // same class but no comparator
-        if (s == f && f != Object.class) {
+        // Same class but no comparator
+        if (f == s) {
             return Optional.of(EQUALS_COMPARATOR);
         }
 
@@ -79,7 +79,7 @@ public class Comparators {
         Optional<? extends Function<? super F, Optional<?>>> c1;
         Optional<? extends Function<? super S, Optional<?>>> c2;
 
-        // single conversion
+        // Single conversion
         for (var info : comparators) {
             for (var first : trueFalse) {
                 if (info.getType(first).isAssignableFrom(f)) {
@@ -110,7 +110,7 @@ public class Comparators {
             }
         }
 
-        // double conversion
+        // Double conversion
         for (var info : comparators) {
             for (var first : trueFalse) {
                 c1 = (Optional<? extends Function<? super F, Optional<?>>>) Converters.getConverter(f, info.getType(first));

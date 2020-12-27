@@ -110,4 +110,11 @@ public class Variables {
             variableMap.setVariable(name, value);
         }
     }
+
+    /**
+     * Clears all variables.
+     */
+    public static void clearVariables() {
+        variableMap.clearVariables();
+    }
 }

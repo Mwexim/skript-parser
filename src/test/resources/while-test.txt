@@ -1,4 +1,0 @@
-set {_i} to 0
-while {_i} < 10:
-    println "test"
-    {_i} -= 1

@@ -46,7 +46,7 @@ public class CondExprCompare extends ConditionalExpression {
             {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither)| [8:each]) ((less|smaller) than|below)|\\<) %objects% [0x10:each|0x18:respectively]", Relation.SMALLER},
             {"[1:neither] %objects% [8:each] (is|are)(2:n't [8:each]|2:[8: each] not) between %objects% and %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
             {"[1:neither] %objects% [8:each] (is|are) [8:each] between %objects% and %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
-            {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither))|!=) [equal to] %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
+            {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither)) [equal to]|2:!=) %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
             {"[1:neither] %objects% [8:each] ((is|are) [8:each] [equal to|the same as]|=) %objects% [0x10:each|0x18:respectively]", Relation.EQUAL}
     }
     );
@@ -56,6 +56,7 @@ public class CondExprCompare extends ConditionalExpression {
                 CondExprCompare.class,
                 Boolean.class,
                 true,
+                1,
                 PATTERNS.getPatterns()
         );
     }
@@ -216,34 +217,35 @@ public class CondExprCompare extends ConditionalExpression {
     @SuppressWarnings({"unchecked"})
     private boolean initialize() {
         Expression<?> third = this.third;
-        if (first.getReturnType() == Object.class) {
-            Optional<? extends Expression<Object>> e = first.convertExpression(Object.class);
-            if (e.isEmpty()) {
-                return false;
-            }
-            first = e.get();
-        }
-        if (second.getReturnType() == Object.class) {
-            Optional<? extends Expression<Object>> e = second.convertExpression(Object.class);
-            if (e.isEmpty()) {
-                return false;
-            }
-            second = e.get();
-        }
-        if (third != null && third.getReturnType() == Object.class) {
-            Optional<? extends Expression<Object>> e = third.convertExpression(Object.class);
-            if (e.isEmpty()) {
-                return false;
-            }
-            this.third = third = e.get();
-        }
+//        if (first.getReturnType() == Object.class) {
+//            Optional<? extends Expression<Object>> e = first.convertExpression(Object.class);
+//            if (e.isEmpty()) {
+//                return false;
+//            }
+//            first = e.get();
+//        }
+//        if (second.getReturnType() == Object.class) {
+//            Optional<? extends Expression<Object>> e = second.convertExpression(Object.class);
+//            if (e.isEmpty()) {
+//                return false;
+//            }
+//            second = e.get();
+//        }
+//        if (third != null && third.getReturnType() == Object.class) {
+//            Optional<? extends Expression<Object>> e = third.convertExpression(Object.class);
+//            if (e.isEmpty()) {
+//                return false;
+//            }
+//            this.third = third = e.get();
+//        }
         Class<?> f = first.getReturnType();
         Class<?> s = third == null
                 ? second.getReturnType()
                 : ClassUtils.getCommonSuperclass(second.getReturnType(), third.getReturnType());
         if (f == Object.class || s == Object.class)
             return true;
-        return (comp = (Comparator<Object, Object>) Comparators.getComparator(f, s).orElse(null)) != null;
+        comp = (Comparator<Object, Object>) Comparators.getComparator(f, s).orElse(null);
+        return comp != null;
     }
 
     /*
@@ -398,7 +400,12 @@ public class CondExprCompare extends ConditionalExpression {
             for (Object f : firstValues) {
                 boolean isContained = false;
                 for (Object s : secondValues) {
-                    if (comp.apply(f, s).is(Relation.EQUAL)) {
+                    if (comp == null) {
+                        if (Comparators.compare(f, s).is(Relation.EQUAL)) {
+                            isContained = true;
+                            break;
+                        }
+                    } else if (comp.apply(f, s).is(Relation.EQUAL)) {
                         isContained = true;
                         break;
                     }

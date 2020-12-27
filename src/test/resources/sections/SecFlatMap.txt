@@ -1,0 +1,9 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/02
+
+test:
+	set {list::*} to range from 1 to 3
+	flat map {list::*}:
+		return (input + 3) and 1
+	assert {list::*} = 4, 1, 5, 1, 6 and 1 with "Flat-mapping didn't work: {list::*} (%{list::*}%) != 4, 1, 5, 1, 6, 1"

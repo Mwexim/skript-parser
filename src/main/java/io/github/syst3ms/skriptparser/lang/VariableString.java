@@ -40,7 +40,6 @@ public class VariableString extends TaggedExpression {
         this.simple = data.length == 1 && data[0] instanceof String;
     }
 
-
     /**
      * Creates a new instance of a VariableString.
      * @param s the text to create a new instance from, with its surrounding quotes
@@ -167,6 +166,11 @@ public class VariableString extends TaggedExpression {
     @Contract("_, _, _ -> fail")
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isSingle() {
+        return true;
     }
 
     @Override

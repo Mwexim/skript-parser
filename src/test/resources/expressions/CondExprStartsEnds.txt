@@ -1,0 +1,11 @@
+# Author(s):
+# 	- Olyno
+# Date: 2020/12/06
+
+test:
+	set {var} to "Hello World"
+	set {list::*} to "Hola", "Hello" and "Hey"
+	assert {var} starts with "Hello" with "{var} should start with 'Hello': %{var}%"
+	assert {list::*} start with "H" with "{list::*} should start with 'H': %{list::*}%"
+	assert {var} does not end with "H" with "{var} should not end with 'H': %{var}%"
+	assert {list::*} does not end with "H" with "{list::*} should not end with 'H': %{list::*}%"

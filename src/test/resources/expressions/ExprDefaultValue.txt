@@ -1,0 +1,11 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/20
+
+test:
+	set {var} to true
+	set {assert} to {var} ? false
+	assert {assert} with "{var} should be true: %{var}%"
+
+	set {assert} to ({var2} ? true) ? false
+	assert {assert} with "{var2} was not empty at script launch: %{var2}%"

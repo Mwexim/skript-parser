@@ -1,0 +1,6 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/18
+
+test:
+	assert (date from unix timestamp 1) formatted as "yyyy...SSS$$MMM//ss" = "1970...000$$Jan//01" with "Date format failed: %{var}% != '1970...000$$Jan//01'"

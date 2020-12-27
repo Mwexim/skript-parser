@@ -1,0 +1,25 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/22
+
+test:
+	assert abs -5 = |5| with "Absolute value failed: %-5% != %|5|%"
+	assert 5! = 120 with "Factorial should be 120: %5!%"
+	assert factorial of 6 = 720 with "Factorial should be 720: %factorial of 6%"
+	assert sqrt 169 = 13 with "Square root should be 13: %sqrt 169%"
+	assert floored 5.3354 = ceiled 4.1 with "Floor and ceiled should both be 5: %floored 5.3354% and %ceiled 4.1%"
+	assert rounded 5.50 = 6 with "Rounding 5.50 should equal 6: %rounded 5.50%"
+
+	assert sin 45 = (sqrt 2) / 2 with "sin(45°) should equal sqrt(2)/2: %sin 45%"
+	assert cos 120 = -1/2 with "cos(120°) should equal -1/2: %cos 120%"
+	assert (sin 34)^2 + (cos 34)^2 = 1 with "Main formula of trigonometry failed: %(sin 34)^2 + (cos 34)^2%"
+	assert tan 45 = 1 with "tan(45°) should equal 1: %tan 45%"
+	assert (sin 5)/(cos 5) = tan 5 with "sin(5°)/cos(5°) should equal tan(5°): %(sin 5)/(cos 5)% != %tan 5%"
+
+	assert asin ((sqrt 3) / 2) = 60 with "asin(sqrt(3)/2) should be 60°: %asin ((sqrt 3) / 2)%"
+	assert acos ((sqrt 2) / (-1 * 2)) = 135 with "acos(-sqrt(3)/2) should be 135°: %acos ((sqrt 2) / (-1 * 2))%"
+	assert atan ((sqrt 3) / 3) = 30 with "atan(sqrt(3)/3) should be 30°: %atan ((sqrt 3) / 3)%"
+
+	# To do: hyperbolic function tests
+
+	assert ln (e^5) = 5 with "ln(e^5) should be 5: %ln (e^5) = 5%"

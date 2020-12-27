@@ -1,0 +1,9 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/02
+
+test:
+	set {list::*} to range from 4 to 11
+	filter {list::*}:
+		return input > 7
+	assert {list::*} = 8, 9, 10 and 11 with "Filtering didn't work: {list::*} (%{list::*}%) != 8, 9, 10 and 11"

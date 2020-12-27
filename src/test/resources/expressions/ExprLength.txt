@@ -1,0 +1,7 @@
+# Author(s):
+# 	- Olyno
+# Date: 2020/12/06
+
+test:
+	set {var} to "Hello World"
+	assert length of {var} is 11 with "length of {var} should be 11: %{var}%"

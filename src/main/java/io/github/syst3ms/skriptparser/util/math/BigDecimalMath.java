@@ -330,9 +330,7 @@ public class BigDecimalMath {
         try {
             var longValue = y.longValueExact();
             return pow(x, longValue, mathContext);
-        } catch (ArithmeticException ex) {
-            // ignored
-        }
+        } catch (ArithmeticException ignored) { /* Nothing */ }
 
         if (fractionalPart(y).signum() == 0) {
             return powInteger(x, y, mathContext);

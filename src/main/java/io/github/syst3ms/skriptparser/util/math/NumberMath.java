@@ -219,6 +219,10 @@ public class NumberMath {
 
         // 3. If the number is not too high, we can compute new primes and add them to the cached list.
         // Prevents costly ln() invocation.
+        if (cachedPrimes.get(cachedPrimes.size() - 1) > number.intValue()) {
+            // We already did a binary search, so if this happens, it is 100% not a prime number.
+            return false;
+        }
         BigInteger threshold =
                 number.intValue() - cachedPrimes.get(cachedPrimes.size() - 1) < 10_000
                         ? BigInteger.ZERO
@@ -400,6 +404,8 @@ public class NumberMath {
      * @author Syst3ms
      */
     private static List<Integer> sieveOfEratosthenes(int start, int end) {
+        if (end < start)
+            throw new IllegalArgumentException("start (" + start + ") > end (" + end + ")");
         // Start and end are inclusive
         int size = end - start + 1;
         boolean[] isComposite = new boolean[size];

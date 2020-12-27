@@ -16,20 +16,20 @@ import java.time.format.TextStyle;
  *
  * @name Date Values
  * @type EXPRESSION
- * @pattern [the] (era|(name of month|month name)|(name of day [(in|of) week]|week[ ]day name)) of [date] %date%
- * @pattern [date] %date%'[s] (era|(name of month|month name)|(name of day [(in|of) week]|week[ ]day name))
+ * @pattern [the] (0:era|1:month|2:weekday|2:day [(of|in) week]) [name] of [date] %date%
+ * @pattern [date] %date%'[s] (0:era|1:month|2:weekday|2:day [(of|in) week]) [name]
  * @since ALPHA
  * @author Mwexim
  */
 public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
-
 	static {
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprDateValues.class,
 				String.class,
 				true,
+				3,
 				"*[date] %date%",
-				"(0:era|1:(name of month|month name)|2:(name of day [(in|of) week]|week[ ]day name))"
+				"(0:era|1:month|2:weekday|2:day [(of|in) week]) [name]"
 		);
 	}
 
@@ -49,7 +49,7 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 		switch (parseMark) {
 			case 0:
 				return new String[] {
-						lcd.toLocalDate().getEra().getDisplayName(TextStyle.FULL, SkriptDate.DATE_LOCALE)
+						lcd.toLocalDate().getEra().getDisplayName(TextStyle.SHORT, SkriptDate.DATE_LOCALE)
 				};
 			case 1:
 				return new String[] {

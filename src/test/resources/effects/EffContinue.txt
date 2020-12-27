@@ -1,0 +1,12 @@
+# Author(s):
+#	- CHarcoalToast
+# 	- Mwexim
+# Date: 2020/10/31
+
+test:
+	{var} = 0
+	loop 5 times:
+		if loop-value < 3:
+			continue
+		add 1 to {var}
+	assert {var} = 3 with "'continue'-statement didn't work properly: %{var}% != 3"

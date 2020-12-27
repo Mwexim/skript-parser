@@ -1,0 +1,9 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/22
+
+test:
+	assert duration passed since 5 hours ago >= 5 hours with "Duration passed should be 5 hours: %duration passed since 5 hours ago%"
+	assert duration until 5 hours after tomorrow >= 29 hours with "Duration until should be 29 hours: %duration until 5 hours after tomorrow%"
+
+	assert duration passed since 1 millisecond in the future is not set with "Duration passed with future date should not be set: %duration passed since 1 millisecond in the future%"

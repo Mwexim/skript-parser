@@ -33,6 +33,7 @@ public class SecLoop extends ArgumentSection {
 	private boolean isNumericLoop;
 	private final transient Map<TriggerContext, Object> current = new WeakHashMap<>();
 	private final transient Map<TriggerContext, Iterator<?>> currentIter = new WeakHashMap<>();
+	private Statement actualNext;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -88,10 +89,11 @@ public class SecLoop extends ArgumentSection {
 		if (iter == null) {
 			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(ctx) : expr.iterator(ctx);
 			if (iter != null) {
-				if (iter.hasNext())
+				if (iter.hasNext()) {
 					currentIter.put(ctx, iter);
-				else
+				} else {
 					iter = null;
+				}
 			}
 		}
 		Iterator<?> finalIter = iter;
@@ -118,10 +120,20 @@ public class SecLoop extends ArgumentSection {
 		return current.get(ctx);
 	}
 
-    /**
-     * @return the expression whose values this loop is iterating over
-     */
+	/**
+	 * @return the expression whose values this loop is iterating over
+	 */
 	public Expression<?> getLoopedExpression() {
+		if (expr == null) {
+			// getLoopedExpression() is really only used to get the return type, so that's why we can use DUMMY here.
+			BigInteger[] range = (BigInteger[]) times.getSingle(TriggerContext.DUMMY)
+					.filter(t -> t.compareTo(BigInteger.ZERO) > 0)
+					.map(t -> Ranges.getRange(BigInteger.class).orElseThrow()
+							.getFunction()
+							.apply(BigInteger.ONE, t)) // Upper bound is inclusive
+					.orElse(new BigInteger[0]);
+			expr = new SimpleLiteral<>(BigInteger.class, range);
+		}
 		return expr;
-  }
+	}
 }

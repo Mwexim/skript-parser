@@ -1,0 +1,6 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/15
+
+test:
+	throws "%e. How is your day going?%"

@@ -28,9 +28,9 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 				{"log[arithm] [base] %number% of %number%", (BinaryOperator<Number>) NumberMath::log},
 				{"(root %number%|[the] %integer%(st|nd|rd|th) root) of %number%", (BinaryOperator<Number>) (r, n) -> {
 					var root = r instanceof BigDecimal ? (BigDecimal) r : new BigDecimal(r.toString());
-					if (root.compareTo(BigDecimal.ONE) == 0) {
+					if (root.equals(BigDecimal.ONE)) {
 						return n;
-					} else if (root.compareTo(BigDecimal.valueOf(2)) == 0) {
+					} else if (root.equals(BigDecimal.valueOf(2))) {
 						return NumberMath.sqrt(n);
 					}
 					var numb = n instanceof BigDecimal ? (BigDecimal) n : new BigDecimal(n.toString());

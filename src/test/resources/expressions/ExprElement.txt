@@ -1,0 +1,13 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/20
+
+test:
+	set {list::*} to range from 1 to 10
+	assert first element out of {list::*} = 1 with "First element should be 1: %first element out of {list::*}%"
+	assert last element out of {list::*} = 10 with "Last element should be 10: %last element out of {list::*}%"
+	assert the 5th element out of {list::*} = 5 with "Fifth element should be 5: %5th element out of {list::*}%"
+	assert first 3 elements out of {list::*} is (1, 2 and 3) with "First 3 elements should be 1, 2 and 3: %first 3 elements out of {list::*}%"
+	assert last 4 elements out of {list::*} = (7, 8, 9 and 10) with "Last 4 elements should be 7, 8, 9 and 10: %last 4 elements out of {list::*}%"
+	# This syntax might be removed in the future
+	assert {list::*}[7] = 7 with "Seventh element should be 7: %{list::*}[7]%"

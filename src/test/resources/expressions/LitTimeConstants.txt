@@ -1,0 +1,11 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/22
+
+test:
+	assert noon = 12PM with "Noon should equal 12PM: %noon%"
+	assert midday = 12:00:00.000 with "Midday should equal 12:00:00.000: %midday%"
+	assert midnight = 24h with "Midnight should equal 24h: %midnight%"
+
+	assert 14 o' clock = 2PM with "14 o' clock  should equal 2PM: %14 o'clock%"
+	throws 25 o'clock # Hours should be between 0 and 24

@@ -45,7 +45,7 @@ public class SkriptFunction<S extends ReturnSection<T>, T> {
         var item = starterFunction.apply(section);
         while (item.isPresent()) {
             var cur = item.orElse(null);
-            item = item.flatMap(s -> s.walk(ctx));
+            item = item.flatMap(s -> s.walk(ctx, true));
             var stepResult = stepFunction.apply(section, cur);
             if (stepResult.isPresent()) {
                 result = stepResult.get();

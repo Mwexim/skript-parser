@@ -1,0 +1,9 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/02
+
+test:
+	set {list::*} to range from 1 to 4
+	map {list::*}:
+		return input + 3
+	assert {list::*} = 4, 5, 6 and 7 with "Mapping didn't work: {list::*} (%{list::*}%) != 4, 5, 6 and 7"

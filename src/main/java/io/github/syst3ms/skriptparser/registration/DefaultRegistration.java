@@ -271,14 +271,11 @@ public class DefaultRegistration {
                 Number.class,
                 Number.class,
                 new Comparator<>(true) {
-                    @SuppressWarnings("unchecked")
                     @Override
                     public Relation apply(Number number, Number number2) {
-                        if (number.getClass() == number2.getClass()) {
-                            return Relation.get(((Comparable<? super Number>) number).compareTo(number2));
-                        } else if (number instanceof BigDecimal || number2 instanceof BigDecimal) {
-                            BigDecimal bd = BigDecimalMath.getBigDecimal(number);
-                            BigDecimal bd2 = BigDecimalMath.getBigDecimal(number2);
+                        if (number instanceof BigDecimal || number2 instanceof BigDecimal) {
+                            BigDecimal bd = BigDecimalMath.getBigDecimal(number).setScale(10, RoundingMode.HALF_UP);
+                            BigDecimal bd2 = BigDecimalMath.getBigDecimal(number2).setScale(10, RoundingMode.HALF_UP);
                             return Relation.get(bd.compareTo(bd2));
                         } else {
                             assert number instanceof BigInteger && number2 instanceof BigInteger;

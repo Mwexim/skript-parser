@@ -38,11 +38,11 @@ public class EffExit extends Effect {
     }
 
     private final static String[] names = {"section", "loop", "conditional"};
-    private final List<CodeSection> currentSections = new ArrayList<>();
 
+    private final List<CodeSection> currentSections = new ArrayList<>();
     private int pattern;
     private int parseMark;
-    private Expression<BigInteger> amount;
+    private Literal<BigInteger> amount;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -51,7 +51,7 @@ public class EffExit extends Effect {
         pattern = matchedPattern;
         parseMark = parseContext.getParseMark();
         if (pattern == 2)
-                amount = (Expression<BigInteger>) expressions[0];
+                amount = (Literal<BigInteger>) expressions[0];
         return true;
     }
 
@@ -68,7 +68,7 @@ public class EffExit extends Effect {
             case 1:
                 return escapeSections(1, this);
             case 2:
-                return amount.getSingle(ctx)
+                return amount.getSingle()
                         .flatMap(sec -> escapeSections(sec.intValue(), this));
             case 3:
                 // The current Trigger itself is also a part of the current sections!
@@ -110,7 +110,8 @@ public class EffExit extends Effect {
                 amount--;
                 continue;
             }
-            return temp.flatMap(Statement::getNext);
+            stm = temp.get();
+            break;
         }
         return stm instanceof SecWhile ? ((SecWhile) stm).getActualNext()
                 : (Optional<Statement>) stm.getNext();

@@ -1,0 +1,12 @@
+# Author(s):
+# 	- Olyno
+# Date: 2020/12/06
+
+test:
+	assert {var} is not set with "{var} should not be set at script launch: %{var}%"
+	assert {list::*} is not set with "{list::*} should not be set at script launch: %{list::*}%"
+
+	set {var} to 0
+	set {list::*} to 0, "" and false
+	assert {var} is set with "{var} should be set: %{var}%"
+	assert {list::*} is set with "{list::*} should be set: %{list::*}%"

@@ -1,0 +1,12 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/02
+
+test:
+	set {var} to 24
+	set {var2} to 0
+	while {var} > 0:
+		remove 1 from {var}
+		add 1 to {var2}
+	assert {var2} = 24 with "while-statement did not iterate 24 times: %{var2}%"
+

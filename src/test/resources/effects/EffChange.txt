@@ -1,0 +1,21 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/10/31
+
+test:
+	assert {var} is not set with "{var} was set at script launch"
+	set {var} to 5
+	assert {var} = 5 with "'set'-statement didn't work"
+	add 4 to {var}
+	assert {var} = 9 with "'add'-statement didn't work"
+	remove 20 from {var}
+	assert {var} = -11 with "'remove'-statement didn't work"
+	delete {var}
+	assert {var} is not set with "'delete'-statement didn't work"
+
+	{list::*} = "Hello", "World", "Have a", "great" and "day"
+	assert size of {list::*} = 5 with "'set'-statement didn't work in list"
+	{list::*} -= "Hello"
+	assert size of {list::*} = 4 with "'remove'-statement didn't work in list"
+	clear {list::*}
+	assert size of {list::*} = 0 with "'clear'-statement didn't work in list"
