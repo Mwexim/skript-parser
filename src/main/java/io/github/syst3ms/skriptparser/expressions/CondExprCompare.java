@@ -244,8 +244,7 @@ public class CondExprCompare extends ConditionalExpression {
                 : ClassUtils.getCommonSuperclass(second.getReturnType(), third.getReturnType());
         if (f == Object.class || s == Object.class)
             return true;
-        comp = (Comparator<Object, Object>) Comparators.getComparator(f, s).orElse(null);
-        return comp != null;
+        return (comp = (Comparator<Object, Object>) Comparators.getComparator(f, s).orElse(null)) != null;
     }
 
     /*
