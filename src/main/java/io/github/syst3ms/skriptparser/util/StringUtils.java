@@ -365,12 +365,11 @@ public class StringUtils {
      * @param mode 0 for default mode, 1 for uppercase and 2 for lowercase
      * @return the converted string
      */
-    @SuppressWarnings("unchecked")
     public static String toSnakeCase(String str, int mode) {
         if (mode == 0)
             return str.replace(' ', '_');
         StringBuilder sb = new StringBuilder();
-        for (int c : (Iterable<Integer>) str.codePoints().iterator()) { // Handles Unicode!
+        for (int c : (Iterable<Integer>) str.codePoints()::iterator) { // Handles Unicode!
             sb.appendCodePoint(c == ' ' ? '_' : (mode == 1 ? Character.toUpperCase(c) : Character.toLowerCase(c)));
         }
         return sb.toString();
@@ -382,12 +381,11 @@ public class StringUtils {
      * @param mode 0 for default mode, 1 for uppercase and 2 for lowercase
      * @return the converted string
      */
-    @SuppressWarnings("unchecked")
     public static String toKebabCase(String str, int mode) {
         if (mode == 0)
             return str.replace(' ', '-');
         StringBuilder sb = new StringBuilder();
-        for (int c : (Iterable<Integer>) str.codePoints().iterator()) { // Handles Unicode!
+        for (int c : (Iterable<Integer>) str.codePoints()::iterator) { // Handles Unicode!
             sb.appendCodePoint(c == ' ' ? '-' : (mode == 1 ? Character.toUpperCase(c) : Character.toLowerCase(c)));
         }
         return sb.toString();
