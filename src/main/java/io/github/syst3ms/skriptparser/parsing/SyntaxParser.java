@@ -157,6 +157,7 @@ public class SyntaxParser {
         // Let's not loop over the same elements again
         var remainingExpressions = SyntaxManager.getAllExpressions();
         recentExpressions.removeFrom(remainingExpressions);
+        remainingExpressions.remove(EXPRESSION_BOOLEAN_OPERATORS);
         for (var info : remainingExpressions) {
             var expr = matchExpressionInfo(s, info, expectedType, parserState, logger);
             if (expr.isPresent()) {
