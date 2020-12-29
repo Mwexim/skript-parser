@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.registration.contextvalues;
 
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.Type;
 
 import java.util.function.Function;
@@ -11,33 +10,37 @@ import java.util.function.Function;
  */
 public class ContextValue<T> {
     private final Class<? extends TriggerContext> context;
-    private final PatternType<T> type;
+    private final Type<T> type;
+    private final boolean isSingle;
     private final String name;
     private final Function<TriggerContext, T[]> contextFunction;
     private final ContextValueState time;
 
     /**
      * Construct a context value.
-     *
-     * @param context         the specific {@link TriggerContext} class
-     * @param name            the suffix of this value
+     * @param context the specific {@link TriggerContext} class.
+     * @param type the return type
+     * @param isSingle whether this value is single
+     * @param name the name of this value
      * @param contextFunction the function to apply to the context
      */
-    public ContextValue(Class<? extends TriggerContext> context, PatternType<T> type, String name, Function<TriggerContext, T[]> contextFunction) {
-        this(context, type, name, contextFunction, ContextValueState.PRESENT);
+    public ContextValue(Class<? extends TriggerContext> context, Type<T> type, boolean isSingle, String name, Function<TriggerContext, T[]> contextFunction) {
+        this(context, type, isSingle, name, contextFunction, ContextValueState.PRESENT);
     }
 
     /**
      * Construct a context value.
-     *
-     * @param context         the specific {@link TriggerContext} class
-     * @param name            the suffix of this value
+     * @param context the specific {@link TriggerContext} class.
+     * @param type the return type
+     * @param isSingle whether this value is single
+     * @param name the name of this value
      * @param contextFunction the function to apply to the context
-     * @param time            whether this value represent a present, past or future state
+     * @param time the time of this value
      */
-    public ContextValue(Class<? extends TriggerContext> context, PatternType<T> type, String name, Function<TriggerContext, T[]> contextFunction, ContextValueState time) {
+    public ContextValue(Class<? extends TriggerContext> context, Type<T> type, boolean isSingle, String name, Function<TriggerContext, T[]> contextFunction, ContextValueState time) {
         this.context = context;
         this.type = type;
+        this.isSingle = isSingle;
         this.name = name;
         this.contextFunction = contextFunction;
         this.time = time;
@@ -48,17 +51,14 @@ public class ContextValue<T> {
     }
 
     /**
-     * @return the PatternType associated with this context value
+     * @return the Type associated with this context value
      */
-    public PatternType<T> getPatternType() {
+    public Type<T> getType() {
         return type;
     }
 
-    /**
-     * @return the Type returned by this context value
-     */
-    public Type<T> getType() {
-        return type.getType();
+    public boolean isSingle() {
+        return isSingle;
     }
 
     /**

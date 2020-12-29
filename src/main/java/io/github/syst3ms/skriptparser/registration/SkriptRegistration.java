@@ -13,7 +13,6 @@ import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
 import io.github.syst3ms.skriptparser.registration.tags.Tag;
 import io.github.syst3ms.skriptparser.registration.tags.TagInfo;
 import io.github.syst3ms.skriptparser.registration.tags.TagManager;
-import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
@@ -690,23 +689,23 @@ public class SkriptRegistration {
         /**
          * Registers a {@link ContextValue}
          * @param context the context this value appears in
-         * @param type the returned type of this context value
+         * @param returnType the returned type of this context value
          * @param name the name of this context value (used in the suffix)
          * @param contextFunction the function that needs to be applied in order to get the context value
          * @param <C> the context class
          * @param <T2> the type class
          * @return the registrar
          */
-        public final <C extends TriggerContext, T2> EventRegistrar<T> addContextValue(Class<C> context, Class<T2> type, boolean isSingle, String name, Function<C, T2[]> contextFunction) {
-            var patternType = (PatternType<T2>) new PatternType<>(TypeManager.getByClass(type).orElseThrow(), isSingle);
-            contextValues.add(new ContextValue<>(context, patternType, name, (Function<TriggerContext, T2[]>) contextFunction));
+        public final <C extends TriggerContext, T2> EventRegistrar<T> addContextValue(Class<C> context, Class<T2> returnType, boolean isSingle, String name, Function<C, T2[]> contextFunction) {
+            var type = (Type<T2>) TypeManager.getByClass(returnType).orElseThrow();
+            contextValues.add(new ContextValue<>(context, type, isSingle, name, (Function<TriggerContext, T2[]>) contextFunction));
             return this;
         }
 
         /**
          * Registers a {@link ContextValue}
          * @param context the context this value appears in
-         * @param type the returned type of this context value
+         * @param returnType the returned type of this context value
          * @param name the name of this context value (used in the suffix)
          * @param contextFunction the function that needs to be applied in order to get the context value
          * @param time whether this happens in the present, past or future
@@ -714,9 +713,9 @@ public class SkriptRegistration {
          * @param <T2> the type class
          * @return the registrar
          */
-        public final <C extends TriggerContext, T2> EventRegistrar<T> addContextValue(Class<C> context, Class<T2> type, boolean isSingle, String name, Function<C, T2[]> contextFunction, ContextValueState time) {
-            var patternType = (PatternType<T2>) new PatternType<>(TypeManager.getByClass(type).orElseThrow(), isSingle);
-            contextValues.add(new ContextValue<>(context, patternType, name, (Function<TriggerContext, T2[]>) contextFunction, time));
+        public final <C extends TriggerContext, T2> EventRegistrar<T> addContextValue(Class<C> context, Class<T2> returnType, boolean isSingle, String name, Function<C, T2[]> contextFunction, ContextValueState time) {
+            var type = (Type<T2>) TypeManager.getByClass(returnType).orElseThrow();
+            contextValues.add(new ContextValue<>(context, type, isSingle, name, (Function<TriggerContext, T2[]>) contextFunction, time));
             return this;
         }
     }

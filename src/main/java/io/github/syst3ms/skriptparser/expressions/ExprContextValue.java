@@ -54,7 +54,7 @@ public class ExprContextValue implements Expression<Object> {
 
 	@Override
 	public boolean isSingle() {
-		return value.getPatternType().isSingle();
+		return value.isSingle();
 	}
 
 	@Override
