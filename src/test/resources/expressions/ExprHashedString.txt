@@ -1,0 +1,9 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/29
+
+test:
+	set {var} to "Hello World!"
+	assert {var} hashed with MD5 = "ed076287532e86365e841e92bfc50d8c" with "{var} hashed with MD5 should be 'ed076287532e86365e841e92bfc50d8c': %{var} hashed with MD5%"
+	assert {var} hashed with SHA-256 = "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069" with "{var} hashed with SHA-256 should be '7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069': %{var} hashed with SHA-256%"
+
