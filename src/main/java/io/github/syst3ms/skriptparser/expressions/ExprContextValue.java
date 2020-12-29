@@ -24,7 +24,7 @@ public class ExprContextValue implements Expression<Object> {
 				ExprContextValue.class,
 				Object.class,
 				false,
-				"[the] [1:(past|previous)|2:(future|next)] [context-]<.+>"
+				"[the] [(1:(past|previous)|2:(future|next))] [context-]<.+>"
 		);
 	}
 

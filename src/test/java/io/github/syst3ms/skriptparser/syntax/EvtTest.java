@@ -22,6 +22,7 @@ public class EvtTest extends SkriptEvent {
 		Parser.getMainRegistration()
 			.newEvent(EvtTest.class, "*test [[only] when %=boolean%]")
 			.setHandledContexts(TestContext.class)
+				.addContextValue(TestContext.class, String.class, true, "test", __ -> new String[] {"Hello World!"})
 			.register();
 	}
 
