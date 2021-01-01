@@ -37,6 +37,12 @@ public abstract class SkriptAddon {
     public void finishedLoading() {}
 
     /**
+     * Is called when moving to the next statement of the parser. Optionally overridable.
+     * Note that this is not always called, only in most occasions.
+     */
+    public void walkingForward() {}
+
+    /**
      * Checks to see whether the given event has been registered by this SkriptAddon ; a basic way to filter out
      * triggers you aren't able to deal with in {@link SkriptAddon#handleTrigger(Trigger)}.
      * A simple example of application can be found in {@link Skript#handleTrigger(Trigger)}.

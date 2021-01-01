@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.event.*;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
+import io.github.syst3ms.skriptparser.lang.base.ExecutableExpression;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 import io.github.syst3ms.skriptparser.util.ThreadUtils;
 import io.github.syst3ms.skriptparser.util.Time;
@@ -69,5 +70,10 @@ public class Skript extends SkriptAddon {
                     : Time.now().difference(time));
             ThreadUtils.runPeriodically(() -> Statement.runAll(trigger, ctx), initialDelay, Duration.ofDays(1));
         }
+    }
+
+    @Override
+    public void walkingForward() {
+        ExecutableExpression.getCachedValues().clear();
     }
 }

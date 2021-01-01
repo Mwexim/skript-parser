@@ -53,7 +53,7 @@ public class EffDoIf extends Effect {
     @Override
     public void execute(TriggerContext ctx) {
         if (condition.getSingle(ctx).filter(b -> b).isPresent())
-            effect.walk(ctx, true);
+            effect.walk(ctx);
     }
 
     @Override
