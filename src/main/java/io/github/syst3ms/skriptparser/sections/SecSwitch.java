@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.sections;
 
 import io.github.syst3ms.skriptparser.Parser;
+import io.github.syst3ms.skriptparser.effects.EffCase;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
@@ -66,24 +67,23 @@ public class SecSwitch extends CodeSection {
 
     @Override
     public Optional<? extends Statement> walk(TriggerContext ctx) {
-        List<SecCase> cases = new ArrayList<>();
-        List<SecCase> defaults = new ArrayList<>();
+        List<Statement> cases = new ArrayList<>();
+        List<Statement> defaults = new ArrayList<>();
         for (Statement val : getItems()) {
-            assert val instanceof SecCase;
-            var sec = (SecCase) val;
-            if (sec.isCaseNode()) {
-                cases.add(sec);
+            var sec = (MatchingElement) val;
+            if (sec.isMatching()) {
+                cases.add(val);
             } else {
-                defaults.add(sec);
+                defaults.add(val);
             }
         }
 
-        for (SecCase section : cases) {
-            section.walk(ctx);
+        for (Statement element : cases) {
+            element.walk(ctx);
         }
         if (!hasMatched) {
-            for (SecCase section : defaults) {
-                section.walk(ctx);
+            for (Statement element : defaults) {
+                element.walk(ctx);
             }
         }
         return getNext();
@@ -91,7 +91,7 @@ public class SecSwitch extends CodeSection {
 
     @Override
     protected List<Class<? extends SyntaxElement>> getAllowedSyntaxes() {
-        return List.of(SecCase.class);
+        return List.of(EffCase.class, SecCase.class);
     }
 
     @Override
@@ -109,5 +109,12 @@ public class SecSwitch extends CodeSection {
 
     public void setMatched(boolean hasMatched) {
         this.hasMatched = hasMatched;
+    }
+
+    public interface MatchingElement {
+        /**
+         * @return whether or not this statement will match against something or will act as the default part
+         */
+        boolean isMatching();
     }
 }

@@ -1,12 +1,14 @@
-package io.github.syst3ms.skriptparser.sections;
+package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.lang.CodeSection;
+import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
+import io.github.syst3ms.skriptparser.sections.SecSwitch;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import org.jetbrains.annotations.Nullable;
@@ -14,33 +16,34 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * This section is written underneath the {@link SecSwitch switch} section to match the given expression.
- * The content of this section will only be executed if it matches the given expression.
+ * This effect is written underneath the {@link SecSwitch switch} section to match the given expression.
+ * The statement inside this effect will only be executed if it matches the given expression.
  * One may use 'or'-lists to match multiple expressions at once.
  * The default part can be used to provide actions when no match was found.
  *
  * @name Case
- * @type SECTION
- * @pattern (case|matche(s|d)) %*objects%
- * @pattern (default|otherwise|no match[es])
+ * @type EFFECT
+ * @pattern (case|matche(s|d)) %*objects%[,] (then [do]|do) <.+>
+ * @pattern (default|otherwise|no match[es])[,] [(then [do]|do)] <.+>
  * @since ALPHA
  * @author Mwexim
  * @see SecSwitch
  */
-@SuppressWarnings("unchecked")
-public class SecCase extends CodeSection implements SecSwitch.MatchingElement {
+public class EffCase extends Effect implements SecSwitch.MatchingElement {
     static {
-        Parser.getMainRegistration().addSection(
-                SecCase.class,
-                "(case|matche(s|d)) %*objects%",
-                "(default|otherwise|no match[es])"
+        Parser.getMainRegistration().addEffect(
+                EffCase.class,
+                "(case|matche(s|d)) %*objects%[,] (then [do]|do) <.+>",
+                "(default|otherwise|no match[es])[,] [(then [do]|do)] <.+>"
         );
     }
 
     private Expression<Object> matchWith;
+    private Effect effect;
     private SecSwitch switchSection;
     private boolean isMatching;
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         var logger = parseContext.getLogger();
@@ -62,7 +65,17 @@ public class SecCase extends CodeSection implements SecSwitch.MatchingElement {
                 return false;
             }
         }
-        return true;
+
+        String expr = parseContext.getMatches().get(0).group();
+        parseContext.getLogger().recurse();
+        effect = SyntaxParser.parseEffect(expr, parseContext.getParserState(), parseContext.getLogger()).orElse(null);
+        parseContext.getLogger().callback();
+        return effect != null;
+    }
+
+    @Override
+    protected void execute(TriggerContext ctx) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -77,14 +90,10 @@ public class SecCase extends CodeSection implements SecSwitch.MatchingElement {
                     ))
                     .ifPresent(__ -> {
                         switchSection.setMatched(true);
-                        var item = getFirst();
-                        while (!item.equals(getNext())) // Calling equals() on optionals calls equals() on their values
-                            item = item.flatMap(i -> i.walk(ctx));
+                        effect.walk(ctx);
                     });
         } else {
-            var item = getFirst();
-            while (!item.equals(getNext())) // Calling equals() on optionals calls equals() on their values
-                item = item.flatMap(i -> i.walk(ctx));
+            effect.walk(ctx);
         }
         return Optional.empty();
     }

@@ -20,9 +20,20 @@ test:
 			add 6 to {flag::*}
 		otherwise:
 			add 7 to {flag::*}
-		case "Hello":
-			add 8 to {flag::*}
+		case "Hello" then add 8 to {flag::*}
 
 	# 2, 3, 5 and 8
 	assert {flag::*} = 2, 3, 5 and 8 with "{flag::*} should be 2, 3, 5 and 8: %{flag::*}%"
 
+	set {var} to 3
+	clear {flag::*}
+	switch {var}:
+		case 1:
+			add 1 to {flag::*}
+		matches 2 then add 2 to {flag::*}
+		default:
+			add 3 to {flag::*}
+		otherwise add 4 to {flag::*}
+
+	# 3 and 4
+    assert {flag::*} = 3 and 4 with "{flag::*} should be 3 and 4: %{flag::*}%"
