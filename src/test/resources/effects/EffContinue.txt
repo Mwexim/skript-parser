@@ -1,0 +1,23 @@
+# Author(s):
+#	- CHarcoalToast
+# 	- Mwexim
+# Date: 2020/10/31
+#	- 2020/12/27
+
+test:
+	set {var} to 0
+	loop 5 times:
+		if loop-value < 3:
+			continue
+		add 1 to {var}
+	assert {var} = 3 with "{var} (in loop) should equal 3: %{var}%"
+
+	set {var} to 0
+	set {flag} to 0
+	while {var} < 1:
+		if {flag} < 5:
+			add 1 to {flag}
+			continue
+		add 1 to {var}
+	assert {var} = 1 with "{var} (in while) should equal 1: %{var}%"
+	assert {flag} = 4 with "{flag} (in while) should equal 4: %{flag}%"

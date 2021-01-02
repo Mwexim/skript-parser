@@ -24,7 +24,7 @@ public abstract class SkriptAddon {
     }
 
     /**
-     * When a {@linkplain Trigger} is successfully parsed, it is "broadcasted" to all addons through this method,
+     * When a {@linkplain Trigger} is successfully parsed, it is "broadcast" to all addons through this method,
      * in the hopes that one of them will be able to handle it.
      * @param trigger the trigger to be handled
      * @see #canHandleEvent(SkriptEvent)
@@ -35,6 +35,12 @@ public abstract class SkriptAddon {
      * Is called when a script has finished loading. Optionally overridable.
      */
     public void finishedLoading() {}
+
+    /**
+     * Is called when moving to the next statement of the parser. Optionally overridable.
+     * Note that this is not always called, only in most occasions.
+     */
+    public void walkingForward() {}
 
     /**
      * Checks to see whether the given event has been registered by this SkriptAddon ; a basic way to filter out

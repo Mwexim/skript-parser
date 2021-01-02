@@ -1,0 +1,13 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/11/03
+
+test:
+	escape -1 lines # Does nothing
+	if true:
+		escape 2 lines
+		if true:
+			assert false with "Nested assert did still run" # Lines with more indentation are not counted
+		assert false with "Equally-indented assert did still run (was nested assert counted?)"
+		escape 1 level
+	assert false with "Upper level assert did still run" # Lines with less indentation are

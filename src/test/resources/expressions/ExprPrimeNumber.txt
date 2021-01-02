@@ -1,0 +1,17 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/24
+
+test:
+	set {var} to the 7th prime number
+	assert {var} = 17 with "The 7th prime number should be 17: %{var}%"
+
+	set {var} to the 250th prime number
+	assert {var} = 1583 with "The 250th prime number should be 1583: %{var}%"
+
+	# Note that this should not be a heavy task for the parser to find.
+	# If the process time of this test is high, and you are reviewing it because of that,
+	# it probably means that the prime finder-mechanism is not as efficient anymore.
+	# Advised process time: under 0.300s
+	set {var} to the 5000th prime number
+    assert {var} = 48611 with "The 5000th prime number should be 48611: %{var}%"

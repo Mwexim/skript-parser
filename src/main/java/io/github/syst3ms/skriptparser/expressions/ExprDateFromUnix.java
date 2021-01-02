@@ -7,6 +7,8 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
+
 /**
  * The date from a (unix) timestamp.
  * The default timestamp returns the amount of <b>milliseconds</b> since the Unix Epoch.
@@ -15,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @name Date from Unix
  * @type EXPRESSION
- * @pattern [the] date (from|of) [the] [unix] timestamp %number%
+ * @pattern [the] date (from|of) [the] [unix] timestamp %integer%
  * @since ALPHA
  * @author Mwexim
  */
@@ -26,18 +28,18 @@ public class ExprDateFromUnix implements Expression<SkriptDate> {
 				ExprDateFromUnix.class,
 				SkriptDate.class,
 				true,
-				"[the] date (from|of) [the] [1:unix] timestamp %number%"
+				"[the] date (from|of) [the] [1:unix] timestamp %integer%"
 		);
 	}
 
-	Expression<Number> timestamp;
+	Expression<BigInteger> timestamp;
 	boolean unix;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		unix = parseContext.getParseMark() == 1;
-		timestamp = (Expression<Number>) expressions[0];
+		timestamp = (Expression<BigInteger>) expressions[0];
 		return true;
 	}
 
@@ -46,7 +48,7 @@ public class ExprDateFromUnix implements Expression<SkriptDate> {
 		return timestamp.getSingle(ctx)
 				.map(
 					t -> new SkriptDate[]{
-							unix ? new SkriptDate(t.longValue() * 1000) : new SkriptDate(t.longValue())
+							SkriptDate.of(unix ? t.longValue() * 1000 : t.longValue())
 					}
 				).orElse(new SkriptDate[0]);
 	}

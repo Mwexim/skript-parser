@@ -1,0 +1,9 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/19
+
+test:
+	set {var} to date from timestamp 13_243_546_576_055
+	assert era of {var} = "AD" with "Era of timestamp should be 'AD': %era of {var}%"
+	assert month name of {var} = "September" with "Name of month of timestamp should be 'September': %month name of {var}%"
+	assert weekday name of {var} = "Saturday" with "Name of day in week of timestamp should be 'Saturday': %weekday name of {var}%"

@@ -1,16 +1,16 @@
 package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
+import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -93,7 +93,7 @@ public class EffChange extends Effect {
                         break;
                     case DELETE:
                     case RESET:
-                    	assert false;
+                    	throw new IllegalStateException();
                 }
                 return false;
             } else if (!ClassUtils.containsSuperclass(acceptance.get(), changeType)) {
@@ -117,7 +117,7 @@ public class EffChange extends Effect {
                         break;
                     case DELETE:
                     case RESET:
-                    	assert false;
+                    	throw new IllegalStateException();
                 }
                 return false;
             }
@@ -154,8 +154,7 @@ public class EffChange extends Effect {
             case REMOVE_ALL:
                 return String.format("remove all %s from %s", changedWithString, changedString);
             default:
-                assert false;
-                return "!!!unknown change mode!!!";
+                throw new IllegalStateException();
         }
     }
 
@@ -164,7 +163,10 @@ public class EffChange extends Effect {
         if (changeWith == null) {
             changed.change(ctx, new Object[0], mode);
         } else {
-            changed.change(ctx, changeWith.getValues(ctx), mode);
+            var values= changeWith.getValues(ctx);
+            if (values.length == 0)
+                return;
+            changed.change(ctx, values, mode);
         }
     }
 }

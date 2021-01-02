@@ -1,0 +1,10 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/05
+
+test:
+	assert "Hello <break>World!" = "Hello \nWorld!" with "'break'-tag failed"
+
+	# Note that the '\t'-character is deemed to be successful.
+	# This means that if the String test fails because of this character, this character will fail too!
+	assert "Hello <tab>World!" = "Hello \tWorld!" with "'tab'-tag failed (if String test failed as well, fix that test first)"

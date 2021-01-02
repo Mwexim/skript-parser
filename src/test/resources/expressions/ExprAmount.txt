@@ -1,0 +1,14 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/11/04
+
+test:
+	set {list::*} to range from 1 to 7
+	assert size of {list::*} = 7 with "size of {list::*} was not 7: %{list::*}%"
+
+	set {nested::1} to true
+	set {nested::2::*} to range from 1 to 5
+	set {nested::2::6::1} to true
+	assert size of {nested::*} = 2 with "size of {nested::*} was not 2: %size of {nested::*}%"
+	assert number of {nested::2::*} = 6 with "size of {nested::2::*} was not 6: %size of {nested::2::*}%"
+	assert recursive amount of {nested::*} = 7 with "recursive size of {nested::*} was not 7: %recursive size of {nested::*}%"

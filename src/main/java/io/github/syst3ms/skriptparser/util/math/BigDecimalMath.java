@@ -63,14 +63,9 @@ public class BigDecimalMath {
      * @return <code>true</code> if the value can be represented as <code>int</code> value
      */
     public static boolean isIntValue(BigDecimal value) {
-        // TODO impl isIntValue() without exceptions
-        try {
-            value.intValueExact();
-            return true;
-        } catch (ArithmeticException ex) {
-            // ignored
-        }
-        return false;
+        return value.compareTo(ZERO) == 0
+                || value.scale() <= 0
+                || value.stripTrailingZeros().scale() <= 0;
     }
 
     /**
@@ -335,9 +330,7 @@ public class BigDecimalMath {
         try {
             var longValue = y.longValueExact();
             return pow(x, longValue, mathContext);
-        } catch (ArithmeticException ex) {
-            // ignored
-        }
+        } catch (ArithmeticException ignored) { /* Nothing */ }
 
         if (fractionalPart(y).signum() == 0) {
             return powInteger(x, y, mathContext);
@@ -1062,7 +1055,10 @@ public class BigDecimalMath {
     }
 
     public static BigDecimal getBigDecimal(Number n) {
-        return n instanceof BigDecimal ? (BigDecimal) n : new BigDecimal(n.toString());
+        return n instanceof BigDecimal
+                ? (BigDecimal) n : n instanceof BigInteger
+                ? new BigDecimal((BigInteger) n)
+                : new BigDecimal(n.toString());
     }
 
     public static BigInteger getBigInteger(Number n) {

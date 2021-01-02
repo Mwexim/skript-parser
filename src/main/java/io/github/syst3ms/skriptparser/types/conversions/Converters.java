@@ -1,22 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- * Copyright 2011-2017 Peter Güttinger and contributors
- */
 package io.github.syst3ms.skriptparser.types.conversions;
 
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
@@ -71,15 +52,21 @@ public abstract class Converters {
 
     /**
      * Registers a converter.
-     *
-     * @param from
-     * @param to
-     * @param converter
+     * @param from the class to convert from
+     * @param to the class to convert to
+     * @param converter the converter function
      */
     public static <F, T> void registerConverter(Class<F> from, Class<T> to, Function<? super F, Optional<? extends T>> converter) {
         registerConverter(from, to, converter, 0);
     }
 
+	/**
+	 * Registers a converter
+	 * @param from the class to convert from
+	 * @param to the class to convert to
+	 * @param converter the converter function
+	 * @param options the options
+	 */
     public static <F, T> void registerConverter(Class<F> from, Class<T> to, Function<? super F, Optional<? extends T>> converter, int options) {
         if (converterExistsSlow(from, to))
             return;
@@ -140,10 +127,9 @@ public abstract class Converters {
     /**
 	 * Converts the given value to the desired type. If you want to convert multiple values of the same type you should use {@link #getConverter(Class, Class)} to get a
 	 * converter to convert the values.
-	 *
-	 * @param o
-	 * @param to
-	 * @return The converted value or null if no converter exists or the converter returned null for the given value.
+	 * @param o the value to convert
+	 * @param to the class to convert to
+	 * @return the converted value or null if no converter exists or the converter returned null for the given value.
 	 */
     @SuppressWarnings("unchecked")
     public static <F, T> Optional<? extends T> convert(@Nullable F o, Class<T> to) {
@@ -157,12 +143,10 @@ public abstract class Converters {
 
     /**
 	 * Converts an object into one of the given types.
-	 * <p>
 	 * This method does not convert the object if it is already an instance of any of the given classes.
-	 *
-	 * @param o
-	 * @param to
-	 * @return The converted object
+	 * @param o the value to convert
+	 * @param to the class to convert to
+	 * @return the converted value
 	 */
     @SuppressWarnings("unchecked")
     public static <F, T> Optional<? extends T> convert(@Nullable F o, Class<? extends T>[] to) {
@@ -184,10 +168,9 @@ public abstract class Converters {
     /**
 	 * Converts all entries in the given array to the desired type, using {@link #convert(Object, Class)} to convert every single value. If you want to convert an array of values
 	 * of a known type, consider using {@link #convert(Object[], Class, Function)} for much better performance.
-	 *
-	 * @param o
-	 * @param to
-	 * @return A T[] array without null elements
+	 * @param o the values to convert
+	 * @param to the class to convert to
+	 * @return a T[] array without null elements
 	 */
     @SuppressWarnings("unchecked")
     public static <T> Optional<T[]> convertArray(@Nullable Object[] o, Class<T> to) {
@@ -204,11 +187,10 @@ public abstract class Converters {
 
     /**
 	 * Converts multiple objects into any of the given classes.
-	 *
-	 * @param o
-	 * @param to
+	 * @param o the values to convert
+	 * @param to the class to convert to
 	 * @param superType The component type of the returned array
-	 * @return The converted array
+	 * @return the converted array
 	 */
     @SuppressWarnings("unchecked")
     public static <T> T[] convertArray(@Nullable Object[] o, Class<? extends T> to, Class<T> superType) {
@@ -227,15 +209,20 @@ public abstract class Converters {
 
     /**
 	 * Tests whether a converter between the given classes exists.
-	 *
-	 * @param from
-	 * @param to
-	 * @return Whether a converter exists
+	 * @param from the class to convert from
+	 * @param to the class to convert to
+	 * @return whether a converter exists
 	 */
     public static boolean converterExists(Class<?> from, Class<?> to) {
         return to.isAssignableFrom(from) || from.isAssignableFrom(to) || getConverter(from, to).isPresent();
     }
 
+	/**
+	 * Tests whether a converter between one of the given classes exists
+	 * @param from the class to convert from
+	 * @param to the class to convert to
+	 * @return whether a converter exists
+	 */
     public static boolean converterExists(Class<?> from, Class<?>... to) {
         for (var t : to) {
             assert t != null;
@@ -247,9 +234,8 @@ public abstract class Converters {
 
     /**
 	 * Gets a converter
-	 *
-	 * @param from
-	 * @param to
+	 * @param from the class to convert from
+	 * @param to the class to convert to
 	 * @return the converter or null if none exist
 	 */
     @SuppressWarnings("unchecked")
@@ -264,7 +250,7 @@ public abstract class Converters {
 
     @SuppressWarnings("unchecked")
     private static <F, T> Optional<Function<? super F, Optional<? extends T>>> getConverterInternal(Class<F> from, Class<T> to) {
-        for (var conv : converters) {
+    	for (var conv : converters) {
             if (conv.getFrom().isAssignableFrom(from) && to.isAssignableFrom(conv.getTo())) {
                 var inf = (ConverterInfo<F, T>) conv;
                 return Optional.ofNullable(inf.getConverter());
@@ -290,23 +276,31 @@ public abstract class Converters {
     }
 
     /**
-	 * @param from
-	 * @param to
-	 * @param conv
-	 * @return The converted array
+	 * Converts a given array without checking the type.
+	 * @param from the values to convert
+	 * @param to the class to convert to
+	 * @param converter the converter function
+	 * @return the converted values
 	 * @throws ArrayStoreException if the given class is not a superclass of all objects returned by the converter
 	 */
     @SuppressWarnings("unchecked")
-    public static <F, T> T[] convertUnsafe(F[] from, Class<?> to, Function<? super F, Optional<? extends T>> conv) {
-        return convert(from, (Class<T>) to, conv);
+    public static <F, T> T[] convertUnsafe(F[] from, Class<?> to, Function<? super F, Optional<? extends T>> converter) {
+        return convert(from, (Class<T>) to, converter);
     }
 
-    public static <F, T> T[] convert(F[] from, Class<T> to, Function<? super F, Optional<? extends T>> conv) {
+	/**
+	 * Converts a given array.
+	 * @param from the values to convert
+	 * @param to the class to convert to
+	 * @param converter the converter function
+	 * @return the converted values
+	 */
+    public static <F, T> T[] convert(F[] from, Class<T> to, Function<? super F, Optional<? extends T>> converter) {
         @SuppressWarnings("unchecked")
         var ts = (T[]) Array.newInstance(to, from.length);
         var j = 0;
         for (var f : from) {
-            var t = Optional.ofNullable(f).flatMap(conv::apply);
+            var t = Optional.ofNullable(f).flatMap(converter::apply);
             if (t.isPresent())
                 ts[j++] = t.get();
         }
@@ -314,5 +308,4 @@ public abstract class Converters {
             ts = Arrays.copyOf(ts, j);
         return ts;
     }
-
 }

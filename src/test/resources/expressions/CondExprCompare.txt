@@ -1,0 +1,23 @@
+# Author(s):
+# 	- Syst3ms
+# Date: 2020/12/18
+
+test:
+    set {_half} to (cos (180/7)) + (cos (540/7)) + (cos (900/7)) # due to a neat mathematical fact, this is exactly equal to 0.5
+    set {_approx} to e^(e^(-1)) # approx. 1.4446678...
+    assert {_half} is equal to 0.5 with "Equality check failed: {_half} (= %{_half}%) != 0.5"
+    assert {_half} is not equal to {_approx} with "Non-equality check failed: {_half} (= %{_half}%) = {_approx} (= %{_approx}%)"
+    assert pi is between 333/106 and 22/7 with "Range check failed: pi is not between %333/106% and %22/7%"
+    assert {_half} is not between -1 and 0.3 with "Range check failed: {_half} (= %{_half}%) is between -1 and 0.3"
+    assert {_half} is less than {_approx} with "Inequality check failed: {_half} (= %{_half}%) >= {_approx} (= %{_approx}%)"
+    assert e <= e with "Inequality check failed: e > e"
+    assert {_approx} > 13/9 with "Inequality check failed: {_approx} (= %{_approx}%) <= %13/9%"
+
+    assert {_half}, {_approx} and e are each less than 3 with "Comparison check failed: one of {_half} (= %{_half}%), {_approx} (= %{_approx}%) and e is greater than 3"
+    assert {_half}, {_approx} or e are each less than 3 with "Comparison check failed: all of {_half} (= %{_half}%), {_approx} (= %{_approx}%) and e is greater than 3"
+    assert {_half}, {_approx} and pi are each greater than 0.45 with "Comparison check failed: one of {_half} (= %{_half}%), {_approx} (= %{_approx}%) and e is less than 0.45"
+    assert {_half} is less than e, pi and {_approx} each with "Inequality check failed: {_half} (= %{_half}%) is greater than one of e, pi and {_approx} (= %{_approx}%)"
+    assert {_approx} is between (1 and {_half}) and (2 and pi) each with "Comparison check failed: {_approx} (= %{_approx}%) is not between 1 and 2 or not between {_half} (= %{_half}%) and pi"
+    assert 1, 2 and 3 are 3, 2 and 1 with "Equality check failed: (1, 2, 3) != (3, 2, 1) order-insensitively"
+    assert 1, 2 and 4 aren't 1, 3, 4 respectively with "Non-equality check failed: (1, 2, 4) = (1, 3, 4) order-sensitively"
+    assert 2, 3 or 5 <= 3, 5 or 8 respectively with "Inequality check failed: 2 > 3 or 3 > 5 or 5 > 8"

@@ -1,0 +1,19 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/20
+
+test:
+	assert difference between -3 and 5 = 8 with "Numerical difference should be 8: %difference between -3 and 5 = 8%"
+	assert difference between now and yesterday is 1 day with "Date difference should be 1 day: %difference between now and yesterday%"
+	assert difference between noon and 5PM is 5 hours with "Time difference should be 5 hours: %difference between noon and 5PM%"
+
+	# Variable difference
+	set {list::1} to 3.4
+	set {list::2} to 8.9
+	assert difference between {list::1} and {list::2} is 5.5 with "Number difference between variables should be 5.5: %difference between {list::1} and {list::2}%"
+	assert difference between {list::1} and 5.0 is 1.6 with "Number difference with one variable should be 1.6: %difference between {list::1} and 5%"
+
+	# Non-comparable types
+	throws difference between now and 5 with "Date and number should not be comparable"
+	# The following line does not throw at parse-time, because the type of the variable is unknown
+	assert difference between {list::1} and now is not set with "Date and number with one variable should not be comparable: %difference between {list::1} and now%"

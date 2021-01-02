@@ -7,6 +7,8 @@ import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+
 /**
  * Check if a given string starts or ends with a certain string.
  *
@@ -45,15 +47,11 @@ public class CondExprStartsEnds extends ConditionalExpression {
 
     @Override
     public boolean check(TriggerContext ctx) {
-        String[] strs = expr.getValues(ctx);
-        return value.getSingle(ctx).filter(v -> {
-            for (String s : strs) {
-                if (isNegated() != (start ? s.startsWith(v) : s.endsWith(v))) {
-                    return false;
-                }
-            }
-            return true;
-        }).isPresent();
+        String[] values = expr.getValues(ctx);
+        return isNegated() != value.getSingle(ctx)
+                .filter(val -> Arrays.stream(values)
+                        .allMatch(val2 -> start ? val2.startsWith(val) : val2.endsWith(val)))
+                .isPresent();
     }
 
     @Override

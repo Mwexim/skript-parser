@@ -1,0 +1,9 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/22
+
+test:
+	# Note that you could omit the 'whether' in the example below.
+	# This behaviour will possibly be changed in the future.
+	set {var} to whether 1 is equal to 1
+	assert {var} with "Comparison with 'whether'-expression failed: %{var}%"

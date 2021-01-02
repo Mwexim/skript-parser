@@ -1,0 +1,9 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/11/07
+
+test:
+	assert true with "Basic true failed"
+
+	set {var} to not false
+	assert {var} with "Variable boolean failed: %{var}%"

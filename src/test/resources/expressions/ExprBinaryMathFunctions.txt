@@ -1,0 +1,13 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/18
+
+test:
+	set {list::1} to root 2 of 4
+	set {list::2} to log base 2 of 8
+	set {list::3} to root 3 of 729
+	set {list::4} to root 1 of 69
+	assert {list::1} = 2 with "{list::1} should equal 2: %{list::1}%"
+	assert {list::2} = 3 with "{list::2} should equal 3: %{list::2}%"
+	assert {list::3} = 9 with "{list::3} should equal 9: %{list::3}%"
+	assert {list::4} = 69 with "{list::4} should equal 69: %{list::4}%"

@@ -1,0 +1,39 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/11/03
+
+test:
+	birth with "Birth section was not killed ('exit 2 conditionals')":
+		if true:
+			if true:
+				exit this section
+				assert false with "'exit one'-statement didn't work properly"
+			set {flag::1} to true
+
+			if true:
+				exit 2 conditionals
+				assert false with "'exit 2 conditionals'-statement didn't work properly"
+			assert false with "'exit 2 conditionals'-statement didn't work properly"
+		death
+
+	birth with "Birth section was not killed ('exit all loops' or 'exit this conditional')":
+		if true:
+			while true:
+				while true:
+					exit all loops
+					assert false with "'exit all loops'-statement didn't work properly"
+				assert false with "'exit all loops'-statement didn't work properly"
+			set {flag::2} to true
+			stop this conditional
+			assert false with "'exit this conditional'-statement didn't work properly"
+		death
+
+		# Flags
+		assert {flag::1} is set with "{flag::1} was not set"
+		assert {flag::2} is set with "{flag::2} was not set"
+
+	delete {flag::1}
+	delete {flag::2}
+
+	stop
+	assert false with "'exit'-statement didn't work properly"

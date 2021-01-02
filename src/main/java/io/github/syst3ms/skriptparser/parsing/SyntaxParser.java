@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.parsing;
 
+import io.github.syst3ms.skriptparser.expressions.ExprBooleanOperators;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
@@ -63,6 +64,12 @@ public class SyntaxParser {
     // Gradle requires the cast, but IntelliJ considers it redundant
     public static final PatternType<Object> OBJECTS_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class).orElseThrow(AssertionError::new), false);
 
+    public static final ExpressionInfo<ExprBooleanOperators, Boolean> EXPRESSION_BOOLEAN_OPERATORS
+            = (ExpressionInfo<ExprBooleanOperators, Boolean>) SyntaxManager.getAllExpressions().stream()
+            .filter(i -> i.getSyntaxClass() == ExprBooleanOperators.class)
+            .findFirst()
+            .orElseThrow();
+
     /**
      * All {@link Effect effects} that are successfully parsed during parsing, in order of last successful parsing
      */
@@ -108,12 +115,28 @@ public class SyntaxParser {
         var variable = (Optional<? extends Variable<? extends T>>) Variables.parseVariable(s, expectedType.getType().getTypeClass(), parserState, logger);
         if (variable.isPresent()) {
             if (variable.filter(v -> !v.isSingle() && expectedType.isSingle()).isPresent()) {
-                logger.error("A single value was expected, but " +
+                logger.error(
+                        "A single value was expected, but " +
                         s +
-                        " represents multiple values.", ErrorType.SEMANTIC_ERROR);
+                        " represents multiple values.",
+                        ErrorType.SEMANTIC_ERROR,
+                        "Use a loop/map to divert each element of this list into single elements"
+                );
                 return Optional.empty();
             } else {
                 return variable;
+            }
+        }
+        // This is to prevent us from exchanging boolean operators with lists.
+        if (s.toLowerCase().startsWith("list ")) {
+            s = s.substring("list ".length());
+        } else {
+            // We parse boolean operators first to prevent clutter while parsing.
+            var booleanOperator = matchExpressionInfo(s, EXPRESSION_BOOLEAN_OPERATORS, expectedType, parserState, logger);
+            if (booleanOperator.isPresent()) {
+                recentExpressions.acknowledge(EXPRESSION_BOOLEAN_OPERATORS);
+                logger.clearErrors();
+                return booleanOperator;
             }
         }
         if (!expectedType.isSingle()) {
@@ -134,6 +157,7 @@ public class SyntaxParser {
         // Let's not loop over the same elements again
         var remainingExpressions = SyntaxManager.getAllExpressions();
         recentExpressions.removeFrom(remainingExpressions);
+        remainingExpressions.remove(EXPRESSION_BOOLEAN_OPERATORS);
         for (var info : remainingExpressions) {
             var expr = matchExpressionInfo(s, info, expectedType, parserState, logger);
             if (expr.isPresent()) {
@@ -175,9 +199,13 @@ public class SyntaxParser {
         var variable = (Optional<? extends Variable<Boolean>>) Variables.parseVariable(s, Boolean.class, parserState, logger);
         if (variable.isPresent()) {
             if (variable.filter(v -> !v.isSingle()).isPresent()) {
-                logger.error("A single value was expected, but " +
+                logger.error(
+                        "A single value was expected, but " +
                         s +
-                        " represents multiple values.", ErrorType.SEMANTIC_ERROR);
+                        " represents multiple values.",
+                        ErrorType.SEMANTIC_ERROR,
+                        "Use a loop/map to divert each element of this list into single elements"
+                );
                 return Optional.empty();
             } else {
                 return variable;
@@ -191,13 +219,21 @@ public class SyntaxParser {
                 switch (conditional) {
                     case 0: // Can't be conditional
                         if (ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
-                            logger.error("The boolean expression must not be conditional", ErrorType.SEMANTIC_ERROR);
+                            logger.error(
+                                    "The boolean expression must not be conditional",
+                                    ErrorType.SEMANTIC_ERROR,
+                                    "Rather than a condition, use a simple boolean here. Use 'whether %=boolean%' to convert a condition into a simple boolean"
+                            );
                             return Optional.empty();
                         }
                         break;
                     case 2: // Has to be conditional
                         if (!ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
-                            logger.error("The boolean expression must be conditional", ErrorType.SEMANTIC_ERROR);
+                            logger.error(
+                                    "The boolean expression must be conditional",
+                                    ErrorType.SEMANTIC_ERROR,
+                                    "Rather than a simple boolean, use a condition here, like '{x} is more than 10'"
+                            );
                             return Optional.empty();
                         }
                     case 1: // Can be conditional
@@ -224,13 +260,21 @@ public class SyntaxParser {
                 switch (conditional) {
                     case 0: // Can't be conditional
                         if (ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
-                            logger.error("The boolean expression must not be conditional", ErrorType.SEMANTIC_ERROR);
+                            logger.error(
+                                    "The boolean expression must not be conditional",
+                                    ErrorType.SEMANTIC_ERROR,
+                                    "Rather than a condition, use a simple boolean here. Use 'whether %=boolean%' to convert a condition into a simple boolean"
+                            );
                             return Optional.empty();
                         }
                         break;
                     case 2: // Has to be conditional
                         if (!ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
-                            logger.error("The boolean expression must be conditional", ErrorType.SEMANTIC_ERROR);
+                            logger.error(
+                                    "The boolean expression must be conditional",
+                                    ErrorType.SEMANTIC_ERROR,
+                                    "Rather than a simple boolean, use a condition here, like '{x} is more than 10'"
+                            );
                             return Optional.empty();
                         }
                     case 1: // Can be conditional
@@ -262,7 +306,7 @@ public class SyntaxParser {
             var element = patterns.get(i);
             logger.setContext(ErrorContext.MATCHING);
             var parser = new MatchContext(element, parserState, logger);
-            if (element.match(s, 0, parser) != -1) {
+            if (element.match(s, 0, parser) == s.length()) {
                 try {
                     var expression = (Expression<? extends T>) info.getSyntaxClass()
                             .getDeclaredConstructor()
@@ -293,12 +337,21 @@ public class SyntaxParser {
                     }
                     if (!expression.isSingle() &&
                             expectedType.isSingle()) {
-                        logger.error("A single value was expected, but '" + s + "' represents multiple values.", ErrorType.SEMANTIC_ERROR);
+                        logger.error(
+                                "A single value was expected, but '" + s + "' represents multiple values.",
+                                ErrorType.SEMANTIC_ERROR,
+                                "Use a loop/map to divert each element of this list into single elements"
+                        );
                         continue;
                     }
                     if (parserState.isRestrictingExpressions() && parserState.forbidsSyntax(expression.getClass())) {
                         logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
-                        logger.error("The enclosing section does not allow the use of this expression : " + expression.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+                        logger.error(
+                                "The enclosing section does not allow the use of this expression: "
+                                        + expression.toString(null, logger.isDebug()),
+                                ErrorType.SEMANTIC_ERROR,
+                                "The current section limits the usage of syntax. This means that certain syntax cannot be used here, which was the case. Remove this expression entirely and refer to the documentation for the correct usage of this section"
+                        );
                         continue;
                     }
                     return Optional.of(expression);
@@ -397,7 +450,7 @@ public class SyntaxParser {
                     literals[i] = new SimpleLiteral<>(String.class, (String) exp.getSingle(TriggerContext.DUMMY).orElseThrow(AssertionError::new));
                 }
             }
-            var returnType = ClassUtils.getCommonSuperclass(Arrays.stream(literals).map(Literal::getReturnType).toArray(Class[]::new));
+            var returnType = ClassUtils.getCommonSuperclass(false, Arrays.stream(literals).map(Literal::getReturnType).toArray(Class[]::new));
             return Optional.of(new LiteralList<>(
                     (Literal<? extends T>[]) literals,
                     (Class<T>) returnType,
@@ -405,7 +458,7 @@ public class SyntaxParser {
             ));
         } else {
             Expression<?>[] exprs = expressions.toArray(new Expression[0]);
-            var returnType = ClassUtils.getCommonSuperclass(Arrays.stream(exprs).map(Expression::getReturnType).toArray(Class[]::new));
+            var returnType = ClassUtils.getCommonSuperclass(false, Arrays.stream(exprs).map(Expression::getReturnType).toArray(Class[]::new));
             return Optional.of(new ExpressionList<>(
                     (Expression<? extends T>[]) exprs,
                     (Class<T>) returnType,
@@ -496,7 +549,7 @@ public class SyntaxParser {
             var element = patterns.get(i);
             logger.setContext(ErrorContext.MATCHING);
             var parser = new MatchContext(element, parserState, logger);
-            if (element.match(s, 0, parser) != -1) {
+            if (element.match(s, 0, parser) == s.length()) {
                 try {
                     var eff = info.getSyntaxClass()
                             .getDeclaredConstructor()
@@ -535,7 +588,12 @@ public class SyntaxParser {
             return Optional.empty();
         } else if (parserState.forbidsSyntax(eff.get().getClass())) {
             logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
-            logger.error("The enclosing section does not allow the use of this effect : " + eff.get().toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+            logger.error(
+                    "The enclosing section does not allow the use of this effect : "
+                            + eff.get().toString(null, logger.isDebug()),
+                    ErrorType.SEMANTIC_ERROR,
+                    "The current section limits the usage of syntax. This means that certain syntax cannot be used here, which was the case. Remove this effect entirely and refer to the documentation for the correct usage of this section"
+            );
             return Optional.empty();
         } else {
             return eff;

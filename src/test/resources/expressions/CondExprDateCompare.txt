@@ -1,0 +1,13 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/18
+
+test:
+	set {var} to yesterday
+	assert {var} wasn't more than 2 days ago with "{var} should not be more than 2 days ago: %{var}% - %now% (now)"
+
+	set {var} to 3 hours later
+	assert {var} was less than 1 second ago with "{var}, a future date, should be less than 1 second ago: %{var}% - %now% (now)"
+
+	set {var} to 5 hours ago
+	assert {var} was more than (4 hours, 59 minutes, 59 seconds and 999 milliseconds) ago with "{var} should be more than 4:59:59.999 hours ago: %{var}% - %now% (now)"

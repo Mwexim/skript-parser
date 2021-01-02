@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.sections.SecLoop;
+import io.github.syst3ms.skriptparser.sections.SecWhile;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -24,27 +25,30 @@ public class EffContinue extends Effect {
     static {
         Parser.getMainRegistration().addEffect(
             EffContinue.class,
+            4,
             "continue"
         );
     }
 
-    private SecLoop loop;
+    private CodeSection loop;
 
+    // TODO make it possible to continue nested loops
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        List<SecLoop> loops = new ArrayList<>();
+        List<CodeSection> loops = new ArrayList<>();
         for (CodeSection sec : parseContext.getParserState().getCurrentSections()) {
-            if (sec instanceof SecLoop) {
-                loops.add((SecLoop) sec);
+            if (sec instanceof SecLoop || sec instanceof SecWhile) {
+                loops.add(sec);
             }
+        }
+        if (loops.size() == 0) {
+            parseContext.getLogger().error("You can only use the 'continue' in a loop!", ErrorType.SEMANTIC_ERROR);
+            return false;
         }
         // Closest loop will be the first item
         loop = loops.get(0);
+        assert loop != null;
 
-        if (loop == null) {
-            parseContext.getLogger().error("You can only continue in a loop!", ErrorType.SEMANTIC_ERROR);
-            return false;
-        }
         return true;
     }
 
@@ -54,8 +58,9 @@ public class EffContinue extends Effect {
     }
 
     @Override
-    public Optional<? extends Statement> walk(TriggerContext ctx) {
-        return loop.walk(ctx);
+	public Optional<? extends Statement> walk(TriggerContext ctx) {
+        loop.walk(ctx);
+        return Optional.empty();
     }
 
     @Override

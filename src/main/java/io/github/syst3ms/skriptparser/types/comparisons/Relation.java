@@ -90,8 +90,7 @@ public enum Relation {
             case SMALLER_OR_EQUAL:
                 return other == SMALLER || other == EQUAL;
         }
-        assert false;
-        return false;
+        throw new IllegalStateException();
     }
 
     /**
@@ -113,8 +112,7 @@ public enum Relation {
             case SMALLER_OR_EQUAL:
                 return "smaller than or equal to";
         }
-        assert false;
-        return "!!!ERROR!!!";
+        throw new IllegalStateException();
     }
 
     /**
@@ -137,8 +135,7 @@ public enum Relation {
             case SMALLER_OR_EQUAL:
                 return GREATER;
         }
-        assert false;
-        return NOT_EQUAL;
+        throw new IllegalStateException();
     }
 
     /**
@@ -161,8 +158,7 @@ public enum Relation {
             case SMALLER_OR_EQUAL:
                 return GREATER_OR_EQUAL;
         }
-        assert false;
-        return NOT_EQUAL;
+        throw new IllegalStateException();
     }
 
     public boolean isEqualOrInverse() {

@@ -1,0 +1,21 @@
+# Author(s):
+# 	- Olyno
+# Date: 2020/12/06
+
+test:
+	set {list::*} to "a", "b", "c", "d", "e", "f" and "g"
+	set {var} to pop {list::*}
+	assert {list::*} does not contain "g" with "{list::*} should not contain 'g' anymore: %{list::*}%"
+	assert {var} is "g" with "{var} should be 'g': %{var}%"
+
+	set {var} to shift {list::*}
+	assert {list::*} does not contain "a" with "{list::*} should not contain 'a' anymore: %{list::*}%"
+	assert {var} is "a" with "{var} should be 'a': %{var}%"
+
+	set {var} to extract 2nd element out of {list::*}
+	assert {list::*} does not contain "c" with "{list::*} should not contain 'c' anymore: %{list::*}%"
+	assert {var} is "c" with "{var} should be 'c': %{var}%"
+
+	set {spliced::*} to splice {list::*} from 1 to 3
+	assert {list::*} = "f" with "{list::*} should equal 'f': %{list::*}%"
+	assert {spliced::*} = "b", "d" and "e" with "{spliced::*} should equal 'b', 'd' and 'e': %{spliced::*}%"

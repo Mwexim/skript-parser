@@ -33,21 +33,30 @@ public class Parser {
 
     public static void main(String[] args) {
         boolean debug = false;
+        boolean tipsEnabled = true;
         String scriptName = "";
         String[] programArgs = new String[0];
         if (args.length == 0) {
-            System.err.println("You need to provide a script name !");
+            System.err.println("You need to provide a script name!");
             System.exit(1);
-        } else if (args.length > 1 && args[0].equals("--debug")) {
-            debug = true;
-            scriptName = args[1];
-            programArgs = Arrays.copyOfRange(args, 2, args.length);
         } else {
-            scriptName = args[0];
-            programArgs = Arrays.copyOfRange(args, 1, args.length);
+            int j = 0;
+            for (int i = 0; i < args.length; i++) {
+                String s = args[i];
+                if (s.equalsIgnoreCase("--debug")) {
+                    debug = true;
+                } else if (s.equalsIgnoreCase("--no-tips") || s.equalsIgnoreCase("--nt")) {
+                    tipsEnabled = false;
+                } else {
+                    j = i;
+                    break;
+                }
+            }
+            scriptName = args[j];
+            programArgs = Arrays.copyOfRange(args, j + 1, args.length);
         }
         init(new String[0], new String[0], programArgs, true);
-        run(scriptName, debug);
+        run(scriptName, debug, tipsEnabled);
     }
 
     /**
@@ -120,27 +129,27 @@ public class Parser {
         logs = registration.register();
         if (!logs.isEmpty()) {
             System.out.print(ConsoleColors.PURPLE);
-            System.out.println("Registration log :");
+            System.out.println("Registration log:");
         }
-        printLogs(logs, time);
+        printLogs(logs, time, false);
         if (!logs.isEmpty()) {
             System.out.println();
         }
     }
 
-    public static void run(String scriptName, boolean debug) {
+    public static void run(String scriptName, boolean debug, boolean tipsEnabled) {
         Calendar time = Calendar.getInstance();
         Path scriptPath = Paths.get(scriptName);
         logs = ScriptLoader.loadScript(scriptPath, debug);
         if (!logs.isEmpty()) {
             System.out.print(ConsoleColors.PURPLE);
-            System.out.println("Parsing log :");
+            System.out.println("Parsing log:");
         }
-        printLogs(logs, time);
+        printLogs(logs, time, tipsEnabled);
         SkriptAddon.getAddons().forEach(SkriptAddon::finishedLoading);
     }
 
-    private static void printLogs(List<LogEntry> logs, Calendar time) {
+    private static void printLogs(List<LogEntry> logs, Calendar time, boolean tipsEnabled) {
         for (LogEntry log : logs) {
             ConsoleColors color = ConsoleColors.WHITE;
             if (log.getType() == LogType.WARNING) {
@@ -153,6 +162,8 @@ public class Parser {
                 color = ConsoleColors.PURPLE;
             }
             System.out.printf(color + CONSOLE_FORMAT + ConsoleColors.RESET, time, log.getType().name(), log.getMessage());
+            if (tipsEnabled && log.getTip().isPresent())
+                System.out.printf(ConsoleColors.BLUE_BRIGHT + CONSOLE_FORMAT + ConsoleColors.RESET, time, "TIP", log.getTip().get());
         }
     }
 

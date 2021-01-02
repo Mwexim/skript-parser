@@ -7,6 +7,7 @@ import io.github.syst3ms.skriptparser.sections.SecLoop;
 import io.github.syst3ms.skriptparser.sections.SecWhile;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -37,11 +38,11 @@ public class EffExit extends Effect {
     }
 
     private final static String[] names = {"section", "loop", "conditional"};
-    private final List<CodeSection> currentSections = new ArrayList<>();
 
+    private final List<CodeSection> currentSections = new ArrayList<>();
     private int pattern;
     private int parseMark;
-    private Expression<Long> amount;
+    private Literal<BigInteger> amount;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -50,7 +51,7 @@ public class EffExit extends Effect {
         pattern = matchedPattern;
         parseMark = parseContext.getParseMark();
         if (pattern == 2)
-                amount = (Expression<Long>) expressions[0];
+                amount = (Literal<BigInteger>) expressions[0];
         return true;
     }
 
@@ -67,7 +68,8 @@ public class EffExit extends Effect {
             case 1:
                 return escapeSections(1, this);
             case 2:
-                return amount.getSingle(ctx).flatMap(sec -> escapeSections(sec, this));
+                return amount.getSingle()
+                        .flatMap(sec -> escapeSections(sec.intValue(), this));
             case 3:
                 // The current Trigger itself is also a part of the current sections!
                 return escapeSections(currentSections.size() - 1, this);
@@ -91,7 +93,7 @@ public class EffExit extends Effect {
     }
 
     @SuppressWarnings("unchecked")
-    private Optional<Statement> escapeSections(long amount, Statement start) {
+    private Optional<Statement> escapeSections(int amount, Statement start) {
         Optional<Statement> temp;
         Optional<Statement> statement = Optional.of(start);
         Statement stm = statement.get();
@@ -108,7 +110,8 @@ public class EffExit extends Effect {
                 amount--;
                 continue;
             }
-            return temp.flatMap(Statement::getNext);
+            stm = temp.get();
+            break;
         }
         return stm instanceof SecWhile ? ((SecWhile) stm).getActualNext()
                 : (Optional<Statement>) stm.getNext();

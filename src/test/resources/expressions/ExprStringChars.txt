@@ -1,0 +1,15 @@
+# Author(s):
+# 	- Olyno
+# Date: 2020/12/06
+
+test:
+	set {list::1::*} to all lower case chars in "Hell0 W0rld!"
+	set {list::2::*} to all upper case chars in "Hell0 W0rld!"
+	set {list::3::*} to all digit chars in "Hell0 W0rld!"
+	set {list::4::*} to all special chars in "Hell0 W0rld!"
+	set {list::5::*} to all space chars in "Hell0 W0rld!"
+	assert {list::1::*} is "e", "l", "l", "r", "l" and "d" with "{list::1::*} should be 'ellrld': %{list::1::*}%"
+	assert {list::2::*} is "H" and "W" with "{list::2::*} should be 'H' and 'W': %{list::2::*}%"
+	assert {list::3::*} is "0" and "0" with "{list::3::*} should be 0, 0 and '!': %{list::3::*}%"
+	assert {list::4::*} is "!" with "{list::4::*} should be '!': %{list::4::*}%"
+	assert size of {list::5::*} is 1 with "Size of {list::5::*} should be 1: %size of {list::5::*}%"

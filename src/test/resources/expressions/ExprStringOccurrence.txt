@@ -1,0 +1,12 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/25 (last test made on Christmas day!)
+
+test:
+	set {var} to "Hello World, my name is Mwexim. Bye World!"
+	set {list::1} to first occurrence of "Hello" in {var}
+	set {list::2} to first occurrence of "World" in {var}
+	set {list::3} to last occurrence of "World" in {var}
+	assert {list::1} = 1 with "First occurrence of 'Hello' should be 1: %{list::1}%"
+	assert {list::2} = 7 with "First occurrence of 'World' should be 7: %{list::2}%"
+	assert {list::3} = 37 with "Last occurrence of 'World' should be 37: %{list::3}%"

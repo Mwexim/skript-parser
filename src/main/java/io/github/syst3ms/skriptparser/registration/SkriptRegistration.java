@@ -1,14 +1,14 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.lang.*;
-import io.github.syst3ms.skriptparser.lang.base.PropertyExpression;
+import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.pattern.*;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueTime;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueState;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
 import io.github.syst3ms.skriptparser.registration.tags.Tag;
 import io.github.syst3ms.skriptparser.registration.tags.TagInfo;
@@ -22,6 +22,7 @@ import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Function;
 
@@ -111,6 +112,19 @@ public class SkriptRegistration {
      */
     public List<TagInfo<?>> getTags() {
         return tags;
+    }
+
+    /**
+     * Registers a syntax class that can register itself.
+     * @param c the syntax' class
+     * @param args the arguments
+     */
+    public void addSelfRegisteringElement(Class<? extends SelfRegistrable> c, Object... args) {
+        try {
+            c.getDeclaredConstructor().newInstance().register(this, args);
+        } catch (InstantiationException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            logger.error("Couldn't instantiate class '" + c.getName() + "'", ErrorType.EXCEPTION);
+        }
     }
 
     /**
@@ -295,6 +309,17 @@ public class SkriptRegistration {
     }
 
     /**
+     * Starts a registration process for a {@link Type}
+     * @param c the class the Type represents
+     * @param pattern the Type's pattern
+     * @param <T> the represented class
+     * @return an {@link TypeRegistrar}
+     */
+    public <T> TypeRegistrar<T> newType(Class<T> c, String name, String pattern) {
+        return new TypeRegistrar<>(c, name, pattern);
+    }
+
+    /**
      * Registers a {@link Type}
      * @param c the class the Type represents
      * @param pattern the Type's pattern
@@ -305,14 +330,61 @@ public class SkriptRegistration {
     }
 
     /**
-     * Starts a registration process for a {@link Type}
+     * Starts the registration process for an {@link Enum} as a {@link Type}.
+     * <br>
+     * The {@link TypeRegistrar#literalParser(Function) literalParser(Function)}
+     * and {@link TypeRegistrar#toStringFunction(Function) toStringFunction(Function)} methods
+     * are implemented at default.
+     * Note that the represented Enum's values need to be in the {@code SCREAMING_SNAKE_CASE} convention.
      * @param c the class the Type represents
      * @param pattern the Type's pattern
      * @param <T> the represented class
      * @return an {@link TypeRegistrar}
      */
-    public <T> TypeRegistrar<T> newType(Class<T> c, String name, String pattern) {
-        return new TypeRegistrar<>(c, name, pattern);
+    public <T extends Enum<T>> TypeRegistrar<T> newEnumType(Class<T> c, String name, String pattern) {
+        return new TypeRegistrar<>(c, name, pattern)
+                .literalParser(s -> {
+                    // We won't allow ugly syntax.
+                    // Otherwise, a field like 'MY_ENUM_CONSTANT' would allow 'my enum_constant'.
+                    if (s.contains("_"))
+                        return null;
+                    s = s.replaceAll(" ", "_").toUpperCase();
+                    try {
+                        return Enum.valueOf(c, s);
+                    } catch (IllegalArgumentException ignored) {
+                        return null;
+                    }
+                })
+                .toStringFunction(o -> o.toString().replaceAll("_", " ").toLowerCase());
+    }
+
+    /**
+     * Registers an {@link Enum} as a {@link Type}.
+     * <br>
+     * The {@link TypeRegistrar#literalParser(Function) literalParser(Function)}
+     * and {@link TypeRegistrar#toStringFunction(Function) toStringFunction(Function)} methods
+     * are implemented at default.
+     * Note that the represented Enum's values need to be in the {@code SCREAMING_SNAKE_CASE} convention.
+     * @param c the class the Type represents
+     * @param pattern the Type's pattern
+     * @param <T> the represented class
+     */
+    public <T extends Enum<T>> void addEnumType(Class<T> c, String name, String pattern) {
+        new TypeRegistrar<>(c, name, pattern)
+                .literalParser(s -> {
+                    // We won't allow ugly syntax.
+                    // Otherwise, a field like 'MY_ENUM_CONSTANT' would allow 'my enum_constant'.
+                    if (s.contains("_"))
+                        return null;
+                    s = s.replaceAll(" ", "_").toUpperCase();
+                    try {
+                        return Enum.valueOf(c, s);
+                    } catch (IllegalArgumentException ignored) {
+                        return null;
+                    }
+                })
+                .toStringFunction(o -> o.toString().replaceAll("_", " ").toLowerCase())
+                .register();
     }
 
     /**
@@ -640,7 +712,7 @@ public class SkriptRegistration {
          * @param <T2> the type class
          * @return the registrar
          */
-        public final <C extends TriggerContext, T2> EventRegistrar<T> addContextValue(Class<C> context, Class<T2> type, String name, Function<C, T2[]> contextFunction, ContextValueTime time) {
+        public final <C extends TriggerContext, T2> EventRegistrar<T> addContextValue(Class<C> context, Class<T2> type, String name, Function<C, T2[]> contextFunction, ContextValueState time) {
             contextValues.add(new ContextValue<>(context, type, name, (Function<TriggerContext, T2[]>) contextFunction, time));
             return this;
         }

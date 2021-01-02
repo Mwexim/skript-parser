@@ -12,27 +12,19 @@ import java.util.TimeZone;
  * @author Njol
  */
 public class SkriptDate implements Comparable<SkriptDate> {
-
     // TODO make a config for this
     public final static String DATE_FORMAT = "EEEE dd MMMM yyyy HH:mm:ss.SSS zzzXXX";
-    public final static Locale DATE_LOCALE = new Locale("US");
-
+    public final static Locale DATE_LOCALE = Locale.US;
+    private static ZoneId ZONE_ID = ZoneId.systemDefault();
     public final static int MILLIS_PER_DAY = 86400000;
 
-    /**
-     * Timestamp. Should always be in computer time/UTC/GMT+0.
-     */
     private long timestamp;
 
-    public SkriptDate() {
-        this(System.currentTimeMillis());
-    }
-
-    public SkriptDate(long timestamp) {
+    private SkriptDate(long timestamp) {
         this.timestamp = timestamp;
     }
 
-    public SkriptDate(long timestamp, TimeZone zone) {
+    private SkriptDate(long timestamp, TimeZone zone) {
         long offset = zone.getOffset(timestamp);
         this.timestamp = timestamp - offset;
     }
@@ -42,11 +34,28 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * @return new {@link SkriptDate} with the current time
      */
     public static SkriptDate now() {
-        return new SkriptDate(System.currentTimeMillis());
+        return SkriptDate.of(System.currentTimeMillis());
     }
 
-    public Duration difference(SkriptDate other) {
-        return Duration.ZERO.plusMillis(Math.abs(timestamp - other.getTimestamp()));
+    public static SkriptDate of(long timestamp) {
+        return new SkriptDate(timestamp);
+    }
+
+    public static SkriptDate of(long timestamp, TimeZone zone) {
+        return new SkriptDate(timestamp, zone);
+    }
+
+    /**
+     * The current day when it started.
+     * @return the current day like it would just start
+     */
+	public static SkriptDate today() {
+	    var localDate = LocalDate.now().atStartOfDay(ZONE_ID);
+	    return SkriptDate.of(localDate.toEpochSecond() * 1000);
+	}
+
+    public static ZoneId getZoneId() {
+        return ZONE_ID;
     }
 
     @Override
@@ -55,20 +64,25 @@ public class SkriptDate implements Comparable<SkriptDate> {
         return d < 0 ? -1 : d > 0 ? 1 : 0;
     }
 
-
-
-    @Nullable
     public String toString() {
+        return toString(DATE_FORMAT);
+    }
+
+    /**
+     * The String representation of this date using a certain format
+     * @param format the format
+     * @return the string representation of this date
+     */
+    public String toString(String format) {
         StringBuilder sb = new StringBuilder();
 
-        SimpleDateFormat format = new SimpleDateFormat(
-                DATE_FORMAT,
+        SimpleDateFormat formatted = new SimpleDateFormat(
+                format,
                 DATE_LOCALE);
 
 
-        String str = format.format(new java.util.Date(timestamp));
+        String str = formatted.format(new java.util.Date(timestamp));
         sb.append(str);
-        if (sb.toString().isEmpty()) return null;
 
         return sb.toString();
     }
@@ -79,6 +93,15 @@ public class SkriptDate implements Comparable<SkriptDate> {
      */
     public long getTimestamp() {
         return timestamp;
+    }
+
+    /**
+     * Get the difference between 2 dates.
+     * @param other the other date
+     * @return the duration between the dates
+     */
+    public Duration difference(SkriptDate other) {
+        return Duration.ofMillis(timestamp - other.getTimestamp()).abs();
     }
 
     /**
@@ -121,7 +144,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
      */
     public LocalDateTime toLocalDateTime() {
         Instant in = new java.util.Date(timestamp).toInstant();
-        return in.atOffset(ZoneOffset.systemDefault().getRules().getOffset(in)).toLocalDateTime();
+        return in.atOffset(SkriptDate.ZONE_ID.getRules().getOffset(in)).toLocalDateTime();
     }
 
     @Override

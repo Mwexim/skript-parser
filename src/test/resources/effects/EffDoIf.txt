@@ -1,0 +1,7 @@
+# Author(s):
+#	- CHarcoalToast
+# 	- Mwexim
+# Date: 2020/10/31
+
+test:
+	assert false with "False condition was run" if false

@@ -1,0 +1,14 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/11/04
+
+# Each normal test starts with this trigger.
+test:
+	# Assertion with error message
+	assert "true" is "true" with "Basic logic failed"
+
+	# Reach block
+	birth:
+		escape 1 line
+		assert false # This line should be skipped
+		death # If there is no death statement called before the end of a 'birth'-section, the test will fail.

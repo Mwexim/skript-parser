@@ -1,0 +1,8 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/19
+
+test:
+	# Is this safe?
+	assert yesterday = 1 day in the past
+	assert tomorrow = 1 day in the future

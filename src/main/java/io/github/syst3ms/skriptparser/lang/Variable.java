@@ -176,7 +176,7 @@ public class Variable<T> implements Expression<T> {
         var val = Variables.getVariable(name + "*", ctx, local);
         if (val.isEmpty())
             return Collections.emptyIterator();
-        assert val.get() instanceof TreeMap;
+        assert val.get() instanceof Map;
         // temporary list to prevent CMEs
         @SuppressWarnings("unchecked")
         var keys = new ArrayList<>(((Map<String, Object>) val.get()).keySet()).iterator();
@@ -259,7 +259,7 @@ public class Variable<T> implements Expression<T> {
             case DELETE:
                 if (list) {
                     var rem = new ArrayList<String>();
-                    var o = (Map<String, Object>) getRaw(ctx).orElseThrow(AssertionError::new);
+                    var o = (Map<String, Object>) getRaw(ctx).orElse(null);
                     if (o == null)
                         return;
                     for (var i : o.entrySet()) {

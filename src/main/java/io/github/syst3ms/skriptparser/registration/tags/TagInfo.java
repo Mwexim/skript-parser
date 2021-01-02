@@ -1,13 +1,10 @@
 package io.github.syst3ms.skriptparser.registration.tags;
 
-import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.SkriptEvent;
-import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 
 /**
- * A class containing info about a {@link SyntaxElement} that isn't an {@link Expression} or an {@link SkriptEvent}
- * @param <C> the {@link SyntaxElement} class
+ * A class containing info about a {@link Tag}.
+ * @param <C> the {@link Tag} class
  * @author Mwexim
  */
 public class TagInfo<C extends Tag> {

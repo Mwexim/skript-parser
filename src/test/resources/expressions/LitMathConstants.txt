@@ -1,0 +1,10 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/22
+
+test:
+	# If any of these tests fail, this may be due to the fact that the comparison scale for BigDecimals was increased.
+	# Currently, this scale is set to 10, hence we check with a scale of 11.
+	assert pi = 3.14159265359 with "Pi constant comparison failed: %pi% != '3.14159265359'"
+	assert e = 2.71828182846 with "e constant comparison failed: %e% != '2.71828182846'"
+	assert phi = 1.61803398874 with "Phi constant comparison failed: %phi% != '1.61803398874'"

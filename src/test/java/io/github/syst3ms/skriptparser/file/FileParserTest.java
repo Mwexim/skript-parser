@@ -29,12 +29,12 @@ public class FileParserTest {
     public void parseFileLines() {
         FileParser parser = new FileParser();
         assertEquals(
-                Collections.singletonList(simpleFileLine("line", 0, 1)),
-                parseLines(parser, Collections.singletonList("line"))
+            Collections.singletonList(simpleFileLine("line", 0, 1)),
+            parseLines(parser, Collections.singletonList("line"))
         );
         assertEquals(
-                Collections.singletonList(fileSection("section", 0, 1)),
-                parseLines(parser, Collections.singletonList("section:"))
+            Collections.singletonList(fileSection("section", 0, 1)),
+            parseLines(parser, Collections.singletonList("section:"))
         );
         assertEquals(
             Collections.singletonList(
@@ -105,7 +105,7 @@ public class FileParserTest {
 
     @Test
     public void readLines() throws Exception {
-        Path filePath = Paths.get(ClassLoader.getSystemResource("multiline.txt").toURI());
+        Path filePath = Paths.get(ClassLoader.getSystemResource("misc/multiline.txt").toURI());
         assertEquals(
             Arrays.asList(
                 "# Testing multiline syntax",

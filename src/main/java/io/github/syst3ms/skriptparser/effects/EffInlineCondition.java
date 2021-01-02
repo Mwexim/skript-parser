@@ -22,6 +22,7 @@ public class EffInlineCondition extends Effect {
     static {
         Parser.getMainRegistration().addEffect(
             EffInlineCondition.class,
+            5,
             "continue [only] if %=boolean%"
         );
     }

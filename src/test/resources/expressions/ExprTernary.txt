@@ -1,0 +1,10 @@
+# Author(s):
+# 	- Olyno
+# Date: 2020/12/13
+
+test:
+	set {var} to true if 1 = 1, else false
+	assert {var} is true with "{var} should be true: %{var}%"
+
+	set {var} to 3 < 1 ? true : false
+	assert {var} is false with "{var} should be false: %{var}%"
