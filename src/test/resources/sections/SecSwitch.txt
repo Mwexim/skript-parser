@@ -1,0 +1,28 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2021/01/02
+
+test:
+	set {var} to "Hello"
+	switch {var}:
+		case "World":
+			add 1 to {flag::*}
+		matches "Hello":
+			add 2 to {flag::*}
+			set {var2} to 2
+			add 1 to {var2}
+			add {var2} to {flag::*}
+		case 2 or 3:
+			add 4 to {flag::*}
+		case 4 or "Hello":
+			add 5 to {flag::*}
+		default:
+			add 6 to {flag::*}
+		otherwise:
+			add 7 to {flag::*}
+		case "Hello":
+			add 8 to {flag::*}
+
+	# 2, 3, 5 and 8
+	assert {flag::*} = 2, 3, 5 and 8 with "{flag::*} should be 2, 3, 5 and 8: %{flag::*}%"
+

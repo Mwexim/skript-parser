@@ -102,7 +102,7 @@ public abstract class CodeSection extends Statement {
 
     /**
      * A list of the classes of every syntax that is allowed to be used inside of this CodeSection. The default behavior
-     * is to return an empty list, which equates to no restrictions. If overriden, this allows the creation of specialized,
+     * is to return an empty list, which equates to no restrictions. If overridden, this allows the creation of specialized,
      * DSL-like sections in which only select {@linkplain Statement statements} and other {@linkplain CodeSection sections}
      * (and potentially, but not necessarily, expressions).
      * @return a list of the classes of each syntax allowed inside this CodeSection

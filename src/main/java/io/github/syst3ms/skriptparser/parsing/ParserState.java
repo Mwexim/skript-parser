@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.parsing;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.util.Pair;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -16,6 +17,7 @@ public class ParserState {
     private final LinkedList<CodeSection> currentSections = new LinkedList<>();
     private List<Class<? extends SyntaxElement>> allowedSyntaxes = Collections.emptyList();
     private boolean restrictingExpressions = false;
+    private final LinkedList<Pair<List<Class<? extends SyntaxElement>>, Boolean>> restrictionsReference = new LinkedList<>();
 
     /**
      * @return the {@link TriggerContext}s handled by the currently parsed event
@@ -60,6 +62,7 @@ public class ParserState {
      * @param restrictingExpressions whether expressions are also restricted
      */
     public void setSyntaxRestrictions(List<Class<? extends SyntaxElement>> allowedSyntaxes, boolean restrictingExpressions) {
+        restrictionsReference.addLast(new Pair<>(this.allowedSyntaxes, this.restrictingExpressions));
         this.allowedSyntaxes = allowedSyntaxes;
         this.restrictingExpressions = restrictingExpressions;
     }
@@ -68,8 +71,9 @@ public class ParserState {
      * Clears the previously enforced syntax restrictions
      */
     public void clearSyntaxRestrictions() {
-        allowedSyntaxes = Collections.emptyList();
-        restrictingExpressions = false;
+        allowedSyntaxes = restrictionsReference.getLast().getFirst();
+        restrictingExpressions = restrictionsReference.getLast().getSecond();
+        restrictionsReference.removeLast();
     }
 
     /**

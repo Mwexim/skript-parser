@@ -42,7 +42,7 @@ public class EffContinue extends Effect {
             }
         }
         if (loops.size() == 0) {
-            parseContext.getLogger().error("You can only use the 'continue' in a loop!", ErrorType.SEMANTIC_ERROR);
+            parseContext.getLogger().error("You can only use 'continue' in a loop!", ErrorType.SEMANTIC_ERROR);
             return false;
         }
         // Closest loop will be the first item
