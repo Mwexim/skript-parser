@@ -24,7 +24,7 @@ public class FileUtils {
     /**
      * Parses a file and returns a list containing all of its lines.
      * <p>
-     * This parser offers the possiblity to stretch out code across multiple lines by simply adding a single backslash
+     * This parser offers the possibility to stretch out code across multiple lines by simply adding a single backslash
      * before a line break to indicate to the parser that it should be considered as a single line. For example :
      * <pre>
      *     set {large_list::*} to "one long string", \
@@ -105,6 +105,26 @@ public class FileUtils {
             sb.append(line);
         }
         return sb.toString();
+    }
+
+    public static String removeExtension(String s) {
+        String separator = System.getProperty("file.separator");
+        String filename;
+
+        // Remove the path up until the filename.
+        int lastSeparatorIndex = s.lastIndexOf(separator);
+        if (lastSeparatorIndex == -1) {
+            filename = s;
+        } else {
+            filename = s.substring(lastSeparatorIndex + 1);
+        }
+
+        // Remove the extension.
+        int extensionIndex = filename.lastIndexOf(".");
+        if (extensionIndex == -1)
+            return filename;
+
+        return filename.substring(0, extensionIndex);
     }
 
     /**
