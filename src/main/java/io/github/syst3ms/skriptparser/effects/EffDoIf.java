@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @name Do If
  * @type EFFECT
- * @pattern if %=boolean%[,] [do] <.+>
+ * @pattern [do|execute] <.+?>[,] [only] if %=boolean%
  * @since ALPHA
  * @author Mwexim
  */
@@ -24,7 +24,7 @@ public class EffDoIf extends Effect {
         Parser.getMainRegistration().addEffect(
             EffDoIf.class,
             1,
-            "[do] <.+?>[,] if %=boolean%"
+            "[do|execute] <.+?>[,] [only] if %=boolean%"
         );
     }
 

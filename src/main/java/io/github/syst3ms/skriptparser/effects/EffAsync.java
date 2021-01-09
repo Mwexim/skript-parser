@@ -17,17 +17,16 @@ import org.jetbrains.annotations.Nullable;
  *
  * @name Async
  * @type EFFECT
- * @pattern async[hronous[ly]] <.+>
+ * @pattern async[hronous[ly]] [do|execute] <.+>
  * @since ALPHA
  * @author Mwexim
  */
 public class EffAsync extends Effect {
-
     static {
         Parser.getMainRegistration().addEffect(
             EffAsync.class,
             3,
-            "async[hronous[ly]] [do] <.+>"
+            "async[hronous[ly]] [do|execute] <.+>"
         );
     }
 

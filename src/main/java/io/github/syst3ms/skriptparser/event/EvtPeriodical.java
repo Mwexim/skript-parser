@@ -18,7 +18,7 @@ import java.time.Duration;
  *
  * @name Periodical
  * @type EVENT
- * @pattern every %duration%
+ * @pattern every %*duration%
  * @since ALPHA
  * @author Mwexim
  */

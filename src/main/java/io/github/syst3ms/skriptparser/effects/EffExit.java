@@ -18,8 +18,8 @@ import java.util.Optional;
  * Note that stopping loops also stops while-loops.
  *
  * @name Exit
- * @pattern (exit|stop) [[the] [current] trigger]
- * @pattern (exit|stop) [(a|the [current]|this)] (section|loop|condition[al])
+ * @pattern (exit|stop) [[the] trigger]
+ * @pattern (exit|stop) [a|the [current]|this] (section|loop|condition[al])
  * @pattern (exit|stop) %*integer% (section|loop|condition[al])[s]
  * @pattern (exit|stop) (every|all) [the] (section|loop|condition[al])s
  * @since ALPHA
@@ -30,8 +30,8 @@ public class EffExit extends Effect {
     static {
         Parser.getMainRegistration().addEffect(
             EffExit.class,
-            "(exit|stop) [the] [trigger]",
-                "(exit|stop) [(a|the [current]|this)] (0:section|1:loop|2:condition[al])",
+            "(exit|stop) [[the] trigger]",
+                "(exit|stop) [a|the [current]|this] (0:section|1:loop|2:condition[al])",
                 "(exit|stop) %*integer% (0:section|1:loop|2:condition[al])[s]",
                 "(exit|stop) (every|all) [the] (0:section|1:loop|2:condition[al])s"
         );

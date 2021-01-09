@@ -22,7 +22,7 @@ import java.util.function.Consumer;
  *
  * @name Wait
  * @pattern (wait|halt) [for] %duration%
- * @pattern (wait|halt) (0:until|1:while) %=boolean% [for %*duration%]
+ * @pattern (wait|halt) (until|while) %=boolean% [for %*duration%]
  * @since ALPHA
  * @author Mwexim
  */

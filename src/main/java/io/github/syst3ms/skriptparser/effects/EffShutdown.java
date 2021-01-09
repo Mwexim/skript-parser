@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
  * Note that you should use this effect very cautiously.
  *
  * @name Shutdown
- * @pattern shut[ ]down [[the] current session]
+ * @pattern shut[ ]down [[the] [current] session]
  * @since ALPHA
  * @author Mwexim
  */
@@ -21,7 +21,7 @@ public class EffShutdown extends Effect {
     static {
         Parser.getMainRegistration().addEffect(
             EffShutdown.class,
-            "shut[ ]down [[the] current session]"
+            "shut[ ]down [[the] [current] session]"
         );
     }
 

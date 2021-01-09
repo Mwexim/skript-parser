@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class EvtTest extends SkriptEvent {
 	static {
 		Parser.getMainRegistration()
-			.newEvent(EvtTest.class, "*test [[only] when %=boolean%]")
+			.newEvent(EvtTest.class, "*test [[only] if %=boolean%]")
 			.setHandledContexts(TestContext.class)
 			.register();
 	}
