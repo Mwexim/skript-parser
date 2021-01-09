@@ -25,7 +25,7 @@ public class PatternParser {
      * @param pattern the pattern to be parsed
      * @return the parsed PatternElement, or {@literal null} if something went wrong.
      */
-    public Optional<? extends PatternElement> parsePattern(String pattern, SkriptLogger logger) {
+    public static Optional<? extends PatternElement> parsePattern(String pattern, SkriptLogger logger) {
         if (pattern.isEmpty())
             return Optional.of(new TextElement(""));
         List<PatternElement> elements = new ArrayList<>();
@@ -243,5 +243,4 @@ public class PatternParser {
             return Optional.of(new CompoundElement(elements));
         }
     }
-
 }

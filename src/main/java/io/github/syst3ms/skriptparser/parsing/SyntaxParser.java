@@ -6,10 +6,15 @@ import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.log.ErrorContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
+import io.github.syst3ms.skriptparser.pattern.PatternElement;
+import io.github.syst3ms.skriptparser.pattern.PatternParser;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SkriptEventInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueState;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
@@ -19,6 +24,7 @@ import io.github.syst3ms.skriptparser.util.RecentElementList;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import io.github.syst3ms.skriptparser.variables.Variables;
 import org.intellij.lang.annotations.MagicConstant;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -62,6 +68,9 @@ public class SyntaxParser {
 
     // Gradle requires the cast, but IntelliJ considers it redundant
     public static final PatternType<Object> OBJECTS_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class).orElseThrow(AssertionError::new), false);
+
+    // We control input, so new SkriptLogger instance is fine
+    public static final PatternElement CONTEXT_VALUE_PATTERN = PatternParser.parsePattern("[the] [(1:(past|previous)|2:(future|next))] <.+>", new SkriptLogger()).orElseThrow();
 
     /**
      * All {@link Effect effects} that are successfully parsed during parsing, in order of last successful parsing
@@ -147,6 +156,14 @@ public class SyntaxParser {
             }
             logger.forgetError();
         }
+
+        // Parsing of standalone context values
+        var contextValue = parseContextValue(s, expectedType, parserState, logger);
+        if (contextValue.isPresent()) {
+            logger.clearErrors();
+            return contextValue;
+        }
+
         logger.setContext(ErrorContext.NO_MATCH);
         logger.error("No expression matching '" + s + "' was found", ErrorType.NO_MATCH);
         return Optional.empty();
@@ -272,6 +289,66 @@ public class SyntaxParser {
         }
         logger.setContext(ErrorContext.NO_MATCH);
         logger.error("No expression matching '" + s + "' was found", ErrorType.NO_MATCH);
+        return Optional.empty();
+    }
+
+    /**
+     * Parses a {@link ContextValue} from the given {@linkplain String} and {@link PatternType expected return type}
+     * @param <T> the type of the context value
+     * @param toParse the string to be parsed as a context value
+     * @param expectedType the expected return type
+     * @param parserState the current parser state
+     * @param logger the logger
+     * @return an expression that was successfully parsed, or {@literal null} if the string is empty,
+     * no match was found
+     * or for another reason detailed in an error message.
+     */
+    public static <T> Optional<? extends Expression<? extends T>> parseContextValue(String toParse, PatternType<T> expectedType, ParserState parserState, SkriptLogger logger) {
+        var matchContext = new MatchContext(CONTEXT_VALUE_PATTERN, parserState, logger);
+        CONTEXT_VALUE_PATTERN.match(toParse, 0, matchContext);
+
+        var parseContext = matchContext.toParseResult();
+        var time = ContextValueState.values()[parseContext.getParseMark()];
+        var name = parseContext.getMatches().get(0).group();
+        for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
+            for (ContextValue<?> val : ContextValues.getContextValues()) {
+                if (val.matches(ctx, name, time, true)) {
+                    var contextValue = new Expression<T>() {
+                        @Override
+                        public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+                            return true;
+                        }
+
+                        @Override
+                        public T[] getValues(TriggerContext ctx) {
+                            return (T[]) val.getContextFunction().apply(ctx);
+                        }
+
+                        @Override
+                        public boolean isSingle() {
+                            return val.isSingle();
+                        }
+
+                        @Override
+                        public Class<? extends T> getReturnType() {
+                            return (Class<? extends T>) val.getType().getTypeClass();
+                        }
+
+                        @Override
+                        public String toString(@Nullable TriggerContext ctx, boolean debug) {
+                            String state = "";
+                            if (time == ContextValueState.PAST) {
+                                state = "past ";
+                            } else if (time == ContextValueState.FUTURE) {
+                                state = "future ";
+                            }
+                            return state + name;
+                        }
+                    };
+                    return Optional.of(contextValue);
+                }
+            }
+        }
         return Optional.empty();
     }
 
