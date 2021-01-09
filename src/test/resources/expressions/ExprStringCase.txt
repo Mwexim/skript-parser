@@ -22,6 +22,9 @@ test:
 	assert {var} = "spAwnNeWBoSs()" with "lenient camel case failed: %{var}%"
 	set {var} to "spAwn neW boSs ()" in strict camel case
 	assert {var} = "spawnNewBoss()" with "strict camel case failed: %{var}%"
+	# Camel case with unicode
+	set {var} to "cUrRent tIMe Mil🤬Lis" in lenient camel case
+	assert {var} = "cUrRentTIMeMil🤬Lis" with "lenient unicode camel case failed: %{var}%"
 
 	# Pascal case
 	set {var} to "geneRate ranDom numBer ()" in pascal case
