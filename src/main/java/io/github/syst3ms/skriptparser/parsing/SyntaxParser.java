@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.parsing;
 
+import io.github.syst3ms.skriptparser.expressions.ExprBooleanOperators;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
@@ -69,8 +70,15 @@ public class SyntaxParser {
     // Gradle requires the cast, but IntelliJ considers it redundant
     public static final PatternType<Object> OBJECTS_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class).orElseThrow(AssertionError::new), false);
 
+
     // We control input, so new SkriptLogger instance is fine
     public static final PatternElement CONTEXT_VALUE_PATTERN = PatternParser.parsePattern("[the] [(1:(past|previous)|2:(future|next))] <.+>", new SkriptLogger()).orElseThrow();
+
+    public static final ExpressionInfo<ExprBooleanOperators, Boolean> EXPRESSION_BOOLEAN_OPERATORS
+            = (ExpressionInfo<ExprBooleanOperators, Boolean>) SyntaxManager.getAllExpressions().stream()
+            .filter(i -> i.getSyntaxClass() == ExprBooleanOperators.class)
+            .findFirst()
+            .orElseThrow();
 
     /**
      * All {@link Effect effects} that are successfully parsed during parsing, in order of last successful parsing
@@ -129,6 +137,18 @@ public class SyntaxParser {
                 return variable;
             }
         }
+        // This is to prevent us from exchanging boolean operators with lists.
+        if (s.toLowerCase().startsWith("list ")) {
+            s = s.substring("list ".length());
+        } else {
+            // We parse boolean operators first to prevent clutter while parsing.
+            var booleanOperator = matchExpressionInfo(s, EXPRESSION_BOOLEAN_OPERATORS, expectedType, parserState, logger);
+            if (booleanOperator.isPresent()) {
+                recentExpressions.acknowledge(EXPRESSION_BOOLEAN_OPERATORS);
+                logger.clearErrors();
+                return booleanOperator;
+            }
+        }
         if (!expectedType.isSingle()) {
             var listLiteral = parseListLiteral(s, expectedType, parserState, logger);
             if (listLiteral.isPresent()) {
@@ -147,6 +167,7 @@ public class SyntaxParser {
         // Let's not loop over the same elements again
         var remainingExpressions = SyntaxManager.getAllExpressions();
         recentExpressions.removeFrom(remainingExpressions);
+        remainingExpressions.remove(EXPRESSION_BOOLEAN_OPERATORS);
         for (var info : remainingExpressions) {
             var expr = matchExpressionInfo(s, info, expectedType, parserState, logger);
             if (expr.isPresent()) {

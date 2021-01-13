@@ -51,7 +51,7 @@ public class SecAsync extends CodeSection {
         Optional<? extends Statement>[] item = new Optional[]{getFirst()};
         ThreadUtils.runAsync(() -> {
             while (!item[0].equals(getNext())) // Calling equals() on optionals calls equals() on their values
-                item[0] = item[0].flatMap(i -> i.walk(ctx, true));
+                item[0] = item[0].flatMap(i -> i.walk(ctx));
         });
         return getNext();
     }

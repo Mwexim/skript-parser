@@ -163,9 +163,10 @@ public class EffChange extends Effect {
         if (changeWith == null) {
             changed.change(ctx, new Object[0], mode);
         } else {
-            if (changeWith.getValues(ctx).length == 0)
+            var values= changeWith.getValues(ctx);
+            if (values.length == 0)
                 return;
-            changed.change(ctx, changeWith.getValues(ctx), mode);
+            changed.change(ctx, values, mode);
         }
     }
 }

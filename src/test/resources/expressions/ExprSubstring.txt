@@ -1,0 +1,27 @@
+# Author(s):
+#	- Mwexim
+# Date: 2020/12/27
+
+test:
+	set {var} to "Hello World!" # Length: 12
+	set {list::1} to substring of {var} between 3 and 6
+	set {list::2} to substring of {var} from 5 to 1
+	set {list::3} to substring of {var} from 0 to 4
+	set {list::4} to subtext of {var} from 5 to 13
+	set {list::5} to part of {var} from 7 to 12
+
+	set {list::6} to first char of {var}
+	set {list::7} to last 9 characters in {var}
+	set {list::8} to 13 last chars of {var}
+	set {list::9} to 12 first chars in {var}
+
+	assert {list::1} = "llo " with "{list::1} should be 'llo ': %{list::1}%"
+	assert {list::2} is not set with "{list::2} should be empty: %{list::2}%"
+	assert {list::3} is not set with "{list::3} should be empty: %{list::3}%"
+	assert {list::4} is not set with "{list::4} should be empty: %{list::4}%"
+	assert {list::5} = "World!" with "{list::5} should be 'World!': %{list::5}%"
+
+	assert {list::6} = "H" with "{list::6} should be 'H': %{list::6}%"
+	assert {list::7} = "lo World!" with "{list::7} should be 'lo World!': %{list::7}%"
+	assert {list::8} is not set with "{list::8} should be empty: %{list::8}%"
+	assert {list::9} = "Hello World!" with "{list::9} should be 'Hello World!': %{list::9}%"

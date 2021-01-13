@@ -67,9 +67,10 @@ public class EffWait extends Effect {
             return Optional.empty();
 
         if (isConditional) {
+            var cond = condition.getSingle(ctx);
             // The code we want to run each check.
             Consumer<ExecutorService> code = exec -> {
-                if (condition.getSingle(ctx).filter(b -> negated == b).isPresent()) {
+                if (cond.filter(b -> negated == b).isPresent()) {
                     Statement.runAll(getNext().get(), ctx);
                     exec.shutdownNow();
                 }

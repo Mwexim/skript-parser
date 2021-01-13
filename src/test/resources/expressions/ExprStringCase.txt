@@ -1,0 +1,49 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/26
+
+test:
+	# Basic case change
+	set {var} to "Oops!" in lowercase
+	assert {var} = "oops!" with "lowercase failed: %{var}%"
+	set {var} to "Oops!" in uppercase
+	assert {var} = "OOPS!" with "uppercase failed: %{var}%"
+	set {var} to capitalised "Oops!"
+	assert {var} = "OOPS!" with "capitalised failed: %{var}%"
+
+	# Proper case
+	set {var} to "hellO i'm steve!" in proper case
+	assert {var} = "HellO I'm Steve!" with "lenient proper case failed: %{var}%"
+	set {var} to "hellO i'm steve!" in strict proper case
+	assert {var} = "Hello I'm Steve!" with "strict proper case failed: %{var}%"
+
+	# Camel case
+	set {var} to "spAwn neW boSs ()" in camel case
+	assert {var} = "spAwnNeWBoSs()" with "lenient camel case failed: %{var}%"
+	set {var} to "spAwn neW boSs ()" in strict camel case
+	assert {var} = "spawnNewBoss()" with "strict camel case failed: %{var}%"
+	# Camel case with unicode
+	set {var} to "cUrRent tIMe Mil🤬Lis" in lenient camel case
+	assert {var} = "cUrRentTIMeMil🤬Lis" with "lenient unicode camel case failed: %{var}%"
+
+	# Pascal case
+	set {var} to "geneRate ranDom numBer ()" in pascal case
+	assert {var} = "GeneRateRanDomNumBer()" with "lenient pascal case failed: %{var}%"
+	set {var} to "geneRate ranDom numBer ()" in strict pascal case
+	assert {var} = "GenerateRandomNumber()" with "strict pascal case failed: %{var}%"
+
+	# Snake case with unicode
+	set {var} to "Hello Pl🤬yer!" in snake case
+	assert {var} = "Hello_Pl🤬yer!" with "default snake case failed: %{var}%"
+	set {var} to "He👾lo Player!" in lower snake case
+	assert {var} = "he👾lo_player!" with "lower snake case failed: %{var}%"
+	set {var} to "Hello 👀layer!" in upper snake case
+	assert {var} = "HELLO_👀LAYER!" with "upper snake case failed: %{var}%"
+
+	# Kebab case with unicode
+	set {var} to "What is y🖐ur name?" in kebab case
+	assert {var} = "What-is-y🖐ur-name?" with "default kebab case failed: %{var}%"
+	set {var} to "W🧠at is your name?" in lower kebab case
+	assert {var} = "w🧠at-is-your-name?" with "lower kebab case failed: %{var}%"
+	set {var} to "What 🤵s your name" in upper kebab case
+	assert {var} = "WHAT-🤵S-YOUR-NAME" with "upper kebab case failed: %{var}%"

@@ -1,0 +1,13 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2021/01/01
+
+test:
+	set {list::1} to "Hello"
+	set {list::test} to "World"
+	set {list::foo} to 5
+	set {list::bar::boo} to 5 hours
+
+	assert indices of {list::*} = "1", "test", "foo" and "bar" with "Indices should be '1', 'test', 'foo' and 'bar': %indices of {list::*}%"
+	throws indices of {var}
+	throws indices of "Hello" and "World"

@@ -41,7 +41,7 @@ public class SkriptConsumer<S extends ArgumentSection> {
         var item = starterFunction.apply(section);
         while (item.isPresent()) {
             var cur = item.orElse(null);
-            item = item.flatMap(s -> s.walk(ctx, true));
+            item = item.flatMap(s -> s.walk(ctx));
             if (stepFunction.test(section, cur)) {
                 break;
             }

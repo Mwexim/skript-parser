@@ -54,7 +54,7 @@ public class SecBirth extends CodeSection {
     public Optional<? extends Statement> walk(TriggerContext ctx) {
         var item = getFirst();
         while (!item.equals(getNext())) {
-            item = item.flatMap(val -> val.walk(ctx, true));
+            item = item.flatMap(val -> val.walk(ctx));
         }
         if (currentDeaths.isEmpty()) {
             SyntaxParserTest.addError(new SkriptRuntimeException(

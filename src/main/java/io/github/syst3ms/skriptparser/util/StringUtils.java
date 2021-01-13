@@ -324,22 +324,79 @@ public class StringUtils {
         return expr.getValues(ctx);
     }
 
-    public static String camelCase(String str, boolean firstNoCase) {
+    /**
+     * Capitalizes the first word or all words in a string.
+     * A word is separated by a space character.
+     * @param str the string to change
+     * @return the capitalized string
+     */
+    public static String toTitleCase(String str, boolean allWords) {
+        if (!allWords) {
+            return Character.toUpperCase(str.charAt(0)) + str.substring(1);
+        } else {
+            String[] words = str.split(" ");
+
+            for (int i = 0; i < words.length; i++) {
+                words[i] = Character.toUpperCase(words[i].charAt(0)) + words[i].substring(1);
+            }
+            return String.join(" ", words);
+        }
+    }
+
+    public static String toCamelCase(String str, boolean firstNoCase) {
         String[] parts = str.split("\\s+");
         StringBuilder ret = new StringBuilder();
         for (String part : parts) {
             if (firstNoCase) {
                 firstNoCase = false;
-                ret.append(part.toLowerCase());
+                ret.append(Character.toLowerCase(part.charAt(0)))
+                        .append(part.substring(1));
             } else {
                 ret.append(Character.toUpperCase(part.charAt(0)))
-                        .append(part.substring(1).toLowerCase());
+                        .append(part.substring(1));
             }
         }
         return ret.toString();
     }
 
-    public static String reverseCase(String str) {
+    /**
+     * Converts a string into snake case.
+     * @param str the string to convert
+     * @param mode 0 for default mode, 1 for uppercase and 2 for lowercase
+     * @return the converted string
+     */
+    public static String toSnakeCase(String str, int mode) {
+        if (mode == 0)
+            return str.replace(' ', '_');
+        StringBuilder sb = new StringBuilder();
+        for (int c : (Iterable<Integer>) str.codePoints()::iterator) { // Handles Unicode!
+            sb.appendCodePoint(c == ' ' ? '_' : (mode == 1 ? Character.toUpperCase(c) : Character.toLowerCase(c)));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Converts a string into kebab case.
+     * @param str the string to convert
+     * @param mode 0 for default mode, 1 for uppercase and 2 for lowercase
+     * @return the converted string
+     */
+    public static String toKebabCase(String str, int mode) {
+        if (mode == 0)
+            return str.replace(' ', '-');
+        StringBuilder sb = new StringBuilder();
+        for (int c : (Iterable<Integer>) str.codePoints()::iterator) { // Handles Unicode!
+            sb.appendCodePoint(c == ' ' ? '-' : (mode == 1 ? Character.toUpperCase(c) : Character.toLowerCase(c)));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Replaces all uppercase characters with lower case ones and vice versa.
+     * @param str the string to change
+     * @return the reversed string
+     */
+    public static String toReversedCase(String str) {
         char[] chars = str.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             char c = chars[i];
@@ -353,6 +410,11 @@ public class StringUtils {
         return new String(chars);
     }
 
+    /**
+     * Mirrors the string. This means the last character will be put first and vice versa.
+     * @param str the string to change
+     * @return the mirrored string
+     */
     public static String mirrored(String str) {
         char[] chars = str.toCharArray();
         char[] ret = new char[chars.length];
@@ -360,9 +422,5 @@ public class StringUtils {
             ret[i] = chars[chars.length - i - 1];
         }
         return new String(ret);
-    }
-
-    public static String capitalize(String str) {
-        return Character.toUpperCase(str.charAt(0)) + str.substring(1).toLowerCase();
     }
 }
