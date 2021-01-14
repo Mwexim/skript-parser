@@ -149,7 +149,7 @@ public class Parser {
         SkriptAddon.getAddons().forEach(SkriptAddon::finishedLoading);
     }
 
-    private static void printLogs(List<LogEntry> logs, Calendar time, boolean tipsEnabled) {
+    public static void printLogs(List<LogEntry> logs, Calendar time, boolean tipsEnabled) {
         for (LogEntry log : logs) {
             ConsoleColors color = ConsoleColors.WHITE;
             if (log.getType() == LogType.WARNING) {
