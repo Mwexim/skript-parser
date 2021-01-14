@@ -25,7 +25,6 @@ import io.github.syst3ms.skriptparser.util.RecentElementList;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import io.github.syst3ms.skriptparser.variables.Variables;
 import org.intellij.lang.annotations.MagicConstant;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -100,6 +99,10 @@ public class SyntaxParser {
      * All {@link ConditionalExpression conditions} that are successfully parsed during parsing, in order of last successful parsing
      */
     private static final RecentElementList<ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>> recentConditions = new RecentElementList<>();
+    /**
+     * All {@link ContextValue context values} that are successfully parsed during parsing, in order of last successful parsing
+     */
+    private static final RecentElementList<ContextValue<?>> recentContextValues = new RecentElementList<>();
 
     /**
      * Parses an {@link Expression} from the given {@linkplain String} and {@link PatternType expected return type}
@@ -332,41 +335,38 @@ public class SyntaxParser {
         var time = ContextValueState.values()[parseContext.getParseMark()];
         var name = parseContext.getMatches().get(0).group();
         for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
-            for (ContextValue<?> val : ContextValues.getContextValues()) {
+            String representation = (time == ContextValueState.PAST
+                    ? "past " : time == ContextValueState.FUTURE
+                    ? "future "
+                    : "") + name;
+
+            // First check frequently-used values
+            for (var val : recentContextValues) {
                 if (val.matches(ctx, name, time, true)) {
-                    var contextValue = new Expression<T>() {
-                        @Override
-                        public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-                            return true;
-                        }
+                    var contextValue = (ContextValue<T>) val;
+                    recentContextValues.acknowledge(contextValue);
+                    return Optional.of(new SimpleExpression<>(
+                            contextValue.getType().getTypeClass(),
+                            contextValue.isSingle(),
+                            contextValue.getContextFunction(),
+                            representation
+                    ));
+                }
+            }
 
-                        @Override
-                        public T[] getValues(TriggerContext ctx) {
-                            return (T[]) val.getContextFunction().apply(ctx);
-                        }
-
-                        @Override
-                        public boolean isSingle() {
-                            return val.isSingle();
-                        }
-
-                        @Override
-                        public Class<? extends T> getReturnType() {
-                            return (Class<? extends T>) val.getType().getTypeClass();
-                        }
-
-                        @Override
-                        public String toString(@Nullable TriggerContext ctx, boolean debug) {
-                            String state = "";
-                            if (time == ContextValueState.PAST) {
-                                state = "past ";
-                            } else if (time == ContextValueState.FUTURE) {
-                                state = "future ";
-                            }
-                            return state + name;
-                        }
-                    };
-                    return Optional.of(contextValue);
+            // Let's not loop over the same elements again
+            var remainingContextValues = ContextValues.getContextValues();
+            recentContextValues.removeFrom(remainingContextValues);
+            for (var val : remainingContextValues) {
+                if (val.matches(ctx, name, time, true)) {
+                    var contextValue = (ContextValue<T>) val;
+                    recentContextValues.acknowledge(contextValue);
+                    return Optional.of(new SimpleExpression<>(
+                            contextValue.getType().getTypeClass(),
+                            contextValue.isSingle(),
+                            contextValue.getContextFunction(),
+                            representation
+                    ));
                 }
             }
         }
