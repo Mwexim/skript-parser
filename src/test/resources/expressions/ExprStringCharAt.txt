@@ -1,6 +1,8 @@
 # Author(s):
 # 	- Olyno
+#	- Mwexim
 # Date: 2020/12/06
+#	- multiple indices: 2020/12/27
 
 test:
 	set {var} to "ABC"
@@ -9,3 +11,6 @@ test:
 
 	set {var3} to char at 4 in {var}
 	assert {var3} is not set with "{var3} should not be set: %{var3}%"
+
+	set {list::*} to chars at 2, 3 and 9 in "Hello World"
+	assert {list::*} = "e", "l", "r" with "{list::*} should be 'e', 'l' and 'r': %{list::*}%"

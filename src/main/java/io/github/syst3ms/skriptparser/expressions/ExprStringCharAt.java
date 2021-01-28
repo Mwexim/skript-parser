@@ -4,15 +4,15 @@ import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.util.DoubleOptional;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 /**
  * The character at a given position in a string. Note that indices in Skript start at 1.
  *
  * @name Character At
- * @pattern [the] char[acter] at [(index|pos[ition])] %number% (of|in) %string%
+ * @pattern [the] char[acter][s] at [(ind(ex[es]|ices)|pos[ition][s])] %integers% (of|in) %string%
  * @since ALPHA
  * @author Olyno
  */
@@ -21,8 +21,8 @@ public class ExprStringCharAt implements Expression<String> {
 		Parser.getMainRegistration().addExpression(
 			ExprStringCharAt.class,
 			String.class,
-			true,
-			"[the] char[acter] at [(index|pos[ition])] %integer% (of|in) %string%"
+			false,
+			"[the] char[acter][s] at [(ind(ex[es]|ices)|pos[ition][s])] %integers% (of|in) %string%"
 		);
 	}
 
@@ -39,11 +39,17 @@ public class ExprStringCharAt implements Expression<String> {
 
 	@Override
 	public String[] getValues(TriggerContext ctx) {
-		return DoubleOptional.ofOptional(value.getSingle(ctx), position.getSingle(ctx))
-			.filter((val, pos) -> pos.signum() > 0
-					&& pos.compareTo(BigInteger.valueOf(val.length())) <= 0)
-			.mapToOptional((val, pos) -> new String[] {String.valueOf(val.charAt(pos.intValue() - 1))})
-			.orElse(new String[0]);
+		return value.getSingle(ctx)
+				.map(val -> Arrays.stream(position.getValues(ctx))
+						.filter(pos -> pos.signum() > 0 && pos.compareTo(BigInteger.valueOf(val.length())) <= 0)
+						.map(pos -> String.valueOf(val.charAt(pos.intValue() - 1)))
+						.toArray(String[]::new))
+				.orElse(new String[0]);
+	}
+
+	@Override
+	public boolean isSingle() {
+		return position.isSingle();
 	}
 
 	@Override
