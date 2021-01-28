@@ -138,7 +138,7 @@ public class ExprDifference implements Expression<Object> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "difference between " + first.toString(ctx, debug) + " and " + second.toString(ctx, debug);
     }
 }

@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.UnaryOperator;
 
@@ -88,7 +87,7 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		/*
 		 * This is dirty, but at least it's better than switching over all cases
 		 */

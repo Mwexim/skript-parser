@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueState;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A specific context value.
@@ -59,7 +58,7 @@ public class ExprContextValue implements Expression<Object> {
 	}
 
 	@Override
-	public String toString(final @Nullable TriggerContext ctx, final boolean debug) {
+	public String toString(final TriggerContext ctx, final boolean debug) {
 		String state = "";
 		if (time == ContextValueState.PAST) {
 			state = "past ";

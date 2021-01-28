@@ -73,7 +73,7 @@ public abstract class PropertyConditional<P> extends ConditionalExpression imple
     public abstract boolean check(TriggerContext ctx, P[] performers);
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return toString(ctx, debug, performer, conditionalType,
                 propertyRepresentation != null ? propertyRepresentation : propertyName);
     }

@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class EffDeath extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return "death";
 	}
 }

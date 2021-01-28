@@ -220,10 +220,10 @@ public class Variable<T> implements Expression<T> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         if (ctx != null)
             return TypeManager.toString((Object[]) getValues(ctx));
-        var name = this.name.toString(null, debug);
+        var name = this.name.toString(TriggerContext.DUMMY, debug);
         return "{" + (local ? Variables.LOCAL_VARIABLE_TOKEN : "") + name.substring(1, name.length() - 1) + "}" + (debug ? "(as " + supertype.getSimpleName() + ")" : "");
     }
 

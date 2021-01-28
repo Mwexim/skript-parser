@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 
@@ -56,7 +55,7 @@ public class ExprStringOccurrence implements Expression<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return (first ? "first" : "last") + " occurrence of " + value.toString(ctx, debug) + " in " + expr.toString(ctx, debug);
 	}
 }

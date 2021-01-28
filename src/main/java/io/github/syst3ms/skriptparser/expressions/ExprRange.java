@@ -13,7 +13,6 @@ import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
 
@@ -45,7 +44,12 @@ public class ExprRange implements Expression<Object> {
         range = Ranges.getRange(ClassUtils.getCommonSuperclass(from.getReturnType(), to.getReturnType())).orElse(null);
         if (range == null) {
             SkriptLogger logger = parseContext.getLogger();
-            logger.error("Cannot get a range between " + from.toString(null, logger.isDebug()) + " and " + to.toString(null, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+            logger.error(
+                    "Cannot get a range between "
+                            + from.toString(TriggerContext.DUMMY, logger.isDebug())
+                            + " and "
+                            + to.toString(TriggerContext.DUMMY, logger.isDebug()),
+                    ErrorType.SEMANTIC_ERROR);
             return false;
         }
         return true;
@@ -74,7 +78,7 @@ public class ExprRange implements Expression<Object> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "range from " + from.toString(ctx, debug) + " to " + to.toString(ctx, debug);
     }
 }

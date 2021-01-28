@@ -348,7 +348,7 @@ public class SyntaxParser {
                         logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
                         logger.error(
                                 "The enclosing section does not allow the use of this expression: "
-                                        + expression.toString(null, logger.isDebug()),
+                                        + expression.toString(TriggerContext.DUMMY, logger.isDebug()),
                                 ErrorType.SEMANTIC_ERROR,
                                 "The current section limits the usage of syntax. This means that certain syntax cannot be used here, which was the case. Remove this expression entirely and refer to the documentation for the correct usage of this section"
                         );
@@ -590,7 +590,7 @@ public class SyntaxParser {
             logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
             logger.error(
                     "The enclosing section does not allow the use of this effect : "
-                            + eff.get().toString(null, logger.isDebug()),
+                            + eff.get().toString(TriggerContext.DUMMY, logger.isDebug()),
                     ErrorType.SEMANTIC_ERROR,
                     "The current section limits the usage of syntax. This means that certain syntax cannot be used here, which was the case. Remove this effect entirely and refer to the documentation for the correct usage of this section"
             );

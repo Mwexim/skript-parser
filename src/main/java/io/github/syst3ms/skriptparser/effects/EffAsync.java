@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.util.ThreadUtils;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Runs this effect asynchronously.
@@ -47,7 +46,7 @@ public class EffAsync extends Effect {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "async " + effect.toString(ctx, debug);
     }
 }

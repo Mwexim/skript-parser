@@ -140,7 +140,7 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 	}
 
 	@Override
-	public String toString(final @Nullable TriggerContext ctx, final boolean debug) {
+	public String toString(final TriggerContext ctx, final boolean debug) {
 		if (ctx == null) {
 			return "loop-" + loopedString;
 		}

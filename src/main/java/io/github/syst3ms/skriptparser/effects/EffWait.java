@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.ThreadUtils;
 import io.github.syst3ms.skriptparser.util.TimeUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -114,7 +113,7 @@ public class EffWait extends Effect {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "wait " + duration.toString(ctx, debug);
     }
 }

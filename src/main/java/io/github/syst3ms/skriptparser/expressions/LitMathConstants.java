@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 
@@ -71,7 +70,7 @@ public class LitMathConstants implements Literal<Number> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         switch (pattern) {
             case 0:
                 return "pi";

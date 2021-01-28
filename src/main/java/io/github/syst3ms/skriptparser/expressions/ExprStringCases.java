@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.StringUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.UnaryOperator;
 
@@ -69,7 +68,7 @@ public class ExprStringCases implements Expression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		String caseType = "some";
 		switch (pattern) {
 			case 0:

@@ -107,9 +107,9 @@ public class CondExprCompare extends ConditionalExpression {
                  */
                 logger.error(
                         "'" +
-                                first.toString(null, logger.isDebug()) +
+                                first.toString(TriggerContext.DUMMY, logger.isDebug()) +
                                 "' and '" +
-                                second.toString(null, logger.isDebug()) +
+                                second.toString(TriggerContext.DUMMY, logger.isDebug()) +
                                 "' cannot be compared respectively",
                         ErrorType.SEMANTIC_ERROR
                 );
@@ -126,19 +126,19 @@ public class CondExprCompare extends ConditionalExpression {
                  */
                 logger.error(
                         "'" +
-                                first.toString(null, logger.isDebug()) +
+                                first.toString(TriggerContext.DUMMY, logger.isDebug()) +
                                 "' cannot be compared respectively with '" +
-                                second.toString(null, logger.isDebug()) +
+                                second.toString(TriggerContext.DUMMY, logger.isDebug()) +
                                 "' and '" +
-                                third.toString(null, logger.isDebug()) +
+                                third.toString(TriggerContext.DUMMY, logger.isDebug()) +
                                 "'",
                         ErrorType.SEMANTIC_ERROR
                 );
                 return false;
             } else if (firstEach && first.isSingle()) {
-                logger.warn("Using \"each\" on '" + first.toString(null, logger.isDebug()) + "' is redundant, as it is a single value");
+                logger.warn("Using \"each\" on '" + first.toString(TriggerContext.DUMMY, logger.isDebug()) + "' is redundant, as it is a single value");
             } else if (secondEach && second.isSingle() && (third == null || third.isSingle())) {
-                logger.warn("Using \"each\" on '" + second.toString(null, logger.isDebug()) + "' is redundant, as it is a single value");
+                logger.warn("Using \"each\" on '" + second.toString(TriggerContext.DUMMY, logger.isDebug()) + "' is redundant, as it is a single value");
             }
         }
         /*
@@ -168,20 +168,20 @@ public class CondExprCompare extends ConditionalExpression {
             if (third == null) {
                 logger.error(
                         "'" +
-                        first.toString(null, logger.isDebug()) +
+                        first.toString(TriggerContext.DUMMY, logger.isDebug()) +
                         "' and '" +
-                        second.toString(null, logger.isDebug()) +
+                        second.toString(TriggerContext.DUMMY, logger.isDebug()) +
                         "' cannot be compared",
                         ErrorType.SEMANTIC_ERROR
                 );
             } else {
                 logger.error(
                         "'" +
-                        first.toString(null, logger.isDebug()) +
+                        first.toString(TriggerContext.DUMMY, logger.isDebug()) +
                         "' cannot be compared with '" +
-                        second.toString(null, logger.isDebug()) +
+                        second.toString(TriggerContext.DUMMY, logger.isDebug()) +
                         "' and '" +
-                        third.toString(null, logger.isDebug()) +
+                        third.toString(TriggerContext.DUMMY, logger.isDebug()) +
                         "'",
                         ErrorType.SEMANTIC_ERROR
                 );
@@ -208,7 +208,7 @@ public class CondExprCompare extends ConditionalExpression {
 
     private String errorString(Expression<?> expr, boolean debug) {
         if (expr.getReturnType() == Object.class)
-            return expr.toString(null, debug);
+            return expr.toString(TriggerContext.DUMMY, debug);
         Optional<? extends Type<?>> exprType = TypeManager.getByClass(expr.getReturnType());
         assert exprType.isPresent();
         return StringUtils.withIndefiniteArticle(exprType.get().getBaseName(), !expr.isSingle());
@@ -455,7 +455,7 @@ public class CondExprCompare extends ConditionalExpression {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         String s;
         Expression<?> third = this.third;
         if (third == null) {

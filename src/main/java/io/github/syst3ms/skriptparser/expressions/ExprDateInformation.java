@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
@@ -76,7 +75,7 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return CHOICES[parseMark] + " of date " + getOwner().toString(ctx, debug);
 	}
 }

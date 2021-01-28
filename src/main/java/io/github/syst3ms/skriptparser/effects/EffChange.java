@@ -72,7 +72,7 @@ public class EffChange extends Effect {
         }
         this.mode = mode;
         SkriptLogger logger = parseContext.getLogger();
-        String changedString = changed.toString(null, logger.isDebug());
+        String changedString = changed.toString(TriggerContext.DUMMY, logger.isDebug());
         if (changeWith == null) {
             assert mode == ChangeMode.DELETE || mode == ChangeMode.RESET;
             return changed.acceptsChange(mode).isPresent();
@@ -126,7 +126,7 @@ public class EffChange extends Effect {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         String changedString = changed.toString(ctx, debug);
         String changedWithString = changeWith != null ? changeWith.toString(ctx, debug) : "";
         switch (mode) {

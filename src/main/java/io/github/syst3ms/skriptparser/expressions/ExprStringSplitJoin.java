@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -93,7 +92,7 @@ public class ExprStringSplitJoin implements Expression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		if (pattern == 0) {
 			return "join " + expr.toString(ctx, debug) + (delimiterPresent ? " using " + delimiter.toString(ctx, debug) : "");
 		} else if (pattern == 1) {

@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
@@ -13,7 +12,6 @@ import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.StringUtils;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Returns one or more values to a corresponding section. Used with {@link SkriptFunction} and {@link ReturnSection}.
@@ -79,7 +77,7 @@ public class EffReturn extends Effect {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "return " + returned.toString(ctx, debug);
     }
 }

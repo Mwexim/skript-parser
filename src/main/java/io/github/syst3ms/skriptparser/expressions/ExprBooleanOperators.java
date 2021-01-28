@@ -68,7 +68,7 @@ public class ExprBooleanOperators implements Expression<Boolean> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         if (pattern == 0) {
             return "not " + first.toString(ctx, debug);
         } else {

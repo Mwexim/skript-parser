@@ -69,7 +69,7 @@ public class SecWhile extends CodeSection {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "while " + condition.toString(ctx, debug);
     }
 }

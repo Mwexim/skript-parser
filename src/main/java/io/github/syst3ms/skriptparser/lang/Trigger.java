@@ -4,7 +4,6 @@ import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -40,7 +39,7 @@ public class Trigger extends CodeSection {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return event.toString(ctx, debug);
     }
 

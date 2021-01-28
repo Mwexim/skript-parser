@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.Time;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * This event will trigger each day at a given time.
@@ -43,7 +42,7 @@ public class EvtAtTime extends SkriptEvent {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "at " + time.toString(ctx, debug);
     }
 

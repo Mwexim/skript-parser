@@ -75,7 +75,7 @@ public class Conditional extends CodeSection {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return mode + (condition != null ? " " + condition.toString(ctx, debug) : "");
     }
 

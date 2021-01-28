@@ -12,7 +12,6 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -35,7 +34,7 @@ public class SecFlatMap extends ReturnSection<Object> {
         if (flatMapped.acceptsChange(ChangeMode.SET).isEmpty()) {
             logger.error(
                     "The expression '" +
-                            flatMapped.toString(null, logger.isDebug()) +
+                            flatMapped.toString(TriggerContext.DUMMY, logger.isDebug()) +
                             "' cannot be changed",
                     ErrorType.SEMANTIC_ERROR
             );
@@ -74,7 +73,7 @@ public class SecFlatMap extends ReturnSection<Object> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "flat map " + flatMapped.toString(ctx, debug);
     }
 }

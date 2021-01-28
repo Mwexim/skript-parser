@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 
@@ -54,7 +53,7 @@ public class ExprDateTimestamp extends PropertyExpression<Number, SkriptDate> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return (unix ? "unix " : "") + "timestamp of " + getOwner().toString(ctx, debug);
 	}
 }

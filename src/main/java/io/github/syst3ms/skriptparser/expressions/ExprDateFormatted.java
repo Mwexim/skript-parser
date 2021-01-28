@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Formats a date as a string using the given format.
@@ -49,7 +48,7 @@ public class ExprDateFormatted implements Expression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return date.toString(ctx, debug) + " formatted as " + format.toString(ctx, debug);
 	}
 }

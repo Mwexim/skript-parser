@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Runs the next line of this section if a condition is met.
@@ -48,7 +47,7 @@ public class EffInlineCondition extends Effect {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "continue if " + condition.toString(ctx, debug);
     }
 }

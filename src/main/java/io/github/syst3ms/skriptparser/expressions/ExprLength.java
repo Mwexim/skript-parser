@@ -3,7 +3,6 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 
@@ -34,7 +33,7 @@ public class ExprLength extends PropertyExpression<Number, String> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "length of " + getOwner().toString(ctx, debug);
     }
 }

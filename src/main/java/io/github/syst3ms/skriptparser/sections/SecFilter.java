@@ -12,7 +12,6 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -36,7 +35,7 @@ public class SecFilter extends ReturnSection<Boolean> {
                 || filtered.acceptsChange(ChangeMode.DELETE).isEmpty()) {
             logger.error(
                     "The expression '" +
-                            filtered.toString(null, logger.isDebug()) +
+                            filtered.toString(TriggerContext.DUMMY, logger.isDebug()) +
                             "' cannot be changed",
                     ErrorType.SEMANTIC_ERROR
             );
@@ -80,7 +79,7 @@ public class SecFilter extends ReturnSection<Boolean> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "filter " + filtered.toString(ctx, debug);
     }
 }

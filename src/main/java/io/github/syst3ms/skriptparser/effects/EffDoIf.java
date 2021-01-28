@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Runs this effect if a given condition succeeds.
@@ -57,7 +56,7 @@ public class EffDoIf extends Effect {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "if " + condition.toString(ctx, debug) + ", " + effect.toString(ctx, debug);
     }
 }

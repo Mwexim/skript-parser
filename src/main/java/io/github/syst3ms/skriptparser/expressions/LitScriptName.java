@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.FileUtils;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * The name of the current executed script, without the extension.
@@ -43,7 +42,7 @@ public class LitScriptName implements Literal<String> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "script name";
     }
 }

@@ -9,7 +9,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
-import org.jetbrains.annotations.Nullable;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -107,7 +106,7 @@ public class ExprParseAs implements Expression<Object> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return expr.toString(ctx, debug) + " parsed as " + type.toString(ctx, debug) + (useFormat ? " formatted as " + format.toString(ctx, debug) : "");
 	}
 }

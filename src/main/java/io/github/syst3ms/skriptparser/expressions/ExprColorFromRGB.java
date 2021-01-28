@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.color.Color;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 
@@ -54,7 +53,7 @@ public class ExprColorFromRGB implements Expression<Color> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return "color from rgb " + red.toString(ctx, debug) + ", " + green.toString(ctx, debug) + " and " + blue.toString(ctx, debug);
 	}
 }

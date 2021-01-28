@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
@@ -69,7 +68,7 @@ public class ExprStringChars implements Expression<String> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "all " + CHAR_TYPES[charType] + " characters in " + values.toString(ctx, debug);
     }
 }

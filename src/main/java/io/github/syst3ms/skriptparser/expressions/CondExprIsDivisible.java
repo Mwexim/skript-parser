@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.lang.properties.ConditionalType;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyConditional;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -55,7 +54,7 @@ public class CondExprIsDivisible extends PropertyConditional<Number> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return getPerformer().toString(ctx, debug) + (isNegated() ? " is not " : " is ")
                 + "divisible by " + divider.toString(ctx, debug);
     }

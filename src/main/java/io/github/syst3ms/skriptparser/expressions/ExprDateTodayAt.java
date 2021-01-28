@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import io.github.syst3ms.skriptparser.util.Time;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 
@@ -55,7 +54,7 @@ public class ExprDateTodayAt implements Expression<SkriptDate> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return "today" + (simple ? " at " + time.toString(ctx, debug) : "");
 	}
 }
