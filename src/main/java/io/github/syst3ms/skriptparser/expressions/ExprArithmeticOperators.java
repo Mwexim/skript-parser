@@ -25,8 +25,7 @@ import java.util.Optional;
  *              <li>Two operands of the same type will yield a result of that type, except in the following special cases
  *                  <ul>
  *                      <li>Trying to divide in general will always return a {@link BigDecimal}</li>
- *                      <li>Trying to divide 0 by 0 will always return {@link Double#NaN} regardless of the original types.</li>
- *                      <li>Trying to divide any other value by 0 will always return {@link Double#POSITIVE_INFINITY} or {@link Double#NEGATIVE_INFINITY}.</li>
+ *                      <li>Trying to divide anything by 0 will return {@literal 0} regardless of the original types.</li>
  *                  </ul>
  *              </li>
  *              <li>Adding a decimal type to an integer type will yield a decimal result.</li>
@@ -90,12 +89,8 @@ public class ExprArithmeticOperators implements Expression<Number> {
         DIV('/') {
             @Override
             public Number calculate(Number left, Number right) {
-                if (isZero(left) && isZero(right)) {
-                    return Double.NaN;
-                } else if (isZero(right)) {
-                    return BigDecimalMath.getBigDecimal(left).compareTo(BigDecimal.ZERO) < 0
-                            ? Double.NEGATIVE_INFINITY
-                            : Double.POSITIVE_INFINITY;
+                if (isZero(right)) {
+                    return BigInteger.ZERO;
                 } else {
                     return BigDecimalMath.getBigDecimal(left).divide(BigDecimalMath.getBigDecimal(right), BigDecimalMath.DEFAULT_CONTEXT);
                 }
