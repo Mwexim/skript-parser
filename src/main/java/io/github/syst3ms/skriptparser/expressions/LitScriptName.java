@@ -13,8 +13,8 @@ import org.jetbrains.annotations.Nullable;
  * The name of the current executed script, without the extension.
  *
  * @name Script Name
- * @pattern [the] [current] script[['s] name]
- * @pattern name of [the] [current] script
+ * @pattern [the] script[['s] name]
+ * @pattern name of [the] script
  * @since ALPHA
  * @author Mwexim
  */
@@ -24,8 +24,8 @@ public class LitScriptName implements Literal<String> {
                 LitScriptName.class,
                 String.class,
                 true,
-                "[the] [current] script[['s] name]",
-                "name of [the] [current] script"
+                "[the] script[['s] name]",
+                "name of [the] script"
         );
     }
 

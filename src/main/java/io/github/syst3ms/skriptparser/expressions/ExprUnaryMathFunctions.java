@@ -38,6 +38,7 @@ import java.util.function.UnaryOperator;
  */
 public class ExprUnaryMathFunctions implements Expression<Number> {
 
+	// TODO support brackets in the patterns
 	private static final PatternInfos<UnaryOperator<Number>> PATTERNS = new PatternInfos<>(
 		new Object[][]{
 			{"abs %number%|\\|%number%\\|", (UnaryOperator<Number>) NumberMath::abs},

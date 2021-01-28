@@ -25,7 +25,7 @@ public class ExprVariableIndices implements Expression<String> {
 				ExprVariableIndices.class,
 				String.class,
 				false,
-				"[all [of] [the]] ind(exes|ices) of %^objects%"
+				"[all [[of] the]] ind(exes|ices) of %^objects%"
 		);
 	}
 

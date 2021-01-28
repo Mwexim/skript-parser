@@ -11,7 +11,7 @@ import java.math.BigInteger;
  * Length of a string.
  *
  * @name Length
- * @pattern length of %string%
+ * @pattern [the] length of %string%
  * @pattern %string%'s length
  * @since ALPHA
  * @author Romitou

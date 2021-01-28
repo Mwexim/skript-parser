@@ -13,7 +13,7 @@ import java.math.BigInteger;
  * The character at a given position in a string. Note that indices in Skript start at 1.
  *
  * @name Character At
- * @pattern char[acter] at [(index|pos[ition])] %number% (of|in) %string%
+ * @pattern [the] char[acter] at [(index|pos[ition])] %number% (of|in) %string%
  * @since ALPHA
  * @author Olyno
  */
@@ -23,7 +23,7 @@ public class ExprStringCharAt implements Expression<String> {
 			ExprStringCharAt.class,
 			String.class,
 			true,
-			"char[acter] at [(index|pos[ition])] %integer% (of|in) %string%"
+			"[the] char[acter] at [(index|pos[ition])] %integer% (of|in) %string%"
 		);
 	}
 

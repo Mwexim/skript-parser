@@ -1,24 +1,23 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import java.util.function.Predicate;
-
-import org.jetbrains.annotations.Nullable;
-
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Predicate;
 
 /**
  * All uppercase, lowercase, or digit characters in a string.
  *
  * @name Characters
- * @pattern [all [of the]] upper[ ]case char[acter]s in %strings%
- * @pattern [all [of the]] lower[ ]case char[acter]s in %strings%
- * @pattern [all [of the]] digit char[acter]s in %strings%
- * @pattern [all [of the]] special char[acter]s in %strings%
- * @pattern [all [of the]] [white[]]space char[acter]s in %strings%
+ * @pattern [all [[of] the]] upper[ ]case char[acter]s in %strings%
+ * @pattern [all [[of] the]] lower[ ]case char[acter]s in %strings%
+ * @pattern [all [[of] the]] digit char[acter]s in %strings%
+ * @pattern [all [[of] the]] special char[acter]s in %strings%
+ * @pattern [all [[of] the]] [white[ ]]space char[acter]s in %strings%
  * @since ALPHA
  * @author Olyno
  */
@@ -26,11 +25,11 @@ public class ExprStringChars implements Expression<String> {
 
     private final static PatternInfos<Predicate<Character>> PATTERNS = new PatternInfos<>(
         new Object[][]{
-            {"[all [of the]] upper[ ]case char[acter]s in %strings%", (Predicate<Character>) Character::isUpperCase},
-            {"[all [of the]] lower[ ]case char[acter]s in %strings%", (Predicate<Character>) Character::isLowerCase},
-            {"[all [of the]] digit char[acter]s in %strings%", (Predicate<Character>) Character::isDigit},
-            {"[all [of the]] special char[acter]s in %strings%", (Predicate<Character>) (c) -> !Character.isLetterOrDigit(c) && !Character.isWhitespace(c)},
-            {"[all [of the]] [white[]]space char[acter]s in %strings%", (Predicate<Character>) Character::isWhitespace}
+            {"[all [[of] the]] upper[ ]case char[acter]s in %strings%", (Predicate<Character>) Character::isUpperCase},
+            {"[all [[of] the]] lower[ ]case char[acter]s in %strings%", (Predicate<Character>) Character::isLowerCase},
+            {"[all [[of] the]] digit char[acter]s in %strings%", (Predicate<Character>) Character::isDigit},
+            {"[all [[of] the]] special char[acter]s in %strings%", (Predicate<Character>) (c) -> !Character.isLetterOrDigit(c) && !Character.isWhitespace(c)},
+            {"[all [[of] the]] [white[ ]]space char[acter]s in %strings%", (Predicate<Character>) Character::isWhitespace}
         }
     );
     

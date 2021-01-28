@@ -22,7 +22,7 @@ import java.util.Optional;
  * (this is for example numbers, dates, durations and others).
  *
  * @name Difference
- * @pattern difference (between|of) %object% and %object%
+ * @pattern [the] difference (between|of) %object% and %object%
  * @since ALPHA
  * @author Mwexim
  */
@@ -33,7 +33,7 @@ public class ExprDifference implements Expression<Object> {
                 ExprDifference.class,
                 Object.class,
                 true,
-                "difference (between|of) %object% and %object%"
+                "[the] difference (between|of) %object% and %object%"
         );
     }
 
