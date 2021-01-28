@@ -115,15 +115,16 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 		return loop.getLoopedExpression().getReturnType();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object[] getSectionValues(SecLoop loop, TriggerContext ctx) {
 		Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
 		if (isVariableLoop) {
-			@SuppressWarnings("unchecked")
-			final Pair<String, Object> current = (Pair<String, Object>) loop.getArguments()[0];
-			if (current == null) {
+			// loop.getArguments() == null -> is this check dangerous?
+			if (loop.getArguments() == null || loop.getArguments()[0] == null) {
 				return new Object[0];
 			}
+			var current = (Pair<String, Object>) loop.getArguments()[0];
 			if (isIndex) {
 				return new String[] {current.getFirst()};
 			}
@@ -140,10 +141,7 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 	}
 
 	@Override
-	public String toString(final TriggerContext ctx, final boolean debug) {
-		if (ctx == null) {
-			return "loop-" + loopedString;
-		}
+	public String toString(TriggerContext ctx, final boolean debug) {
 		if (isVariableLoop) {
 			@SuppressWarnings("unchecked")
 			final Map.Entry<String, Object> current = (Map.Entry<String, Object>) loop.getCurrent(ctx);
