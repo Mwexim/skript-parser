@@ -20,21 +20,23 @@ import java.util.Optional;
  * The statement inside this effect will only be executed if it matches the given expression.
  * One may use 'or'-lists to match multiple expressions at once.
  * The default part can be used to provide actions when no match was found.
+ * Note that you can only use one default statement and that equivalent matches are prohibited.
  *
  * @name Case
  * @type EFFECT
- * @pattern (case|matche(s|d)) %*objects%[,] (then [do]|do) <.+>
- * @pattern (default|otherwise|no match[es])[,] [(then [do]|do)] <.+>
+ * @pattern (case|when) %*objects%[,] [do] <.+>
+ * @pattern ([by] default|otherwise)[,] [do] <.+>
  * @since ALPHA
  * @author Mwexim
  * @see SecSwitch
  */
-public class EffCase extends Effect implements SecSwitch.MatchingElement {
+public class EffCase extends Effect {
+    // TODO try to omit the 'then' in the first pattern?
     static {
         Parser.getMainRegistration().addEffect(
                 EffCase.class,
-                "(case|matche(s|d)) %*objects%[,] (then [do]|do) <.+>",
-                "(default|otherwise|no match[es])[,] [(then [do]|do)] <.+>"
+                "(case|when) %*objects%[,] then <.+>",
+                "([by] default|otherwise)[,] [do] <.+>"
         );
     }
 
@@ -49,12 +51,12 @@ public class EffCase extends Effect implements SecSwitch.MatchingElement {
         var logger = parseContext.getLogger();
         var latest = parseContext.getParserState().getCurrentSections().get(0);
         if (!(latest instanceof SecSwitch)) {
-            logger.error("You can only use 'case' in a switch!", ErrorType.SEMANTIC_ERROR);
+            logger.error("You can only use 'case'-statement inside a 'switch'-section!", ErrorType.SEMANTIC_ERROR);
             return false;
         }
         switchSection = (SecSwitch) latest;
 
-        isMatching = matchedPattern == 0;
+        isMatching = matchedPattern == 0 || matchedPattern == 1;
         if (isMatching) {
             matchWith = (Expression<Object>) expressions[0];
             if (!matchWith.isSingle() && matchWith.isAndList()) {
@@ -63,7 +65,24 @@ public class EffCase extends Effect implements SecSwitch.MatchingElement {
                         ErrorType.SEMANTIC_ERROR
                 );
                 return false;
+            } else if (switchSection.getDefault().isPresent()) {
+                logger.error(
+                        "A 'case'-section cannot be placed behind a 'default'-statement.",
+                        ErrorType.SEMANTIC_ERROR,
+                        "Place this statement before the 'default'-statement to provide the same behavior."
+                );
+                return false;
             }
+            switchSection.getCases().add(this);
+        } else if (switchSection.getDefault().isPresent()) {
+            logger.error(
+                    "Only one 'default'-statement may be used inside a 'switch'-section",
+                    ErrorType.SEMANTIC_ERROR,
+                    "Merge this section with the other 'default'-section to provide the same behavior."
+            );
+            return false;
+        } else {
+            switchSection.setDefault(this);
         }
 
         String expr = parseContext.getMatches().get(0).group();
@@ -89,7 +108,7 @@ public class EffCase extends Effect implements SecSwitch.MatchingElement {
                             false
                     ))
                     .ifPresent(__ -> {
-                        switchSection.setMatched(true);
+                        switchSection.setDone(true);
                         effect.walk(ctx);
                     });
         } else {
@@ -101,10 +120,5 @@ public class EffCase extends Effect implements SecSwitch.MatchingElement {
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
         return isMatching ? ("case " + matchWith.toString(ctx, debug)) : "default";
-    }
-
-    @Override
-    public boolean isMatching() {
-        return isMatching;
     }
 }

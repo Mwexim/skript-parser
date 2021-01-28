@@ -18,22 +18,23 @@ import java.util.Optional;
  * The content of this section will only be executed if it matches the given expression.
  * One may use 'or'-lists to match multiple expressions at once.
  * The default part can be used to provide actions when no match was found.
+ * Note that you can only use one default statement and that equivalent matches are prohibited.
  *
  * @name Case
  * @type SECTION
- * @pattern (case|matche(s|d)) %*objects%
- * @pattern (default|otherwise|no match[es])
+ * @pattern (case|when) %*objects%
+ * @pattern ([by] default|otherwise)
  * @since ALPHA
  * @author Mwexim
  * @see SecSwitch
  */
 @SuppressWarnings("unchecked")
-public class SecCase extends CodeSection implements SecSwitch.MatchingElement {
+public class SecCase extends CodeSection {
     static {
         Parser.getMainRegistration().addSection(
                 SecCase.class,
-                "(case|matche(s|d)) %*objects%",
-                "(default|otherwise|no match[es])"
+                "(case|when) %*objects%",
+                "([by] default|otherwise)"
         );
     }
 
@@ -46,9 +47,10 @@ public class SecCase extends CodeSection implements SecSwitch.MatchingElement {
         var logger = parseContext.getLogger();
         var latest = parseContext.getParserState().getCurrentSections().get(0);
         if (!(latest instanceof SecSwitch)) {
-            logger.error("You can only use 'case' in a switch!", ErrorType.SEMANTIC_ERROR);
+            logger.error("You can only use a 'case'-statement inside a 'switch'-section!", ErrorType.SEMANTIC_ERROR);
             return false;
         }
+
         switchSection = (SecSwitch) latest;
 
         isMatching = matchedPattern == 0;
@@ -60,7 +62,24 @@ public class SecCase extends CodeSection implements SecSwitch.MatchingElement {
                         ErrorType.SEMANTIC_ERROR
                 );
                 return false;
+            } else if (switchSection.getDefault().isPresent()) {
+                logger.error(
+                        "A 'case'-section cannot be placed behind a 'default'-statement.",
+                        ErrorType.SEMANTIC_ERROR,
+                        "Place this statement before the 'default'-statement to provide the same behavior."
+                );
+                return false;
             }
+            switchSection.getCases().add(this);
+        } else if (switchSection.getDefault().isPresent()) {
+            logger.error(
+                    "Only one 'default'-statement may be used inside a 'switch'-section",
+                    ErrorType.SEMANTIC_ERROR,
+                    "Merge this section with the other 'default'-section to provide the same behavior."
+            );
+            return false;
+        } else {
+            switchSection.setDefault(this);
         }
         return true;
     }
@@ -76,7 +95,7 @@ public class SecCase extends CodeSection implements SecSwitch.MatchingElement {
                             false
                     ))
                     .ifPresent(__ -> {
-                        switchSection.setMatched(true);
+                        switchSection.setDone(true);
                         var item = getFirst();
                         while (!item.equals(getNext())) // Calling equals() on optionals calls equals() on their values
                             item = item.flatMap(i -> i.walk(ctx));
@@ -92,10 +111,5 @@ public class SecCase extends CodeSection implements SecSwitch.MatchingElement {
     @Override
     public String toString(@Nullable TriggerContext ctx, boolean debug) {
         return isMatching ? ("case " + matchWith.toString(ctx, debug)) : "default";
-    }
-
-    @Override
-    public boolean isMatching() {
-        return isMatching;
     }
 }

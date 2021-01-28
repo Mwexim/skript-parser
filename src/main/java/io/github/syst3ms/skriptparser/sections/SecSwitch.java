@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Basic switch control statement. Only {@link SecCase case} sections are allowed within this section.
+ * Basic switch control statement. Only {@link SecCase case} sections/effects are allowed within this section.
  * The given expression will be matched against each case and all matching ones will be run.
  * Note that unlike in Java, each case is run separately.
  * <br>
@@ -41,23 +41,26 @@ import java.util.Optional;
  *
  * @name Switch
  * @type SECTION
- * @pattern (switch|match) %object%
+ * @pattern (switch|for) %object%
  * @since ALPHA
  * @author Mwexim
  * @see SecCase
+ * @see EffCase
  */
 @SuppressWarnings("unchecked")
 public class SecSwitch extends CodeSection {
     static {
         Parser.getMainRegistration().addSection(
                 SecSwitch.class,
-                "(switch|match) %object%"
+                "(switch|for) %object%"
         );
     }
 
     private Expression<Object> matched;
-
-    private boolean hasMatched = false;
+    private final List<Statement> cases = new ArrayList<>();
+    @Nullable
+    private Statement byDefault = null;
+    private boolean isDone = false;
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
@@ -67,24 +70,12 @@ public class SecSwitch extends CodeSection {
 
     @Override
     public Optional<? extends Statement> walk(TriggerContext ctx) {
-        List<Statement> cases = new ArrayList<>();
-        List<Statement> defaults = new ArrayList<>();
-        for (Statement val : getItems()) {
-            var sec = (MatchingElement) val;
-            if (sec.isMatching()) {
-                cases.add(val);
-            } else {
-                defaults.add(val);
-            }
-        }
-
         for (Statement element : cases) {
             element.walk(ctx);
         }
-        if (!hasMatched) {
-            for (Statement element : defaults) {
-                element.walk(ctx);
-            }
+        if (!isDone) {
+            if (byDefault != null)
+                byDefault.walk(ctx);
         }
         return getNext();
     }
@@ -103,18 +94,23 @@ public class SecSwitch extends CodeSection {
         return matched;
     }
 
-    public boolean hasMatched() {
-        return hasMatched;
+    public List<Statement> getCases() {
+        return cases;
     }
 
-    public void setMatched(boolean hasMatched) {
-        this.hasMatched = hasMatched;
+    public Optional<? extends Statement> getDefault() {
+        return Optional.ofNullable(byDefault);
     }
 
-    public interface MatchingElement {
-        /**
-         * @return whether or not this statement will match against something or will act as the default part
-         */
-        boolean isMatching();
+    public void setDefault(Statement byDefault) {
+        this.byDefault = byDefault;
+    }
+
+    public boolean isDone() {
+        return isDone;
+    }
+
+    public void setDone(boolean isDone) {
+        this.isDone = isDone;
     }
 }

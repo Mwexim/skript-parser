@@ -7,7 +7,7 @@ test:
 	switch {var}:
 		case "World":
 			add 1 to {flag::*}
-		matches "Hello":
+		when "Hello":
 			add 2 to {flag::*}
 			set {var2} to 2
 			add 1 to {var2}
@@ -16,11 +16,9 @@ test:
 			add 4 to {flag::*}
 		case 4 or "Hello":
 			add 5 to {flag::*}
+		case "Hello" then add 8 to {flag::*}
 		default:
 			add 6 to {flag::*}
-		otherwise:
-			add 7 to {flag::*}
-		case "Hello" then add 8 to {flag::*}
 
 	# 2, 3, 5 and 8
 	assert {flag::*} = 2, 3, 5 and 8 with "{flag::*} should be 2, 3, 5 and 8: %{flag::*}%"
@@ -30,10 +28,9 @@ test:
 	switch {var}:
 		case 1:
 			add 1 to {flag::*}
-		matches 2 then add 2 to {flag::*}
+		when 2 then add 2 to {flag::*}
 		default:
 			add 3 to {flag::*}
-		otherwise add 4 to {flag::*}
 
 	# 3 and 4
-    assert {flag::*} = 3 and 4 with "{flag::*} should be 3 and 4: %{flag::*}%"
+    assert {flag::*} = 3 with "{flag::*} should be 3: %{flag::*}%"
