@@ -142,6 +142,8 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 
 	@Override
 	public String toString(TriggerContext ctx, final boolean debug) {
+		if (loop == null)
+			return "loop-" + loopedString;
 		if (isVariableLoop) {
 			@SuppressWarnings("unchecked")
 			final Map.Entry<String, Object> current = (Map.Entry<String, Object>) loop.getCurrent(ctx);

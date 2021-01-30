@@ -28,14 +28,14 @@ import java.util.Optional;
  * @author Syst3ms
  * @name Comparison
  * @type CONDITION
- * @pattern [neither] %objects% ((is|are)[(n't| not| neither)] (greater|more|higher|bigger|larger|above) [than] or (equal to|the same as)|\\>=) %objects%
- * @pattern [neither] %objects% ((is|are)[(n't| not| neither)] (less|smaller|below) [than] or (equal to|the same as)|\\<=) %objects%
- * @pattern [neither] %objects% ((is|are)[(n't| not| neither)] ((greater|more|higher|bigger|larger) than|above)|\\>) %objects%
- * @pattern [neither] %objects% ((is|are)[(n't| not| neither)] ((less|smaller) than|below)|\\<) %objects%
- * @pattern [neither] %objects% (is not|are not|isn't|aren't) between %objects% and %objects%
- * @pattern [neither] %objects% (is|are) between %objects% and %objects%
- * @pattern [neither] %objects% ((is|are) (not|neither)|isn't|aren't|!=) [equal to] %objects%
- * @pattern [neither] %objects% (is|are|=) [(equal to|the same as)] %objects%
+ * @pattern [neither] %objects% [each] ((is|are)((n't [each]|[ each] not|[ each] neither)| [each]) (greater|more|higher|bigger|larger|above) [than] or (equal to|the same as)|\>=) %objects% [each|respectively]
+ * @pattern [neither] %objects% [each] ((is|are)((n't [each]|[ each] not|[ each] neither)| [each]) (less|smaller|below) [than] or (equal to|the same as)|\<=) %objects% [each|respectively]
+ * @pattern [neither] %objects% [each] ((is|are)((n't [each]|[ each] not|[ each] neither)| [each]) ((greater|more|higher|bigger|larger) than|above)|\>) %objects% [each|respectively]
+ * @pattern [neither] %objects% [each] ((is|are)((n't [each]|[ each] not|[ each] neither)| [each]) ((less|smaller) than|below)|\<) %objects% [each|respectively]
+ * @pattern [neither] %objects% [each] (is|are)(n't [each]|[ each] not) between %objects% and %objects% [each|respectively]
+ * @pattern [neither] %objects% [each] (is|are) [each] between %objects% and %objects% [each|respectively]
+ * @pattern [neither] %objects% [each] ((is|are)((n't [each]|[ each] not|[ each] neither)) [equal to]|!=) %objects% [each|respectively]
+ * @pattern [neither] %objects% [each] ((is|are) [each] [equal to|the same as]|[=]=) %objects% [each|respectively]
  * @since ALPHA
  */
 public class CondExprCompare extends ConditionalExpression {
@@ -47,7 +47,7 @@ public class CondExprCompare extends ConditionalExpression {
             {"[1:neither] %objects% [8:each] (is|are)(2:n't [8:each]|2:[8: each] not) between %objects% and %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
             {"[1:neither] %objects% [8:each] (is|are) [8:each] between %objects% and %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
             {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither)) [equal to]|2:!=) %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
-            {"[1:neither] %objects% [8:each] ((is|are) [8:each] [equal to|the same as]|=) %objects% [0x10:each|0x18:respectively]", Relation.EQUAL}
+            {"[1:neither] %objects% [8:each] ((is|are) [8:each] [equal to|the same as]|=[=]) %objects% [0x10:each|0x18:respectively]", Relation.EQUAL}
     }
     );
 

@@ -104,5 +104,4 @@ public abstract class SectionValue<S extends ArgumentSection, T> implements Expr
      * @return the class of the {@link ArgumentSection} this {@code SectionValue} is linked to.
      */
     public abstract Class<? extends S> getSectionClass();
-
 }
