@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -120,7 +119,6 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 	public Object[] getSectionValues(SecLoop loop, TriggerContext ctx) {
 		Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
 		if (isVariableLoop) {
-			// loop.getArguments() == null -> is this check dangerous?
 			if (loop.getArguments() == null || loop.getArguments()[0] == null) {
 				return new Object[0];
 			}
@@ -145,13 +143,9 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 		if (loop == null)
 			return "loop-" + loopedString;
 		if (isVariableLoop) {
-			@SuppressWarnings("unchecked")
-			final Map.Entry<String, Object> current = (Map.Entry<String, Object>) loop.getCurrent(ctx);
-			if (current == null)
-				return TypeManager.NULL_REPRESENTATION;
-			return isIndex ? "\"" + current.getKey() + "\"" : TypeManager.toString(current.getValue());
+			var variable = (Variable<?>) loop.getLoopedExpression();
+			return isIndex ? "\"" + variable.getIndex(ctx) + "\"" : variable.toString(ctx, debug);
 		}
-		return TypeManager.toString(loop.getCurrent(ctx));
+		return loop.getLoopedExpression().toString(ctx, debug);
 	}
-
 }
