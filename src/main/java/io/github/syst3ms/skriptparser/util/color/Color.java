@@ -94,17 +94,17 @@ public class Color {
      * @param isAlpha whether or not the alpha parameter is present
      * @return a new Color instance
      */
-    public static Color of(int hex, boolean isAlpha) {
+    public static Color of(long hex, boolean isAlpha) {
         if (isAlpha) {
-            int r = (hex & 0xFF000000) >> 24;
-            int g = (hex & 0xFF0000) >> 16;
-            int b = (hex & 0xFF00) >> 8;
-            int a = (hex & 0xFF);
+            int r = (int) ((hex & 0xFF000000) >> 24);
+            int g = (int) ((hex & 0xFF0000) >> 16);
+            int b = (int) ((hex & 0xFF00) >> 8);
+            int a = (int) (hex & 0xFF);
             return new Color(r, g, b, a);
         } else {
-            int r = (hex & 0xFF0000) >> 16;
-            int g = (hex & 0xFF00) >> 8;
-            int b = (hex & 0xFF);
+            int r = (int) ((hex & 0xFF0000) >> 16);
+            int g = (int) ((hex & 0xFF00) >> 8);
+            int b = (int) (hex & 0xFF);
             return new Color(r, g, b);
         }
     }
@@ -129,7 +129,7 @@ public class Color {
             case 6:
                 return of(Integer.parseInt(hex, 16));
             case 8:
-                return of(Integer.parseInt(hex, 16), true);
+                return of(Long.parseLong(hex, 16), true);
             default:
                 throw new IllegalStateException();
         }
