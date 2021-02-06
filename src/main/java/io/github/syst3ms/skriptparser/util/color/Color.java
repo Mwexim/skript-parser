@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.util.color;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static java.util.Map.entry;
@@ -10,7 +11,9 @@ import static java.util.Map.entry;
  * @author Mwexim
  */
 public class Color {
-    public static final Pattern COLOR_PATTERN = Pattern.compile("#[0-9a-f]{6}");
+    public static final Pattern COLOR_PATTERN = Pattern.compile("([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})");
+    public static final int MIN_VALUE = 0;
+    public static final int MAX_VALUE = 255;
 
     private static final Map<String, Color> COLOR_CONSTANTS = Map.ofEntries(
         entry("WHITE", of(0xffffff)),
@@ -31,18 +34,24 @@ public class Color {
         entry("PURPLE", of(0x800080))
     );
 
-    private final int red, green, blue;
+    private final int red, green, blue, alpha;
 
     private Color(int r, int g, int b) {
+        this(r, g, b, MAX_VALUE);
+    }
+
+    private Color(int r, int g, int b, int a) {
         if (0 <= r && r < 256
                 && 0 <= g && g < 256
-                && 0 <= b && b < 256) {
+                && 0 <= b && b < 256
+                && 0 <= a && a < 256) {
             red = r;
             green = g;
             blue = b;
+            alpha = a;
         } else {
             throw new IllegalArgumentException(
-                    String.format("Red, green and blue values are not in range 0-255: found %s,%s,%s", r, g, b)
+                    String.format("RGBA values are not in range 0-255: found %s,%s,%s,%s", r, g, b, a)
             );
         }
     }
@@ -60,23 +69,70 @@ public class Color {
 
     /**
      * The Color instance of given hex value.
-     * @param hex the hexadecimal value
+     * @param r the red value
+     * @param g the green value
+     * @param b the blue value
+     * @param a the alpha value
      * @return a new Color instance
      */
-    public static Color of(int hex) {
-        int r = (hex & 0xFF0000) >> 16;
-        int g = (hex & 0xFF00) >> 8;
-        int b = (hex & 0xFF);
-        return new Color(r, g, b);
+    public static Color of(int r, int g, int b, int a) {
+        return new Color(r, g, b, a);
     }
 
     /**
      * The Color instance of given hex value.
-     * @param hex the hexadecimal value in String form (like #xxxxxx)
+     * @param hex the hexadecimal value
      * @return a new Color instance
      */
-    public static Color of(String hex) {
-        return of(Integer.parseInt(hex.substring(1), 16));
+    public static Color of(int hex) {
+        return of(hex, false);
+    }
+
+    /**
+     * The Color instance of given hex value.
+     * @param hex the hexadecimal value
+     * @param isAlpha whether or not the alpha parameter is present
+     * @return a new Color instance
+     */
+    public static Color of(int hex, boolean isAlpha) {
+        if (isAlpha) {
+            int r = (hex & 0xFF000000) >> 24;
+            int g = (hex & 0xFF0000) >> 16;
+            int b = (hex & 0xFF00) >> 8;
+            int a = (hex & 0xFF);
+            return new Color(r, g, b, a);
+        } else {
+            int r = (hex & 0xFF0000) >> 16;
+            int g = (hex & 0xFF00) >> 8;
+            int b = (hex & 0xFF);
+            return new Color(r, g, b);
+        }
+    }
+
+    /**
+     * The Color instance of given hex value.
+     * @param hex the hexadecimal value in String form
+     * @return a new Color instance
+     * @see #COLOR_PATTERN
+     */
+    public static Color ofHex(String hex) {
+        if (!hex.matches(COLOR_PATTERN.pattern()))
+            throw new IllegalArgumentException("Invalid hex format: " + hex);
+
+        switch (hex.length()) {
+            case 3:
+                var builder = new StringBuilder();
+                for (char c : hex.toCharArray()) {
+                    builder.append(c).append(c);
+                }
+                return of(Integer.parseInt(builder.toString(), 16));
+            case 6:
+                return of(Integer.parseInt(hex, 16));
+            case 8:
+                return of(Integer.parseInt(hex, 16), true);
+            default:
+                throw new IllegalStateException();
+        }
     }
 
     /**
@@ -84,9 +140,12 @@ public class Color {
      * @param literal the literal value, like 'yellow' or 'green'.
      * @return a new Color instance
      */
-    public static Color ofLiteral(String literal) {
+    public static Optional<Color> ofLiteral(String literal) {
         String actual = literal.replaceAll(" ", "_").toUpperCase();
-        return COLOR_CONSTANTS.get(actual);
+        if (COLOR_CONSTANTS.containsKey(actual)) {
+            return Optional.of(COLOR_CONSTANTS.get(actual));
+        }
+        return Optional.empty();
     }
 
     /**
@@ -111,10 +170,23 @@ public class Color {
     }
 
     /**
+     * @return the transparency, ranging from 0 to 1, of this color
+     */
+    public int getAlpha() {
+        return alpha;
+    }
+
+    /**
      * @return the hex value of this color, without the '#' appended
      */
     public String getHex() {
-        return String.format("%02x%02x%02x", red, green, blue);
+        return alpha == 255
+                ? String.format("%02x%02x%02x", red, green, blue)
+                : String.format("%02x%02x%02x%02x", red, green, blue, alpha);
+    }
+
+    public java.awt.Color toJavaColor() {
+        return new java.awt.Color(red, green, blue, alpha);
     }
 
     @Override
@@ -124,7 +196,7 @@ public class Color {
         if (o == null || getClass() != o.getClass())
             return false;
         Color color = (Color) o;
-        return red == color.red && green == color.green && blue == color.blue;
+        return red == color.red && green == color.green && blue == color.blue && alpha == color.alpha;
     }
 
     @Override
