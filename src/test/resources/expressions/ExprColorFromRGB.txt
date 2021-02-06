@@ -3,5 +3,8 @@
 # Date: 2020/12/22
 
 test:
-	set {var} to color from rgb 169, 3, 252
-	assert {var} = &a903fc with "Colors do not match: %{var}% != %&a903fc%"
+	set {var} to color from rgb (169, 3 and 252)
+	assert {var} = color from hex "a903fc" with "Colors do not match: %{var}% != a903fc"
+
+	set {var} to color from rgb (72, 184, 35 and 103)
+	assert {var} = color from hex "48b82367" with "Colors do not match: %{var}% != 48b82367"
