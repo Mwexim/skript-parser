@@ -688,6 +688,7 @@ public class SkriptRegistration {
          * Registers a {@link ContextValue}
          * @param context the context this value appears in
          * @param returnType the returned type of this context value
+         * @param isSingle whether or not this value is single
          * @param name the name of this context value (used in the suffix)
          * @param contextFunction the function that needs to be applied in order to get the context value
          * @param <C> the context class
@@ -705,6 +706,7 @@ public class SkriptRegistration {
          * Registers a {@link ContextValue}
          * @param context the context this value appears in
          * @param returnType the returned type of this context value
+         * @param isSingle whether or not this value is single
          * @param name the name of this context value (used in the suffix)
          * @param contextFunction the function that needs to be applied in order to get the context value
          * @param time whether this happens in the present, past or future
