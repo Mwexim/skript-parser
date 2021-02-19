@@ -155,6 +155,7 @@ public class SyntaxParser {
         if (!expectedType.isSingle()) {
             var listLiteral = parseListLiteral(s, expectedType, parserState, logger);
             if (listLiteral.isPresent()) {
+                logger.clearErrors();
                 return listLiteral;
             }
         }
