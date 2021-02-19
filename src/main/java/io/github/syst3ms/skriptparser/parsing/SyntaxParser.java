@@ -7,10 +7,15 @@ import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.log.ErrorContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
+import io.github.syst3ms.skriptparser.pattern.PatternElement;
+import io.github.syst3ms.skriptparser.pattern.PatternParser;
 import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SkriptEventInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueState;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
@@ -64,6 +69,10 @@ public class SyntaxParser {
     // Gradle requires the cast, but IntelliJ considers it redundant
     public static final PatternType<Object> OBJECTS_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class).orElseThrow(AssertionError::new), false);
 
+
+    // We control input, so new SkriptLogger instance is fine
+    public static final PatternElement CONTEXT_VALUE_PATTERN = PatternParser.parsePattern("[the] [(1:(past|previous)|2:(future|next))] <.+>", new SkriptLogger()).orElseThrow();
+
     public static final ExpressionInfo<ExprBooleanOperators, Boolean> EXPRESSION_BOOLEAN_OPERATORS
             = (ExpressionInfo<ExprBooleanOperators, Boolean>) SyntaxManager.getAllExpressions().stream()
             .filter(i -> i.getSyntaxClass() == ExprBooleanOperators.class)
@@ -90,6 +99,10 @@ public class SyntaxParser {
      * All {@link ConditionalExpression conditions} that are successfully parsed during parsing, in order of last successful parsing
      */
     private static final RecentElementList<ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>> recentConditions = new RecentElementList<>();
+    /**
+     * All {@link ContextValue context values} that are successfully parsed during parsing, in order of last successful parsing
+     */
+    private static final RecentElementList<ContextValue<?>> recentContextValues = new RecentElementList<>();
 
     /**
      * Parses an {@link Expression} from the given {@linkplain String} and {@link PatternType expected return type}
@@ -167,6 +180,14 @@ public class SyntaxParser {
             }
             logger.forgetError();
         }
+
+        // Parsing of standalone context values
+        var contextValue = parseContextValue(s, expectedType, parserState, logger);
+        if (contextValue.isPresent()) {
+            logger.clearErrors();
+            return contextValue;
+        }
+
         logger.setContext(ErrorContext.NO_MATCH);
         logger.error("No expression matching '" + s + "' was found", ErrorType.NO_MATCH);
         return Optional.empty();
@@ -292,6 +313,63 @@ public class SyntaxParser {
         }
         logger.setContext(ErrorContext.NO_MATCH);
         logger.error("No expression matching '" + s + "' was found", ErrorType.NO_MATCH);
+        return Optional.empty();
+    }
+
+    /**
+     * Parses a {@link ContextValue} from the given {@linkplain String} and {@link PatternType expected return type}
+     * @param <T> the type of the context value
+     * @param toParse the string to be parsed as a context value
+     * @param expectedType the expected return type
+     * @param parserState the current parser state
+     * @param logger the logger
+     * @return an expression that was successfully parsed, or {@literal null} if the string is empty,
+     * no match was found
+     * or for another reason detailed in an error message.
+     */
+    public static <T> Optional<? extends Expression<? extends T>> parseContextValue(String toParse, PatternType<T> expectedType, ParserState parserState, SkriptLogger logger) {
+        var matchContext = new MatchContext(CONTEXT_VALUE_PATTERN, parserState, logger);
+        CONTEXT_VALUE_PATTERN.match(toParse, 0, matchContext);
+
+        var parseContext = matchContext.toParseResult();
+        var time = ContextValueState.values()[parseContext.getParseMark()];
+        var name = parseContext.getMatches().get(0).group();
+        for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
+            String representation = (time == ContextValueState.PAST
+                    ? "past " : time == ContextValueState.FUTURE
+                    ? "future "
+                    : "") + name;
+
+            // First check frequently-used values
+            for (var val : recentContextValues) {
+                if (val.matches(ctx, name, time, true)) {
+                    var contextValue = (ContextValue<T>) val;
+                    recentContextValues.acknowledge(contextValue);
+                    return Optional.of(new SimpleExpression<>(
+                            contextValue.getType().getTypeClass(),
+                            contextValue.isSingle(),
+                            contextValue.getContextFunction(),
+                            representation
+                    ));
+                }
+            }
+
+            // Let's not loop over the same elements again
+            var remainingContextValues = ContextValues.getContextValues();
+            recentContextValues.removeFrom(remainingContextValues);
+            for (var val : remainingContextValues) {
+                if (val.matches(ctx, name, time, true)) {
+                    var contextValue = (ContextValue<T>) val;
+                    recentContextValues.acknowledge(contextValue);
+                    return Optional.of(new SimpleExpression<>(
+                            contextValue.getType().getTypeClass(),
+                            contextValue.isSingle(),
+                            contextValue.getContextFunction(),
+                            representation
+                    ));
+                }
+            }
+        }
         return Optional.empty();
     }
 

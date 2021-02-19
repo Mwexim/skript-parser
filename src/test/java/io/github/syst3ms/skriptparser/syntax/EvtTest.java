@@ -20,9 +20,10 @@ import org.jetbrains.annotations.Nullable;
 public class EvtTest extends SkriptEvent {
 	static {
 		Parser.getMainRegistration()
-			.newEvent(EvtTest.class, "*test [[only] when %=boolean%]")
-			.setHandledContexts(TestContext.class)
-			.register();
+				.newEvent(EvtTest.class, "*test [[only] when %=boolean%]")
+				.setHandledContexts(TestContext.class)
+				.addContextValue(TestContext.class, String.class, true, "*test", __ -> new String[] {"Hello World!"})
+				.register();
 	}
 
 	private Expression<Boolean> condition;

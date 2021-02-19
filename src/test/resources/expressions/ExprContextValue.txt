@@ -1,0 +1,10 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2020/12/29
+
+test:
+	assert context-test = "Hello World!" with "Context value 'test' should be 'Hello World!': %context-test%"
+	assert test = "Hello World!" with "Standalone context value 'test' should be 'Hello World!': %test%"
+
+	throws context-arguments # Not registered as context value for this event
+	throws future context-test

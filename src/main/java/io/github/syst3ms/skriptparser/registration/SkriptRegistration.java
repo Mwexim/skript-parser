@@ -34,7 +34,6 @@ import java.util.function.Function;
  */
 public class SkriptRegistration {
     private final SkriptAddon registerer;
-    private final PatternParser patternParser;
     private final SkriptLogger logger = new SkriptLogger();
     private final MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
     private final List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
@@ -48,7 +47,6 @@ public class SkriptRegistration {
 
     public SkriptRegistration(SkriptAddon registerer) {
         this.registerer = registerer;
-        this.patternParser = new PatternParser();
     }
 
     /**
@@ -184,8 +182,8 @@ public class SkriptRegistration {
      */
     public <C extends Expression<T>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
         return new ExpressionRegistrar<>(c, returnType, isSingle,
-                checkPrefix(ownerType) + "'[s] " + property,
-                (property.startsWith("[the]") ? property : "[the] " + property) + " of " + checkPrefix(ownerType));
+                adaptPropertyPrefix(ownerType) + "'[s] " + property,
+                (property.startsWith("[the]") ? property : "[the] " + property) + " of " + adaptPropertyPrefix(ownerType));
     }
 
     /**
@@ -200,8 +198,8 @@ public class SkriptRegistration {
      */
     public <C extends Expression<T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
         new ExpressionRegistrar<>(c, returnType, isSingle,
-                checkPrefix(ownerType) + "'[s] " + property,
-                (property.startsWith("[the]") ? property : "[the] " + property) + " of " + checkPrefix(ownerType))
+                adaptPropertyPrefix(ownerType) + "'[s] " + property,
+                (property.startsWith("[the]") ? property : "[the] " + property) + " of " + adaptPropertyPrefix(ownerType))
                 .register();
     }
 
@@ -218,8 +216,8 @@ public class SkriptRegistration {
      */
     public <C extends Expression<T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, int priority, String ownerType, String property) {
         new ExpressionRegistrar<>(c, returnType, isSingle,
-                checkPrefix(ownerType) + "'[s] " + property,
-                (property.startsWith("[the]") ? property : "[the] " + property) + " of " + checkPrefix(ownerType))
+                adaptPropertyPrefix(ownerType) + "'[s] " + property,
+                (property.startsWith("[the]") ? property : "[the] " + property) + " of " + adaptPropertyPrefix(ownerType))
                 .setPriority(priority)
                 .register();
     }
@@ -576,7 +574,7 @@ public class SkriptRegistration {
             List<PatternElement> elements = new ArrayList<>();
             boolean computePriority = priority == -1;
             priority = computePriority ? 5 : priority;
-            super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(e -> {
+            super.patterns.forEach(s -> PatternParser.parsePattern(s, logger).ifPresent(e -> {
                 if (computePriority)
                     setPriority(Math.min(priority, findAppropriatePriority(e)));
                 elements.add(e);
@@ -606,7 +604,7 @@ public class SkriptRegistration {
             List<PatternElement> elements = new ArrayList<>();
             boolean computePriority = priority == -1;
             priority = computePriority ? 5 : priority;
-            super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(e -> {
+            super.patterns.forEach(s -> PatternParser.parsePattern(s, logger).ifPresent(e -> {
                 if (computePriority)
                     setPriority(Math.min(priority, findAppropriatePriority(e)));
                 elements.add(e);
@@ -631,7 +629,7 @@ public class SkriptRegistration {
             List<PatternElement> elements = new ArrayList<>();
             boolean computePriority = priority == -1;
             priority = computePriority ? 5 : priority;
-            super.patterns.forEach(s -> patternParser.parsePattern(s, logger).ifPresent(e -> {
+            super.patterns.forEach(s -> PatternParser.parsePattern(s, logger).ifPresent(e -> {
                 if (computePriority)
                     setPriority(Math.min(priority, findAppropriatePriority(e)));
                 elements.add(e);
@@ -643,7 +641,7 @@ public class SkriptRegistration {
 
     @SuppressWarnings("unchecked")
     public class EventRegistrar<T extends SkriptEvent> extends SyntaxRegistrar<T> {
-        private Class<? extends TriggerContext>[] handledContexts;
+        private Set<Class<? extends TriggerContext>> handledContexts = new HashSet<>();
 
         EventRegistrar(Class<T> c, String... patterns) {
             super(c, patterns);
@@ -664,7 +662,7 @@ public class SkriptRegistration {
                 } else {
                     s = "[on] " + s;
                 }
-                patternParser.parsePattern(s, logger).ifPresent(e -> {
+                PatternParser.parsePattern(s, logger).ifPresent(e -> {
                     if (computePriority)
                         setPriority(Math.min(priority, findAppropriatePriority(e)));
                     elements.add(e);
@@ -682,38 +680,44 @@ public class SkriptRegistration {
          */
         @SafeVarargs
         public final EventRegistrar<T> setHandledContexts(Class<? extends TriggerContext>... contexts) {
-            this.handledContexts = contexts;
+            this.handledContexts = Set.of(contexts);
             return this;
         }
 
         /**
          * Registers a {@link ContextValue}
          * @param context the context this value appears in
-         * @param type the returned type of this context value
+         * @param returnType the returned type of this context value
+         * @param isSingle whether or not this value is single
          * @param name the name of this context value (used in the suffix)
          * @param contextFunction the function that needs to be applied in order to get the context value
          * @param <C> the context class
-         * @param <T2> the type class
+         * @param <R> the type class
          * @return the registrar
          */
-        public final <C extends TriggerContext, T2> EventRegistrar<T> addContextValue(Class<C> context, Class<T2> type, String name, Function<C, T2[]> contextFunction) {
-            contextValues.add(new ContextValue<>(context, type, name, (Function<TriggerContext, T2[]>) contextFunction));
+        public final <C extends TriggerContext, R> EventRegistrar<T> addContextValue(Class<C> context, Class<R> returnType, boolean isSingle, String name, Function<C, R[]> contextFunction) {
+            var type = (Type<R>) TypeManager.getByClass(returnType).orElseThrow();
+            var pattern = removePrefix(name);
+            contextValues.add(new ContextValue<>(context, type, isSingle, pattern, (Function<TriggerContext, R[]>) contextFunction, name.startsWith("*")));
             return this;
         }
 
         /**
          * Registers a {@link ContextValue}
          * @param context the context this value appears in
-         * @param type the returned type of this context value
+         * @param returnType the returned type of this context value
+         * @param isSingle whether or not this value is single
          * @param name the name of this context value (used in the suffix)
          * @param contextFunction the function that needs to be applied in order to get the context value
          * @param time whether this happens in the present, past or future
          * @param <C> the context class
-         * @param <T2> the type class
+         * @param <R> the type class
          * @return the registrar
          */
-        public final <C extends TriggerContext, T2> EventRegistrar<T> addContextValue(Class<C> context, Class<T2> type, String name, Function<C, T2[]> contextFunction, ContextValueState time) {
-            contextValues.add(new ContextValue<>(context, type, name, (Function<TriggerContext, T2[]>) contextFunction, time));
+        public final <C extends TriggerContext, R> EventRegistrar<T> addContextValue(Class<C> context, Class<R> returnType, boolean isSingle, String name, Function<C, R[]> contextFunction, ContextValueState time) {
+            var type = (Type<R>) TypeManager.getByClass(returnType).orElseThrow();
+            var pattern = removePrefix(name);
+            contextValues.add(new ContextValue<>(context, type, isSingle, pattern, (Function<TriggerContext, R[]>) contextFunction, time, name.startsWith("*")));
             return this;
         }
     }
@@ -725,8 +729,12 @@ public class SkriptRegistration {
         }
     }
 
-    private String checkPrefix(String str) {
+    private String adaptPropertyPrefix(String str) {
         return str.startsWith("*") ? str.substring(1) : "%" + str + "%";
+    }
+
+    private String removePrefix(String str) {
+        return str.startsWith("*") ? str.substring(1) : str;
     }
 
     private int findAppropriatePriority(PatternElement el) {

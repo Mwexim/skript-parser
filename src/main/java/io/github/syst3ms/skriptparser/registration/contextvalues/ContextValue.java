@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.registration.contextvalues;
 
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.types.Type;
 
 import java.util.function.Function;
 
@@ -9,36 +10,69 @@ import java.util.function.Function;
  */
 public class ContextValue<T> {
     private final Class<? extends TriggerContext> context;
-    private final Class<T> type;
+    private final Type<T> type;
+    private final boolean isSingle;
     private final String name;
     private final Function<TriggerContext, T[]> contextFunction;
     private final ContextValueState time;
+    private final boolean standalone;
 
     /**
      * Construct a context value.
-     *
-     * @param context         the specific {@link TriggerContext} class
-     * @param name            the suffix of this value
+     * @param context the specific {@link TriggerContext} class.
+     * @param type the return type
+     * @param isSingle whether this value is single
+     * @param name the name of this value
      * @param contextFunction the function to apply to the context
      */
-    public ContextValue(Class<? extends TriggerContext> context, Class<T> type, String name, Function<TriggerContext, T[]> contextFunction) {
-        this(context, type, name, contextFunction, ContextValueState.PRESENT);
+    public ContextValue(Class<? extends TriggerContext> context, Type<T> type, boolean isSingle, String name, Function<TriggerContext, T[]> contextFunction) {
+        this(context, type, isSingle, name, contextFunction, false);
     }
 
     /**
      * Construct a context value.
-     *
-     * @param context         the specific {@link TriggerContext} class
-     * @param name            the suffix of this value
+     * @param context the specific {@link TriggerContext} class.
+     * @param type the return type
+     * @param isSingle whether this value is single
+     * @param name the name of this value
      * @param contextFunction the function to apply to the context
-     * @param time            whether this value represent a present, past or future state
+     * @param standalone whether or not this value can be used alone
      */
-    public ContextValue(Class<? extends TriggerContext> context, Class<T> type, String name, Function<TriggerContext, T[]> contextFunction, ContextValueState time) {
+    public ContextValue(Class<? extends TriggerContext> context, Type<T> type, boolean isSingle, String name, Function<TriggerContext, T[]> contextFunction, boolean standalone) {
+        this(context, type, isSingle, name, contextFunction, ContextValueState.PRESENT, standalone);
+    }
+
+    /**
+     * Construct a context value.
+     * @param context the specific {@link TriggerContext} class.
+     * @param type the return type
+     * @param isSingle whether this value is single
+     * @param name the name of this value
+     * @param contextFunction the function to apply to the context
+     * @param time the time of this value
+     */
+    public ContextValue(Class<? extends TriggerContext> context, Type<T> type, boolean isSingle, String name, Function<TriggerContext, T[]> contextFunction, ContextValueState time) {
+        this(context, type, isSingle, name, contextFunction, time, false);
+    }
+
+    /**
+     * Construct a context value.
+     * @param context the specific {@link TriggerContext} class.
+     * @param type the return type
+     * @param isSingle whether this value is single
+     * @param name the name of this value
+     * @param contextFunction the function to apply to the context
+     * @param time the time of this value
+     * @param standalone whether or not this value can be used alone
+     */
+    public ContextValue(Class<? extends TriggerContext> context, Type<T> type, boolean isSingle, String name, Function<TriggerContext, T[]> contextFunction, ContextValueState time, boolean standalone) {
         this.context = context;
         this.type = type;
+        this.isSingle = isSingle;
         this.name = name;
         this.contextFunction = contextFunction;
         this.time = time;
+        this.standalone = standalone;
     }
 
     public Class<? extends TriggerContext> getContext() {
@@ -46,10 +80,14 @@ public class ContextValue<T> {
     }
 
     /**
-     * @return the returned type of this context value
+     * @return the Type associated with this context value
      */
-    public Class<T> getType() {
+    public Type<T> getType() {
         return type;
+    }
+
+    public boolean isSingle() {
+        return isSingle;
     }
 
     /**
@@ -75,9 +113,21 @@ public class ContextValue<T> {
         return time;
     }
 
+    /**
+     * @return whether this value can be used alone
+     */
+    public boolean isStandalone() {
+        return standalone;
+    }
+
     public boolean matches(Class<? extends TriggerContext> handledContext, String name, ContextValueState time) {
-        return handledContext.equals(this.context)
+        return matches(handledContext, name, time, false);
+    }
+
+    public boolean matches(Class<? extends TriggerContext> handledContext, String name, ContextValueState time, boolean standalone) {
+        return this.context.isAssignableFrom(handledContext)
                 && this.name.equalsIgnoreCase(name)
-                && this.time.equals(time);
+                && this.time == time
+                && (this.standalone || this.standalone == standalone);
     }
 }
