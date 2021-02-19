@@ -21,19 +21,19 @@ test:
 	assert {list::8} is false with "{list::8} should be false: %{list::8}%"
 
 	# These will be used when #83 is successfully pushed
-#	 set {list::1} to true or true
-#	 set {list::2} to true or false
-#	 set {list::3} to false or true
-#	 set {list::4} to false or false
-#	 set {list::5} to true and true
-#	 set {list::6} to true and false
-#	 set {list::7} to false and true
-#	 set {list::8} to false and false
-#	 assert {list::1} is true with "{list::1} should be true: %{list::1}%"
-#	 assert {list::2} is true with "{list::2} should be true: %{list::2}%"
-#	 assert {list::3} is true with "{list::3} should be true: %{list::3}%"
-#	 assert {list::4} is false with "{list::4} should be false: %{list::4}%"
-#	 assert {list::5} is true with "{list::5} should be true: %{list::5}%"
-#	 assert {list::6} is false with "{list::6} should be false: %{list::6}%"
-#	 assert {list::7} is false with "{list::7} should be false: %{list::7}%"
-#	 assert {list::8} is false with "{list::8} should be false: %{list::8}%"
+	set {list::1} to true or true
+	set {list::2} to true or false
+	set {list::3} to false or true
+	set {list::4} to false or false
+	set {list::5} to true and true
+	set {list::6} to true and false
+	set {list::7} to false and true
+	set {list::8} to false and false
+	assert {list::1} is true with "{list::1} should be true: %{list::1}%"
+	assert {list::2} is true with "{list::2} should be true: %{list::2}%"
+	assert {list::3} is true with "{list::3} should be true: %{list::3}%"
+	assert {list::4} is false with "{list::4} should be false: %{list::4}%"
+	assert {list::5} is true with "{list::5} should be true: %{list::5}%"
+	assert {list::6} is false with "{list::6} should be false: %{list::6}%"
+	assert {list::7} is false with "{list::7} should be false: %{list::7}%"
+	assert {list::8} is false with "{list::8} should be false: %{list::8}%"

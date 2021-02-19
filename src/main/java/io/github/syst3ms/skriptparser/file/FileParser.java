@@ -3,6 +3,8 @@ package io.github.syst3ms.skriptparser.file;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.util.FileUtils;
+import io.github.syst3ms.skriptparser.util.color.Color;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,21 +28,19 @@ public class FileParser {
      * @param logger the logger
      * @return a list of {@link FileElement}s
      */
-    public List<FileElement> parseFileLines(String fileName, List<String> lines, int expectedIndentation, int lastLine, SkriptLogger logger) {
+    public static List<FileElement> parseFileLines(String fileName, List<String> lines, int expectedIndentation, int lastLine, SkriptLogger logger) {
         List<FileElement> elements = new ArrayList<>();
         for (var i = 0; i < lines.size(); i++) {
             var line = lines.get(i);
-            String content;
-            var m = LINE_PATTERN.matcher(line);
-            if (m.matches()) {
-                content = m.group(1).replace("##", "#").strip();
-            } else {
+            String content = removeComments(line);
+
+            if (content == null) {
                 content = line.replace("##", "#").strip();
-            }
-            if (content.matches("[\\s#]*")) {
+            } else if (content.isEmpty()) {
                 elements.add(new VoidElement(fileName, lastLine + i, expectedIndentation));
                 continue;
             }
+
             var lineIndentation = FileUtils.getIndentationLevel(line, false);
             if (lineIndentation > expectedIndentation) { // The line is indented too much
                 logger.error(
@@ -73,7 +73,7 @@ public class FileParser {
         return elements;
     }
 
-    private int count(List<FileElement> elements) {
+    private static int count(List<FileElement> elements) {
         var count = 0;
         for (var element : elements) {
             if (element instanceof FileSection) {
@@ -83,5 +83,48 @@ public class FileParser {
             }
         }
         return count;
+    }
+
+    /**
+     * Removes all comments from a given String
+     * @param string the String
+     * @return the String with the comments removed; {@literal null} if no comments were found; an empty string if the whole String was a comment
+     */
+    @Nullable
+    private static String removeComments(String string) {
+        if (string.matches("^[\\s\\t]*#[^#]+") || string.equals("#") || string.isBlank()) {
+            return ""; // Whole string is a comment
+        }
+
+        var builder = new StringBuilder();
+        outer:
+        for (int i = 0; i < string.length(); i++) {
+            char c = string.charAt(i);
+
+            if (c == '#') {
+                if (string.charAt(i + 1) == '#') {
+                    builder.append(c).append(string.charAt(++i));
+                } else {
+                    var checked = string.substring(i + 1);
+                    for (int j : new int[] {3, 6, 8}) {
+                        if (checked.length() >= j
+                                && Color.COLOR_PATTERN.matcher(checked.substring(0, j)).matches()) {
+                            builder.append(c).append(checked, 0, j);
+                            i+=j;
+                            continue outer;
+                        }
+                    }
+
+                    // Comment was found. Erase it from the string
+                    assert !builder.toString().isEmpty();
+                    return builder.toString().strip();
+                }
+            } else {
+                builder.append(c);
+            }
+        }
+        if (builder.toString().equals(string))
+            return null;
+        return builder.toString().strip();
     }
 }

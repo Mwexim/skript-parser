@@ -1,0 +1,12 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2021/02/06
+
+test:
+	# These are some general tests on comments, since their parsing behavior changed in the last commit.
+	# Comments will probably be merged with multiline syntax to operate in one single structure (planned for 0.2)
+	throws #ff0000 # It's a color.
+	throws "##BlackLivesMatter" = "#BlackLivesMatter"
+
+	throws true ###= false
+	assert true # ##= false

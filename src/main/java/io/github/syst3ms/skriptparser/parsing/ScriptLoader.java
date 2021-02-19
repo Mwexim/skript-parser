@@ -33,14 +33,13 @@ public class ScriptLoader {
      * @param debug whether debug is enabled
      */
     public static List<LogEntry> loadScript(Path scriptPath, boolean debug) {
-        var parser = new FileParser();
         var logger = new SkriptLogger(debug);
         List<FileElement> elements;
         String scriptName;
         try {
             var lines = FileUtils.readAllLines(scriptPath);
             scriptName = scriptPath.getFileName().toString().replaceAll("(.+)\\..+", "$1");
-            elements = parser.parseFileLines(scriptName,
+            elements = FileParser.parseFileLines(scriptName,
                     lines,
                     0,
                     1,
