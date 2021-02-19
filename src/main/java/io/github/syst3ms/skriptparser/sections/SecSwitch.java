@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.sections;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.effects.EffCase;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
@@ -41,18 +40,17 @@ import java.util.Optional;
  *
  * @name Switch
  * @type SECTION
- * @pattern (switch|for) %object%
+ * @pattern (switch|given|match) %object%
  * @since ALPHA
  * @author Mwexim
  * @see SecCase
- * @see EffCase
  */
 @SuppressWarnings("unchecked")
 public class SecSwitch extends CodeSection {
     static {
         Parser.getMainRegistration().addSection(
                 SecSwitch.class,
-                "(switch|for) %object%"
+                "(switch|given|match) %object%"
         );
     }
 
@@ -82,7 +80,7 @@ public class SecSwitch extends CodeSection {
 
     @Override
     protected List<Class<? extends SyntaxElement>> getAllowedSyntaxes() {
-        return List.of(EffCase.class, SecCase.class);
+        return List.of(SecCase.class);
     }
 
     @Override
