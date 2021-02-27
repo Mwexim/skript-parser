@@ -25,9 +25,6 @@ import java.util.function.BiFunction;
  * @author Syst3ms
  */
 public class ExprRange implements Expression<Object> {
-    private Expression<?> from, to;
-    private RangeInfo<?, ?> range;
-
     static {
         Parser.getMainRegistration().addExpression(
                 ExprRange.class,
@@ -36,6 +33,9 @@ public class ExprRange implements Expression<Object> {
                 "[the] range from %object% to %object%"
         );
     }
+
+    private Expression<?> from, to;
+    private RangeInfo<?, ?> range;
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {

@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
  * @author Mwexim
  */
 public class ExprStringSplitJoin implements Expression<String> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprStringSplitJoin.class,
@@ -42,8 +41,8 @@ public class ExprStringSplitJoin implements Expression<String> {
 	private Expression<String> delimiter;
 	private Expression<BigInteger> chars;
 
-	int pattern;
-	boolean delimiterPresent;
+	private int pattern;
+	private boolean delimiterPresent;
 
 	@SuppressWarnings("unchecked")
 	@Override

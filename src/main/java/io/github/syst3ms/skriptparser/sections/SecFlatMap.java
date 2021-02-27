@@ -17,15 +17,15 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public class SecFlatMap extends ReturnSection<Object> {
-    private Expression<?> flatMapped;
-    private SkriptFunction<?, ?> flatMapper;
-
     static {
         Parser.getMainRegistration().addSection(
                 SecFlatMap.class,
                 "flat map %~objects%|map %~objects% flat"
         );
     }
+
+    private Expression<?> flatMapped;
+    private SkriptFunction<?, ?> flatMapper;
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {

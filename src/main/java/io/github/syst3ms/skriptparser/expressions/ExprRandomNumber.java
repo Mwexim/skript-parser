@@ -24,7 +24,6 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author WeeskyBDW
  */
 public class ExprRandomNumber implements Expression<Number> {
-
     static {
         Parser.getMainRegistration().addExpression(
                 ExprRandomNumber.class,

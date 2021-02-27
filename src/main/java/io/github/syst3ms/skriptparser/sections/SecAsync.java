@@ -26,7 +26,6 @@ import java.util.Optional;
  * @author Mwexim
  */
 public class SecAsync extends CodeSection {
-
     static {
         Parser.getMainRegistration().addSection(
                 SecAsync.class,

@@ -14,8 +14,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  * @author Syst3ms
  */
 public class ExprWhether implements Expression<Boolean> {
-    private Expression<Boolean> condition;
-
     static {
         Parser.getMainRegistration().addExpression(
                 ExprWhether.class,
@@ -24,6 +22,8 @@ public class ExprWhether implements Expression<Boolean> {
                 "whether %~=boolean%"
         );
     }
+
+    private Expression<Boolean> condition;
 
     @SuppressWarnings("unchecked")
     @Override

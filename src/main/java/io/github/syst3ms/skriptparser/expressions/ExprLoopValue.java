@@ -30,14 +30,6 @@ import java.util.regex.Pattern;
  * @author Syst3ms
  */
 public class ExprLoopValue extends SectionValue<SecLoop, Object> {
-	private SecLoop loop;
-	private boolean isVariableLoop;
-	private boolean isIndex;
-	@Nullable
-	private Class<?> loopedClass;
-	private String loopedString;
-	private int discriminant;
-
 	static {
 		Parser.getMainRegistration().addExpression(
 			ExprLoopValue.class,
@@ -46,6 +38,14 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 			"[the] loop-<.+>"
 		);
 	}
+
+	private SecLoop loop;
+	private boolean isVariableLoop;
+	private boolean isIndex;
+	@Nullable
+	private Class<?> loopedClass;
+	private String loopedString;
+	private int discriminant;
 
 	@Override
 	public boolean preInitialize(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {

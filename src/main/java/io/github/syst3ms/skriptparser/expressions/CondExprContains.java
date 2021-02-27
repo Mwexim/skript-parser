@@ -21,7 +21,6 @@ import java.util.Optional;
  * @author Mwexim
  */
 public class CondExprContains extends ConditionalExpression {
-
     static {
         Parser.getMainRegistration().addExpression(
                 CondExprContains.class,

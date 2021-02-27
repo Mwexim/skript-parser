@@ -22,7 +22,6 @@ import java.time.Duration;
  * @author Mwexim
  */
 public class ExprDurationSinceUntil implements Expression<Duration> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprDurationSinceUntil.class,

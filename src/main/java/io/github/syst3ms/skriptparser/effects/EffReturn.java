@@ -23,15 +23,15 @@ import io.github.syst3ms.skriptparser.util.StringUtils;
  * @author Syst3ms
  */
 public class EffReturn extends Effect {
-    private ReturnSection<?> section;
-    private Expression<?> returned;
-
     static {
         Parser.getMainRegistration().addEffect(
                 EffReturn.class,
                 "return %objects%"
         );
     }
+
+    private ReturnSection<?> section;
+    private Expression<?> returned;
 
     // TODO add a way to make this target a specific section out of multiple nested ones
     @Override

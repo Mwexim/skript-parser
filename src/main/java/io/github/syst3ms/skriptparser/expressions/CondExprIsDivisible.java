@@ -32,7 +32,7 @@ public class CondExprIsDivisible extends PropertyConditional<Number> {
         );
     }
 
-    Expression<BigInteger> divider;
+    private Expression<BigInteger> divider;
 
     @SuppressWarnings("unchecked")
     @Override

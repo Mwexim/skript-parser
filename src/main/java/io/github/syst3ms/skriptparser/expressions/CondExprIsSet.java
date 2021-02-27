@@ -15,7 +15,6 @@ import io.github.syst3ms.skriptparser.lang.properties.PropertyConditional;
  * @author Syst3ms
  */
 public class CondExprIsSet extends PropertyConditional<Object> {
-
     static {
         Parser.getMainRegistration().addSelfRegisteringElement(
                 CondExprIsSet.class,

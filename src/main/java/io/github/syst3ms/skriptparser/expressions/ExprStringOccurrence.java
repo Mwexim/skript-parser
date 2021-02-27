@@ -19,7 +19,6 @@ import java.math.BigInteger;
  * @author Mwexim
  */
 public class ExprStringOccurrence implements Expression<Number> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprStringOccurrence.class,

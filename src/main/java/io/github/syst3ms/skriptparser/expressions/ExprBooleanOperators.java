@@ -19,11 +19,6 @@ import java.util.Optional;
  * @author Syst3ms
  */
 public class ExprBooleanOperators implements Expression<Boolean> {
-    private int pattern;
-    private Expression<Boolean> first;
-    @Nullable
-    private Expression<Boolean> second;
-
     static {
         Parser.getMainRegistration().addExpression(
                 ExprBooleanOperators.class,
@@ -34,6 +29,11 @@ public class ExprBooleanOperators implements Expression<Boolean> {
                 "%=boolean% (and|&&) %=boolean%"
         );
     }
+
+    private int pattern;
+    private Expression<Boolean> first;
+    @Nullable
+    private Expression<Boolean> second;
 
     @SuppressWarnings("unchecked")
     @Override

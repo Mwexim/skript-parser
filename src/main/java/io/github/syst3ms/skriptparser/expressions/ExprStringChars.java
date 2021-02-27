@@ -21,7 +21,6 @@ import java.util.function.Predicate;
  * @author Olyno
  */
 public class ExprStringChars implements Expression<String> {
-
     private final static PatternInfos<Predicate<Character>> PATTERNS = new PatternInfos<>(
         new Object[][]{
             {"[all [[of] the]] upper[ ]case char[acter]s in %strings%", (Predicate<Character>) Character::isUpperCase},
@@ -31,10 +30,6 @@ public class ExprStringChars implements Expression<String> {
             {"[all [[of] the]] [white[ ]]space char[acter]s in %strings%", (Predicate<Character>) Character::isWhitespace}
         }
     );
-    
-    private final String[] CHAR_TYPES = {
-        "upper case", "lower case", "digit", "special", "white space"
-    };
 
     static {
         Parser.getMainRegistration().addExpression(ExprStringChars.class,
@@ -43,6 +38,10 @@ public class ExprStringChars implements Expression<String> {
             PATTERNS.getPatterns()
         );
     }
+
+    private final String[] CHAR_TYPES = {
+            "upper case", "lower case", "digit", "special", "white space"
+    };
 
     private Expression<String> values;
     private int charType;

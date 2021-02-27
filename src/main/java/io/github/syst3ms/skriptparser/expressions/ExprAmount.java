@@ -26,7 +26,6 @@ import java.util.Optional;
  * @author Olyno, Mwexim
  */
 public class ExprAmount extends PropertyExpression<Number, Object> {
-
 	static {
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprAmount.class,

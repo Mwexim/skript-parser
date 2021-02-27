@@ -17,15 +17,15 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public class SecFilter extends ReturnSection<Boolean> {
-    private Expression<?> filtered;
-    private SkriptFunction<SecFilter, Boolean> lambda;
-
     static {
         Parser.getMainRegistration().addSection(
                 SecFilter.class,
                 "filter %~objects%"
         );
     }
+
+    private Expression<?> filtered;
+    private SkriptFunction<SecFilter, Boolean> lambda;
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {

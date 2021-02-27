@@ -27,7 +27,6 @@ import java.util.Optional;
  * @author Mwexim
  */
 public class ExprDifference implements Expression<Object> {
-
     static {
         Parser.getMainRegistration().addExpression(
                 ExprDifference.class,

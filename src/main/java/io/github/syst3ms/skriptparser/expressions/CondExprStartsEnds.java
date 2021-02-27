@@ -19,7 +19,6 @@ import java.util.Arrays;
  * @author Mwexim
  */
 public class CondExprStartsEnds extends ConditionalExpression {
-
     static {
         Parser.getMainRegistration().addExpression(
                 CondExprStartsEnds.class,

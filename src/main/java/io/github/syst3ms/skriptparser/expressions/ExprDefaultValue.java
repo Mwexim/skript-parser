@@ -14,9 +14,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  * @author Olyno
  */
 public class ExprDefaultValue implements Expression<Object> {
-
-    private Expression<Object> firstValue, secondValue;
-
     static {
         Parser.getMainRegistration().addExpression(
                 ExprDefaultValue.class,
@@ -25,6 +22,8 @@ public class ExprDefaultValue implements Expression<Object> {
                 "%objects% (otherwise|?) %objects%"
         );
     }
+
+    private Expression<Object> firstValue, secondValue;
 
     @SuppressWarnings("unchecked")
     @Override

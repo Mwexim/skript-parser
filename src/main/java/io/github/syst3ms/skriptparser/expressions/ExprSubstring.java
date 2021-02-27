@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 
@@ -92,7 +91,7 @@ public class ExprSubstring implements Expression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		if (pattern == 0) {
 			return "substring of " + value.toString(ctx, debug)
 					+ " from " + lower.toString(ctx, debug) + " to " + upper.toString(ctx, debug);

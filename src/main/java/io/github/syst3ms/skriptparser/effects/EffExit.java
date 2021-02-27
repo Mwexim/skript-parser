@@ -25,7 +25,6 @@ import java.util.Optional;
  * @author Mwexim
  */
 public class EffExit extends Effect {
-
     static {
         Parser.getMainRegistration().addEffect(
             EffExit.class,

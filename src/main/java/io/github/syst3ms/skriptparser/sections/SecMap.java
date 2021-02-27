@@ -17,15 +17,15 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public class SecMap extends ReturnSection<Object> {
-    private Expression<?> mapped;
-    private SkriptFunction<?, ?> mapper;
-
     static {
         Parser.getMainRegistration().addSection(
                 SecMap.class,
                 "map %~objects%"
         );
     }
+
+    private Expression<?> mapped;
+    private SkriptFunction<?, ?> mapper;
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {

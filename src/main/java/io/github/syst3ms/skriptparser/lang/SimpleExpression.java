@@ -50,7 +50,7 @@ public class SimpleExpression<T> implements Expression<T> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         // If the representation is not given, the default TypeManager#toString will be used to convert each value separately
         if (representation == null) {
             return TypeManager.toString((Object[]) function.apply(ctx));

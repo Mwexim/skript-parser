@@ -18,7 +18,6 @@ import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
  * @author Mwexim
  */
 public class EffDoIf extends Effect {
-
     static {
         Parser.getMainRegistration().addEffect(
             EffDoIf.class,
@@ -27,7 +26,7 @@ public class EffDoIf extends Effect {
         );
     }
 
-    Expression<Boolean> condition;
+    private Expression<Boolean> condition;
     private Effect effect;
 
     @SuppressWarnings("unchecked")

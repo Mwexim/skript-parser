@@ -19,7 +19,6 @@ import io.github.syst3ms.skriptparser.util.Time;
  * @author Mwexim
  */
 public class EvtAtTime extends SkriptEvent {
-
     static {
         Parser.getMainRegistration()
                 .newEvent(EvtAtTime.class, "*at %*time%")

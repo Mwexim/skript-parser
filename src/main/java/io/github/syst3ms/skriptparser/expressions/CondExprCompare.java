@@ -48,8 +48,7 @@ public class CondExprCompare extends ConditionalExpression {
             {"[1:neither] %objects% [8:each] (is|are) [8:each] between %objects% and %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
             {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither)) [equal to]|2:!=) %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
             {"[1:neither] %objects% [8:each] ((is|are) [8:each] [equal to|the same as]|=[=]) %objects% [0x10:each|0x18:respectively]", Relation.EQUAL}
-    }
-    );
+    });
 
     static {
         Parser.getMainRegistration().addExpression(

@@ -20,7 +20,6 @@ import java.time.Duration;
  * @author Mwexim
  */
 public class ExprDateTodayAt implements Expression<SkriptDate> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprDateTodayAt.class,

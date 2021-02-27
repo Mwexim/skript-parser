@@ -36,7 +36,6 @@ import java.util.function.UnaryOperator;
  * @author Syst3ms
  */
 public class ExprUnaryMathFunctions implements Expression<Number> {
-
 	// TODO support brackets in the patterns
 	private static final PatternInfos<UnaryOperator<Number>> PATTERNS = new PatternInfos<>(
 		new Object[][]{
@@ -59,8 +58,6 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 			{"ln %number%", (UnaryOperator<Number>) NumberMath::ln}
 		}
 	);
-	private int pattern;
-	private Expression<Number> number;
 
 	static {
 		Parser.getMainRegistration().addExpression(
@@ -70,6 +67,9 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 			PATTERNS.getPatterns()
 		);
 	}
+
+	private int pattern;
+	private Expression<Number> number;
 
 	@SuppressWarnings("unchecked")
 	@Override

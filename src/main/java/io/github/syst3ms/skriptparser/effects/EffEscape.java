@@ -21,7 +21,6 @@ import java.util.Optional;
  * @author Mwexim
  */
 public class EffEscape extends Effect {
-
     static {
         Parser.getMainRegistration().addEffect(
             EffEscape.class,

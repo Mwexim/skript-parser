@@ -16,7 +16,6 @@ import java.math.BigInteger;
  * @author Romitou
  */
 public class ExprLength extends PropertyExpression<Number, String> {
-
     static {
         Parser.getMainRegistration().addPropertyExpression(
                 ExprLength.class,

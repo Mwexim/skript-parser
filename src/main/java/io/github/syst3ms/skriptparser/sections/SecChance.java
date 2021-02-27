@@ -25,7 +25,6 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 @SuppressWarnings("unchecked")
 public class SecChance extends CodeSection {
-
     static {
         Parser.getMainRegistration().addSection(
                 SecChance.class,

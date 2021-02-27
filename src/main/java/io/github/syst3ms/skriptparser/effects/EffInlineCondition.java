@@ -17,7 +17,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  * @author Mwexim
  */
 public class EffInlineCondition extends Effect {
-
     static {
         Parser.getMainRegistration().addEffect(
             EffInlineCondition.class,
@@ -26,7 +25,7 @@ public class EffInlineCondition extends Effect {
         );
     }
 
-    Expression<Boolean> condition;
+    private Expression<Boolean> condition;
 
     @SuppressWarnings("unchecked")
     @Override

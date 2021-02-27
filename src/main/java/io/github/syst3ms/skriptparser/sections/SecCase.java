@@ -9,7 +9,6 @@ import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -109,7 +108,7 @@ public class SecCase extends CodeSection {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return isMatching ? ("case " + matchWith.toString(ctx, debug)) : "default";
     }
 }

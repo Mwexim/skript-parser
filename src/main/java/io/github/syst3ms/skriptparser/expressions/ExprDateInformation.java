@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
  * @author Mwexim
  */
 public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> {
-
 	static {
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprDateInformation.class,
@@ -37,7 +36,7 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 			"year", "month", "day of year", "day of month", "day of week", "hours", "minutes", "seconds", "milliseconds"
 	};
 
-	int parseMark;
+	private int parseMark;
 
 	@SuppressWarnings("unchecked")
 	@Override

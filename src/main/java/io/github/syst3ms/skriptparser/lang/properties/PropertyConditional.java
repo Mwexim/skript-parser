@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * This class can be used for an easier writing of conditions that contain only one type in the pattern
@@ -78,7 +77,7 @@ public abstract class PropertyConditional<P> extends ConditionalExpression imple
                 propertyRepresentation != null ? propertyRepresentation : propertyName);
     }
 
-    private String toString(@Nullable TriggerContext ctx, boolean debug,
+    private String toString(TriggerContext ctx, boolean debug,
                             Expression<P> perf,
                             ConditionalType conditionalType,
                             String property) {

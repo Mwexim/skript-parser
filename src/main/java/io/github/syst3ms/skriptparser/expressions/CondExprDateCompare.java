@@ -21,7 +21,6 @@ import java.time.Duration;
  * @author Mwexim
  */
 public class CondExprDateCompare extends ConditionalExpression {
-
     static {
         Parser.getMainRegistration().addExpression(
                 CondExprDateCompare.class,

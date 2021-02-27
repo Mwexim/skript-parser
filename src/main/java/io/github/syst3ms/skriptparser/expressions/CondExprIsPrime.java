@@ -22,7 +22,6 @@ import java.util.Arrays;
  * @author Mwexim
  */
 public class CondExprIsPrime extends PropertyConditional<Number> {
-
     static {
         Parser.getMainRegistration().addSelfRegisteringElement(
                 CondExprIsPrime.class,

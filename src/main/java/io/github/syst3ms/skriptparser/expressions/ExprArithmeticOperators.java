@@ -44,6 +44,66 @@ import java.util.Optional;
  * @author Syst3ms
  */
 public class ExprArithmeticOperators implements Expression<Number> {
+    public static final PatternInfos<Operator> PATTERNS = new PatternInfos<>(new Object[][]{
+            {"%number%[ ]+[ ]%number%", Operator.PLUS},
+            {"%number%[ ]-[ ]%number%", Operator.MINUS},
+            {"%number%[ ]*[ ]%number%", Operator.MULT},
+            {"%number%[ ]/[ ]%number%", Operator.DIV},
+            {"%number%[ ]^[ ]%number%", Operator.EXP},
+        }
+    );
+
+    static {
+        Parser.getMainRegistration().addExpression(
+            ExprArithmeticOperators.class,
+            Number.class,
+            true,
+            PATTERNS.getPatterns()
+        );
+    }
+
+    private Expression<? extends Number> first, second;
+    private Operator op;
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean init(Expression<?>[] exprs, int matchedPattern, ParseContext parseContext) {
+        first = (Expression<? extends Number>) exprs[0];
+        second = (Expression<? extends Number>) exprs[1];
+        op = PATTERNS.getInfo(matchedPattern);
+        if (second instanceof Literal) {
+            Optional<? extends Number> value = ((Literal<? extends Number>) second).getSingle();
+            if (value.filter(Operator::isZero).isPresent()) {
+                parseContext.getLogger().error(
+                        "Cannot divide by 0!",
+                        ErrorType.SEMANTIC_ERROR,
+                        "Make sure the expression/variable you want to divide with does not represent 0, as dividing by 0 results in mathematical issues"
+                );
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public Number[] getValues(TriggerContext ctx) {
+        return DoubleOptional.ofOptional(first.getSingle(ctx), second.getSingle(ctx))
+                .map(f -> (Number) f, s -> (Number) s)
+                .mapToOptional((f, s) -> new Number[]{op.calculate(f, s)})
+                .orElse(new Number[0]);
+    }
+
+    @Override
+    public String toString(TriggerContext ctx, boolean debug) {
+        return first.toString(ctx, debug) + " " + op + " " + second.toString(ctx, debug);
+    }
+
+    @Override
+    public Expression<? extends Number> simplify() {
+        if (first instanceof Literal && second instanceof Literal)
+            return new SimpleLiteral<>(Number.class, getValues(TriggerContext.DUMMY));
+        return this;
+    }
 
     private enum Operator {
         PLUS('+') {
@@ -144,66 +204,4 @@ public class ExprArithmeticOperators implements Expression<Number> {
             return result;
         }
     }
-
-    public static final PatternInfos<Operator> PATTERNS = new PatternInfos<>(new Object[][]{
-            {"%number%[ ]+[ ]%number%", Operator.PLUS},
-            {"%number%[ ]-[ ]%number%", Operator.MINUS},
-            {"%number%[ ]*[ ]%number%", Operator.MULT},
-            {"%number%[ ]/[ ]%number%", Operator.DIV},
-            {"%number%[ ]^[ ]%number%", Operator.EXP},
-        }
-    );
-
-    static {
-        Parser.getMainRegistration().addExpression(
-            ExprArithmeticOperators.class,
-            Number.class,
-            true,
-            PATTERNS.getPatterns()
-        );
-    }
-
-    private Expression<? extends Number> first, second;
-    private Operator op;
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, ParseContext parseContext) {
-        first = (Expression<? extends Number>) exprs[0];
-        second = (Expression<? extends Number>) exprs[1];
-        op = PATTERNS.getInfo(matchedPattern);
-        if (second instanceof Literal) {
-            Optional<? extends Number> value = ((Literal<? extends Number>) second).getSingle();
-            if (value.filter(Operator::isZero).isPresent()) {
-                parseContext.getLogger().error(
-                        "Cannot divide by 0!",
-                        ErrorType.SEMANTIC_ERROR,
-                        "Make sure the expression/variable you want to divide with does not represent 0, as dividing by 0 results in mathematical issues"
-                );
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public Number[] getValues(TriggerContext ctx) {
-        return DoubleOptional.ofOptional(first.getSingle(ctx), second.getSingle(ctx))
-                .map(f -> (Number) f, s -> (Number) s)
-                .mapToOptional((f, s) -> new Number[]{op.calculate(f, s)})
-                .orElse(new Number[0]);
-    }
-
-    @Override
-    public String toString(TriggerContext ctx, boolean debug) {
-        return first.toString(ctx, debug) + " " + op + " " + second.toString(ctx, debug);
-    }
-
-    @Override
-    public Expression<? extends Number> simplify() {
-        if (first instanceof Literal && second instanceof Literal)
-            return new SimpleLiteral<>(Number.class, getValues(TriggerContext.DUMMY));
-        return this;
-    }
-
 }

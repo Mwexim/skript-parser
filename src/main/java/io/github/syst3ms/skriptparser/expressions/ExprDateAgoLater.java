@@ -21,7 +21,6 @@ import java.util.Optional;
  * @author Mwexim
  */
 public class ExprDateAgoLater implements Expression<SkriptDate> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprDateAgoLater.class,
@@ -33,10 +32,10 @@ public class ExprDateAgoLater implements Expression<SkriptDate> {
 		);
 	}
 
-	Expression<Duration> duration;
-	Expression<SkriptDate> date;
-	boolean past;
-	boolean relative;
+	private Expression<Duration> duration;
+	private Expression<SkriptDate> date;
+	private boolean past;
+	private boolean relative;
 
 	@SuppressWarnings("unchecked")
 	@Override

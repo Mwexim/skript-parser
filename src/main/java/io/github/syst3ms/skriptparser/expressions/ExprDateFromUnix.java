@@ -21,7 +21,6 @@ import java.math.BigInteger;
  * @author Mwexim
  */
 public class ExprDateFromUnix implements Expression<SkriptDate> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprDateFromUnix.class,
@@ -31,8 +30,8 @@ public class ExprDateFromUnix implements Expression<SkriptDate> {
 		);
 	}
 
-	Expression<BigInteger> timestamp;
-	boolean unix;
+	private Expression<BigInteger> timestamp;
+	private boolean unix;
 
 	@SuppressWarnings("unchecked")
 	@Override

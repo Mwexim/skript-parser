@@ -19,7 +19,6 @@ import io.github.syst3ms.skriptparser.util.SkriptDate;
  * @author Mwexim
  */
 public class ExprDateFormatted implements Expression<String> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprDateFormatted.class,
@@ -29,8 +28,8 @@ public class ExprDateFormatted implements Expression<String> {
 		);
 	}
 
-	Expression<SkriptDate> date;
-	Expression<String> format;
+	private Expression<SkriptDate> date;
+	private Expression<String> format;
 
 	@SuppressWarnings("unchecked")
 	@Override

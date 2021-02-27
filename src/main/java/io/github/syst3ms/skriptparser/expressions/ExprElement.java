@@ -25,7 +25,6 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author Mwexim
  */
 public class ExprElement implements Expression<Object> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprElement.class,

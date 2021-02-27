@@ -31,7 +31,6 @@ import java.util.TimeZone;
  * @author Mwexim
  */
 public class ExprParseAs implements Expression<Object> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprParseAs.class,

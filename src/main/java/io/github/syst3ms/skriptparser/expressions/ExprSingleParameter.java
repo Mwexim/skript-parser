@@ -8,7 +8,6 @@ import io.github.syst3ms.skriptparser.lang.lambda.SectionValue;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 
 public class ExprSingleParameter extends SectionValue<ArgumentSection, Object> {
-
     static {
         Parser.getMainRegistration().addExpression(
                 ExprSingleParameter.class,

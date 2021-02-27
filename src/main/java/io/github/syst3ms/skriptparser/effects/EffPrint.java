@@ -16,14 +16,14 @@ import io.github.syst3ms.skriptparser.util.StringUtils;
  * @author Syst3ms
  */
 public class EffPrint extends Effect {
-    private Expression<String> string;
-
     static {
         Parser.getMainRegistration().addEffect(
             EffPrint.class,
             "print %strings% [to [the] console]"
         );
     }
+
+    private Expression<String> string;
 
     @SuppressWarnings("unchecked")
     @Override

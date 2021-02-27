@@ -23,7 +23,6 @@ import java.math.BigInteger;
  * @author Mwexim
  */
 public class ExprDateTimestamp extends PropertyExpression<Number, SkriptDate> {
-
 	static {
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprDateTimestamp.class,
@@ -34,7 +33,7 @@ public class ExprDateTimestamp extends PropertyExpression<Number, SkriptDate> {
 		);
 	}
 
-	boolean unix;
+	private boolean unix;
 
 	@SuppressWarnings("unchecked")
 	@Override

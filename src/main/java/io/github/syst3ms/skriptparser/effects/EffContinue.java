@@ -20,7 +20,6 @@ import java.util.Optional;
  * @author Mwexim
  */
 public class EffContinue extends Effect {
-
     static {
         Parser.getMainRegistration().addEffect(
             EffContinue.class,

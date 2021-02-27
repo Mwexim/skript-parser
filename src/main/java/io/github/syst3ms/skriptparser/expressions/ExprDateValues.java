@@ -32,7 +32,7 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 		);
 	}
 
-	int parseMark;
+	private int parseMark;
 
 	@SuppressWarnings("unchecked")
 	@Override

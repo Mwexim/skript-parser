@@ -22,7 +22,6 @@ import java.time.Duration;
  * @author Mwexim
  */
 public class EvtPeriodical extends SkriptEvent {
-
     static {
         Parser.getMainRegistration()
                 .newEvent(EvtPeriodical.class, "*every %*duration%")

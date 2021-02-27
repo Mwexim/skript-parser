@@ -15,10 +15,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  * @author Olyno
  */
 public class ExprTernary implements Expression<Object> {
-
-    private Expression<Boolean> valueToCheck;
-    private Expression<Object> firstValue, secondValue;
-
     static {
         Parser.getMainRegistration().addExpression(
             ExprTernary.class,
@@ -28,6 +24,9 @@ public class ExprTernary implements Expression<Object> {
             "%=boolean% ? %objects% : %objects%"
         );
     }
+
+    private Expression<Boolean> valueToCheck;
+    private Expression<Object> firstValue, secondValue;
 
     @SuppressWarnings("unchecked")
     @Override

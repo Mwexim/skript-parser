@@ -16,7 +16,6 @@ import io.github.syst3ms.skriptparser.util.SkriptDate;
  * @author Mwexim
  */
 public class ExprDateNow implements Expression<SkriptDate> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprDateNow.class,
@@ -26,7 +25,7 @@ public class ExprDateNow implements Expression<SkriptDate> {
 		);
 	}
 
-	int parseMark;
+	private int parseMark;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {

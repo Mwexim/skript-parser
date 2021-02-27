@@ -84,7 +84,7 @@ public class SecSwitch extends CodeSection {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "switch " + matched.toString(ctx, debug);
     }
 

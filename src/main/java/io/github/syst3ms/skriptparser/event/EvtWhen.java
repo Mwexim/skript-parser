@@ -17,7 +17,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  * @author Mwexim
  */
 public class EvtWhen extends SkriptEvent {
-
     static {
         Parser.getMainRegistration()
                 .newEvent(EvtWhen.class, "*when %=boolean%")

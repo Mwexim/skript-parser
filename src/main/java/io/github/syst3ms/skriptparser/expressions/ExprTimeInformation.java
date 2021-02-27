@@ -20,7 +20,6 @@ import java.math.BigInteger;
  * @author Mwexim
  */
 public class ExprTimeInformation extends PropertyExpression<Number, Time> {
-
 	static {
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprTimeInformation.class,
@@ -36,7 +35,7 @@ public class ExprTimeInformation extends PropertyExpression<Number, Time> {
 			"hours", "minutes", "seconds", "milliseconds"
 	};
 
-	int parseMark;
+	private int parseMark;
 
 	@SuppressWarnings("unchecked")
 	@Override

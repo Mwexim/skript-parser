@@ -17,7 +17,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  * @author Syst3ms
  */
 public class EvtScriptLoad extends SkriptEvent {
-
     static {
         Parser.getMainRegistration()
                 .newEvent(EvtScriptLoad.class, "script load[ing]")
