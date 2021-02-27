@@ -1,0 +1,11 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2021/02/06
+
+test:
+	set {var} to color from hex "#f00" # This will not create any issues.
+	assert {var} = red with "Color should equal red (%red%): %{var}%"
+
+	set {var} to color from hex "#ffff0000"
+	set {var2} to color from rgb (red value of yellow, green value of yellow, blue value of yellow and 0)
+	assert {var} = {var2} with "Colors should be equal: %{var}% != %{var2}%"

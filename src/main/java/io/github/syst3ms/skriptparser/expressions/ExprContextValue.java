@@ -18,13 +18,12 @@ import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
  * @author Mwexim
  */
 public class ExprContextValue implements Expression<Object> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprContextValue.class,
 				Object.class,
 				false,
-				"[the] [1:(past|previous)|2:(future|next)] context-<.+>"
+				"[the] [(1:(past|previous)|2:(future|next))] context-<.+>"
 		);
 	}
 
@@ -49,7 +48,12 @@ public class ExprContextValue implements Expression<Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		return value.getType();
+		return value.getType().getTypeClass();
+	}
+
+	@Override
+	public boolean isSingle() {
+		return value.isSingle();
 	}
 
 	@Override
@@ -67,5 +71,4 @@ public class ExprContextValue implements Expression<Object> {
 		}
 		return state + "context-" + name;
 	}
-
 }

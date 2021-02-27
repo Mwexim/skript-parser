@@ -21,7 +21,7 @@ public class EvtScriptLoad extends SkriptEvent {
     static {
         Parser.getMainRegistration()
                 .newEvent(EvtScriptLoad.class, "script load[ing]")
-                .addContextValue(ScriptLoadContext.class, String.class, "arguments", ScriptLoadContext::getArguments)
+                .addContextValue(ScriptLoadContext.class, String.class, false, "arguments", ScriptLoadContext::getArguments)
                 .setHandledContexts(ScriptLoadContext.class)
                 .register();
     }

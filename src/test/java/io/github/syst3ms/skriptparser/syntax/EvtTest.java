@@ -19,9 +19,10 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 public class EvtTest extends SkriptEvent {
 	static {
 		Parser.getMainRegistration()
-			.newEvent(EvtTest.class, "*test [[only] if %=boolean%]")
-			.setHandledContexts(TestContext.class)
-			.register();
+				.newEvent(EvtTest.class, "*test [[only] when %=boolean%]")
+				.setHandledContexts(TestContext.class)
+				.addContextValue(TestContext.class, String.class, true, "*test", __ -> new String[] {"Hello World!"})
+				.register();
 	}
 
 	private Expression<Boolean> condition;

@@ -1,0 +1,55 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2021/01/02
+
+test:
+	set {var} to "Hello"
+	switch {var}:
+		case "World":
+			add 1 to {flag::*}
+		when "Hello":
+			add 2 to {flag::*}
+			set {var2} to 2
+			add 1 to {var2}
+			add {var2} to {flag::*}
+		case 2 or 3:
+			add 4 to {flag::*}
+		case 4 or "Hello":
+			add 5 to {flag::*}
+		case "Hello":
+			add 8 to {flag::*}
+		default:
+			add 6 to {flag::*}
+
+	# 2, 3, 5 and 8
+	assert {flag::*} = 2, 3, 5 and 8 with "{flag::*} should be 2, 3, 5 and 8: %{flag::*}%"
+
+	set {var} to 3
+	clear {flag::*}
+	given {var}:
+		case 1:
+			add 1 to {flag::*}
+		when 2:
+			add 2 to {flag::*}
+		default:
+			add 3 to {flag::*}
+
+	# 3
+    assert {flag::*} = 3 with "{flag::*} should be 3: %{flag::*}%"
+
+    set {var} to true
+    clear {flag::*}
+    match {var}:
+    	case false:
+    		add 1 to {flag::*}
+    	case true:
+    		add 2 to {flag::*}
+    		set {var} to -1
+    	case -1:
+    		add 3 to {flag::*} # This should be possible
+    	default:
+    		add 4 to {flag::*}
+
+    # 2 and 3
+    assert {flag::*} = 2 and 3 with "{flag::*} should be 2 and 3: %{flag::*}%"
+    assert {var} = -1 with "{var} should be -1: %{var}%"

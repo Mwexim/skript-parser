@@ -172,18 +172,7 @@ public class DefaultRegistration {
                 .register();
 
         registration.newType(Color.class, "color", "color@s")
-                .literalParser(s -> {
-                    s = s.replace('&', '#');
-                    var match = Color.COLOR_PATTERN.matcher(s.toLowerCase());
-                    if (match.matches()) {
-                        return Color.of(s);
-                    }
-                    try {
-                        return Color.ofLiteral(s);
-                    } catch (IllegalArgumentException ignored) {
-                        return null;
-                    }
-                })
+                .literalParser(s -> Color.ofLiteral(s).orElse(null))
                 .toStringFunction(Color::toString)
                 .register();
 

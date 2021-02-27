@@ -21,20 +21,19 @@ public class FileParserTest {
         return new FileSection("unit-tests", line, content, Arrays.asList(elements), indentation);
     }
 
-    private List<FileElement> parseLines(FileParser parser, List<String> lines) {
-        return parser.parseFileLines("unit-tests", lines, 0, 1, new SkriptLogger());
+    private List<FileElement> parseLines(List<String> lines) {
+        return FileParser.parseFileLines("unit-tests", lines, 0, 1, new SkriptLogger());
     }
 
     @Test
     public void parseFileLines() {
-        FileParser parser = new FileParser();
         assertEquals(
             Collections.singletonList(simpleFileLine("line", 0, 1)),
-            parseLines(parser, Collections.singletonList("line"))
+            parseLines(Collections.singletonList("line"))
         );
         assertEquals(
             Collections.singletonList(fileSection("section", 0, 1)),
-            parseLines(parser, Collections.singletonList("section:"))
+            parseLines(Collections.singletonList("section:"))
         );
         assertEquals(
             Collections.singletonList(
@@ -45,7 +44,7 @@ public class FileParserTest {
                     simpleFileLine("element", 1, 2)
                 )
             ),
-            parseLines(parser, Arrays.asList("section with element:", "\telement"))
+            parseLines(Arrays.asList("section with element:", "\telement"))
         );
         List<FileElement> expected = Arrays.asList(
             simpleFileLine("nested sections", 0, 1),
@@ -63,8 +62,7 @@ public class FileParserTest {
         );
         assertEquals(
             expected,
-            parseLines(parser,
-                Arrays.asList(
+            parseLines(Arrays.asList(
                     "nested sections",
                     "section:",
                     "\tother section:",
@@ -84,7 +82,6 @@ public class FileParserTest {
         assertEquals(
             expected,
             parseLines(
-                parser,
                 Arrays.asList(
                     "elements after section",
                     "section:",
@@ -95,11 +92,11 @@ public class FileParserTest {
         );
         assertEquals(
             Collections.singletonList(simpleFileLine("code", 0, 1)),
-            parseLines(parser, Collections.singletonList("code # comment"))
+            parseLines(Collections.singletonList("code # comment"))
         );
         assertEquals(
             Collections.singletonList(simpleFileLine("code # not comment", 0, 1)),
-            parseLines(parser, Collections.singletonList("code ## not comment"))
+            parseLines(Collections.singletonList("code ## not comment"))
         );
     }
 

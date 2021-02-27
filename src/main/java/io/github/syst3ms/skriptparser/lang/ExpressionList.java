@@ -24,8 +24,8 @@ public class ExpressionList<T> implements Expression<T> {
         this(expressions, returnType, and, null);
     }
 
-    protected ExpressionList(@Nullable Expression<? extends T>[] expressions, Class<T> returnType, boolean and, @Nullable ExpressionList<?> source) {
-        assert expressions != null && expressions.length > 1;
+    protected ExpressionList(Expression<? extends T>[] expressions, Class<T> returnType, boolean and, @Nullable ExpressionList<?> source) {
+        assert expressions.length > 1;
         this.expressions = expressions;
         this.returnType = returnType;
         this.and = and;
