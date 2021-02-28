@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.TestRegistration;
+import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.log.LogType;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 import io.github.syst3ms.skriptparser.variables.Variables;
@@ -13,6 +14,7 @@ import org.junit.runners.model.MultipleFailureException;
 import java.io.File;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.*;
 
 public class SyntaxParserTest {
     static {
@@ -32,12 +34,25 @@ public class SyntaxParserTest {
                     continue;
                 testsList.add(
                         DynamicTest.dynamicTest("Testing '" + file.getName().replaceAll("\\..+$", "") + "'", () -> {
-                            var logs = ScriptLoader.loadScript(file.toPath(), false);
-                            logs.removeIf(log -> log.getType() != LogType.ERROR);
-                            if (!logs.isEmpty()) {
-                                logs.forEach(log -> errorsFound.add(new SkriptParserException(log.getMessage())));
+                            var executor = Executors.newSingleThreadExecutor();
+                            Future<List<LogEntry>> future;
+
+                            future = executor.submit(() -> ScriptLoader.loadScript(file.toPath(), true));
+                            List<LogEntry> logs;
+                            try {
+                                logs = future.get(10, TimeUnit.SECONDS);
+                                logs.removeIf(log -> log.getType() != LogType.ERROR);
+
+                                if (!logs.isEmpty()) {
+                                    logs.forEach(log -> errorsFound.add(new SkriptParserException(log.getMessage())));
+                                } else {
+                                    SkriptAddon.getAddons().forEach(SkriptAddon::finishedLoading);
+                                }
+                            } catch (TimeoutException ex) {
+                                errorsFound.add(new TimeoutException("Parsing of file '" + file.getName() + "' timed out!"));
+                            } catch (ExecutionException ex) {
+                                errorsFound.add(ex);
                             }
-                            SkriptAddon.getAddons().forEach(SkriptAddon::finishedLoading);
 
                             // For some weird reason some errors are duplicated
                             var allErrors = new ArrayList<>(errorsFound);
