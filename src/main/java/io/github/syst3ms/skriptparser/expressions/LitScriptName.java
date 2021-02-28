@@ -7,14 +7,13 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.FileUtils;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * The name of the current executed script, without the extension.
  *
  * @name Script Name
- * @pattern [the] [current] script[['s] name]
- * @pattern name of [the] [current] script
+ * @pattern [the] script[['s] name]
+ * @pattern name of [the] script
  * @since ALPHA
  * @author Mwexim
  */
@@ -24,8 +23,8 @@ public class LitScriptName implements Literal<String> {
                 LitScriptName.class,
                 String.class,
                 true,
-                "[the] [current] script[['s] name]",
-                "name of [the] [current] script"
+                "[the] script[['s] name]",
+                "name of [the] script"
         );
     }
 
@@ -43,7 +42,7 @@ public class LitScriptName implements Literal<String> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "script name";
     }
 }

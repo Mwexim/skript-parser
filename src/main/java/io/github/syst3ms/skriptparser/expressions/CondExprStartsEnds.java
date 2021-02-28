@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -20,7 +19,6 @@ import java.util.Arrays;
  * @author Mwexim
  */
 public class CondExprStartsEnds extends ConditionalExpression {
-
     static {
         Parser.getMainRegistration().addExpression(
                 CondExprStartsEnds.class,
@@ -55,7 +53,7 @@ public class CondExprStartsEnds extends ConditionalExpression {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return expr.toString(ctx, debug) + (isNegated() ? " does not" : "") + (start ? " start with " : " end with ") + value.toString(ctx, debug);
     }
 }

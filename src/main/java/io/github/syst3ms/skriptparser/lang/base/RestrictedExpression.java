@@ -20,7 +20,6 @@ import java.util.List;
  * @see ParserState#getCurrentContexts()
  */
 public abstract class RestrictedExpression<T> implements Expression<T> {
-
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         var requiredSections = getRequiredSections();
@@ -37,7 +36,8 @@ public abstract class RestrictedExpression<T> implements Expression<T> {
         if (required == null) {
             var logger = parseContext.getLogger();
             logger.error(
-                    getSpecificErrorMessage() + " : '" + this.toString(null, logger.isDebug()) + "'",
+                    getSpecificErrorMessage() + " : '"
+                            + this.toString(TriggerContext.DUMMY, logger.isDebug()) + "'",
                     ErrorType.SEMANTIC_ERROR,
                     "This expression cannot be used everywhere. Refer to the documentation to see the correct usage of this expression");
             return false;

@@ -5,12 +5,21 @@
 test:
 	set {list::*} to range from 1 to 10
 	loop {list::*}:
+		set {flag::1} to true
 		set {list2::test-%loop-value%} to loop-number + 5
 		assert loop-index = "%loop-value%" with "Loop-index should be %loop-value%: %loop-index%"
 
+	assert {flag::1} = true with "First flag should be true"
+
 	loop 3 times:
+		set {flag::2} to true
 		assert loop-number is set with "Loop-number should be correct in this section: %loop-number%"
 
+	assert {flag::2} = true with "Second flag should be true"
+
 	loop {list2::*}:
+		set {flag::3} to true
+		assert loop-index is set
 		assert loop-index = "test-%loop-value - 5%"
 
+	assert {flag::3} = true with "Third flag should be true"

@@ -8,7 +8,6 @@ import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.function.BinaryOperator;
@@ -73,7 +72,7 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		if (pattern == 0) {
 			return "log " + first.toString(ctx, debug) + " of " + second.toString(ctx, debug);
 		} else {

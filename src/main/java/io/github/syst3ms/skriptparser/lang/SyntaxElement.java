@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -36,7 +35,7 @@ public interface SyntaxElement {
      * @param debug whether to show additional information or not
      * @return a {@link String} that should aim to resemble what is written in the script as closely as possible
      */
-    String toString(@Nullable TriggerContext ctx, boolean debug);
+    String toString(TriggerContext ctx, boolean debug);
 
     /**
      * Checks whether this syntax element is inside of specific given {@link CodeSection}s.

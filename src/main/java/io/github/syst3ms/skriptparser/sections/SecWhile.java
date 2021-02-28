@@ -18,16 +18,16 @@ import java.util.Optional;
  */
 @SuppressWarnings("unchecked")
 public class SecWhile extends CodeSection {
-    @Nullable
-    private Statement actualNext;
-    private Expression<Boolean> condition;
-
     static {
         Parser.getMainRegistration().addSection(
                 SecWhile.class,
                 "while %=boolean%"
         );
     }
+
+    @Nullable
+    private Statement actualNext;
+    private Expression<Boolean> condition;
 
     @Override
     public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
@@ -69,7 +69,7 @@ public class SecWhile extends CodeSection {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "while " + condition.toString(ctx, debug);
     }
 }

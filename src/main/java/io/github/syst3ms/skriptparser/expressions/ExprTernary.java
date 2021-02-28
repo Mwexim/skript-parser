@@ -4,7 +4,6 @@ import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Returns a value depending of a boolean.
@@ -16,10 +15,6 @@ import org.jetbrains.annotations.Nullable;
  * @author Olyno
  */
 public class ExprTernary implements Expression<Object> {
-
-    private Expression<Boolean> valueToCheck;
-    private Expression<Object> firstValue, secondValue;
-
     static {
         Parser.getMainRegistration().addExpression(
             ExprTernary.class,
@@ -29,6 +24,9 @@ public class ExprTernary implements Expression<Object> {
             "%=boolean% ? %objects% : %objects%"
         );
     }
+
+    private Expression<Boolean> valueToCheck;
+    private Expression<Object> firstValue, secondValue;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -47,7 +45,7 @@ public class ExprTernary implements Expression<Object> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return firstValue.toString(ctx, debug) + " if " + valueToCheck.toString(ctx, debug) + " else " + secondValue.toString(ctx, debug);
     }
 }

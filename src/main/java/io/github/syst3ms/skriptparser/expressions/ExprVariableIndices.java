@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -25,7 +24,7 @@ public class ExprVariableIndices implements Expression<String> {
 				ExprVariableIndices.class,
 				String.class,
 				false,
-				"[all [of] [the]] ind(exes|ices) of %^objects%"
+				"[all [[of] the]] ind(exes|ices) of %^objects%"
 		);
 	}
 
@@ -57,7 +56,7 @@ public class ExprVariableIndices implements Expression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return "indices of " + value.toString(ctx, debug);
 	}
 }

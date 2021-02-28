@@ -73,9 +73,9 @@ public class ConvertedExpression<F, T> implements Expression<T> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         if (debug && ctx == null)
-            return "(" + source.toString(null, true) + " >> " + converter + ": " + source.getReturnType().getName() + "->" + to.getName() + ")";
+            return "(" + source.toString(TriggerContext.DUMMY, true) + " >> " + converter + ": " + source.getReturnType().getName() + "->" + to.getName() + ")";
         return source.toString(ctx, debug);
     }
 

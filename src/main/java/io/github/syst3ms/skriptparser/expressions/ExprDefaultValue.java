@@ -4,7 +4,6 @@ import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A shorthand expression for giving things a default value. If the first thing isn't set, the second thing will be returned.
@@ -15,9 +14,6 @@ import org.jetbrains.annotations.Nullable;
  * @author Olyno
  */
 public class ExprDefaultValue implements Expression<Object> {
-
-    private Expression<Object> firstValue, secondValue;
-
     static {
         Parser.getMainRegistration().addExpression(
                 ExprDefaultValue.class,
@@ -26,6 +22,8 @@ public class ExprDefaultValue implements Expression<Object> {
                 "%objects% (otherwise|?) %objects%"
         );
     }
+
+    private Expression<Object> firstValue, secondValue;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -49,7 +47,7 @@ public class ExprDefaultValue implements Expression<Object> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return firstValue.toString(ctx, debug) + " otherwise " + secondValue.toString(ctx, debug);
     }
 

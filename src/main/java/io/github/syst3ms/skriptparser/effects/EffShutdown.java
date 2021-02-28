@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Shuts down the whole current sessions.
@@ -13,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
  * Note that you should use this effect very cautiously.
  *
  * @name Shutdown
- * @pattern shut[ ]down [[the] current session]
+ * @pattern shut[ ]down [[the] [current] session]
  * @since ALPHA
  * @author Mwexim
  */
@@ -21,7 +20,7 @@ public class EffShutdown extends Effect {
     static {
         Parser.getMainRegistration().addEffect(
             EffShutdown.class,
-            "shut[ ]down [[the] current session]"
+            "shut[ ]down [[the] [current] session]"
         );
     }
 
@@ -36,7 +35,7 @@ public class EffShutdown extends Effect {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "shutdown";
     }
 }

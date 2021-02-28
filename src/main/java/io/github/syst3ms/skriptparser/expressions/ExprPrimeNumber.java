@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 
@@ -20,7 +19,6 @@ import java.math.BigInteger;
  * @author Mwexim
  */
 public class ExprPrimeNumber implements Expression<Number> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprPrimeNumber.class,
@@ -61,7 +59,7 @@ public class ExprPrimeNumber implements Expression<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return "prime number " + ordinal.toString(ctx, debug);
 	}
 }

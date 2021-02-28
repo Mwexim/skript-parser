@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
@@ -33,7 +32,7 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 		);
 	}
 
-	int parseMark;
+	private int parseMark;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -65,7 +64,7 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		switch (parseMark)  {
 			case 0:
 				return "era of " + getOwner().toString(ctx, debug);

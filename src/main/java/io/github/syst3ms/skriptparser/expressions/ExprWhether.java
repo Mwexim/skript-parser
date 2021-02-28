@@ -4,7 +4,6 @@ import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A wrapper that turns a condition into a boolean expression than can be used anywhere.
@@ -15,8 +14,6 @@ import org.jetbrains.annotations.Nullable;
  * @author Syst3ms
  */
 public class ExprWhether implements Expression<Boolean> {
-    private Expression<Boolean> condition;
-
     static {
         Parser.getMainRegistration().addExpression(
                 ExprWhether.class,
@@ -25,6 +22,8 @@ public class ExprWhether implements Expression<Boolean> {
                 "whether %~=boolean%"
         );
     }
+
+    private Expression<Boolean> condition;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -39,7 +38,7 @@ public class ExprWhether implements Expression<Boolean> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "whether " + condition.toString(ctx, debug);
     }
 }

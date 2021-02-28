@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -31,14 +30,6 @@ import java.util.regex.Pattern;
  * @author Syst3ms
  */
 public class ExprLoopValue extends SectionValue<SecLoop, Object> {
-	private SecLoop loop;
-	private boolean isVariableLoop;
-	private boolean isIndex;
-	@Nullable
-	private Class<?> loopedClass;
-	private String loopedString;
-	private int discriminant;
-
 	static {
 		Parser.getMainRegistration().addExpression(
 			ExprLoopValue.class,
@@ -47,6 +38,14 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 			"[the] loop-<.+>"
 		);
 	}
+
+	private SecLoop loop;
+	private boolean isVariableLoop;
+	private boolean isIndex;
+	@Nullable
+	private Class<?> loopedClass;
+	private String loopedString;
+	private int discriminant;
 
 	@Override
 	public boolean preInitialize(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
@@ -115,15 +114,15 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 		return loop.getLoopedExpression().getReturnType();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object[] getSectionValues(SecLoop loop, TriggerContext ctx) {
 		Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
 		if (isVariableLoop) {
-			@SuppressWarnings("unchecked")
-			final Pair<String, Object> current = (Pair<String, Object>) loop.getArguments()[0];
-			if (current == null) {
+			if (loop.getArguments() == null || loop.getArguments()[0] == null) {
 				return new Object[0];
 			}
+			var current = (Pair<String, Object>) loop.getArguments()[0];
 			if (isIndex) {
 				return new String[] {current.getFirst()};
 			}
@@ -140,18 +139,13 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 	}
 
 	@Override
-	public String toString(final @Nullable TriggerContext ctx, final boolean debug) {
-		if (ctx == null) {
+	public String toString(TriggerContext ctx, final boolean debug) {
+		if (loop == null)
 			return "loop-" + loopedString;
-		}
 		if (isVariableLoop) {
-			@SuppressWarnings("unchecked")
-			final Map.Entry<String, Object> current = (Map.Entry<String, Object>) loop.getCurrent(ctx);
-			if (current == null)
-				return TypeManager.NULL_REPRESENTATION;
-			return isIndex ? "\"" + current.getKey() + "\"" : TypeManager.toString(current.getValue());
+			var variable = (Variable<?>) loop.getLoopedExpression();
+			return isIndex ? "\"" + variable.getIndex(ctx) + "\"" : variable.toString(ctx, debug);
 		}
-		return TypeManager.toString(loop.getCurrent(ctx));
+		return loop.getLoopedExpression().toString(ctx, debug);
 	}
-
 }

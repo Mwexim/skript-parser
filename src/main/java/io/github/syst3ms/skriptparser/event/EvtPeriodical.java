@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 
@@ -18,12 +17,11 @@ import java.time.Duration;
  *
  * @name Periodical
  * @type EVENT
- * @pattern every %duration%
+ * @pattern every %*duration%
  * @since ALPHA
  * @author Mwexim
  */
 public class EvtPeriodical extends SkriptEvent {
-
     static {
         Parser.getMainRegistration()
                 .newEvent(EvtPeriodical.class, "*every %*duration%")
@@ -46,7 +44,7 @@ public class EvtPeriodical extends SkriptEvent {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "every " + duration.toString(ctx, debug);
     }
 

@@ -10,7 +10,6 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.util.ThreadUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -27,7 +26,6 @@ import java.util.Optional;
  * @author Mwexim
  */
 public class SecAsync extends CodeSection {
-
     static {
         Parser.getMainRegistration().addSection(
                 SecAsync.class,
@@ -57,7 +55,7 @@ public class SecAsync extends CodeSection {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "async";
     }
 }

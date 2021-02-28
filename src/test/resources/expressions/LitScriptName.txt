@@ -3,4 +3,4 @@
 # Date: 2021/01/01
 
 test:
-	assert current script name = "LitScriptName" with "Current script name should be 'LitScriptName': %script name%"
+	assert script name = "LitScriptName" with "Current script name should be 'LitScriptName': %script name%"

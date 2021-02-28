@@ -8,7 +8,6 @@ import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.Map;
@@ -27,7 +26,6 @@ import java.util.Optional;
  * @author Olyno, Mwexim
  */
 public class ExprAmount extends PropertyExpression<Number, Object> {
-
 	static {
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprAmount.class,
@@ -66,7 +64,7 @@ public class ExprAmount extends PropertyExpression<Number, Object> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return (recursive ? "recursive " : "") + "size of " + getOwner().toString(ctx, debug);
 	}
 

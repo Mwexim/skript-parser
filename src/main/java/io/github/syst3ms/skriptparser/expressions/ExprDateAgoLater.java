@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -22,7 +21,6 @@ import java.util.Optional;
  * @author Mwexim
  */
 public class ExprDateAgoLater implements Expression<SkriptDate> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprDateAgoLater.class,
@@ -34,10 +32,10 @@ public class ExprDateAgoLater implements Expression<SkriptDate> {
 		);
 	}
 
-	Expression<Duration> duration;
-	Expression<SkriptDate> date;
-	boolean past;
-	boolean relative;
+	private Expression<Duration> duration;
+	private Expression<SkriptDate> date;
+	private boolean past;
+	private boolean relative;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -60,7 +58,7 @@ public class ExprDateAgoLater implements Expression<SkriptDate> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		if (relative) {
 			return duration.toString(ctx, debug) + (past ? " before date " : " after date ") + date.toString(ctx, debug);
 		} else {

@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.StringUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -141,7 +140,7 @@ public class ExprStringCase implements Expression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		switch (type) {
 			case 0: // Basic Case Change
 				return expr.toString(ctx, debug) + " in " + (mode == 1 ? "uppercase" : "lowercase");

@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 
@@ -22,7 +21,6 @@ import java.time.Duration;
  * @author Mwexim
  */
 public class CondExprDateCompare extends ConditionalExpression {
-
     static {
         Parser.getMainRegistration().addExpression(
                 CondExprDateCompare.class,
@@ -55,7 +53,7 @@ public class CondExprDateCompare extends ConditionalExpression {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return date.toString(ctx, debug) + (isNegated() ? " was more than " : " was less than ") + duration.toString(ctx, debug) + " ago";
     }
 }

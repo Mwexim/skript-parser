@@ -1,6 +1,8 @@
 # Author(s):
 # 	- Olyno
-# Date: 2020/12/06
+# Date:
+# - 2020/12/06: creation
+# - 2021/01/28: make n / 0 yield 0 for all values of n.
 
 test:
 	set {list::1} to 12 / 2
@@ -8,8 +10,19 @@ test:
 	set {list::3} to 2 + 2
 	set {list::4} to 6 - 2
 	set {list::5} to 2 ^ 2
+
 	assert {list::1} = 6 with "{list::1} should be 6: %{list::1}%"
 	assert {list::2} = 6 with "{list::2} should be 6: %{list::2}%"
 	assert {list::3} = 4 with "{list::3} should be 4: %{list::3}%"
 	assert {list::4} = 4 with "{list::4} should be 4: %{list::4}%"
 	assert {list::5} = 4 with "{list::5} should be 4: %{list::5}%"
+
+	# 2020/01/28
+	set {zero} to 0
+	set {list::6} to 0 / {zero}
+	set {list::7} to 9 / {zero}
+	set {list::8} to 0 ^ {zero}
+	throws 6 / 0 with "Dividing by literal 0 should throw an error."
+	assert {list::6} = 0 with "{list::6} should be 0 (0 / 0): %{list::6}%"
+	assert {list::7} = 0 with "{list::7} should be 0 (9 / 0): %{list::7}%"
+	assert {list::8} = 1 with "{list::8} should be 0 (0 ^ 0): %{list::8}%"

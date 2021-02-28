@@ -7,28 +7,26 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Runs this effect if a given condition succeeds.
  *
  * @name Do If
  * @type EFFECT
- * @pattern if %=boolean%[,] [do] <.+>
+ * @pattern [do|execute] <.+?>[,] [only] if %=boolean%
  * @since ALPHA
  * @author Mwexim
  */
 public class EffDoIf extends Effect {
-
     static {
         Parser.getMainRegistration().addEffect(
             EffDoIf.class,
             1,
-            "[do] <.+?>[,] if %=boolean%"
+            "[do|execute] <.+?>[,] [only] if %=boolean%"
         );
     }
 
-    Expression<Boolean> condition;
+    private Expression<Boolean> condition;
     private Effect effect;
 
     @SuppressWarnings("unchecked")
@@ -57,7 +55,7 @@ public class EffDoIf extends Effect {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "if " + condition.toString(ctx, debug) + ", " + effect.toString(ctx, debug);
     }
 }

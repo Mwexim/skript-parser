@@ -8,7 +8,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -26,7 +25,6 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 @SuppressWarnings("unchecked")
 public class SecChance extends CodeSection {
-
     static {
         Parser.getMainRegistration().addSection(
                 SecChance.class,
@@ -58,7 +56,7 @@ public class SecChance extends CodeSection {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "chance of " + chance.toString(ctx, debug) + (percent ? "%" : "");
     }
 }

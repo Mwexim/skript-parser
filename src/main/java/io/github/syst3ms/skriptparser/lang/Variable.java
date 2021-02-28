@@ -40,6 +40,10 @@ public class Variable<T> implements Expression<T> {
         this.supertype = ClassUtils.getCommonSuperclass(this.type);
     }
 
+    public String getIndex(TriggerContext ctx) {
+        return name.toString(ctx);
+    }
+
     public Optional<Object> getRaw(TriggerContext ctx) {
         var n = name.toString(ctx);
         if (n.endsWith(Variables.LIST_SEPARATOR + "*") != list) // prevents e.g. {%expr%} where "%expr%" ends with "::*" from returning a Map
@@ -127,8 +131,6 @@ public class Variable<T> implements Expression<T> {
         var keys = new ArrayList<>(((Map<String, Object>) val.get()).keySet()).iterator();
         return new Iterator<>() {
             @Nullable
-            private String key;
-            @Nullable
             private T next;
 
             @Override
@@ -136,7 +138,7 @@ public class Variable<T> implements Expression<T> {
                 if (next != null)
                     return true;
                 while (keys.hasNext()) {
-                    key = keys.next();
+                    @Nullable String key = keys.next();
                     if (key != null) {
                         next = (T) Converters.convert(Variables.getVariable(name + key, ctx, local), type).orElse(null);
                         if (next != null && !(next instanceof TreeMap))
@@ -171,13 +173,13 @@ public class Variable<T> implements Expression<T> {
     public Iterator<Pair<String, Object>> variablesIterator(TriggerContext ctx) {
         if (!list)
             throw new SkriptRuntimeException("Looping a non-list variable");
-        var n = this.name.toString(ctx);
+        var n = name.toString(ctx);
         var name = n.substring(0, n.length() - 1);
         var val = Variables.getVariable(name + "*", ctx, local);
         if (val.isEmpty())
             return Collections.emptyIterator();
         assert val.get() instanceof Map;
-        // temporary list to prevent CMEs
+        // Temporary list to prevent CMEs
         @SuppressWarnings("unchecked")
         var keys = new ArrayList<>(((Map<String, Object>) val.get()).keySet()).iterator();
         return new Iterator<>() {
@@ -220,11 +222,8 @@ public class Variable<T> implements Expression<T> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
-        if (ctx != null)
-            return TypeManager.toString((Object[]) getValues(ctx));
-        var name = this.name.toString(null, debug);
-        return "{" + (local ? Variables.LOCAL_VARIABLE_TOKEN : "") + name.substring(1, name.length() - 1) + "}" + (debug ? "(as " + supertype.getSimpleName() + ")" : "");
+    public String toString(TriggerContext ctx, boolean debug) {
+        return TypeManager.toString((Object[]) getValues(ctx));
     }
 
     public Class<? extends T> getReturnType() {

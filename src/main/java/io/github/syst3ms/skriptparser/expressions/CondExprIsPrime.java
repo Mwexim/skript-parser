@@ -17,12 +17,11 @@ import java.util.Arrays;
  *
  * @name Is Prime
  * @type CONDITION
- * @pattern %numbers% (is|are)[ not|n't] [a] prime [number]
+ * @pattern %numbers% (is|are)[ not|n't] [a] prime [number[s]]
  * @since ALPHA
  * @author Mwexim
  */
 public class CondExprIsPrime extends PropertyConditional<Number> {
-
     static {
         Parser.getMainRegistration().addSelfRegisteringElement(
                 CondExprIsPrime.class,

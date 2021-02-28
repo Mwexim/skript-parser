@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.Time;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 
@@ -21,7 +20,6 @@ import java.math.BigInteger;
  * @author Mwexim
  */
 public class ExprTimeInformation extends PropertyExpression<Number, Time> {
-
 	static {
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprTimeInformation.class,
@@ -37,7 +35,7 @@ public class ExprTimeInformation extends PropertyExpression<Number, Time> {
 			"hours", "minutes", "seconds", "milliseconds"
 	};
 
-	int parseMark;
+	private int parseMark;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -64,7 +62,7 @@ public class ExprTimeInformation extends PropertyExpression<Number, Time> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return CHOICES[parseMark] + " of time " + getOwner().toString(ctx, debug);
 	}
 }

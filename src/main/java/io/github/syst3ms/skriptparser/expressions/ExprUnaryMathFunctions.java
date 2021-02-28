@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.UnaryOperator;
 
@@ -37,7 +36,7 @@ import java.util.function.UnaryOperator;
  * @author Syst3ms
  */
 public class ExprUnaryMathFunctions implements Expression<Number> {
-
+	// TODO support brackets in the patterns
 	private static final PatternInfos<UnaryOperator<Number>> PATTERNS = new PatternInfos<>(
 		new Object[][]{
 			{"abs %number%|\\|%number%\\|", (UnaryOperator<Number>) NumberMath::abs},
@@ -59,8 +58,6 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 			{"ln %number%", (UnaryOperator<Number>) NumberMath::ln}
 		}
 	);
-	private int pattern;
-	private Expression<Number> number;
 
 	static {
 		Parser.getMainRegistration().addExpression(
@@ -70,6 +67,9 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 			PATTERNS.getPatterns()
 		);
 	}
+
+	private int pattern;
+	private Expression<Number> number;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -87,7 +87,7 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		/*
 		 * This is dirty, but at least it's better than switching over all cases
 		 */

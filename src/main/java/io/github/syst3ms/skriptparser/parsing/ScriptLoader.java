@@ -4,10 +4,7 @@ import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileParser;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.file.VoidElement;
-import io.github.syst3ms.skriptparser.lang.Conditional;
-import io.github.syst3ms.skriptparser.lang.Statement;
-import io.github.syst3ms.skriptparser.lang.Trigger;
-import io.github.syst3ms.skriptparser.lang.UnloadedTrigger;
+import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.log.ErrorContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.LogEntry;
@@ -164,7 +161,7 @@ public class ScriptLoader {
                         logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
                         logger.error(
                                 "The enclosing section does not allow the use of this section: "
-                                        + codeSection.get().toString(null, logger.isDebug()),
+                                        + codeSection.get().toString(TriggerContext.DUMMY, logger.isDebug()),
                                 ErrorType.SEMANTIC_ERROR,
                                 "The current section limits the usage of syntax. This means that certain syntax cannot be used here, which was the case. Remove the line entirely and refer to the documentation for the correct usage of this section"
                         );

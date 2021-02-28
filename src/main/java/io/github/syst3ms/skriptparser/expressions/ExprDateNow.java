@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * The current date, the one from yesterday or the one from tomorrow.
@@ -17,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
  * @author Mwexim
  */
 public class ExprDateNow implements Expression<SkriptDate> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprDateNow.class,
@@ -27,7 +25,7 @@ public class ExprDateNow implements Expression<SkriptDate> {
 		);
 	}
 
-	int parseMark;
+	private int parseMark;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
@@ -49,7 +47,7 @@ public class ExprDateNow implements Expression<SkriptDate> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		switch (parseMark) {
 			case 1:
 				return "yesterday";

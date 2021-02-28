@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.color.Color;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 
@@ -75,7 +74,7 @@ public class ExprColorValues extends PropertyExpression<BigInteger, Color> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		switch (parseMark) {
 			case 0:
 				return "rgb value of " + getOwner().toString(ctx, debug);

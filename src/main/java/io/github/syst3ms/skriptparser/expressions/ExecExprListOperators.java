@@ -8,7 +8,6 @@ import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -103,13 +102,13 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 		var logger = parseContext.getLogger();
 		if (list.acceptsChange(ChangeMode.SET).isEmpty()) {
 			logger.error(
-					list.toString(null, logger.isDebug()) + " is constant and cannot be changed",
+					list.toString(TriggerContext.DUMMY, logger.isDebug()) + " is constant and cannot be changed",
 					ErrorType.SEMANTIC_ERROR
 			);
 			return false;
 		} else if (list.isSingle()) {
 			logger.error(
-					list.toString(null, logger.isDebug()) + " represents a single value",
+					list.toString(TriggerContext.DUMMY, logger.isDebug()) + " represents a single value",
 					ErrorType.SEMANTIC_ERROR,
 					"List operators only work on multiple objects at the same time"
 			);
@@ -197,7 +196,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		switch (type) {
 			case 0:
 				return "pop " + list.toString(ctx, debug);

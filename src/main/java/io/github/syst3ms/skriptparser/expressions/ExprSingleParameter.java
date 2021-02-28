@@ -6,10 +6,8 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.lambda.ArgumentSection;
 import io.github.syst3ms.skriptparser.lang.lambda.SectionValue;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import org.jetbrains.annotations.Nullable;
 
 public class ExprSingleParameter extends SectionValue<ArgumentSection, Object> {
-
     static {
         Parser.getMainRegistration().addExpression(
                 ExprSingleParameter.class,
@@ -39,7 +37,7 @@ public class ExprSingleParameter extends SectionValue<ArgumentSection, Object> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "parameter";
     }
 }

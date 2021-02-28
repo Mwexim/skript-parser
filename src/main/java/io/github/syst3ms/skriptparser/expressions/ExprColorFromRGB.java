@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.color.Color;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 
@@ -57,12 +56,12 @@ public class ExprColorFromRGB implements Expression<Color> {
 				&& 0 <= g && g < 256
 				&& 0 <= b && b < 256
 				&& 0 <= a && a < 256)
-			return new Color[] {Color.of(r, g, b, a)};
+			return new Color[]{Color.of(r, g, b, a)};
 		return new Color[0];
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return "color from rgb " + rgb.toString(ctx, debug);
 	}
 }

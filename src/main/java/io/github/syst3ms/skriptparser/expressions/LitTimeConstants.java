@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.Time;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 
@@ -71,7 +70,7 @@ public class LitTimeConstants implements Literal<Time> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         if (onClock) {
             return hours.toString(ctx, debug) + " o' clock";
         } else {

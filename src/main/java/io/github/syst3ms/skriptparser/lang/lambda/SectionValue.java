@@ -31,7 +31,7 @@ public abstract class SectionValue<S extends ArgumentSection, T> implements Expr
         if (section == null) {
             logger.error(
                     "Couldn't find a section linked to the expression '" +
-                            toString(null, logger.isDebug()) +
+                            toString(TriggerContext.DUMMY, logger.isDebug()) +
                             "'",
                     ErrorType.SEMANTIC_ERROR
             );
@@ -104,5 +104,4 @@ public abstract class SectionValue<S extends ArgumentSection, T> implements Expr
      * @return the class of the {@link ArgumentSection} this {@code SectionValue} is linked to.
      */
     public abstract Class<? extends S> getSectionClass();
-
 }

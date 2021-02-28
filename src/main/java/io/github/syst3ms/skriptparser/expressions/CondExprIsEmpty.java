@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -16,8 +15,8 @@ import java.util.Arrays;
  * you should use the 'list' modifier at the end.
  *
  * @name Is Empty
- * @pattern %strings% (is)[1:( not|n't)] empty
- * @pattern %objects% (is|are)[1:( not|n't)] empty
+ * @pattern %objects% (is|are)[( not|n't)] empty
+ * @pattern %strings% (is|are)[( not|n't)] [an] empty string[s]
  * @since ALPHA
  * @author Olyno
  */
@@ -27,7 +26,7 @@ public class CondExprIsEmpty extends ConditionalExpression {
                 Boolean.class,
                 true,
                 5,
-                "%objects% is[1:( not|n't)] empty",
+                "%objects% (is|are)[1:( not|n't)] empty",
                 "%strings% (is|are)[1:( not|n't)] [an] empty string[s]"
         );
     }
@@ -59,7 +58,7 @@ public class CondExprIsEmpty extends ConditionalExpression {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return expr.toString(ctx, debug) + (isNegated() ? " is not " : " is ") + "empty";
     }
 } 

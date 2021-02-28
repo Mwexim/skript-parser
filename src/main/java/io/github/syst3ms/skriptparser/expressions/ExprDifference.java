@@ -22,18 +22,17 @@ import java.util.Optional;
  * (this is for example numbers, dates, durations and others).
  *
  * @name Difference
- * @pattern difference (between|of) %object% and %object%
+ * @pattern [the] difference (between|of) %object% and %object%
  * @since ALPHA
  * @author Mwexim
  */
 public class ExprDifference implements Expression<Object> {
-
     static {
         Parser.getMainRegistration().addExpression(
                 ExprDifference.class,
                 Object.class,
                 true,
-                "difference (between|of) %object% and %object%"
+                "[the] difference (between|of) %object% and %object%"
         );
     }
 
@@ -138,7 +137,7 @@ public class ExprDifference implements Expression<Object> {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "difference between " + first.toString(ctx, debug) + " and " + second.toString(ctx, debug);
     }
 }

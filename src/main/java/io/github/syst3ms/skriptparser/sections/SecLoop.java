@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.lang.lambda.SkriptConsumer;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.Iterator;
@@ -31,8 +30,7 @@ public class SecLoop extends ArgumentSection {
 	private Expression<BigInteger> times;
 	private SkriptConsumer<SecLoop> lambda;
 	private boolean isNumericLoop;
-	private final transient Map<TriggerContext, Object> current = new WeakHashMap<>();
-	private final transient Map<TriggerContext, Iterator<?>> currentIter = new WeakHashMap<>();
+	private final transient Map<SecLoop, Iterator<?>> iterators = new WeakHashMap<>();
 	private Statement actualNext;
 
 	@SuppressWarnings("unchecked")
@@ -73,30 +71,22 @@ public class SecLoop extends ArgumentSection {
 
 	@Override
 	public Optional<? extends Statement> walk(TriggerContext ctx) {
-		if (isNumericLoop) {
-			BigInteger[] range = (BigInteger[]) times.getSingle(ctx)
-					.filter(t -> t.compareTo(BigInteger.ZERO) > 0)
-					.map(t -> Ranges.getRange(BigInteger.class).orElseThrow()
-							.getFunction()
-							.apply(BigInteger.ONE, t)) // Upper bound is inclusive
-					.orElse(new BigInteger[0]);
+		if (isNumericLoop && expr == null) {
 			// We just set the looped expression to a range from 1 to the amount of times.
 			// This allows the usage of 'loop-number' to get the current iteration
-			expr = new SimpleLiteral<>(BigInteger.class, range);
+			expr = rangeOf(ctx, times);
 		}
 
-		Iterator<?> iter = currentIter.get(ctx);
+		Iterator<?> iter = iterators.get(this);
 		if (iter == null) {
 			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(ctx) : expr.iterator(ctx);
-			if (iter != null) {
-				if (iter.hasNext()) {
-					currentIter.put(ctx, iter);
-				} else {
-					iter = null;
-				}
+			if (iter.hasNext()) {
+				iterators.put(this, iter);
+			} else {
+				iter = null;
 			}
 		}
-		Iterator<?> finalIter = iter;
+		var finalIter = iter;
 		return Optional.ofNullable(iter)
 				.filter(Iterator::hasNext)
 				.map(it -> {
@@ -105,35 +95,33 @@ public class SecLoop extends ArgumentSection {
 				})
 				.or(() -> {
 					if (finalIter != null)
-						currentIter.remove(ctx);
+						iterators.remove(this);
 					return getNext();
 				});
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return "loop " + (isNumericLoop ? times.toString(ctx, debug) + " times" : expr.toString(ctx, debug));
-	}
-
-	@Nullable
-	public Object getCurrent(TriggerContext ctx) {
-		return current.get(ctx);
 	}
 
 	/**
 	 * @return the expression whose values this loop is iterating over
 	 */
 	public Expression<?> getLoopedExpression() {
-		if (expr == null) {
-			// getLoopedExpression() is really only used to get the return type, so that's why we can use DUMMY here.
-			BigInteger[] range = (BigInteger[]) times.getSingle(TriggerContext.DUMMY)
-					.filter(t -> t.compareTo(BigInteger.ZERO) > 0)
-					.map(t -> Ranges.getRange(BigInteger.class).orElseThrow()
-							.getFunction()
-							.apply(BigInteger.ONE, t)) // Upper bound is inclusive
-					.orElse(new BigInteger[0]);
-			expr = new SimpleLiteral<>(BigInteger.class, range);
+		if (isNumericLoop && expr == null) {
+			expr = rangeOf(TriggerContext.DUMMY, times);
 		}
 		return expr;
+	}
+
+	private static Expression<BigInteger> rangeOf(TriggerContext ctx, Expression<BigInteger> size) {
+		BigInteger[] range = (BigInteger[]) size.getSingle(ctx)
+				.filter(t -> t.compareTo(BigInteger.ZERO) > 0)
+				.map(t -> Ranges.getRange(BigInteger.class).orElseThrow()
+						.getFunction()
+						.apply(BigInteger.ONE, t)) // Upper bound is inclusive
+				.orElse(new BigInteger[0]);
+		return new SimpleLiteral<>(BigInteger.class, range);
 	}
 }

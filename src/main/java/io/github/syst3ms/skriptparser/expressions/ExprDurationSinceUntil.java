@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 
@@ -23,7 +22,6 @@ import java.time.Duration;
  * @author Mwexim
  */
 public class ExprDurationSinceUntil implements Expression<Duration> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprDurationSinceUntil.class,
@@ -54,7 +52,7 @@ public class ExprDurationSinceUntil implements Expression<Duration> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return "duration " + (past ? "since " : "until ") + date.toString(ctx, debug);
 	}
 }

@@ -46,16 +46,15 @@ public class EffChange extends Effect {
             {"reset %~objects%", ChangeMode.RESET}
     });
 
+    static {
+        Parser.getMainRegistration().addEffect(EffChange.class, PATTERNS.getPatterns());
+    }
+
     private Expression<?> changed;
     @Nullable
     private Expression<?> changeWith;
     private ChangeMode mode;
-
     private boolean assignment; // A simple flag for identifying which syntax was precisely used
-
-    static {
-        Parser.getMainRegistration().addEffect(EffChange.class, PATTERNS.getPatterns());
-    }
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
@@ -72,7 +71,7 @@ public class EffChange extends Effect {
         }
         this.mode = mode;
         SkriptLogger logger = parseContext.getLogger();
-        String changedString = changed.toString(null, logger.isDebug());
+        String changedString = changed.toString(TriggerContext.DUMMY, logger.isDebug());
         if (changeWith == null) {
             assert mode == ChangeMode.DELETE || mode == ChangeMode.RESET;
             return changed.acceptsChange(mode).isPresent();
@@ -126,7 +125,19 @@ public class EffChange extends Effect {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public void execute(TriggerContext ctx) {
+        if (changeWith == null) {
+            changed.change(ctx, new Object[0], mode);
+        } else {
+            var values= changeWith.getValues(ctx);
+            if (values.length == 0)
+                return;
+            changed.change(ctx, values, mode);
+        }
+    }
+
+    @Override
+    public String toString(TriggerContext ctx, boolean debug) {
         String changedString = changed.toString(ctx, debug);
         String changedWithString = changeWith != null ? changeWith.toString(ctx, debug) : "";
         switch (mode) {
@@ -155,18 +166,6 @@ public class EffChange extends Effect {
                 return String.format("remove all %s from %s", changedWithString, changedString);
             default:
                 throw new IllegalStateException();
-        }
-    }
-
-    @Override
-    public void execute(TriggerContext ctx) {
-        if (changeWith == null) {
-            changed.change(ctx, new Object[0], mode);
-        } else {
-            var values= changeWith.getValues(ctx);
-            if (values.length == 0)
-                return;
-            changed.change(ctx, values, mode);
         }
     }
 }

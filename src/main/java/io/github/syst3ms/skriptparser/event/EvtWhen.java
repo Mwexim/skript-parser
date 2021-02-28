@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * This event will check against a certain condition and will trigger when the condition is met.
@@ -18,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
  * @author Mwexim
  */
 public class EvtWhen extends SkriptEvent {
-
     static {
         Parser.getMainRegistration()
                 .newEvent(EvtWhen.class, "*when %=boolean%")
@@ -43,7 +41,7 @@ public class EvtWhen extends SkriptEvent {
     }
 
     @Override
-    public String toString(@Nullable TriggerContext ctx, boolean debug) {
+    public String toString(TriggerContext ctx, boolean debug) {
         return "when " + condition.toString(ctx, debug);
     }
 }

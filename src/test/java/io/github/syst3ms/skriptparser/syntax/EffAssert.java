@@ -76,7 +76,7 @@ public class EffAssert extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return "assert " + condition.toString(ctx, debug);
 	}
 

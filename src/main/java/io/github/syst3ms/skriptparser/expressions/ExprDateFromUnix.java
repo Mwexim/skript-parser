@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 
@@ -22,7 +21,6 @@ import java.math.BigInteger;
  * @author Mwexim
  */
 public class ExprDateFromUnix implements Expression<SkriptDate> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprDateFromUnix.class,
@@ -32,8 +30,8 @@ public class ExprDateFromUnix implements Expression<SkriptDate> {
 		);
 	}
 
-	Expression<BigInteger> timestamp;
-	boolean unix;
+	private Expression<BigInteger> timestamp;
+	private boolean unix;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -54,7 +52,7 @@ public class ExprDateFromUnix implements Expression<SkriptDate> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		return "date from " + (unix ? "unix " : "") + "timestamp " + timestamp.toString(ctx, debug);
 	}
 }

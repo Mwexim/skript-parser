@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -26,7 +25,6 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author Mwexim
  */
 public class ExprElement implements Expression<Object> {
-
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprElement.class,
@@ -135,7 +133,7 @@ public class ExprElement implements Expression<Object> {
 	}
 
 	@Override
-	public String toString(@Nullable TriggerContext ctx, boolean debug) {
+	public String toString(TriggerContext ctx, boolean debug) {
 		switch (pattern) {
 			case 0:
 			case 3:
