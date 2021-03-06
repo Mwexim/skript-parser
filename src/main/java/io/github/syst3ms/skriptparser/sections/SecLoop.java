@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.sections;
 
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.*;
+import io.github.syst3ms.skriptparser.lang.control.Continuable;
 import io.github.syst3ms.skriptparser.lang.lambda.ArgumentSection;
 import io.github.syst3ms.skriptparser.lang.lambda.SkriptConsumer;
 import io.github.syst3ms.skriptparser.log.ErrorType;
@@ -17,7 +18,7 @@ import java.util.WeakHashMap;
 /**
  * A section that iterates over a collection of elements
  */
-public class SecLoop extends ArgumentSection {
+public class SecLoop extends ArgumentSection implements Continuable {
 	static {
 		Parser.getMainRegistration().addSection(
 				SecLoop.class,
@@ -30,8 +31,7 @@ public class SecLoop extends ArgumentSection {
 	private Expression<BigInteger> times;
 	private SkriptConsumer<SecLoop> lambda;
 	private boolean isNumericLoop;
-	private final transient Map<SecLoop, Iterator<?>> iterators = new WeakHashMap<>();
-	private Statement actualNext;
+	private static final transient Map<SecLoop, Iterator<?>> iterators = new WeakHashMap<>();
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -98,6 +98,11 @@ public class SecLoop extends ArgumentSection {
 						iterators.remove(this);
 					return getNext();
 				});
+	}
+
+	@Override
+	public ContinueType getType() {
+		return ContinueType.INTERNAL;
 	}
 
 	@Override

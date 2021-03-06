@@ -18,28 +18,6 @@ public abstract class Statement implements SyntaxElement {
     protected Statement next;
 
     /**
-     * Runs all code starting at a given point sequentially
-     * @param start the Statement the method should first run
-     * @param context the context
-     * @return {@code true} if the code ran normally, and {@code false} if any exception occurred
-     */
-    public static boolean runAll(Statement start, TriggerContext context) {
-        Optional<? extends Statement> item = Optional.of(start);
-        try {
-            while (item.isPresent())
-                item = item.flatMap(i -> i.walk(context));
-            return true;
-        } catch (StackOverflowError so) {
-            System.err.println("The script repeated itself infinitely !");
-            return false;
-        } catch (Exception e) {
-            System.err.println("An exception occurred. Stack trace :");
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    /**
      * Executes this Statement
      * @param ctx the event
      */
@@ -106,5 +84,27 @@ public abstract class Statement implements SyntaxElement {
         } else {
             return Optional.empty();
         }
+    }
+
+    /**
+     * Runs all code starting at a given point sequentially
+     * @param start the Statement the method should first run
+     * @param context the context
+     * @return {@code true} if the code ran normally, and {@code false} if any exception occurred
+     */
+    public static boolean runAll(Statement start, TriggerContext context) {
+        Optional<? extends Statement> item = Optional.of(start);
+        try {
+            while (item.isPresent())
+                item = item.flatMap(i -> i.walk(context));
+            return true;
+        } catch (StackOverflowError so) {
+            System.err.println("The script repeated itself infinitely!");
+            return false;
+        } catch (Exception e) {
+            System.err.println("An exception occurred. Stack trace:");
+            e.printStackTrace();
+        }
+        return false;
     }
 }

@@ -2,20 +2,20 @@ package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.*;
+import io.github.syst3ms.skriptparser.lang.control.Continuable;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.sections.SecLoop;
-import io.github.syst3ms.skriptparser.sections.SecWhile;
 
-import java.util.ArrayList;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Skips the current looped value and continues to the next one in the list, if it exists.
  *
  * @name Continue
- * @pattern continue
+ * @pattern continue [at %*integer%]
  * @since ALPHA
  * @author Mwexim
  */
@@ -24,29 +24,27 @@ public class EffContinue extends Effect {
         Parser.getMainRegistration().addEffect(
             EffContinue.class,
             4,
-            "continue"
+            "continue [1:at %*integer%]"
         );
     }
 
-    private CodeSection loop;
+    private Expression<BigInteger> position;
+    private List<? extends Continuable> sections;
 
-    // TODO make it possible to continue nested loops
+    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        List<CodeSection> loops = new ArrayList<>();
-        for (CodeSection sec : parseContext.getParserState().getCurrentSections()) {
-            if (sec instanceof SecLoop || sec instanceof SecWhile) {
-                loops.add(sec);
-            }
-        }
-        if (loops.size() == 0) {
-            parseContext.getLogger().error("You can only use 'continue' in a loop!", ErrorType.SEMANTIC_ERROR);
+        sections = parseContext.getParserState().getCurrentSections().stream()
+                .filter(sec -> sec instanceof Continuable)
+                .map(sec -> (Continuable) sec)
+                .collect(Collectors.toList());
+        if (sections.size() == 0) {
+            parseContext.getLogger().error("You cannot use the 'continue'-effect here", ErrorType.SEMANTIC_ERROR);
             return false;
         }
-        // Closest loop will be the first item
-        loop = loops.get(0);
-        assert loop != null;
 
+        if (parseContext.getParseMark() == 1)
+            position = (Expression<BigInteger>) expressions[0];
         return true;
     }
 
@@ -57,12 +55,31 @@ public class EffContinue extends Effect {
 
     @Override
 	public Optional<? extends Statement> walk(TriggerContext ctx) {
-        loop.walk(ctx);
-        return Optional.empty();
+        // Indices start at 1
+        int pos = position != null
+                ? position.getSingle(ctx)
+                        .map(val -> val.intValue() - 1)
+                        .filter(val -> val > 0 && val <= sections.size())
+                        .orElse(-1)
+                : sections.size();
+        if (pos == -1)
+            return Optional.empty();
+        var section = sections.get(sections.size() - pos);
+        switch (section.getType()) {
+            case INTERNAL:
+                ((CodeSection) section).walk(ctx);
+                return Optional.empty();
+            case REFERENCING:
+                return Optional.of((CodeSection) section);
+            case CUSTOM:
+                return section.getContinued();
+            default:
+                throw new IllegalStateException();
+        }
     }
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
-        return "continue";
+        return "continue" + (position != null ? " at " + position.toString(ctx, debug) : "");
     }
 }
