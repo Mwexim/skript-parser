@@ -2,7 +2,7 @@
 # 	- Mwexim
 # Date(s):
 #	- 2020/12/05
-#	- 2021/03/07 (issue #99)
+#	- 2021/03/07 (issue #99 and #100)
 
 test:
 	# These are some general tests on tags, to test if they combine correctly into a string.
@@ -11,7 +11,8 @@ test:
 	set {var2} to "HeLLO, 	MY name i\ns mwexim aND I am the creator of this test."
 	assert {var} = {var2} with "Multiple tags didn't combine correctly: {var} (%{var}%) != %{var2}%"
 
-	# Issue #99
+	# Issue #99 and #100
 	set {list::*} to "Hello", "&" and "World!"
 	set {var3} to join {list::*} with " "
 	assert "Hello & World!" = {var3} with "{list::*} joined by space should be 'Hello & World!': %{var3}%"
+	compiles "<"

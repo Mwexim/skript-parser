@@ -27,13 +27,13 @@ public class EffAssert extends Effect {
 		Parser.getMainRegistration().addEffect(
 			EffAssert.class,
 			"assert [1:with debug] %=boolean% [with [message] %string%]",
-				"throws [(error|exception)] <.+> [with [message] %string%]"
+				"(0:throws [(error|exception)]|1:compiles) <.+> [with [message] %string%]"
 		);
 	}
 
 	private Expression<Boolean> condition;
 	private Expression<String> message;
-	private boolean debug;
+	private int parseMark;
 
 	private String matched;
 	@Nullable
@@ -47,11 +47,11 @@ public class EffAssert extends Effect {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		logger = parseContext.getLogger();
 		pattern = matchedPattern;
+		parseMark = parseContext.getParseMark();
 		if (pattern == 0) {
 			condition = (Expression<Boolean>) expressions[0];
 			if (expressions.length == 2)
 				message = (Expression<String>) expressions[1];
-			debug = parseContext.getParseMark() == 1;
 		} else {
 			matched = parseContext.getMatches().get(0).group();
 			parseContext.getLogger().recurse();
@@ -70,7 +70,8 @@ public class EffAssert extends Effect {
 					.filter(val -> !val.booleanValue())
 					.ifPresent(__ -> SyntaxParserTest.addError(new AssertionError(errorString(ctx))));
 		} else {
-			if (throwsError != null)
+			if (throwsError != null && parseMark == 0
+				|| throwsError == null && parseMark == 1)
 				SyntaxParserTest.addError(new AssertionError(errorString(ctx)));
 		}
 	}
@@ -90,12 +91,21 @@ public class EffAssert extends Effect {
 						.append(logger.getFileName())
 						.append(")");
 			} else {
-				assert throwsError != null;
-				error.append("Expected a non-parsable expression (")
-						.append(matched)
-						.append(", ")
-						.append(logger.getFileName())
-						.append(")");
+				if (parseMark == 0) {
+					assert throwsError != null;
+					error.append("Expected a non-parsable expression (")
+							.append(matched)
+							.append(", ")
+							.append(logger.getFileName())
+							.append(")");
+				} else {
+					assert throwsError == null;
+					error.append("Expected a parsable expression (")
+							.append(matched)
+							.append(", ")
+							.append(logger.getFileName())
+							.append(")");
+				}
 			}
 		} else {
 			error.append(this.message.getSingle(ctx).map(s -> (String) s).orElse(TypeManager.EMPTY_REPRESENTATION))
@@ -103,7 +113,7 @@ public class EffAssert extends Effect {
 					.append(logger.getFileName())
 					.append(")");
 		}
-		if (debug) {
+		if (pattern == 0 && parseMark == 1) {
 			error.append(" [")
 					.append(condition.getClass().getSimpleName())
 					.append("]");

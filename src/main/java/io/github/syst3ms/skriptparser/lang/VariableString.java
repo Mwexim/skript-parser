@@ -105,7 +105,8 @@ public class VariableString extends TaggedExpression {
                 i += content.get().length() + 1;
             } else if (c == '<') {
                 if (i == charArray.length - 1) {
-                    return Optional.empty();
+                    sb.append(c);
+                    break;
                 }
                 var content = StringUtils.getBracketContent(s, i + 1, '>');
                 if (content.isEmpty()) {
