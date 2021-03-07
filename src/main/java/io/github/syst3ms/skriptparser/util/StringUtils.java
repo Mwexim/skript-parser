@@ -103,16 +103,6 @@ public class StringUtils {
                 if (closing == -1)
                     return -1;
                 i = closing;
-            } else if (c == '\'') {
-                var closing = s.indexOf('\'', i + 1);
-                if (closing == -1)
-                    return -1;
-                i = closing;
-            } else if (c == 'R' && i < s.length() - 2 && chars[i + 1] == '"') {
-                var m = R_LITERAL_CONTENT_PATTERN.matcher(s).region(i + 2, s.length());
-                if (!m.lookingAt())
-                    return -1;
-                i = m.end() + 1;
             } else {
                 return i;
             }

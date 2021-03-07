@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.lang.base.TaggedExpression;
-import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
@@ -19,14 +18,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 /**
  * A string that possibly contains expressions inside it, meaning that its value may be unknown at parse time
  */
 @SuppressWarnings("ConfusingArgumentToVarargsMethod")
 public class VariableString extends TaggedExpression {
-    public static final Pattern R_LITERAL_CONTENT_PATTERN = Pattern.compile("^(.+?)\\((.+)\\)\\1$"); // It's actually rare to be able to use '.+' raw like this
     /**
      * An array containing raw data for this {@link VariableString}.
      * Contains {@link String} and {@link Expression} elements
@@ -55,18 +52,10 @@ public class VariableString extends TaggedExpression {
     public static Optional<VariableString> newInstanceWithQuotes(String s, ParserState parserState, SkriptLogger logger) {
         if (s.startsWith("\"") && s.endsWith("\"") && StringUtils.nextSimpleCharacterIndex(s, 0) == s.length()) {
             return newInstance(s.substring(1, s.length() - 1), parserState, logger);
-        } else if (s.startsWith("'") && s.endsWith("'") && StringUtils.nextSimpleCharacterIndex(s, 0) == s.length()) {
-            return Optional.of(new VariableString(new String[]{
-                    s.substring(1, s.length() - 1).replace("\\'", "'")
+        } else if (s.startsWith("r\"") && s.endsWith("\"") && StringUtils.nextSimpleCharacterIndex(s, 1) == s.length()) {
+            return Optional.of(new VariableString(new String[] {
+                    s.substring(2, s.length() - 1).replace("\\\"", "\"")
             }));
-        } else if (s.startsWith("R\"") && s.endsWith("\"")) {
-            var content = s.substring(2, s.length() - 1);
-            var m = R_LITERAL_CONTENT_PATTERN.matcher(content);
-            if (m.matches()) {
-                return Optional.of(new VariableString(new String[]{m.group(2)}));
-            } else {
-                logger.error("Invalid R literal string", ErrorType.MALFORMED_INPUT);
-            }
         }
         return Optional.empty();
     }
@@ -141,7 +130,7 @@ public class VariableString extends TaggedExpression {
                         sb.append('\t');
                         break;
                     default:
-                        sb.append(c);
+                        sb.append(next);
                 }
             } else if (c == '&') {
                 if (i == charArray.length - 1) {

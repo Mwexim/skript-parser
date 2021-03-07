@@ -27,7 +27,7 @@ public class SkriptLoggerTest {
         logger.finalizeLogs();
         assertTrue(wrongNumber.isEmpty() && logger.close().get(0).getMessage().startsWith("A single"));
         logger = new SkriptLogger();
-        Optional<? extends Expression<Boolean>> wrongRange = SyntaxParser.parseBooleanExpression("1 is between 'a' and 'b'", SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
+        Optional<? extends Expression<Boolean>> wrongRange = SyntaxParser.parseBooleanExpression("1 is between \"a\" and \"b\"", SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
         logger.finalizeLogs();
         assertTrue(wrongRange.isEmpty() && logger.close().get(0).getMessage().startsWith("'1' cannot"));
     }
