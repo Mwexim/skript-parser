@@ -125,7 +125,7 @@ public class VariableString extends TaggedExpression {
                 data.add(tag.get());
                 i += content.get().length() + ">".length();
             } else if (c == '\\') {
-                if (i + 1 == charArray.length) {
+                if (i == charArray.length - 1) {
                     return Optional.empty();
                 }
                 char next = charArray[++i];
@@ -140,8 +140,17 @@ public class VariableString extends TaggedExpression {
                         sb.append(c);
                 }
             } else if (c == '&') {
+                if (i == charArray.length - 1) {
+                    sb.append(c);
+                    break;
+                }
+                char next = charArray[++i];
+                if (Character.isWhitespace(next)) {
+                    sb.append(c).append(next);
+                    continue;
+                }
                 logger.recurse();
-                var tag = TagManager.parseTag(String.valueOf(charArray[++i]), logger);
+                var tag = TagManager.parseTag(String.valueOf(next), logger);
                 logger.callback();
                 if (tag.isEmpty()) {
                     return Optional.empty();
