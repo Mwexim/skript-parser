@@ -87,6 +87,9 @@ public class VariableString extends TaggedExpression {
             if (c == '%') {
                 if (i == charArray.length - 1) {
                     return Optional.empty();
+                } else if (charArray[i + 1] == '%') {
+                    sb.append(charArray[++i]);
+                    continue;
                 }
                 var content = StringUtils.getPercentContent(s, i + 1);
                 var toParse = content.map(co -> co.replaceAll("\\\\(.)", "$1"));

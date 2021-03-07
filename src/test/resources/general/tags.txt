@@ -16,3 +16,4 @@ test:
 	set {var3} to join {list::*} with " "
 	assert "Hello & World!" = {var3} with "{list::*} joined by space should be 'Hello & World!': %{var3}%"
 	compiles "<"
+	compiles "70%% of the human body is made out of water."
