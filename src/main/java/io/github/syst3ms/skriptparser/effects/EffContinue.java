@@ -1,7 +1,10 @@
 package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.lang.*;
+import io.github.syst3ms.skriptparser.lang.Effect;
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.Statement;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.control.Continuable;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -64,18 +67,7 @@ public class EffContinue extends Effect {
                 : sections.size();
         if (pos == -1)
             return Optional.empty();
-        var section = sections.get(sections.size() - pos);
-        switch (section.getType()) {
-            case INTERNAL:
-                ((CodeSection) section).walk(ctx);
-                return Optional.empty();
-            case REFERENCING:
-                return Optional.of((CodeSection) section);
-            case CUSTOM:
-                return section.getContinued();
-            default:
-                throw new IllegalStateException();
-        }
+        return sections.get(sections.size() - pos).getContinued(ctx);
     }
 
     @Override

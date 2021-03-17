@@ -101,8 +101,9 @@ public class SecLoop extends ArgumentSection implements Continuable {
 	}
 
 	@Override
-	public ContinueType getType() {
-		return ContinueType.INTERNAL;
+	public Optional<? extends Statement> getContinued(TriggerContext ctx) {
+		walk(ctx);
+		return Optional.empty();
 	}
 
 	@Override

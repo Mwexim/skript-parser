@@ -60,8 +60,8 @@ public class SecWhile extends CodeSection implements Continuable {
     }
 
     @Override
-    public ContinueType getType() {
-        return ContinueType.REFERENCING;
+    public Optional<? extends Statement> getContinued(TriggerContext ctx) {
+        return Optional.of(this);
     }
 
     /**
