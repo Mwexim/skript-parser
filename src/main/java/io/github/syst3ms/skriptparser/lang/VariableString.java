@@ -130,7 +130,7 @@ public class VariableString extends TaggedExpression {
                         sb.append('\t');
                         break;
                     default:
-                        sb.append(next);
+                        sb.append(c);
                 }
             } else if (c == '&') {
                 if (i == charArray.length - 1) {
