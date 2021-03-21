@@ -10,6 +10,7 @@ import java.util.Optional;
 
 /**
  * Shows that your section can be continued by using the {@link EffContinue continue} effect.
+ * @see EffContinue
  */
 public interface Continuable {
 	/**
@@ -29,6 +30,7 @@ public interface Continuable {
 	 * </ol>
 	 * If none if these behaviors are desired, one can use their own implementation.
 	 * @return the statement to iterate over
+	 * @see EffContinue
 	 */
 	Optional<? extends Statement> getContinued(TriggerContext ctx);
 }

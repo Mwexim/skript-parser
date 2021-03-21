@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * Skips the current looped value and continues to the next one in the list, if it exists.
  *
  * @name Continue
- * @pattern continue [at %*integer%]
+ * @pattern continue [%*integer% loop[s]]
  * @since ALPHA
  * @author Mwexim
  */
@@ -27,7 +27,7 @@ public class EffContinue extends Effect {
         Parser.getMainRegistration().addEffect(
             EffContinue.class,
             4,
-            "continue [1:at %*integer%]"
+            "continue [1:%*integer% loop[s]]"
         );
     }
 
@@ -61,13 +61,13 @@ public class EffContinue extends Effect {
         // Indices start at 1
         int pos = position != null
                 ? position.getSingle(ctx)
+                        .filter(val -> val.compareTo(BigInteger.ZERO) > 0 && val.compareTo(BigInteger.valueOf(sections.size())) <= 0)
                         .map(val -> val.intValue() - 1)
-                        .filter(val -> val > 0 && val <= sections.size())
                         .orElse(-1)
-                : sections.size();
+                : 0;
         if (pos == -1)
             return Optional.empty();
-        return sections.get(sections.size() - pos).getContinued(ctx);
+        return sections.get(pos).getContinued(ctx);
     }
 
     @Override

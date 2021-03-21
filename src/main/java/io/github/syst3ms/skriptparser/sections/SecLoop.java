@@ -27,7 +27,7 @@ public class SecLoop extends ArgumentSection implements Continuable {
 		);
 	}
 
-	private Expression<?> expr;
+	private Expression<?> expr = null;
 	private Expression<BigInteger> times;
 	private SkriptConsumer<SecLoop> lambda;
 	private boolean isNumericLoop;
@@ -103,6 +103,13 @@ public class SecLoop extends ArgumentSection implements Continuable {
 	@Override
 	public Optional<? extends Statement> getContinued(TriggerContext ctx) {
 		walk(ctx);
+//		Iterator<?> iter = iterators.get(this);
+//		assert iter != null;
+//		if (iter.hasNext()) {
+//			return Optional.empty();
+//		} else {
+//			return getNext();
+		//}
 		return Optional.empty();
 	}
 

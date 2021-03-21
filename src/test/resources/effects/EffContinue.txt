@@ -25,3 +25,15 @@ test:
 		assert {var} = 1 with "{var} (in while) should equal 1: %{var}%"
 		assert {flag} = 5 with "{flag} (in while) should equal 4: %{flag}%"
 		death
+
+	birth with "Double loop-section was not killed":
+		set {flag} to 0
+		set {l::*} to range from 1 to 2
+		loop {l::*}:
+			loop range from 'a' to 'f':
+				add 1 to {flag}
+				if loop-string = 'd':
+					continue 2 loops
+			assert false
+		assert {flag} = 4 with "{flag} (in double loop) should be equal to 4: %{flag}%"
+		death
