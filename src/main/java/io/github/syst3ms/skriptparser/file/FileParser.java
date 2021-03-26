@@ -92,7 +92,7 @@ public class FileParser {
      */
     @Nullable
     private static String removeComments(String string) {
-        if (string.matches("^[\\s\\t]*#[^#]+") || string.equals("#") || string.isBlank()) {
+        if (string.matches("^[\\s\\t]*#[^#]+") || string.startsWith("#") || string.isBlank()) {
             return ""; // Whole string is a comment
         }
 
