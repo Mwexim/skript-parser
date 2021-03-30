@@ -241,8 +241,20 @@ public class CondExprCompare extends ConditionalExpression {
         Class<?> s = third == null
                 ? second.getReturnType()
                 : ClassUtils.getCommonSuperclass(second.getReturnType(), third.getReturnType());
-        if (f == Object.class || s == Object.class)
+        if (f == Object.class || s == Object.class) {
             return true;
+        } else if (f != s) {
+            // Tries to convert the instances to each other.
+            // Basically takes expression conversions into account.
+            var converted = Expression.convertPair(first, second);
+            if (!first.equals(converted.getFirst()) || !second.equals(converted.getSecond())) {
+                first = converted.getFirst();
+                second = converted.getSecond();
+                assert Comparators.getComparator(first.getReturnType(), second.getReturnType()).isPresent();
+                comp = (Comparator<Object, Object>) Comparators.getComparator(first.getReturnType(), second.getReturnType()).get();
+                return true;
+            }
+        }
         return (comp = (Comparator<Object, Object>) Comparators.getComparator(f, s).orElse(null)) != null;
     }
 

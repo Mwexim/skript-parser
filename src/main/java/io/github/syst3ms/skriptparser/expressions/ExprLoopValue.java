@@ -101,7 +101,7 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 	@Override
 	public <R> Optional<? extends Expression<R>> convertExpression(Class<R> to) {
 		if (isVariableLoop && !isIndex) {
-			return Optional.of(new ConvertedExpression<>(this, (Class<R>) ClassUtils.getCommonSuperclass(to), o -> Converters.convert(o, to)));
+			return Optional.of(ConvertedExpression.newInstance(this, (Class<R>) ClassUtils.getCommonSuperclass(to), o -> Converters.convert(o, to)));
 		} else {
 			return super.convertExpression(to);
 		}

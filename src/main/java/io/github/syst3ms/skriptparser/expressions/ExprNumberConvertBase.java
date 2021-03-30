@@ -3,21 +3,22 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.util.Pair;
+import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Convert a number to a different base (like binary, octal or hexadecimal) or convert a string to its decimal form.
  * @name Number Convert Base
  * @type EXPRESSION
- * @pattern %integers% converted [in]to (binary|octal|hex[adecimal]|base64|base %integer%)
- * @pattern %strings% converted [in]to (binary|octal|hex[adecimal]|base64|base %integer%|5:decimal)
+ * @pattern %integers% [converted] to (binary|octal|hex[adecimal]|base[ ]64|base %integer%)
+ * @pattern (binary|octal|hex[adecimal]|base[ ]64) %strings% [converted] to (binary|octal|hex[adecimal]|base[ ]64|base %integer%|decimal)
  * @since ALPHA
  * @author Mwexim, WeeskyBDW
  */
@@ -26,82 +27,132 @@ public class ExprNumberConvertBase implements Expression<String> {
 		Parser.getMainRegistration().addExpression(
 				ExprNumberConvertBase.class,
 				String.class,
-				true,
-				"%integers% converted [in]to (0:binary|1:octal|2:hex[adecimal]|3:base[ ]64|4:base %integer%)",
-				"%strings% converted [in]to (0:binary|1:octal|2:hex[adecimal]|3:base[ ]64|4:base %integer%|5:decimal)"
+				false,
+				"%integers% [converted] to (0:binary|1:octal|2:hex[adecimal]|3:base[ ]64|4:base %integer%)",
+				"binary %strings% [converted] to (1:octal|2:hex[adecimal]|3:base[ ]64|4:base %integer%|5:decimal)",
+				"octal %strings% [converted] to (0:binary|2:hex[adecimal]|3:base[ ]64|4:base %integer%|5:decimal)",
+				"hex[adecimal] %strings% [converted] to (0:binary|1:octal|3:base[ ]64|4:base %integer%|5:decimal)",
+				"base[ ]64 %strings% [converted] to (0:binary|1:octal|2:hex[adecimal]|4:base %integer%|5:decimal)"
 		);
 	}
 
 	private Expression<?> expression;
 	@Nullable
-	private Expression<BigInteger> base;
+	private Expression<BigInteger> baseTo;
+	private int pattern;
 	private int parseMark;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+		pattern = matchedPattern;
 		parseMark = parseContext.getParseMark();
 
 		expression = expressions[0];
 		if (parseMark == 4) {
-			base = (Expression<BigInteger>) expressions[1];
+			baseTo = (Expression<BigInteger>) expressions[1];
 		}
 		return true;
 	}
 
 	@Override
 	public String[] getValues(TriggerContext ctx) {
-		int radix = 10; // Let's default it to 10 for convenience
+		int radixTo;
 		switch (parseMark) {
 			case 0:
-				radix = 2;
+				radixTo = 2;
 				break;
 			case 1:
-				radix = 8;
+				radixTo = 8;
 				break;
 			case 2:
-				radix = 16;
-				break;
-			case 4:
-				assert base != null;
-				radix = base.getSingle(ctx).map(BigInteger::intValue).orElse(10);
+				radixTo = 16;
 				break;
 			case 3:
+				radixTo = 64;
+				break;
+			case 4:
+				assert baseTo != null;
+				radixTo = baseTo.getSingle(ctx).map(BigInteger::intValue).orElse(-1);
+				break;
 			case 5:
-				break; // Handled separately
+				radixTo = 10;
+				break;
 			default:
 				throw new IllegalStateException();
 		}
-		if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX)
+		if ((radixTo < Character.MIN_RADIX || radixTo > Character.MAX_RADIX)
+			&& radixTo != 64)
 			return new String[0];
 
-		int finalRadix = radix;
-		return Arrays.stream(expression.getValues(ctx))
+		String[] convertedValues = Arrays.stream(expression.getValues(ctx))
 				.map(val -> {
-					if (val instanceof BigInteger) {
-						return parseMark == 3
+					if (pattern == 0) {
+						// From integer (always decimal)
+						assert val instanceof BigInteger;
+						return radixTo == 64
 								? Base64.getEncoder().encodeToString(((BigInteger) val).toByteArray())
-								: ((BigInteger) val).toString(finalRadix);
+								: ((BigInteger) val).toString(radixTo);
 					} else {
+						// From string
 						assert val instanceof String;
 
-						var originalRadix = radixFromString((String) val);
-						if (originalRadix.getFirst() == -1)
+						int radixFrom;
+						switch (pattern) {
+							case 1:
+								radixFrom = 2;
+								break;
+							case 2:
+								radixFrom = 8;
+								break;
+							case 3:
+								radixFrom = 16;
+								break;
+							case 4:
+								radixFrom = 64;
+								break;
+							default:
+								throw new IllegalStateException();
+						}
+						try {
+							var converted = BigInteger.valueOf(radixFrom == 64
+									? bytesToLong(Base64.getDecoder().decode((String) val))
+									: Long.parseLong((String) val, radixFrom)
+							);
+							return radixTo == 64
+									? Base64.getEncoder().encodeToString(converted.toByteArray())
+									: converted.toString(radixTo);
+						} catch (IllegalArgumentException ignored) {
 							return null;
-
-						var converted = BigInteger.valueOf(
-								parseMark == 3
-								? bytesToLong(Base64.getDecoder().decode((String) val))
-								: Long.parseLong(
-										((String) val).substring(originalRadix.getSecond() + 1),
-										originalRadix.getFirst()
-								)
-						);
-						return converted.toString(finalRadix);
+						}
 					}
 				})
-				.filter(Objects::nonNull)
 				.toArray(String[]::new);
+
+		if (CollectionUtils.contains(convertedValues, (String) null)) {
+			return new String[0];
+		}
+		return convertedValues;
+	}
+
+	@Override
+	public boolean isSingle() {
+		return expression.isSingle();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <C> Optional<? extends Expression<C>> convertExpression(Class<C> to) {
+		if (to.isAssignableFrom(BigInteger.class) && parseMark == 5) {
+			// We will only convert to the integer if it is actually a decimal,
+			// otherwise things will be messy.
+			return Optional.of((Expression<C>) ConvertedExpression.newInstance(
+					this,
+					BigInteger.class,
+					val -> Optional.of(new BigInteger((String) val))
+			));
+		}
+		return Optional.empty();
 	}
 
 	@Override
@@ -116,8 +167,8 @@ public class ExprNumberConvertBase implements Expression<String> {
 			case 3:
 				return expression.toString(ctx, debug) + " converted to base 64";
 			case 4:
-				assert base != null;
-				return expression.toString(ctx, debug) + " converted to base " + base.toString(ctx, debug);
+				assert baseTo != null;
+				return expression.toString(ctx, debug) + " converted to base " + baseTo.toString(ctx, debug);
 			case 5:
 				return expression.toString(ctx, debug) + " converted to decimal";
 			default:
@@ -125,48 +176,11 @@ public class ExprNumberConvertBase implements Expression<String> {
 		}
 	}
 
-	/**
-	 * Get the radix of a given string that represents a number. Prefixes are accounted for.
-	 * If no prefixes were found, base 10 (decimal) is chosen as primary base, unless this fails too.
-	 * @param str the string
-	 * @return the radix, -1 if the string does not represent a number and the last index of the string that should not be parsed
-	 */
-	private static Pair<Integer, Integer> radixFromString(String str) {
-		str = str.toLowerCase();
-
-		// First check prefixes
-		if (str.startsWith("0b") || str.startsWith("b")) {
-			return new Pair<>(2, str.indexOf('b'));
-		} else if (str.startsWith("0o") || str.startsWith("o")) {
-			return new Pair<>(8, str.indexOf('o'));
-		} else if (str.startsWith("0x") || str.startsWith("x")) {
-			return new Pair<>(16, str.indexOf('x'));
-		}
-
-		// Then check for base 10
-		try {
-			Integer.parseInt(str, 10);
-			return new Pair<>(10, -1);
-		} catch (NumberFormatException ignored) { /* Nothing */ }
-
-		// Then check radix from lowest to highest.
-		for (int i = Character.MIN_RADIX; i <= Character.MAX_RADIX; i++) {
-			if (i == 10)
-				continue;
-
-			try {
-				Integer.parseInt(str, i);
-				return new Pair<>(i, -1);
-			} catch (NumberFormatException ignored) { /* Nothing */ }
-		}
-		return new Pair<>(-1, -1);
-	}
-
 	private static long bytesToLong(byte[] bytes) {
 		long result = 0;
-		for (int i = 0; i < 8; i++) {
+		for (byte b : bytes) {
 			result <<= 8;
-			result |= (bytes[i] & 0xFF);
+			result |= (b & 0xFF);
 		}
 		return result;
 	}
