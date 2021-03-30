@@ -15,6 +15,8 @@ import java.util.Optional;
 
 /**
  * Convert a number to a different base (like binary, octal or hexadecimal) or convert a string to its decimal form.
+ * You can specify a custom base, but it can only range from 2 to 36. Values outside of this range, or invalid string
+ * representations will result in an empty list.
  * @name Number Convert Base
  * @type EXPRESSION
  * @pattern %integers% [converted] to (binary|octal|hex[adecimal]|base[ ]64|base %integer%)
