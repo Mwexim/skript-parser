@@ -10,6 +10,7 @@ import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import io.github.syst3ms.skriptparser.sections.SecLoop;
 import io.github.syst3ms.skriptparser.sections.SecWhile;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +30,9 @@ import java.util.function.Predicate;
  */
 public abstract class CodeSection extends Statement {
     protected List<Statement> items;
+    @Nullable
     protected Statement first;
+    @Nullable
     protected Statement last;
 
     /**

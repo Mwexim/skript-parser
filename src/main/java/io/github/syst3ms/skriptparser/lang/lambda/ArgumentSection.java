@@ -1,35 +1,33 @@
 package io.github.syst3ms.skriptparser.lang.lambda;
 
-import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
-import io.github.syst3ms.skriptparser.log.SkriptLogger;
-import io.github.syst3ms.skriptparser.parsing.ParserState;
-import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
+import io.github.syst3ms.skriptparser.lang.Statement;
+
+import java.util.Optional;
 
 /**
- * A {@link CodeSection} that can hold information about arguments passed to it by {@link SkriptFunction} or
- * {@link SkriptConsumer}.
- *
- * This overrides {@link CodeSection#loadSection} in such a way that execution inside of the section doesn't continue
- * afterwards, since default Skript behavior is to go out one level when the end of a section is reached.
- * @see SkriptFunction
- * @see SkriptConsumer
+ * A {@link CodeSection} that can hold information about arguments.
  */
 public abstract class ArgumentSection extends CodeSection {
+    private Object[] arguments;
 
-    @Override
-    public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
-        parserState.setSyntaxRestrictions(getAllowedSyntaxes(), isRestrictingExpressions());
-        parserState.addCurrentSection(this);
-        this.items = ScriptLoader.loadItems(section, parserState, logger);
-        this.first = items.isEmpty() ? null : items.get(0);
-        this.last = items.isEmpty() ? null : items.get(items.size() - 1);
-        parserState.removeCurrentSection();
-        parserState.clearSyntaxRestrictions();
-        return true;
+    /**
+     * This function is called from the section containing the code, and returns an Optional describing
+     * the first {@link Statement} that should be run in the consumer.
+     * <br>
+     * By default, returns {@link CodeSection#getFirst()}.
+     */
+    protected Optional<? extends Statement> start() {
+        return getFirst();
     }
 
-    private Object[] arguments;
+    /**
+     * After execution has stopped, because there are no more statements to run,
+     * this consumer is fed with the last {@link Statement}
+     * that would have been processed on the next iteration.
+     * @param item the last statement
+     */
+    protected void finish(Statement item) { /* Nothing */ }
 
     /**
      * @return the arguments passed to this section's code
@@ -39,11 +37,10 @@ public abstract class ArgumentSection extends CodeSection {
     }
 
     /**
-     * Sets the arguments that should be passed to the section code. Typically used by {@link SkriptFunction} and
-     * {@link SkriptConsumer}.
+     * Sets the arguments that should be passed to the section code.
      * @param arguments this section's arguments
      */
-    public void setArguments(Object[] arguments) {
+    public void setArguments(Object... arguments) {
         this.arguments = arguments;
     }
 }

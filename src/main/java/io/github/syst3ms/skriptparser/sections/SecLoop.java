@@ -1,12 +1,15 @@
 package io.github.syst3ms.skriptparser.sections;
 
 import io.github.syst3ms.skriptparser.Parser;
+import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.control.Continuable;
+import io.github.syst3ms.skriptparser.lang.control.SelfReferencing;
 import io.github.syst3ms.skriptparser.lang.lambda.ArgumentSection;
-import io.github.syst3ms.skriptparser.lang.lambda.SkriptConsumer;
 import io.github.syst3ms.skriptparser.log.ErrorType;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +22,7 @@ import java.util.WeakHashMap;
 /**
  * A section that iterates over a collection of elements
  */
-public class SecLoop extends ArgumentSection implements Continuable {
+public class SecLoop extends ArgumentSection implements Continuable, SelfReferencing {
 	static {
 		Parser.getMainRegistration().addSection(
 				SecLoop.class,
@@ -28,12 +31,21 @@ public class SecLoop extends ArgumentSection implements Continuable {
 		);
 	}
 
-	@Nullable
-	private Expression<?> expr;
-	private Expression<BigInteger> times;
-	private SkriptConsumer<SecLoop> lambda;
-	private boolean isNumericLoop;
 	private static final transient Map<SecLoop, Iterator<?>> iterators = new WeakHashMap<>();
+
+	@Nullable
+	private Statement actualNext;
+	@Nullable
+	private Expression<?> expression;
+	private Expression<BigInteger> times;
+	private boolean isNumericLoop;
+
+	@Override
+	public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+		super.loadSection(section, parserState, logger);
+		super.setNext(this);
+		return true;
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -57,8 +69,8 @@ public class SecLoop extends ArgumentSection implements Continuable {
 				}
 			}
 		} else {
-			expr = expressions[0];
-			if (expr.isSingle()) {
+			expression = expressions[0];
+			if (expression.isSingle()) {
 				parseContext.getLogger().error(
 						"Cannot loop a single value",
 						ErrorType.SEMANTIC_ERROR,
@@ -67,22 +79,21 @@ public class SecLoop extends ArgumentSection implements Continuable {
 				return false;
 			}
 		}
-		lambda = SkriptConsumer.create(this);
 		return true;
 	}
 
 	@Override
 	public Optional<? extends Statement> walk(TriggerContext ctx) {
-		if (isNumericLoop && expr == null) {
+		if (isNumericLoop && expression == null) {
 			// We just set the looped expression to a range from 1 to the amount of times.
 			// This allows the usage of 'loop-number' to get the current iteration
-			expr = rangeOf(ctx, times);
+			expression = rangeOf(ctx, times);
 		}
 
 		Iterator<?> iter = iterators.get(this);
 		if (iter == null) {
-			assert expr != null;
-			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(ctx) : expr.iterator(ctx);
+			assert expression != null;
+			iter = expression instanceof Variable ? ((Variable<?>) expression).variablesIterator(ctx) : expression.iterator(ctx);
 			if (iter.hasNext()) {
 				iterators.put(this, iter);
 			} else {
@@ -90,40 +101,50 @@ public class SecLoop extends ArgumentSection implements Continuable {
 			}
 		}
 
-		var finalIter = iter;
-		return Optional.ofNullable(iter)
-				.filter(Iterator::hasNext)
-				.map(it -> {
-					lambda.accept(ctx, it.next());
-					return (Statement) this;
-				})
-				.or(() -> {
-					if (finalIter != null)
-						iterators.remove(this);
-					return getNext();
-				});
+		if (iter != null && iter.hasNext()) {
+			setArguments(iter.next());
+			return start();
+		} else {
+			if (iter != null)
+				iterators.remove(this);
+			return Optional.ofNullable(actualNext);
+		}
+	}
+
+	@Override
+	public Statement setNext(@Nullable Statement next) {
+		this.actualNext = next;
+		return this;
 	}
 
 	@Override
 	public Optional<? extends Statement> getContinued(TriggerContext ctx) {
-		walk(ctx);
-		return Optional.empty();
+		return Optional.of(this);
+	}
+
+	@Override
+	public Optional<Statement> getActualNext() {
+		return Optional.ofNullable(actualNext);
 	}
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		assert expr != null;
-		return "loop " + (isNumericLoop ? times.toString(ctx, debug) + " times" : expr.toString(ctx, debug));
+		assert expression != null;
+		return "loop " + (isNumericLoop ? times.toString(ctx, debug) + " times" : expression.toString(ctx, debug));
 	}
 
 	/**
 	 * @return the expression whose values this loop is iterating over
 	 */
 	public Expression<?> getLoopedExpression() {
-		if (isNumericLoop && expr == null) {
-			expr = rangeOf(TriggerContext.DUMMY, times);
+		if (isNumericLoop && expression == null) {
+			expression = rangeOf(TriggerContext.DUMMY, times);
 		}
-		return expr;
+		return expression;
+	}
+
+	public static Map<SecLoop, Iterator<?>> getIterators() {
+		return iterators;
 	}
 
 	private static Expression<BigInteger> rangeOf(TriggerContext ctx, Expression<BigInteger> size) {
