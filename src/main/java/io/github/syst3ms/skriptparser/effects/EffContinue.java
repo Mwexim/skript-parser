@@ -9,7 +9,6 @@ import io.github.syst3ms.skriptparser.lang.control.Continuable;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
  * Skips the current looped value and continues to the next one in the list, if it exists.
  *
  * @name Continue
- * @pattern continue [%*integer% loop[s]]
+ * @pattern continue
  * @since ALPHA
  * @author Mwexim
  */
@@ -27,14 +26,12 @@ public class EffContinue extends Effect {
         Parser.getMainRegistration().addEffect(
             EffContinue.class,
             4,
-            "continue [1:%*integer% loop[s]]"
+            "continue"
         );
     }
 
-    private Expression<BigInteger> position;
     private List<? extends Continuable> sections;
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         sections = parseContext.getParserState().getCurrentSections().stream()
@@ -45,9 +42,6 @@ public class EffContinue extends Effect {
             parseContext.getLogger().error("You cannot use the 'continue'-effect here", ErrorType.SEMANTIC_ERROR);
             return false;
         }
-
-        if (parseContext.getParseMark() == 1)
-            position = (Expression<BigInteger>) expressions[0];
         return true;
     }
 
@@ -58,20 +52,11 @@ public class EffContinue extends Effect {
 
     @Override
 	public Optional<? extends Statement> walk(TriggerContext ctx) {
-        // Indices start at 1
-        int pos = position != null
-                ? position.getSingle(ctx)
-                        .filter(val -> val.compareTo(BigInteger.ZERO) > 0 && val.compareTo(BigInteger.valueOf(sections.size())) <= 0)
-                        .map(val -> val.intValue() - 1)
-                        .orElse(-1)
-                : 0;
-        if (pos == -1)
-            return Optional.empty();
-        return sections.get(pos).getContinued(ctx);
+		return sections.get(0).getContinued(ctx);
     }
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
-        return "continue" + (position != null ? " at " + position.toString(ctx, debug) : "");
+        return "continue";
     }
 }

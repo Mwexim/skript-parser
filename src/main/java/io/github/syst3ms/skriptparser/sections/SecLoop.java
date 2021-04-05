@@ -8,6 +8,7 @@ import io.github.syst3ms.skriptparser.lang.lambda.SkriptConsumer;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.Iterator;
@@ -27,7 +28,8 @@ public class SecLoop extends ArgumentSection implements Continuable {
 		);
 	}
 
-	private Expression<?> expr = null;
+	@Nullable
+	private Expression<?> expr;
 	private Expression<BigInteger> times;
 	private SkriptConsumer<SecLoop> lambda;
 	private boolean isNumericLoop;
@@ -79,6 +81,7 @@ public class SecLoop extends ArgumentSection implements Continuable {
 
 		Iterator<?> iter = iterators.get(this);
 		if (iter == null) {
+			assert expr != null;
 			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(ctx) : expr.iterator(ctx);
 			if (iter.hasNext()) {
 				iterators.put(this, iter);
@@ -86,6 +89,7 @@ public class SecLoop extends ArgumentSection implements Continuable {
 				iter = null;
 			}
 		}
+
 		var finalIter = iter;
 		return Optional.ofNullable(iter)
 				.filter(Iterator::hasNext)
@@ -103,18 +107,12 @@ public class SecLoop extends ArgumentSection implements Continuable {
 	@Override
 	public Optional<? extends Statement> getContinued(TriggerContext ctx) {
 		walk(ctx);
-//		Iterator<?> iter = iterators.get(this);
-//		assert iter != null;
-//		if (iter.hasNext()) {
-//			return Optional.empty();
-//		} else {
-//			return getNext();
-		//}
 		return Optional.empty();
 	}
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
+		assert expr != null;
 		return "loop " + (isNumericLoop ? times.toString(ctx, debug) + " times" : expr.toString(ctx, debug));
 	}
 

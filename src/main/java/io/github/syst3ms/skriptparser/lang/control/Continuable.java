@@ -21,14 +21,14 @@ public interface Continuable {
 	 *     <li>by executing the items internally and then proceeding to the next item
 	 *     (like {@link SecLoop})</li>
 	 * </ol>
-	 * The continue-statement needs to handle items in the following way, depending on the way
-	 * it is implemented.
+	 * The continue-statement needs to handle items in the following way respectively.
 	 * <ol>
 	 *     <li>It will reference the section as the next item, without walking over it.</li>
 	 *     <li>It will {@link Statement#walk(TriggerContext) walk} over the section and
 	 *     return nothing, essentially blocking the current chain and creating a new one.</li>
 	 * </ol>
 	 * If none if these behaviors are desired, one can use their own implementation.
+	 * @param ctx the context
 	 * @return the statement to iterate over
 	 * @see EffContinue
 	 */
