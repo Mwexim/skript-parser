@@ -127,7 +127,7 @@ public class Variable<T> implements Expression<T> {
         if (val.isEmpty())
             return Collections.emptyIterator();
         assert val.get() instanceof TreeMap;
-        // temporary list to prevent CMEs
+        // Temporary list to prevent CMEs
         var keys = new ArrayList<>(((Map<String, Object>) val.get()).keySet()).iterator();
         return new Iterator<>() {
             @Nullable

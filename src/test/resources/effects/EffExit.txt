@@ -39,6 +39,3 @@ test:
 		exit
 		assert false with "'exit'-statement didn't work properly (inside loop)"
 	assert false with "'exit'-statement didn't work properly (outside loop)"
-
-	stop
-	assert false with "'exit'-statement didn't work properly"

@@ -27,16 +27,14 @@ test:
 		death
 
 	# Maybe one day...
-#	birth with "Double loop-section was not killed":
-#		set {flag} to 0
-#		set {l::*} to range from 1 to 2
-#		loop {l::*}:
-#			print "%loop-value%"
-#			loop range from 1 to 6:
-#				add 1 to {flag}
-#				print "/ %loop-value-2%"
-#				if loop-value-2 = 4:
-#					continue 2 loops
-#			assert false
-#		assert {flag} = 8 with "{flag} (in double loop) should be equal to 8: %{flag}%"
-#		death
+	birth with "Double loop-section was not killed":
+		set {flag} to 0
+		set {l::*} to range from 1 to 2
+		loop {l::*}:
+			loop range from 1 to 6:
+				add 1 to {flag}
+				if loop-value-2 = 4:
+					continue 2 loops
+			assert false
+		assert {flag} = 8 with "{flag} (in double loop) should be equal to 8: %{flag}%"
+		death

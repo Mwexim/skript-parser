@@ -3,9 +3,9 @@ package io.github.syst3ms.skriptparser.effects;
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.lambda.ReturnSection;
-import io.github.syst3ms.skriptparser.lang.lambda.SkriptFunction;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
@@ -13,8 +13,10 @@ import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 
+import java.util.Optional;
+
 /**
- * Returns one or more values to a corresponding section. Used with {@link SkriptFunction} and {@link ReturnSection}.
+ * Returns one or more values to a corresponding section. Used with {@link ReturnSection}.
  *
  * @name Return
  * @type EFFECT
@@ -33,7 +35,6 @@ public class EffReturn extends Effect {
     private ReturnSection<?> section;
     private Expression<?> returned;
 
-    // TODO add a way to make this target a specific section out of multiple nested ones
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         returned = expressions[0];
@@ -73,7 +74,14 @@ public class EffReturn extends Effect {
 
     @Override
     protected void execute(TriggerContext ctx) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
         section.setReturned(returned.getValues(ctx));
+        section.step(this);
+        return Optional.of(section);
     }
 
     @Override

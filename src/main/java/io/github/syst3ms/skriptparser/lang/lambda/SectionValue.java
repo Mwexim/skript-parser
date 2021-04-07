@@ -11,8 +11,8 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * An expression that is tied to a given {@link ArgumentSection}, and acts as a way to retrieve the arguments passed to
- * {@link SkriptFunction#apply} and {@link SkriptConsumer#accept} through an {@link Expression}.
+ * An expression that is tied to a given {@link ArgumentSection}, and acts as a way to retrieve
+ * the arguments passed through an {@link Expression}.
  *
  * @param <S> the type of the section from which to retrieve arguments
  * @param <T> the return value of the expression
@@ -25,10 +25,10 @@ public abstract class SectionValue<S extends ArgumentSection, T> implements Expr
         if (!preInitialize(expressions, matchedPattern, parseContext)) {
             return false;
         }
-        var logger = parseContext.getLogger();
         section = Expression.getLinkedSection(parseContext.getParserState(), getSectionClass(), getSelectorFunction())
                 .orElse(null);
         if (section == null) {
+            var logger = parseContext.getLogger();
             logger.error(
                     "Couldn't find a section linked to the expression '" +
                             toString(TriggerContext.DUMMY, logger.isDebug()) +
@@ -80,7 +80,7 @@ public abstract class SectionValue<S extends ArgumentSection, T> implements Expr
      * This function is supplied with a list of all the sections of the type described by {@link #getSectionClass()},
      * and returns an Optional describing the section that this {@code SectionValue} should be linked to, or an empty
      * Optional if no matching section was found. This is useful for targeting a specific section out of multiple
-     * surrounding ones based on criterias specific to the implementation.
+     * surrounding ones based on criteria specific to the implementation.
      *
      * By default, this always picks the first matching function (i.e the innermost one), if there is one.
      *

@@ -33,9 +33,8 @@ public class SecWhile extends CodeSection implements Continuable, SelfReferencin
 
     @Override
     public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
-        super.loadSection(section, parserState, logger);
         super.setNext(this);
-        return true;
+        return super.loadSection(section, parserState, logger);
     }
 
     @Override

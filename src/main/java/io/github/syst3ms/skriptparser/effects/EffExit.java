@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.effects;
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.control.SelfReferencing;
+import io.github.syst3ms.skriptparser.lang.lambda.ArgumentSection;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.sections.SecLoop;
 import io.github.syst3ms.skriptparser.sections.SecWhile;
@@ -64,7 +65,9 @@ public class EffExit extends Effect {
     public Optional<? extends Statement> walk(TriggerContext ctx) {
         switch (pattern) {
             case 0:
-                return Optional.empty();
+                // We do this instead of returning an empty Optional,
+                // because we need to call finish() on certain sections.
+                return escapeSections(currentSections.size(), this);
             case 1:
                 return escapeSections(1, this);
             case 2:
@@ -109,14 +112,14 @@ public class EffExit extends Effect {
             if (parseMark == 0
                     || parseMark == 1 && (stm instanceof SecLoop || stm instanceof SecWhile)
                     || parseMark == 2 && stm instanceof Conditional) {
+                if (stm instanceof ArgumentSection)
+                    ((ArgumentSection) stm).finish();
                 amount--;
                 continue;
             }
             stm = temp.get();
             break;
         }
-        if (stm instanceof SecLoop)
-            SecLoop.getIterators().remove(stm);
 
         return stm instanceof SelfReferencing
                 ? ((SelfReferencing) stm).getActualNext()

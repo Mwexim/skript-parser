@@ -15,9 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Optional;
-import java.util.WeakHashMap;
 
 /**
  * A section that iterates over a collection of elements
@@ -31,20 +29,20 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
 		);
 	}
 
-	private static final transient Map<SecLoop, Iterator<?>> iterators = new WeakHashMap<>();
-
-	@Nullable
-	private Statement actualNext;
 	@Nullable
 	private Expression<?> expression;
 	private Expression<BigInteger> times;
 	private boolean isNumericLoop;
 
+	@Nullable
+	private Statement actualNext;
+	@Nullable
+	private Iterator<?> iterator;
+
 	@Override
 	public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
-		super.loadSection(section, parserState, logger);
 		super.setNext(this);
-		return true;
+		return super.loadSection(section, parserState, logger);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -90,23 +88,16 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
 			expression = rangeOf(ctx, times);
 		}
 
-		Iterator<?> iter = iterators.get(this);
-		if (iter == null) {
+		if (iterator == null) {
 			assert expression != null;
-			iter = expression instanceof Variable ? ((Variable<?>) expression).variablesIterator(ctx) : expression.iterator(ctx);
-			if (iter.hasNext()) {
-				iterators.put(this, iter);
-			} else {
-				iter = null;
-			}
+			iterator = expression instanceof Variable ? ((Variable<?>) expression).variablesIterator(ctx) : expression.iterator(ctx);
 		}
 
-		if (iter != null && iter.hasNext()) {
-			setArguments(iter.next());
+		if (iterator.hasNext()) {
+			setArguments(iterator.next());
 			return start();
 		} else {
-			if (iter != null)
-				iterators.remove(this);
+			finish();
 			return Optional.ofNullable(actualNext);
 		}
 	}
@@ -115,6 +106,12 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
 	public Statement setNext(@Nullable Statement next) {
 		this.actualNext = next;
 		return this;
+	}
+
+	@Override
+	public void finish() {
+		// Cache clearing
+		iterator = null;
 	}
 
 	@Override
@@ -141,10 +138,6 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
 			expression = rangeOf(TriggerContext.DUMMY, times);
 		}
 		return expression;
-	}
-
-	public static Map<SecLoop, Iterator<?>> getIterators() {
-		return iterators;
 	}
 
 	private static Expression<BigInteger> rangeOf(TriggerContext ctx, Expression<BigInteger> size) {

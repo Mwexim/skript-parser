@@ -1,5 +1,8 @@
 package io.github.syst3ms.skriptparser.lang.lambda;
 
+import io.github.syst3ms.skriptparser.effects.EffContinue;
+import io.github.syst3ms.skriptparser.effects.EffExit;
+import io.github.syst3ms.skriptparser.effects.EffReturn;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Statement;
 
@@ -22,12 +25,22 @@ public abstract class ArgumentSection extends CodeSection {
     }
 
     /**
-     * After execution has stopped, because there are no more statements to run,
+     * After execution has stopped, because a statement has forcefully ended the execution,
      * this consumer is fed with the last {@link Statement}
-     * that would have been processed on the next iteration.
+     * that has been processed on the next iteration.
      * @param item the last statement
+     * @see EffContinue
+     * @see EffReturn
      */
-    protected void finish(Statement item) { /* Nothing */ }
+    public void step(Statement item) { /* Nothing */ }
+
+    /**
+     * When the execution of this ArgumentSection is completely done, this method is fired.
+     * One could reset cache or delete iterations as this method will also be called by various other
+     * syntaxes to delete cache.
+     * @see EffExit
+     */
+    public void finish() { /* Nothing */ }
 
     /**
      * @return the arguments passed to this section's code
