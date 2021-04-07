@@ -11,7 +11,7 @@ test:
 			add 2 to {flag::*}
 			set {var2} to 2
 			add 1 to {var2}
-			add {var2} to {flag::*}
+			add {var2} to {flag::*} # Just to check if multiple statements work
 		case 2 or 3:
 			add 4 to {flag::*}
 		case 4 or "Hello":

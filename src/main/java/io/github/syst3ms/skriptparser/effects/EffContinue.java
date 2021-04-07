@@ -6,6 +6,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.control.Continuable;
+import io.github.syst3ms.skriptparser.lang.control.Finishing;
 import io.github.syst3ms.skriptparser.lang.lambda.ArgumentSection;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -68,8 +69,8 @@ public class EffContinue extends Effect {
             return Optional.empty();
 
         sections.subList(0, pos).forEach(sec -> {
-            if (sec instanceof ArgumentSection)
-                ((ArgumentSection) sec).finish();
+            if (sec instanceof Finishing)
+                ((Finishing) sec).finish();
         });
 
         if (sections.get(pos) instanceof ArgumentSection) {

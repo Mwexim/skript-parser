@@ -9,6 +9,7 @@ import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -49,7 +50,6 @@ public class SecCase extends CodeSection {
             logger.error("You can only use a 'case'-statement inside a 'switch'-section!", ErrorType.SEMANTIC_ERROR);
             return false;
         }
-
         switchSection = (SecSwitch) latest;
 
         isMatching = matchedPattern == 0;
@@ -57,7 +57,7 @@ public class SecCase extends CodeSection {
             matchWith = (Expression<Object>) expressions[0];
             if (!matchWith.isSingle() && matchWith.isAndList()) {
                 logger.error(
-                        "Only 'or'-lists may be used, found '" + matchWith.toString(null, logger.isDebug()),
+                        "Only 'or'-lists may be used, found '" + matchWith.toString(TriggerContext.DUMMY, logger.isDebug()),
                         ErrorType.SEMANTIC_ERROR
                 );
                 return false;
@@ -86,25 +86,27 @@ public class SecCase extends CodeSection {
     @Override
     public Optional<? extends Statement> walk(TriggerContext ctx) {
         if (isMatching) {
-            switchSection.getMatch().getSingle(ctx)
+            var first = switchSection.getMatch().getSingle(ctx)
                     .filter(val -> Expression.check(
                             matchWith.getValues(ctx),
                             val2 -> Comparators.compare(val, val2).is(Relation.EQUAL),
                             false,
                             false
                     ))
-                    .ifPresent(__ -> {
+                    .flatMap(val -> {
                         switchSection.setDone(true);
-                        var item = getFirst();
-                        while (!item.equals(getNext())) // Calling equals() on optionals calls equals() on their values
-                            item = item.flatMap(i -> i.walk(ctx));
+                        return getFirst();
                     });
+            return first.isPresent() ? first : Optional.of(switchSection);
         } else {
-            var item = getFirst();
-            while (!item.equals(getNext())) // Calling equals() on optionals calls equals() on their values
-                item = item.flatMap(i -> i.walk(ctx));
+            return getFirst();
         }
-        return Optional.empty();
+    }
+
+    @Override
+    public Statement setNext(@Nullable Statement next) {
+        this.next = switchSection;
+        return this;
     }
 
     @Override

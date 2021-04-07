@@ -1,17 +1,17 @@
 package io.github.syst3ms.skriptparser.lang.lambda;
 
 import io.github.syst3ms.skriptparser.effects.EffContinue;
-import io.github.syst3ms.skriptparser.effects.EffExit;
 import io.github.syst3ms.skriptparser.effects.EffReturn;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Statement;
+import io.github.syst3ms.skriptparser.lang.control.Finishing;
 
 import java.util.Optional;
 
 /**
  * A {@link CodeSection} that can hold information about arguments.
  */
-public abstract class ArgumentSection extends CodeSection {
+public abstract class ArgumentSection extends CodeSection implements Finishing {
     private Object[] arguments;
 
     /**
@@ -34,12 +34,7 @@ public abstract class ArgumentSection extends CodeSection {
      */
     public void step(Statement item) { /* Nothing */ }
 
-    /**
-     * When the execution of this ArgumentSection is completely done, this method is fired.
-     * One could reset cache or delete iterations as this method will also be called by various other
-     * syntaxes to delete cache.
-     * @see EffExit
-     */
+    @Override
     public void finish() { /* Nothing */ }
 
     /**

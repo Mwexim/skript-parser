@@ -2,8 +2,8 @@ package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.*;
+import io.github.syst3ms.skriptparser.lang.control.Finishing;
 import io.github.syst3ms.skriptparser.lang.control.SelfReferencing;
-import io.github.syst3ms.skriptparser.lang.lambda.ArgumentSection;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.sections.SecLoop;
 import io.github.syst3ms.skriptparser.sections.SecWhile;
@@ -112,8 +112,8 @@ public class EffExit extends Effect {
             if (parseMark == 0
                     || parseMark == 1 && (stm instanceof SecLoop || stm instanceof SecWhile)
                     || parseMark == 2 && stm instanceof Conditional) {
-                if (stm instanceof ArgumentSection)
-                    ((ArgumentSection) stm).finish();
+                if (stm instanceof Finishing)
+                    ((Finishing) stm).finish();
                 amount--;
                 continue;
             }
