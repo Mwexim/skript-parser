@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.control.SelfReferencing;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 
 import java.math.BigInteger;
@@ -42,22 +43,25 @@ public class EffEscape extends Effect {
         throw new UnsupportedOperationException();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Optional<? extends Statement> walk(TriggerContext ctx) {
         if (amount.getSingle(ctx).isEmpty())
             return getNext();
-        var am = amount.getSingle(ctx).get().intValue(); // BigInteger can convert to int.
+        int am = amount.getSingle(ctx).get().intValue();
 
         Optional<Statement> current = Optional.of(this);
         while (am > 0) {
             if (current.isEmpty()) {
                 return Optional.empty();
             }
-            current = (Optional<Statement>) current.get().getNext();
+            current = current.flatMap(val -> val instanceof SelfReferencing
+                    ? ((SelfReferencing) val).getActualNext()
+                    : val.getNext());
             am--;
         }
-        return current.flatMap(Statement::getNext);
+        return current.flatMap(val -> val instanceof SelfReferencing
+                ? ((SelfReferencing) val).getActualNext()
+                : val.getNext());
     }
 
     @Override
