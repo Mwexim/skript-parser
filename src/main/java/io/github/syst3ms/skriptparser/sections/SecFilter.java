@@ -21,6 +21,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * This section filters the given input values one by one, deciding whether to keep each argument
+ * or not by the returned boolean.
+ * Note that the filtered expression will be changed, hence why it can't be a literal list.
+ *
+ * @name Filter
+ * @type SECTION
+ * @pattern filter %~objects%
+ * @since ALPHA
+ * @author Mwexim
+ */
 public class SecFilter extends ReturnSection<Boolean> implements SelfReferencing {
     static {
         Parser.getMainRegistration().addSection(

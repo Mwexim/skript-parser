@@ -18,6 +18,20 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+/**
+ * This section maps the returned value(s) to the values of a given expression, one by one.
+ * This means that this sections loops over each value of the expression and replaces it with the
+ * returned value(s) from the function.
+ * Note that unlike a normal map, the returned expression can contain multiple values. These values
+ * will all be concatenated into one list and will replace the given expression.
+ * Note that the mapped expression will be changed, hence why it can't be a literal list.
+ *
+ * @name Flat Map
+ * @type SECTION
+ * @pattern flat map %~objects%|map %~objects% flat
+ * @since ALPHA
+ * @author Mwexim
+ */
 public class SecFlatMap extends ReturnSection<Object> implements SelfReferencing {
     static {
         Parser.getMainRegistration().addSection(

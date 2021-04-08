@@ -21,6 +21,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * This section maps the returned value to the values of a given expression, one by one.
+ * This means that this sections loops over each value of the expression and replaces it with the
+ * returned value from the function.
+ * Note that the mapped expression will be changed, hence why it can't be a literal list.
+ *
+ * @name Map
+ * @type SECTION
+ * @pattern map %~objects%
+ * @since ALPHA
+ * @author Mwexim
+ */
 public class SecMap extends ReturnSection<Object> implements SelfReferencing {
     static {
         Parser.getMainRegistration().addSection(

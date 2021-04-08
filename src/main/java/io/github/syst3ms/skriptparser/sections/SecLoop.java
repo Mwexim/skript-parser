@@ -18,7 +18,16 @@ import java.util.Iterator;
 import java.util.Optional;
 
 /**
- * A section that iterates over a collection of elements
+ * This section iterates over all the values of the given expression, one by one.
+ * One can also loop a certain amount of times instead. The looped expression will still be
+ * valid in that case.
+ *
+ * @name Loop
+ * @type SECTION
+ * @pattern loop %integer% times
+ * @pattern loop %objects%
+ * @since ALPHA
+ * @author Mwexim
  */
 public class SecLoop extends ArgumentSection implements Continuable, SelfReferencing {
 	static {

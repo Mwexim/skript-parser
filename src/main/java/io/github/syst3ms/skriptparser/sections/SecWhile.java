@@ -16,9 +16,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * A section that keeps executing its contents while a given condition is met.
+ * This section will keep executing the statements inside until the given condition
+ * does not hold anymore.
+ *
+ * @name While
+ * @type SECTION
+ * @pattern while %=boolean%
+ * @since ALPHA
+ * @author Mwexim
  */
-@SuppressWarnings("unchecked")
 public class SecWhile extends CodeSection implements Continuable, SelfReferencing {
     static {
         Parser.getMainRegistration().addSection(
@@ -37,6 +43,7 @@ public class SecWhile extends CodeSection implements Continuable, SelfReferencin
         return super.loadSection(section, parserState, logger);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         condition = (Expression<Boolean>) expressions[0];

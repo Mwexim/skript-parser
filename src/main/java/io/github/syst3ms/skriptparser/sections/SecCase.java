@@ -18,7 +18,7 @@ import java.util.Optional;
  * The content of this section will only be executed if it matches the given expression.
  * One may use 'or'-lists to match multiple expressions at once.
  * The default part can be used to provide actions when no match was found.
- * Note that you can only use one default statement and that equivalent matches are prohibited.
+ * Note that you can only use one default statement.
  *
  * @name Case
  * @type SECTION
