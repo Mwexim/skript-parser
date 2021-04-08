@@ -101,10 +101,11 @@ public class SecMap extends ReturnSection<Object> implements SelfReferencing {
 
 	@Override
 	public void step(Statement item) {
-		var returned = getReturned().orElseThrow(AssertionError::new);
 		assert getArguments().length == 1;
-		assert returned.length == 1;
-		result.add(returned[0]); // We add the filtered argument to the result
+		if (getReturned().isPresent()) {
+			assert getReturned().get().length == 1;
+			result.add(getReturned().get()[0]); // We add the filtered argument to the result
+		}
 	}
 
 	@Override

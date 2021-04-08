@@ -101,8 +101,9 @@ public class SecFlatMap extends ReturnSection<Object> implements SelfReferencing
 	@Override
 	public void step(Statement item) {
 		assert getArguments().length == 1;
-		var returned = getReturned().orElseThrow(AssertionError::new);
-		result.addAll(Arrays.asList(returned)); // We add the filtered argument to the result
+		if (getReturned().isPresent()) {
+			result.addAll(Arrays.asList(getReturned().get())); // We add the filtered argument to the result
+		}
 	}
 
 	@Override

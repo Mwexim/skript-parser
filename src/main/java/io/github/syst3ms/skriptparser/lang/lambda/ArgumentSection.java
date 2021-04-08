@@ -28,6 +28,12 @@ public abstract class ArgumentSection extends CodeSection implements Finishing {
      * After execution has stopped, because a statement has forcefully ended the execution,
      * this consumer is fed with the last {@link Statement}
      * that has been processed on the next iteration.
+     * <br>
+     * Note that this function only needs to be called for <b>iterative</b> sections, like
+     * loops and maps, that need to execute certain actions after <i>each</i> iteration, instead
+     * of only when the execution has finished (see {@linkplain #finish()} for that)
+     * <br>
+     * By default, does nothing.
      * @param item the last statement
      * @see EffContinue
      * @see EffReturn

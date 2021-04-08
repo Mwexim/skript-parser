@@ -100,7 +100,7 @@ public class SecFilter extends ReturnSection<Boolean> implements SelfReferencing
 
     @Override
     public void step(Statement item) {
-        if (getReturned().map(val -> val[0]).orElseThrow(AssertionError::new)) {
+        if (getReturned().map(val -> val[0]).orElse(false)) {
             assert getArguments().length == 1;
             result.add(getArguments()[0]); // We add the filtered argument to the result
         }
