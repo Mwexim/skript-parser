@@ -4,33 +4,27 @@ import io.github.syst3ms.skriptparser.effects.EffContinue;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.sections.SecLoop;
-import io.github.syst3ms.skriptparser.sections.SecWhile;
 
 import java.util.Optional;
 
 /**
- * Shows that your section can be continued by using the {@link EffContinue continue} effect.
+ * Sections implementing this interface are able to be 'continued' using the {@link EffContinue} effect.
+ * Most of the time, these sections are iterating over multiple values, and this interface serves as an
+ * indicator to be able to continue to the next iteration instead of executing the rest of the statements.
+ * <br>
+ * One can easily compare this with Java's {@code continue} keyword.
  * @see EffContinue
  */
 public interface Continuable {
 	/**
-	 * Sections that need to execute their items multiple times (like loops, maps and while-loops),
-	 * can do this in 2 different ways:
-	 * <ol>
-	 *     <li>by referencing themselves as the next item (like {@link SecWhile})</li>
-	 *     <li>by executing the items internally and then proceeding to the next item
-	 *     (like {@link SecLoop})</li>
-	 * </ol>
-	 * The continue-statement needs to handle items in the following way respectively.
-	 * <ol>
-	 *     <li>It will reference the section as the next item, without walking over it.</li>
-	 *     <li>It will {@link Statement#walk(TriggerContext) walk} over the section and
-	 *     return nothing, essentially blocking the current chain and creating a new one.</li>
-	 * </ol>
-	 * If none if these behaviors are desired, one can use their own implementation.
+	 * This function is called on the section where the {@link EffContinue} effect will
+	 * continue to, taking all Continuable sections into account. Most of the time, this will just
+	 * return the section it is referring to, but in rare cases, one might want to change this
+	 * behaviour, hence this method.
 	 * @param ctx the context
-	 * @return the statement to iterate over
+	 * @return the next statement
 	 * @see EffContinue
+	 * @see SecLoop SecLoop (implementation)
 	 */
 	Optional<? extends Statement> getContinued(TriggerContext ctx);
 }
