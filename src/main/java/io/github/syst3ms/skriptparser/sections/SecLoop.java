@@ -154,6 +154,13 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
 		return expression;
 	}
 
+	/**
+	 * Returns a SimpleLiteral containing the numbers 1 up until a certain amount, specified
+	 * by the given expression.
+	 * @param ctx the context
+	 * @param size the expression
+	 * @return the SimpleLiteral
+	 */
 	private static Expression<BigInteger> rangeOf(TriggerContext ctx, Expression<BigInteger> size) {
 		BigInteger[] range = (BigInteger[]) size.getSingle(ctx)
 				.filter(t -> t.compareTo(BigInteger.ZERO) > 0)
