@@ -1,11 +1,17 @@
 package io.github.syst3ms.skriptparser.sections;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.lang.*;
+import io.github.syst3ms.skriptparser.lang.CodeSection;
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.Statement;
+import io.github.syst3ms.skriptparser.lang.SyntaxElement;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.control.Finishing;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,7 +52,7 @@ import java.util.Optional;
  * @see SecCase
  */
 @SuppressWarnings("unchecked")
-public class SecSwitch extends CodeSection {
+public class SecSwitch extends CodeSection implements Finishing {
     static {
         Parser.getMainRegistration().addSection(
                 SecSwitch.class,
@@ -55,9 +61,11 @@ public class SecSwitch extends CodeSection {
     }
 
     private Expression<Object> matched;
-    private final List<Statement> cases = new ArrayList<>();
+    private final List<SecCase> cases = new ArrayList<>();
     @Nullable
-    private Statement byDefault = null;
+    private Iterator<SecCase> iterator;
+    @Nullable
+    private Statement byDefault;
     private boolean isDone = false;
 
     @Override
@@ -68,14 +76,23 @@ public class SecSwitch extends CodeSection {
 
     @Override
     public Optional<? extends Statement> walk(TriggerContext ctx) {
-        for (Statement element : cases) {
-            element.walk(ctx);
+        if (iterator == null)
+            iterator = cases.iterator();
+
+        if (iterator.hasNext()) {
+            return Optional.of(iterator.next());
+        } else if (!isDone && byDefault != null) {
+            return Optional.of(byDefault);
+        } else {
+            finish();
+            return getNext();
         }
-        if (!isDone) {
-            if (byDefault != null)
-                byDefault.walk(ctx);
-        }
-        return getNext();
+    }
+
+    @Override
+    public void finish() {
+        iterator = null;
+        isDone = false;
     }
 
     @Override
@@ -92,7 +109,7 @@ public class SecSwitch extends CodeSection {
         return matched;
     }
 
-    public List<Statement> getCases() {
+    public List<SecCase> getCases() {
         return cases;
     }
 

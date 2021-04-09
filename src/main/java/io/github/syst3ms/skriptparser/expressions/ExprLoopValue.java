@@ -15,6 +15,7 @@ import io.github.syst3ms.skriptparser.util.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -67,6 +68,8 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 		return sections -> {
 			int j = 1;
 			SecLoop loop = null;
+			// The closest section is first, let's reverse this behavior for convenience
+			Collections.reverse(sections);
 			for (SecLoop l : sections) {
 				Class<?> loopedType = l.getLoopedExpression().getReturnType();
 				if (loopedClass != null && (loopedClass.isAssignableFrom(loopedType) || loopedType == Object.class) ||

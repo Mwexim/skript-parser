@@ -17,7 +17,15 @@ import io.github.syst3ms.skriptparser.variables.Variables;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.TreeMap;
 
 /**
  * A reference to a variable, whose value is only known at runtime. It can be local to the event, meaning it isn't
@@ -127,7 +135,7 @@ public class Variable<T> implements Expression<T> {
         if (val.isEmpty())
             return Collections.emptyIterator();
         assert val.get() instanceof TreeMap;
-        // temporary list to prevent CMEs
+        // Temporary list to prevent CMEs
         var keys = new ArrayList<>(((Map<String, Object>) val.get()).keySet()).iterator();
         return new Iterator<>() {
             @Nullable

@@ -1,23 +1,40 @@
 package io.github.syst3ms.skriptparser.sections;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.lang.*;
+import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.Literal;
+import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
+import io.github.syst3ms.skriptparser.lang.Statement;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.Variable;
+import io.github.syst3ms.skriptparser.lang.control.Continuable;
+import io.github.syst3ms.skriptparser.lang.control.SelfReferencing;
 import io.github.syst3ms.skriptparser.lang.lambda.ArgumentSection;
-import io.github.syst3ms.skriptparser.lang.lambda.SkriptConsumer;
 import io.github.syst3ms.skriptparser.log.ErrorType;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Optional;
-import java.util.WeakHashMap;
 
 /**
- * A section that iterates over a collection of elements
+ * This section iterates over all the values of the given expression, one by one.
+ * One can also loop a certain amount of times instead. The looped expression will still be
+ * valid in that case.
+ *
+ * @name Loop
+ * @type SECTION
+ * @pattern loop %integer% times
+ * @pattern loop %objects%
+ * @since ALPHA
+ * @author Mwexim
  */
-public class SecLoop extends ArgumentSection {
+public class SecLoop extends ArgumentSection implements Continuable, SelfReferencing {
 	static {
 		Parser.getMainRegistration().addSection(
 				SecLoop.class,
@@ -26,12 +43,21 @@ public class SecLoop extends ArgumentSection {
 		);
 	}
 
-	private Expression<?> expr;
+	@Nullable
+	private Expression<?> expression;
 	private Expression<BigInteger> times;
-	private SkriptConsumer<SecLoop> lambda;
 	private boolean isNumericLoop;
-	private final transient Map<SecLoop, Iterator<?>> iterators = new WeakHashMap<>();
+
+	@Nullable
 	private Statement actualNext;
+	@Nullable
+	private Iterator<?> iterator;
+
+	@Override
+	public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+		super.setNext(this);
+		return super.loadSection(section, parserState, logger);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -55,8 +81,8 @@ public class SecLoop extends ArgumentSection {
 				}
 			}
 		} else {
-			expr = expressions[0];
-			if (expr.isSingle()) {
+			expression = expressions[0];
+			if (expression.isSingle()) {
 				parseContext.getLogger().error(
 						"Cannot loop a single value",
 						ErrorType.SEMANTIC_ERROR,
@@ -65,56 +91,76 @@ public class SecLoop extends ArgumentSection {
 				return false;
 			}
 		}
-		lambda = SkriptConsumer.create(this);
 		return true;
 	}
 
 	@Override
 	public Optional<? extends Statement> walk(TriggerContext ctx) {
-		if (isNumericLoop && expr == null) {
+		if (isNumericLoop && expression == null) {
 			// We just set the looped expression to a range from 1 to the amount of times.
 			// This allows the usage of 'loop-number' to get the current iteration
-			expr = rangeOf(ctx, times);
+			expression = rangeOf(ctx, times);
 		}
 
-		Iterator<?> iter = iterators.get(this);
-		if (iter == null) {
-			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(ctx) : expr.iterator(ctx);
-			if (iter.hasNext()) {
-				iterators.put(this, iter);
-			} else {
-				iter = null;
-			}
+		if (iterator == null) {
+			assert expression != null;
+			iterator = expression instanceof Variable ? ((Variable<?>) expression).variablesIterator(ctx) : expression.iterator(ctx);
 		}
-		var finalIter = iter;
-		return Optional.ofNullable(iter)
-				.filter(Iterator::hasNext)
-				.map(it -> {
-					lambda.accept(ctx, it.next());
-					return (Statement) this;
-				})
-				.or(() -> {
-					if (finalIter != null)
-						iterators.remove(this);
-					return getNext();
-				});
+
+		if (iterator.hasNext()) {
+			setArguments(iterator.next());
+			return start();
+		} else {
+			finish();
+			return Optional.ofNullable(actualNext);
+		}
+	}
+
+	@Override
+	public Statement setNext(@Nullable Statement next) {
+		this.actualNext = next;
+		return this;
+	}
+
+	@Override
+	public void finish() {
+		// Cache clearing
+		iterator = null;
+	}
+
+	@Override
+	public Optional<? extends Statement> getContinued(TriggerContext ctx) {
+		return Optional.of(this);
+	}
+
+	@Override
+	public Optional<Statement> getActualNext() {
+		return Optional.ofNullable(actualNext);
 	}
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return "loop " + (isNumericLoop ? times.toString(ctx, debug) + " times" : expr.toString(ctx, debug));
+		assert expression != null;
+		return "loop " + (isNumericLoop ? times.toString(ctx, debug) + " times" : expression.toString(ctx, debug));
 	}
 
 	/**
 	 * @return the expression whose values this loop is iterating over
 	 */
 	public Expression<?> getLoopedExpression() {
-		if (isNumericLoop && expr == null) {
-			expr = rangeOf(TriggerContext.DUMMY, times);
+		if (isNumericLoop && expression == null) {
+			expression = rangeOf(TriggerContext.DUMMY, times);
 		}
-		return expr;
+		return expression;
 	}
 
+	/**
+	 * Returns a SimpleLiteral containing the numbers 1 up until a certain amount, specified
+	 * by the given expression.
+	 * @param ctx the context
+	 * @param size the expression
+	 * @return the SimpleLiteral
+	 */
 	private static Expression<BigInteger> rangeOf(TriggerContext ctx, Expression<BigInteger> size) {
 		BigInteger[] range = (BigInteger[]) size.getSingle(ctx)
 				.filter(t -> t.compareTo(BigInteger.ZERO) > 0)

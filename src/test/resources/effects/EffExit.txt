@@ -35,5 +35,7 @@ test:
 	delete {flag::1}
 	delete {flag::2}
 
-	stop
-	assert false with "'exit'-statement didn't work properly"
+	loop 5 times:
+		exit
+		assert false with "'exit'-statement didn't work properly (inside loop)"
+	assert false with "'exit'-statement didn't work properly (outside loop)"

@@ -5,18 +5,34 @@ import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.Variable;
+import io.github.syst3ms.skriptparser.lang.control.SelfReferencing;
 import io.github.syst3ms.skriptparser.lang.lambda.ReturnSection;
-import io.github.syst3ms.skriptparser.lang.lambda.SkriptFunction;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
+import io.github.syst3ms.skriptparser.util.Pair;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
-public class SecFilter extends ReturnSection<Boolean> {
+/**
+ * This section filters the given input values one by one, deciding whether to keep each argument
+ * or not by the returned boolean.
+ * Note that the filtered expression will be changed, hence why it can't be a literal list.
+ *
+ * @name Filter
+ * @type SECTION
+ * @pattern filter %~objects%
+ * @since ALPHA
+ * @author Mwexim
+ */
+public class SecFilter extends ReturnSection<Boolean> implements SelfReferencing {
     static {
         Parser.getMainRegistration().addSection(
                 SecFilter.class,
@@ -25,7 +41,12 @@ public class SecFilter extends ReturnSection<Boolean> {
     }
 
     private Expression<?> filtered;
-    private SkriptFunction<SecFilter, Boolean> lambda;
+
+    @Nullable
+    private Statement actualNext;
+    @Nullable
+    private Iterator<?> iterator;
+    private final List<Object> result = new ArrayList<>();
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
@@ -41,31 +62,55 @@ public class SecFilter extends ReturnSection<Boolean> {
             );
             return false;
         }
-        lambda = SkriptFunction.create(this);
         return true;
     }
 
     @Override
     public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
         var currentLine = logger.getLine();
+        super.setNext(this);
         return super.loadSection(section, parserState, logger) && checkReturns(logger, currentLine, true);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Optional<? extends Statement> walk(TriggerContext ctx) {
-        var filteredValues = Arrays.stream(filtered.getValues(ctx))
-                .filter(v -> lambda.apply(ctx, v)
-                        .filter(a -> a.length == 1)
-                        .map(a -> a[0])
-                        .orElse(false)
-                )
-                .toArray();
-        if (filteredValues.length == 0) {
-            filtered.change(ctx, new Object[0], ChangeMode.DELETE);
+        boolean isVariable = filtered instanceof Variable<?>;
+        if (iterator == null)
+            iterator = isVariable
+                    ? ((Variable<?>) filtered).variablesIterator(ctx)
+                    : filtered.iterator(ctx);
+
+        if (iterator.hasNext()) {
+            setArguments(isVariable
+                    ? ((Pair<String, Object>) iterator.next()).getSecond()
+                    : iterator.next()
+            );
+            return start();
         } else {
-            filtered.change(ctx, filteredValues, ChangeMode.SET);
+            if (result.size() == 0) {
+                filtered.change(ctx, new Object[0], ChangeMode.DELETE);
+            } else {
+                filtered.change(ctx, result.toArray(), ChangeMode.SET);
+            }
+            finish();
+            return Optional.ofNullable(actualNext);
         }
-        return getNext();
+    }
+
+    @Override
+    public void step(Statement item) {
+        if (getReturned().map(val -> val[0]).orElse(false)) {
+            assert getArguments().length == 1;
+            result.add(getArguments()[0]); // We add the filtered argument to the result
+        }
+    }
+
+    @Override
+    public void finish() {
+        // Cache clearing
+        iterator = null;
+        result.clear();
     }
 
     @Override
@@ -76,6 +121,17 @@ public class SecFilter extends ReturnSection<Boolean> {
     @Override
     public boolean isSingle() {
         return true;
+    }
+
+    @Override
+    public Statement setNext(@Nullable Statement next) {
+        actualNext = next;
+        return this;
+    }
+
+    @Override
+    public Optional<Statement> getActualNext() {
+        return Optional.ofNullable(actualNext);
     }
 
     @Override

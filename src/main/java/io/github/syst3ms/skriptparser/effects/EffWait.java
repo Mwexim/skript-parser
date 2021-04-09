@@ -1,7 +1,11 @@
 package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.lang.*;
+import io.github.syst3ms.skriptparser.lang.Effect;
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.Literal;
+import io.github.syst3ms.skriptparser.lang.Statement;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.ThreadUtils;
 import io.github.syst3ms.skriptparser.util.TimeUtils;
@@ -69,7 +73,7 @@ public class EffWait extends Effect {
             var cond = condition.getSingle(ctx);
             // The code we want to run each check.
             Consumer<ExecutorService> code = exec -> {
-                if (cond.filter(b -> negated == b).isPresent()) {
+                if (cond.filter(b -> negated == b.booleanValue()).isPresent()) {
                     Statement.runAll(getNext().get(), ctx);
                     exec.shutdownNow();
                 }

@@ -1,16 +1,17 @@
 package io.github.syst3ms.skriptparser.lang.lambda;
 
 import io.github.syst3ms.skriptparser.effects.EffReturn;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
 /**
  * An {@link ArgumentSection} that can hold information about valued returned by the code inside it (typically through
  * {@link EffReturn}).
- *
  * @param <T> the type of the return value.
  */
 public abstract class ReturnSection<T> extends ArgumentSection {
+    @Nullable
     private T[] returned;
 
     /**

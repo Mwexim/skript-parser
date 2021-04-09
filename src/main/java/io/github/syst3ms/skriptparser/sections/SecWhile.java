@@ -6,6 +6,8 @@ import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.control.Continuable;
+import io.github.syst3ms.skriptparser.lang.control.SelfReferencing;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
@@ -14,10 +16,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * A section that keeps executing its contents while a given condition is met.
+ * This section will keep executing the statements inside until the given condition
+ * does not hold anymore.
+ *
+ * @name While
+ * @type SECTION
+ * @pattern while %=boolean%
+ * @since ALPHA
+ * @author Mwexim
  */
-@SuppressWarnings("unchecked")
-public class SecWhile extends CodeSection {
+public class SecWhile extends CodeSection implements Continuable, SelfReferencing {
     static {
         Parser.getMainRegistration().addSection(
                 SecWhile.class,
@@ -31,11 +39,11 @@ public class SecWhile extends CodeSection {
 
     @Override
     public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
-        super.loadSection(section, parserState, logger);
         super.setNext(this);
-        return true;
+        return super.loadSection(section, parserState, logger);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         condition = (Expression<Boolean>) expressions[0];
@@ -45,7 +53,7 @@ public class SecWhile extends CodeSection {
     @Override
     public Optional<? extends Statement> walk(TriggerContext ctx) {
         Optional<? extends Boolean> cond = condition.getSingle(ctx);
-        if (cond.isEmpty() || !cond.get()) {
+        if (cond.isEmpty() || !cond.get().booleanValue()) {
             return Optional.ofNullable(actualNext);
         } else {
             return getFirst();
@@ -58,12 +66,12 @@ public class SecWhile extends CodeSection {
         return this;
     }
 
-    /**
-     * This method exists because SecWhile actually sets itself as its next element with {@link #getNext()}.
-     * This way it has full control over when to stop iterating.
-     * @return the element that is actually after this SecWhile
-     */
-    @Nullable
+    @Override
+    public Optional<? extends Statement> getContinued(TriggerContext ctx) {
+        return Optional.of(this);
+    }
+
+    @Override
     public Optional<Statement> getActualNext() {
         return Optional.ofNullable(actualNext);
     }

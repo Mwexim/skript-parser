@@ -6,6 +6,6 @@ test:
 	set {list::*} to 1, 2 and 7
 	filter {list::*}:
 		assert input = 1, 2 or 7 with "Input should be 1, 2 or 7: %input%"
-		return input > 1
+		return parameter > 1
 
 	assert {list::*} = 2 and 7 with "Filtered list should be 2 and 7: %{list::*}%"
