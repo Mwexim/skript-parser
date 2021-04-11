@@ -103,6 +103,11 @@ public class StringUtils {
                 if (closing == -1)
                     return -1;
                 i = closing;
+            } else if (c == '\'') {
+                var closing = s.indexOf('\'', i + 1);
+                if (closing == -1)
+                    return -1;
+                i = closing;
             } else {
                 return i;
             }

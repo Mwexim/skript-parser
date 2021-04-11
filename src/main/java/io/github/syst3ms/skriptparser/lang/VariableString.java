@@ -98,7 +98,7 @@ public class VariableString extends TaggedExpression {
             } else if (c == '<') {
                 if (i == charArray.length - 1) {
                     sb.append(c);
-                    break;
+                    continue;
                 }
                 var content = StringUtils.getBracketContent(s, i + 1, '>');
                 if (content.isEmpty()) {
@@ -109,7 +109,8 @@ public class VariableString extends TaggedExpression {
                 var tag = TagManager.parseTag(content.get(), logger);
                 logger.callback();
                 if (tag.isEmpty()) {
-                    return Optional.empty();
+                    sb.append(c);
+                    continue;
                 }
                 if (sb.length() > 0) {
                     data.add(sb.toString());
@@ -130,7 +131,7 @@ public class VariableString extends TaggedExpression {
                         sb.append('\t');
                         break;
                     default:
-                        sb.append(c);
+                        sb.append(next);
                 }
             } else if (c == '&') {
                 if (i == charArray.length - 1) {
