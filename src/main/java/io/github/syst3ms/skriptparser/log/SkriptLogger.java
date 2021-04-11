@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -282,5 +283,23 @@ public class SkriptLogger {
 
     public String getFileName() {
         return fileName;
+    }
+
+    /**
+     * @return whether or not this Logger has an error stored
+     */
+    public boolean hasError() {
+        return hasError;
+    }
+
+    /**
+     * Returns the latest log added to the list with a specific LogType.
+     * @param type the LogType
+     * @return the latest log, empty if no log was found
+     */
+    public Optional<? extends LogEntry> getLatest(LogType type) {
+        return logEntries.stream()
+                .filter(val -> val.getType() == type)
+                .reduce((val0, val1) -> val1);
     }
 }

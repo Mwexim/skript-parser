@@ -45,7 +45,9 @@ public class TagManager {
      * @return the parsed tag, empty if no tag was found
      */
     public static Optional<Tag> parseTag(String toParse, SkriptLogger logger) {
-        if (toParse.isEmpty())
+        if (toParse.isEmpty()
+                || Character.isWhitespace(toParse.charAt(0))
+                || Character.isWhitespace(toParse.charAt(toParse.length() - 1)))
             return Optional.empty();
 
         for (var recentTag : recentTags) {
@@ -79,7 +81,7 @@ public class TagManager {
         assert values.length == 1 || values.length == 2;
         String key = values[0];
         String[] parameters = values.length == 2
-                // Basically splits at ',' but keeps backslashes into account.
+                // Basically splits at ',' but takes backslashes into account.
                 ? values[1].split("(?<!\\\\)(?:\\\\\\\\)*,")
                 : new String[0];
         for (String s : parameters) {

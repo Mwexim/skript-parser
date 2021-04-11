@@ -121,10 +121,13 @@ public class SyntaxParser {
         if (s.startsWith("(") && s.endsWith(")") && StringUtils.findClosingIndex(s, '(', ')', 0) == s.length() - 1) {
             s = s.substring(1, s.length() - 1);
         }
+
         var literal = parseLiteral(s, expectedType, parserState, logger);
         if (literal.isPresent()) {
+            logger.clearErrors();
             return literal;
         }
+
         var variable = (Optional<? extends Variable<? extends T>>) Variables.parseVariable(s, expectedType.getType().getTypeClass(), parserState, logger);
         if (variable.isPresent()) {
             if (variable.filter(v -> !v.isSingle() && expectedType.isSingle()).isPresent()) {
@@ -140,6 +143,7 @@ public class SyntaxParser {
                 return variable;
             }
         }
+
         // This is to prevent us from exchanging boolean operators with lists.
         if (s.toLowerCase().startsWith("list ")) {
             s = s.substring("list ".length());

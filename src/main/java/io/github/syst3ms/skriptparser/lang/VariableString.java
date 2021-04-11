@@ -96,7 +96,8 @@ public class VariableString extends TaggedExpression {
                 data.add(expression.get());
                 i += content.get().length() + 1;
             } else if (c == '<') {
-                if (i == charArray.length - 1) {
+                if (i == charArray.length - 1
+                        || Character.isWhitespace(charArray[i + 1])) {
                     sb.append(c);
                     continue;
                 }
@@ -109,8 +110,7 @@ public class VariableString extends TaggedExpression {
                 var tag = TagManager.parseTag(content.get(), logger);
                 logger.callback();
                 if (tag.isEmpty()) {
-                    sb.append(c);
-                    continue;
+                    return Optional.empty();
                 }
                 if (sb.length() > 0) {
                     data.add(sb.toString());
@@ -147,7 +147,9 @@ public class VariableString extends TaggedExpression {
                 var tag = TagManager.parseTag(String.valueOf(next), logger);
                 logger.callback();
                 if (tag.isEmpty()) {
-                    return Optional.empty();
+                    logger.clearErrors();
+                    sb.append(c).append(next);
+                    continue;
                 }
                 if (sb.length() > 0) {
                     data.add(sb.toString());
