@@ -8,7 +8,9 @@ test:
 	set {var} to "Hello World"
 	assert length of {var} = 11 with "length of {var} didn't work: %length of {var}% != 11"
 
-	set {var2} to 'I can put &here <whatever> I like%!'
-	assert {var2} = "I can put \&here \<whatever> I like%%!"
+	set {var} to 'I can put &here <whatever> I like%!'
+	assert {var} = "I can put \&here \<whatever> I like%%!"
+
+	throws "I hope I can put &here <whatever> I like"
 
 	assert "Hello \tWorld!" = "Hello 	World!" with "'\t'-character did not work."
