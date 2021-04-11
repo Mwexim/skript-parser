@@ -14,7 +14,7 @@ public class LogEntry {
     private final int line;
     private final List<ErrorContext> errorContext;
     private final ErrorType errorType;
-    public final String tip;
+    private final String tip;
 
     public LogEntry(String message, LogType verbosity, int line, List<ErrorContext> errorContext, @Nullable ErrorType errorType) {
         this(message, verbosity, line, errorContext, errorType, null);
@@ -41,7 +41,7 @@ public class LogEntry {
         return errorContext;
     }
 
-    ErrorType getErrorType() {
+    public ErrorType getErrorType() {
         return errorType;
     }
 
