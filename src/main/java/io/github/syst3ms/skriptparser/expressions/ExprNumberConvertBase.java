@@ -32,10 +32,6 @@ public class ExprNumberConvertBase implements Expression<String> {
 				false,
 				"%integers% [converted] to (0:binary|1:octal|2:hex[adecimal]|3:base[ ]64|4:base %integer%)",
 				"(0:binary|1:octal|2:hex[adecimal]|3:base[ ]64) %strings% [converted] to (0:binary|8:octal|16:hex[adecimal]|24:base[ ]64|32:base %integer%|40:decimal)"
-//				"binary %strings% [converted] to (1:octal|2:hex[adecimal]|3:base[ ]64|4:base %integer%|5:decimal)",
-//				"octal %strings% [converted] to (0:binary|2:hex[adecimal]|3:base[ ]64|4:base %integer%|5:decimal)",
-//				"hex[adecimal] %strings% [converted] to (0:binary|1:octal|3:base[ ]64|4:base %integer%|5:decimal)",
-//				"base[ ]64 %strings% [converted] to (0:binary|1:octal|2:hex[adecimal]|4:base %integer%|5:decimal)"
 		);
 	}
 
