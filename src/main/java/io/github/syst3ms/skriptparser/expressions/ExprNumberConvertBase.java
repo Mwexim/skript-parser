@@ -31,10 +31,11 @@ public class ExprNumberConvertBase implements Expression<String> {
 				String.class,
 				false,
 				"%integers% [converted] to (0:binary|1:octal|2:hex[adecimal]|3:base[ ]64|4:base %integer%)",
-				"binary %strings% [converted] to (1:octal|2:hex[adecimal]|3:base[ ]64|4:base %integer%|5:decimal)",
-				"octal %strings% [converted] to (0:binary|2:hex[adecimal]|3:base[ ]64|4:base %integer%|5:decimal)",
-				"hex[adecimal] %strings% [converted] to (0:binary|1:octal|3:base[ ]64|4:base %integer%|5:decimal)",
-				"base[ ]64 %strings% [converted] to (0:binary|1:octal|2:hex[adecimal]|4:base %integer%|5:decimal)"
+				"(0:binary|1:octal|2:hex[adecimal]|3:base[ ]64) %strings% [converted] to (0:binary|8:octal|16:hex[adecimal]|24:base[ ]64|32:base %integer%|40:decimal)"
+//				"binary %strings% [converted] to (1:octal|2:hex[adecimal]|3:base[ ]64|4:base %integer%|5:decimal)",
+//				"octal %strings% [converted] to (0:binary|2:hex[adecimal]|3:base[ ]64|4:base %integer%|5:decimal)",
+//				"hex[adecimal] %strings% [converted] to (0:binary|1:octal|3:base[ ]64|4:base %integer%|5:decimal)",
+//				"base[ ]64 %strings% [converted] to (0:binary|1:octal|2:hex[adecimal]|4:base %integer%|5:decimal)"
 		);
 	}
 
@@ -42,16 +43,22 @@ public class ExprNumberConvertBase implements Expression<String> {
 	@Nullable
 	private Expression<BigInteger> baseTo;
 	private int pattern;
-	private int parseMark;
+	private int typeFrom;
+	private int typeTo;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		pattern = matchedPattern;
-		parseMark = parseContext.getParseMark();
+		if (pattern == 0) {
+			typeTo = parseContext.getParseMark();
+		} else {
+			typeFrom = parseContext.getParseMark() & 0b111;
+			typeTo = (parseContext.getParseMark() ^ typeFrom) / 0b1000;
+		}
 
 		expression = expressions[0];
-		if (parseMark == 4) {
+		if (typeTo == 4) {
 			baseTo = (Expression<BigInteger>) expressions[1];
 		}
 		return true;
@@ -60,7 +67,7 @@ public class ExprNumberConvertBase implements Expression<String> {
 	@Override
 	public String[] getValues(TriggerContext ctx) {
 		int radixTo;
-		switch (parseMark) {
+		switch (typeTo) {
 			case 0:
 				radixTo = 2;
 				break;
@@ -100,17 +107,17 @@ public class ExprNumberConvertBase implements Expression<String> {
 						assert val instanceof String;
 
 						int radixFrom;
-						switch (pattern) {
-							case 1:
+						switch (typeFrom) {
+							case 0:
 								radixFrom = 2;
 								break;
-							case 2:
+							case 1:
 								radixFrom = 8;
 								break;
-							case 3:
+							case 2:
 								radixFrom = 16;
 								break;
-							case 4:
+							case 3:
 								radixFrom = 64;
 								break;
 							default:
@@ -145,7 +152,7 @@ public class ExprNumberConvertBase implements Expression<String> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <C> Optional<? extends Expression<C>> convertExpression(Class<C> to) {
-		if (to.isAssignableFrom(BigInteger.class) && parseMark == 5) {
+		if (to.isAssignableFrom(BigInteger.class) && typeTo == 5) {
 			// We will only convert to the integer if it is actually a decimal,
 			// otherwise things will be messy.
 			return Optional.of((Expression<C>) ConvertedExpression.newInstance(
@@ -159,7 +166,7 @@ public class ExprNumberConvertBase implements Expression<String> {
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		switch (parseMark) {
+		switch (typeTo) {
 			case 0:
 				return expression.toString(ctx, debug) + " converted to binary";
 			case 1:
