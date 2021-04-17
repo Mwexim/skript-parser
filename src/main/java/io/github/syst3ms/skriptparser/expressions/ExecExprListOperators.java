@@ -103,7 +103,9 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 		var logger = parseContext.getLogger();
 		if (list.acceptsChange(ChangeMode.SET).isEmpty()) {
 			logger.error(
-					list.toString(TriggerContext.DUMMY, logger.isDebug()) + " is constant and cannot be changed",
+					"The expression '"
+							+ list.toString(TriggerContext.DUMMY, logger.isDebug())
+							+ "' cannot be changed",
 					ErrorType.SEMANTIC_ERROR
 			);
 			return false;
