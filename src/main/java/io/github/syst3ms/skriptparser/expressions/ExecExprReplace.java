@@ -96,34 +96,37 @@ public class ExecExprReplace extends ExecutableExpression<String> {
 
 		for (int i = 0; i < replacedValues.length; i++) {
 			for (String match : matchedValues) {
+				String current = replacedValues[i];
 				String replaced;
 				switch (type) {
 					case 0:
-						replaced = replacedValues[i].replace(match, replacementValue);
+						replaced = current.replace(match, replacementValue);
 						break;
 					case 1:
-						replaced = replacedValues[i].replaceFirst(Pattern.quote(match), replacementValue);
+						replaced = current.replaceFirst(Pattern.quote(match), replacementValue);
 						break;
 					case 2:
-						int lastIndex = replacedValues[i].lastIndexOf(match);
-						if (lastIndex < 0 || lastIndex >= replacedValues[i].length())
+						int lastIndex = current.lastIndexOf(match);
+						if (lastIndex < 0 || lastIndex >= current.length())
 							continue;
 
-						int limitIndex = lastIndex + replacedValues[i].length();
-						replaced = replacedValues[i].substring(0, lastIndex)
+						int limitIndex = lastIndex + match.length();
+						replaced = current.substring(0, lastIndex)
 								+ replacementValue
-								+ (limitIndex < replacedValues[i].length() ? replacedValues[i].substring(limitIndex) : "");
+								+ (limitIndex < current.length() ? current.substring(limitIndex) : "");
 						break;
 					case 3:
 						assert index != null;
-						int index = this.index.getSingle(ctx).map(BigInteger::intValue).orElseThrow(AssertionError::new);
-						if (index < 0 || index >= replacedValues[i].length())
+						int index = this.index.getSingle(ctx)
+								.map(val -> ordinalIndexOf(current, match, val.intValue()))
+								.orElseThrow(AssertionError::new);
+						if (index == -1)
 							continue;
 
-						limitIndex = index + replacedValues[i].length();
-						replaced = replacedValues[i].substring(0, index)
+						limitIndex = index + match.length();
+						replaced = current.substring(0, index)
 								+ replacementValue
-								+ (limitIndex < replacedValues[i].length() ? replacedValues[i].substring(index + replacedValues[i].length()) : "");
+								+ (limitIndex < current.length() ? current.substring(limitIndex) : "");
 						break;
 					default:
 						throw new IllegalStateException();
@@ -159,5 +162,13 @@ public class ExecExprReplace extends ExecutableExpression<String> {
 		return "replace " + typeString + toMatch.toString(ctx, debug)
 				+ " in " + toReplace.toString(ctx, debug)
 				+ " with " + replacement.toString(ctx, debug);
+	}
+
+	private static int ordinalIndexOf(String value, String match, int ordinal) {
+		int pos = -1;
+		do {
+			pos = value.indexOf(match, pos + 1);
+		} while (--ordinal > 0 && pos != -1);
+		return pos;
 	}
 }

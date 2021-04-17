@@ -5,7 +5,7 @@
 test:
 	# All
 	set {var} to "Hello world, my name is Skript."
-	assert replace "o" in {var} with "a" = "Hella warld, my name is Skript." with "single replacement didn't work"
+	assert replace "o" in {var} with "a" = "Hella warld, my name is Skript." with "Single replacement didn't work"
 	assert {var} = "Hello world, my name is Skript." with "{var} should not be changed yet: %{var}%"
 	replace all "." with "!" in {var}
 	assert {var} = "Hello world, my name is Skript!" with "{var} should be 'Hello world, my name is Skript!': %{var}%"
@@ -16,11 +16,15 @@ test:
 	assert {var} = "Goodbye, hello there!" with "{var} should be 'Goodbye, hello there!': %{var}%"
 
 	# Last and indexed
-	set {var} to "HEEEEEEELP! PLEASE!"
+	set {var} to "HEELP HEELP REE HEELP! PLEASE!"
 	replace last "E" inside {var} with "="
-	assert {var} = "HEEEEEEELP! PLEAS=!" with "{var} should be 'HEEEEEEELP! PLEAS=!': %{var}%"
+	assert {var} = "HEELP HEELP REE HEELP! PLEAS=!" with "{var} should be 'HEELP HEELP REE HEELP! PLEAS=!': %{var}%"
 
-	replace 3th "EE" with "/" in {var}
-	assert {var} = "HEEEE/ELP! PLEAS=!" with "{var} should be 'HEEEE/ELP! PLEAS=!': %{var}%"
+	replace 3rd "EE" with "/" in {var}
+	assert {var} = "HEELP HEELP R/ HEELP! PLEAS=!" with "{var} should be 'HEELP HEELP R/ HEELP! PLEAS=!': %{var}%"
 
+	# Multiple
+	set {list::*} to "testee", "testtee" and "testttee"
+	replace 3rd "t" and "e" in {list::*} with "u"
+	assert {list::*} = "testeu", "testueu" and "testuteu" with "Combined replacement didn't work: %{list::*}%"
 
