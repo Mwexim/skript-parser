@@ -87,10 +87,11 @@ public abstract class PropertyConditional<P> extends ConditionalExpression imple
             case CAN:
                 return perf.toString(ctx, debug) + (isNegated() ? " can't " : " can ") + property;
             case HAVE:
-                if (perf.isSingle())
+                if (perf.isSingle()) {
                     return perf.toString(ctx, debug) + (isNegated() ? " doesn't have " : " has ") + property;
-                else
+                } else {
                     return perf.toString(ctx, debug) + (isNegated() ? " don't have " : " have ") + property;
+                }
             default:
                 throw new AssertionError();
         }
