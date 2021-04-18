@@ -15,16 +15,17 @@ test:
 	replace first "Hello" in {var} with "Goodbye"
 	assert {var} = "Goodbye, hello there!" with "{var} should be 'Goodbye, hello there!': %{var}%"
 
-	# Last and indexed
-	set {var} to "HEELP HEELP REE HEELP! PLEASE!"
-	replace last "E" inside {var} with "="
-	assert {var} = "HEELP HEELP REE HEELP! PLEAS=!" with "{var} should be 'HEELP HEELP REE HEELP! PLEAS=!': %{var}%"
-
-	replace 3rd "EE" with "/" in {var}
-	assert {var} = "HEELP HEELP R/ HEELP! PLEAS=!" with "{var} should be 'HEELP HEELP R/ HEELP! PLEAS=!': %{var}%"
+	# Last
+	set {var} to "HELP, PLEASE!"
+	replace last "E" in {var} with "="
+	assert {var} = "HELP, PLEAS=!" with "{var} should be 'HELP, PLEAS=!': %{var}%"
 
 	# Multiple
 	set {list::*} to "testee", "testtee" and "testttee"
-	replace 3rd "t" and "e" in {list::*} with "u"
-	assert {list::*} = "testeu", "testueu" and "testuteu" with "Combined replacement didn't work: %{list::*}%"
+	replace last "t" and "e" in {list::*} with "u"
+	assert {list::*} = "tesueu", "testueu" and "testtueu" with "Combined replacement didn't work: %{list::*}%"
 
+	# Regex
+	set {var} to "Hello World"
+	replace last regex patterns '[A-Za-z]{2}' with "$" in {var}
+	assert {var} = "Hello Wor$" with "{var} should be 'Hello Wor$': %{var}%"
