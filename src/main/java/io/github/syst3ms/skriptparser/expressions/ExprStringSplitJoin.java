@@ -5,10 +5,12 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -20,8 +22,8 @@ import java.util.regex.Pattern;
  * @name Join/Split
  * @type EXPRESSION
  * @pattern (concat[enate]|join) %strings% [(with|using|by) [[the] delimiter] %string%]
- * @pattern (split %string%|%string% split) (at|using|by) [[the] delimiter] %string%
- * @pattern (split %string%|%string% split) (with|using|by|every) %integer% [char[acter][s]]
+ * @pattern (split %string%|%string% split) (at|using|by) [[the] (delimiter|regex [pattern]] %string%
+ * @pattern (split %string%|%string% split) (using|every) %integer% [char[acter][s]]
  * @since ALPHA
  * @author Mwexim
  */
@@ -31,72 +33,90 @@ public class ExprStringSplitJoin implements Expression<String> {
 				ExprStringSplitJoin.class,
 				String.class,
 				false,
-				"(concat[enate]|join) %strings% [1:(with|using|by) [[the] delimiter] %string%]",
-				"(split %string%|%string% split) (at|using|by) [[the] delimiter] %string%",
-				"(split %string%|%string% split) (with|using|by|every) %integer% [char[acter]][s]"
+				"(concat[enate]|join) %strings% [(with|using|by) [[the] delimiter] %string%]",
+				"(split %string%|%string% split) (at|using|by) [[the] (delimiter|1:regex [pattern])] %string%",
+				"(split %string%|%string% split) (using|every) %integer% [char[acter][s]]"
 		);
 	}
 
-	private Expression<String> expr;
+	private Expression<String> expression;
+	@Nullable
 	private Expression<String> delimiter;
-	private Expression<BigInteger> chars;
+	private Expression<BigInteger> step;
 
 	private int pattern;
-	private boolean delimiterPresent;
+	private boolean regex;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+		expression = (Expression<String>) expressions[0];
 		pattern = matchedPattern;
-		delimiterPresent = parseContext.getParseMark() == 1;
-		expr = (Expression<String>) expressions[0];
-		if (pattern == 0) {
-			if (delimiterPresent) {
+		regex = parseContext.getParseMark() == 1;
+		switch (pattern) {
+			case 0:
+				if (expressions.length == 2) {
+					delimiter = (Expression<String>) expressions[1];
+				}
+				break;
+			case 1:
 				delimiter = (Expression<String>) expressions[1];
-			}
-		} else if (pattern == 1) {
-			delimiter = (Expression<String>) expressions[1];
-		} else {
-			chars = (Expression<BigInteger>) expressions[1];
+				break;
+			case 2:
+				step = (Expression<BigInteger>) expressions[1];
+				break;
+			default:
+				throw new IllegalStateException();
 		}
 		return true;
 	}
 
 	@Override
 	public String[] getValues(TriggerContext ctx) {
-		if (pattern == 0) {
-			String[] strs = expr.getValues(ctx);
-			String del = delimiterPresent ? delimiter.getSingle(ctx).orElse(null) : "";
-			if (strs.length == 0 || del == null) {
-				return new String[0];
-			}
-			return new String[]{String.join(del, strs)};
-		} else if (pattern == 1) {
-			return DoubleOptional.ofOptional(expr.getSingle(ctx), delimiter.getSingle(ctx))
-					.mapToOptional((str, del) -> str.split(Pattern.quote(del)))
-					.orElse(new String[0]);
-		} else {
-			return DoubleOptional.ofOptional(expr.getSingle(ctx), chars.getSingle(ctx))
-					.mapToOptional((str, c) -> {
-						List<String> ret = new ArrayList<>();
-						int i = 0;
-						while (i < str.length()) {
-							ret.add(str.substring(i, Math.min(i + c.intValue(), str.length())));
-							i += c.intValue();
-						}
-						return ret.toArray(new String[0]);
-					})
-					.orElse(new String[0]);
+		switch (pattern) {
+			case 0:
+				return Optional.ofNullable(delimiter)
+						.flatMap(val -> val.getSingle(ctx))
+						.map(val -> (String) val)
+						.or(() -> Optional.of(""))
+						.map(val -> new String[] {String.join(val, expression.getValues(ctx))})
+						.orElse(new String[0]);
+			case 1:
+				assert delimiter != null;
+				return DoubleOptional.ofOptional(expression.getSingle(ctx), delimiter.getSingle(ctx))
+						.mapToOptional((val, separator) -> val.split(regex ? separator : Pattern.quote(separator)))
+						.orElse(new String[0]);
+			case 2:
+				return DoubleOptional.ofOptional(expression.getSingle(ctx), step.getSingle(ctx))
+						.mapToOptional((val, step) -> split(val, step.intValue()))
+						.orElse(new String[0]);
+			default:
+				throw new IllegalStateException();
 		}
 	}
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		if (pattern == 0) {
-			return "join " + expr.toString(ctx, debug) + (delimiterPresent ? " using " + delimiter.toString(ctx, debug) : "");
-		} else if (pattern == 1) {
-			return "split " + expr.toString(ctx, debug) + " using " + delimiter.toString(ctx, debug);
+		switch (pattern) {
+			case 0:
+				return "join " + expression.toString(ctx, debug) + (delimiter != null ? " using " + delimiter.toString(ctx, debug) : "");
+			case 1:
+				assert delimiter != null;
+				return "split " + expression.toString(ctx, debug) + " using " + delimiter.toString(ctx, debug);
+			case 2:
+				return "split " + expression.toString(ctx, debug) + " every " + step.toString(ctx, debug) + " characters";
+			default:
+				throw new IllegalStateException();
 		}
-		return "split " + expr.toString(ctx, debug) + " using " + chars.toString(ctx, debug) + " characters";
+	}
+
+	private static String[] split(String value, int step) {
+		List<String> ret = new ArrayList<>();
+		int i = 0;
+		while (i < value.length()) {
+			ret.add(value.substring(i, Math.min(i + step, value.length())));
+			i += step;
+		}
+		return ret.toArray(new String[0]);
 	}
 }
