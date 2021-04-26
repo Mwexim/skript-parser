@@ -3,6 +3,10 @@
 # Date: 2021/04/26
 
 test:
-    set {_number} to random integer from 5 to 10
-    assert {_number} is greater than 4 with "'random integer from 5 to 10' should be greater than 4: %{_number}%"
-    assert {_number} is less than 11 with "'random integer from 5 to 10' should be less than 11: %{_number}%"
+    set {_integer} to random integer from 5 to 10
+    assert {_integer} is greater than 4 with "'random integer from 5 to 10' should be greater than 4: %{_integer}%"
+    assert {_integer} is less than 11 with "'random integer from 5 to 10' should be less than 11: %{_integer}%"
+
+    set {_number} to random number from 5.2 to 8.3
+    assert {_number} is greater than 5.1 with "'random number from 5.2 to 8.3' should be greater than 501: %{_number}%"
+    assert {_number} is less than 8.4 with "'random number from 5.2 to 8.3' should be less than 8.4: %{_number}%"
