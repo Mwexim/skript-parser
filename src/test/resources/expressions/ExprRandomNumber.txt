@@ -10,3 +10,7 @@ test:
     set {_number} to random number from 5.2 to 8.3
     assert {_number} is greater than 5.1 with "'random number from 5.2 to 8.3' should be greater than 501: %{_number}%"
     assert {_number} is less than 8.4 with "'random number from 5.2 to 8.3' should be less than 8.4: %{_number}%"
+
+    set {_bigint} to random integer from 2147483647 to 3000000000
+    assert {_bigint} is greater than 2147483646 with "'random integer from 2147483647 to 3000000000' should be greater than 2147483646: %{_bigint}%"
+    assert {_bigint} is less than 3000000001 with "'random integer from 2147483646 to 3000000000' should be less than 3000000001: %{_bigint}%"
