@@ -13,13 +13,26 @@ import org.junit.runners.model.MultipleFailureException;
 
 import java.io.File;
 import java.net.URL;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class SyntaxParserTest {
     static {
         TestRegistration.register();
     }
+
+    /**
+     * Amount of milliseconds a test can take at most before failing.
+     */
+    private static final int TEST_TIMEOUT = 10_000;
 
     private static final List<Throwable> errorsFound = new ArrayList<>();
 
@@ -40,7 +53,7 @@ public class SyntaxParserTest {
                             future = executor.submit(() -> ScriptLoader.loadScript(file.toPath(), true));
                             List<LogEntry> logs;
                             try {
-                                logs = future.get(10, TimeUnit.SECONDS);
+                                logs = future.get(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
                                 logs.removeIf(log -> log.getType() != LogType.ERROR);
 
                                 if (!logs.isEmpty()) {
