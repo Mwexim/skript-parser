@@ -40,6 +40,8 @@ public class CompoundElement implements PatternElement {
 
     @Override
     public int match(String s, int index, MatchContext context) {
+        if (s.startsWith("pls test"))
+            System.out.println(s + " :: " + index);
         var i = index;
         for (var element : elements) {
             var m = element.match(s, i, context);

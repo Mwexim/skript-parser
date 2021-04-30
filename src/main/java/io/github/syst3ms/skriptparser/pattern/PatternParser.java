@@ -18,6 +18,7 @@ import java.util.regex.PatternSyntaxException;
  */
 public class PatternParser {
     private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(0[bx])?(\\d+?):(.*)");
+    private static final Pattern NAME_MARK_PATTERN = Pattern.compile("'([a-z_]+)':(.*)");
     private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*^~])?(=)?(?<types>[\\w/]+)?");
 
     /**
@@ -40,7 +41,37 @@ public class PatternParser {
         for (var i = 0; i < chars.length; i++) {
             var c = chars[i];
             var initialPos = i;
-            if (c == '[') {
+            if (c == '{') {
+                var s = StringUtils.getEnclosedText(pattern, '{', '}', i);
+                if (s.isEmpty()) {
+                    logger.error("Unmatched curly bracket (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
+                    return Optional.empty();
+                } else if (s.get().isEmpty()) {
+                    logger.warn("There is an empty named group. Place a backslash before a curly bracket for it to be interpreted literally : {" + s.get() + "}");
+                }
+                if (textBuilder.length() != 0) {
+                    elements.add(new TextElement(textBuilder.toString()));
+                    textBuilder = new StringBuilder();
+                }
+
+                i += s.get().length() + 1; // sets i to the closing bracket, for loop does the rest
+                Optional<NamedGroup> namedGroup;
+                var matcher = NAME_MARK_PATTERN.matcher(s.get());
+                if (matcher.matches()) {
+                    var name = matcher.group(1);
+                    var rest = matcher.group(2);
+                    namedGroup = parsePattern(rest, logger)
+                            .map(val -> new NamedGroup(val, name));
+                } else {
+                    return Optional.empty();
+                }
+
+                if (namedGroup.isEmpty()) {
+                    return Optional.empty();
+                } else {
+                    elements.add(namedGroup.get());
+                }
+            } else if (c == '[') {
                 var s = StringUtils.getEnclosedText(pattern, '[', ']', i);
                 if (s.isEmpty()) {
                     logger.error("Unmatched square bracket (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
@@ -53,7 +84,7 @@ public class PatternParser {
                     textBuilder = new StringBuilder();
                 }
                 i += s.get().length() + 1; // sets i to the closing bracket, for loop does the rest
-                Optional<OptionalGroup> o;
+                Optional<OptionalGroup> optionalGroup;
                 var matcher = PARSE_MARK_PATTERN.matcher(s.get());
                 var vertParts = StringUtils.splitVerticalBars(pattern, logger);
                 if (vertParts.isEmpty()) {
@@ -79,18 +110,18 @@ public class PatternParser {
                         return Optional.empty();
                     }
                     var rest = matcher.group(3);
-                    o = parsePattern(rest, logger)
+                    optionalGroup = parsePattern(rest, logger)
                             .map(e -> new ChoiceGroup(Collections.singletonList(new ChoiceElement(e, markNumber))))
                             .map(OptionalGroup::new);
 
                 } else {
-                    o = s.flatMap(st -> parsePattern(st, logger))
+                    optionalGroup = s.flatMap(st -> parsePattern(st, logger))
                             .map(OptionalGroup::new);
                 }
-                if (o.isEmpty()) {
+                if (optionalGroup.isEmpty()) {
                     return Optional.empty();
                 } else {
-                    elements.add(o.get());
+                    elements.add(optionalGroup.get());
                 }
             } else if (c == '(') {
                 var s = StringUtils.getEnclosedText(pattern, '(', ')', i);
@@ -226,7 +257,7 @@ public class PatternParser {
                 } else {
                     textBuilder.append(chars[++i]);
                 }
-            } else if (c == ']' || c == ')' || c == '>') { // Closing brackets are skipped over, so this marks an error
+            } else if (c == '}' || c == ']' || c == ')' || c == '>') { // Closing brackets are skipped over, so this marks an error
                 logger.error("Unmatched closing bracket (index " + initialPos + ") : '" + pattern.substring(0, initialPos + 1) + "'", ErrorType.MALFORMED_INPUT);
                 return Optional.empty();
             } else {

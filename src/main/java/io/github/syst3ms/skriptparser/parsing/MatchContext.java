@@ -10,7 +10,9 @@ import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.MatchResult;
 
@@ -27,6 +29,7 @@ public class MatchContext {
     private final MatchContext source;
     private final List<Expression<?>> parsedExpressions = new ArrayList<>();
     private final List<MatchResult> regexMatches = new ArrayList<>();
+    private final Map<String, String> namedGroups = new HashMap<>();
     private int patternIndex = 0;
     private int parseMark = 0;
 
@@ -96,6 +99,15 @@ public class MatchContext {
     }
 
     /**
+     * Adds a new successfully parsed named group to the map.
+     * @param name the name of the group
+     * @param content the contents
+     */
+    public void addNamedGroup(String name, String content) {
+        namedGroups.put(name, content);
+    }
+
+    /**
      * @return the parse mark so far
      */
     public int getParseMark() {
@@ -136,6 +148,7 @@ public class MatchContext {
     public void merge(MatchContext branch) {
         parsedExpressions.addAll(branch.parsedExpressions);
         regexMatches.addAll(branch.regexMatches);
+        namedGroups.putAll(branch.namedGroups);
         addMark(branch.parseMark);
     }
 
@@ -144,7 +157,7 @@ public class MatchContext {
      * @return a {@link ParseContext} based on this {@link MatchContext}
      */
     public ParseContext toParseResult() {
-        return new ParseContext(parserState, originalElement, regexMatches, parseMark, originalPattern, logger);
+        return new ParseContext(parserState, originalElement, regexMatches, namedGroups, parseMark, originalPattern, logger);
     }
 
     public ParserState getParserState() {

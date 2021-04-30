@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 
 import java.util.List;
+import java.util.Map;
 import java.util.regex.MatchResult;
 
 /**
@@ -17,14 +18,16 @@ public class ParseContext {
     private final PatternElement element;
     private final String expressionString;
     private final List<MatchResult> matches;
+    private final Map<String, String> namedGroups;
     private final int parseMark;
     private final SkriptLogger logger;
 
-    public ParseContext(ParserState parserState, PatternElement element, List<MatchResult> matches, int parseMark, String expressionString, SkriptLogger logger) {
+    public ParseContext(ParserState parserState, PatternElement element, List<MatchResult> matches, Map<String, String> namedGroups, int parseMark, String expressionString, SkriptLogger logger) {
         this.parserState = parserState;
         this.element = element;
         this.expressionString = expressionString;
         this.matches = matches;
+        this.namedGroups = namedGroups;
         this.parseMark = parseMark;
         this.logger = logger;
     }
@@ -34,6 +37,14 @@ public class ParseContext {
      */
     public List<MatchResult> getMatches() {
         return matches;
+    }
+
+    /**
+     * @param name the name of the group
+     * @return the contents of this matched group
+     */
+    public String getNamedGroup(String name) {
+        return namedGroups.get(name);
     }
 
     /**
