@@ -1,7 +1,5 @@
 package io.github.syst3ms.skriptparser.util;
 
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Random;
 import java.util.function.Predicate;
 
@@ -9,15 +7,10 @@ import java.util.function.Predicate;
  * Utility functions for Collection objects
  */
 public class CollectionUtils {
-    private static final Random rnd = new Random();
-
-    @SafeVarargs
-    public static <T> Iterator<T> iterator(T... elements) {
-        return Arrays.asList(elements).iterator();
-    }
+    private static final Random random = new Random();
 
     public static <T> T getRandom(T[] array) {
-        return array[rnd.nextInt(array.length)];
+        return array[random.nextInt(array.length)];
     }
 
     public static <T> T[] reverseArray(T[] array) {
@@ -29,31 +22,26 @@ public class CollectionUtils {
         return array;
     }
 
-    @SafeVarargs
-    public static <T> boolean contains(T[] array, T... contained) {
-        return Arrays.asList(array).containsAll(Arrays.asList(contained));
-    }
-
     /**
      * Find the index of an item, where a given predicate applies,
      * from a given class in an array, skipping over all these items
      * as long as the amount of items skipped is smaller than a given amount.
      * @param array the array
-     * @param n the ordinal you want to get the index from
+     * @param skip the index you want to find
      * @param condition the condition
      * @return the index, {@code -1} if no index was found
      */
-    public static <T> int ordinalConditionalIndexOf(T[] array, int n, Predicate<T> condition) {
+    public static <T> int ordinalConditionalIndexOf(T[] array, int skip, Predicate<T> condition) {
         int index = 0;
         int findTimes = 0;
-        if (n == 0)
+        if (skip == 0)
             return -1;
         if (array.length == 0)
             return -1;
         for (T o : array) {
             if (condition.test(o))
                 findTimes++;
-            if (findTimes >= n)
+            if (findTimes >= skip)
                 return index;
             index++;
         }

@@ -8,7 +8,7 @@ import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
-import io.github.syst3ms.skriptparser.util.SkriptDate;
+import io.github.syst3ms.skriptparser.util.classes.SkriptDate;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

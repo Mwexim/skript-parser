@@ -6,7 +6,7 @@ import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.util.Time;
+import io.github.syst3ms.skriptparser.util.classes.Time;
 
 import java.math.BigInteger;
 

@@ -14,7 +14,7 @@ import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.util.FileUtils;
-import io.github.syst3ms.skriptparser.util.MultiMap;
+import io.github.syst3ms.skriptparser.util.classes.MultiMap;
 
 import java.io.IOException;
 import java.nio.file.Path;

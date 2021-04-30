@@ -5,7 +5,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.util.SkriptDate;
+import io.github.syst3ms.skriptparser.util.classes.SkriptDate;
 
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;

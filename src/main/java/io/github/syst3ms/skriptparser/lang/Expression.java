@@ -12,10 +12,10 @@ import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
-import io.github.syst3ms.skriptparser.util.CollectionUtils;
-import io.github.syst3ms.skriptparser.util.Pair;
+import io.github.syst3ms.skriptparser.util.classes.Pair;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -108,7 +108,7 @@ public interface Expression<T> extends SyntaxElement {
      * @return an iterator of the values of this expression
      */
     default Iterator<? extends T> iterator(TriggerContext ctx) {
-        return CollectionUtils.iterator(getValues(ctx));
+        return Arrays.asList(getValues(ctx)).iterator();
     }
 
     /**

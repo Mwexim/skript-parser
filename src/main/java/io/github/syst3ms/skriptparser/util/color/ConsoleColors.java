@@ -1,4 +1,4 @@
-package io.github.syst3ms.skriptparser.util;
+package io.github.syst3ms.skriptparser.util.color;
 
 public enum ConsoleColors {
     // Reset

@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.registration;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.util.MultiMap;
+import io.github.syst3ms.skriptparser.util.classes.MultiMap;
 
 import java.util.ArrayList;
 import java.util.Comparator;

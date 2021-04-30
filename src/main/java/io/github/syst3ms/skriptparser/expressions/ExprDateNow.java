@@ -4,7 +4,7 @@ import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.util.SkriptDate;
+import io.github.syst3ms.skriptparser.util.classes.SkriptDate;
 
 /**
  * The current date, the one from yesterday or the one from tomorrow.

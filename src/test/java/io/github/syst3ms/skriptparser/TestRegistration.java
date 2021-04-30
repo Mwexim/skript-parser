@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser;
 import io.github.syst3ms.skriptparser.registration.DefaultRegistration;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.util.FileUtils;
-import io.github.syst3ms.skriptparser.util.SkriptDate;
+import io.github.syst3ms.skriptparser.util.classes.SkriptDate;
 
 import java.io.IOException;
 import java.lang.reflect.Field;

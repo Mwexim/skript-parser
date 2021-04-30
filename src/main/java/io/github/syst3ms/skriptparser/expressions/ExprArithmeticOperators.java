@@ -8,7 +8,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
-import io.github.syst3ms.skriptparser.util.DoubleOptional;
+import io.github.syst3ms.skriptparser.util.classes.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 
 import java.math.BigDecimal;

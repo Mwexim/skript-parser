@@ -12,7 +12,7 @@ import io.github.syst3ms.skriptparser.types.ranges.RangeInfo;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
-import io.github.syst3ms.skriptparser.util.DoubleOptional;
+import io.github.syst3ms.skriptparser.util.classes.DoubleOptional;
 
 import java.util.function.BiFunction;
 

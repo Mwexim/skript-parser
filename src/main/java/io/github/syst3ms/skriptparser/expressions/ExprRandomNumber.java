@@ -7,7 +7,7 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
-import io.github.syst3ms.skriptparser.util.DoubleOptional;
+import io.github.syst3ms.skriptparser.util.classes.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 
 import java.math.BigDecimal;

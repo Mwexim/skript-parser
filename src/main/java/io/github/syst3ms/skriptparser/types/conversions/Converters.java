@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.types.conversions;
 
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
-import io.github.syst3ms.skriptparser.util.Pair;
+import io.github.syst3ms.skriptparser.util.classes.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;

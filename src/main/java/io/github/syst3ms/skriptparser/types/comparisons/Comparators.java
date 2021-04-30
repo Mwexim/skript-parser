@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.types.comparisons;
 
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
-import io.github.syst3ms.skriptparser.util.Pair;
+import io.github.syst3ms.skriptparser.util.classes.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;

@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.parsing;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.util.Pair;
+import io.github.syst3ms.skriptparser.util.classes.Pair;
 
 import java.util.Collections;
 import java.util.HashSet;

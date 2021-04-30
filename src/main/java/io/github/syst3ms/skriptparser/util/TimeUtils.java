@@ -1,5 +1,7 @@
 package io.github.syst3ms.skriptparser.util;
 
+import io.github.syst3ms.skriptparser.util.classes.Time;
+
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Optional;

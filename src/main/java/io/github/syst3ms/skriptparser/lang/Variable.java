@@ -11,7 +11,7 @@ import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
-import io.github.syst3ms.skriptparser.util.Pair;
+import io.github.syst3ms.skriptparser.util.classes.Pair;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import io.github.syst3ms.skriptparser.variables.Variables;
 import org.jetbrains.annotations.Nullable;

@@ -11,7 +11,7 @@ import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
-import io.github.syst3ms.skriptparser.util.DoubleOptional;
+import io.github.syst3ms.skriptparser.util.classes.DoubleOptional;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;

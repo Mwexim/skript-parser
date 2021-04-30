@@ -14,8 +14,8 @@ import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.lang.base.ExecutableExpression;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 import io.github.syst3ms.skriptparser.util.ThreadUtils;
-import io.github.syst3ms.skriptparser.util.Time;
 import io.github.syst3ms.skriptparser.util.TimeUtils;
+import io.github.syst3ms.skriptparser.util.classes.Time;
 
 import java.time.Duration;
 import java.util.ArrayList;

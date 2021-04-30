@@ -9,6 +9,7 @@ import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import org.jetbrains.annotations.Contract;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -112,6 +113,6 @@ public class SimpleLiteral<T> implements Literal<T> {
     public Iterator<T> iterator(TriggerContext context) {
         if (isSingle())
             throw new SkriptRuntimeException("Can't loop a single literal !");
-        return CollectionUtils.iterator(values);
+        return Arrays.asList(values).iterator();
     }
 }

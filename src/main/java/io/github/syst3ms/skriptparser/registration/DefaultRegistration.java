@@ -8,9 +8,9 @@ import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
-import io.github.syst3ms.skriptparser.util.SkriptDate;
-import io.github.syst3ms.skriptparser.util.Time;
 import io.github.syst3ms.skriptparser.util.TimeUtils;
+import io.github.syst3ms.skriptparser.util.classes.SkriptDate;
+import io.github.syst3ms.skriptparser.util.classes.Time;
 import io.github.syst3ms.skriptparser.util.color.Color;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 

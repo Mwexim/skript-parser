@@ -6,7 +6,7 @@ import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.util.Time;
+import io.github.syst3ms.skriptparser.util.classes.Time;
 
 /**
  * This event will trigger each day at a given time.
