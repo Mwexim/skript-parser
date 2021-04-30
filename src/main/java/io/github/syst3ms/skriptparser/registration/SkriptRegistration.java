@@ -33,7 +33,7 @@ import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.changers.Changer;
 import io.github.syst3ms.skriptparser.types.conversions.ConverterInfo;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
-import io.github.syst3ms.skriptparser.util.MultiMap;
+import io.github.syst3ms.skriptparser.util.classes.MultiMap;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
@@ -729,15 +729,15 @@ public class SkriptRegistration {
          * @param isSingle whether or not this value is single
          * @param name the name of this context value (used in the suffix)
          * @param contextFunction the function that needs to be applied in order to get the context value
-         * @param time whether this happens in the present, past or future
+         * @param state whether this happens in the present, past or future
          * @param <C> the context class
          * @param <R> the type class
          * @return the registrar
          */
-        public final <C extends TriggerContext, R> EventRegistrar<T> addContextValue(Class<C> context, Class<R> returnType, boolean isSingle, String name, Function<C, R[]> contextFunction, ContextValueState time) {
+        public final <C extends TriggerContext, R> EventRegistrar<T> addContextValue(Class<C> context, Class<R> returnType, boolean isSingle, String name, Function<C, R[]> contextFunction, ContextValueState state) {
             var type = (Type<R>) TypeManager.getByClass(returnType).orElseThrow();
             var pattern = removePrefix(name);
-            contextValues.add(new ContextValue<>(context, type, isSingle, pattern, (Function<TriggerContext, R[]>) contextFunction, time, name.startsWith("*")));
+            contextValues.add(new ContextValue<>(context, type, isSingle, pattern, (Function<TriggerContext, R[]>) contextFunction, state, name.startsWith("*")));
             return this;
         }
     }

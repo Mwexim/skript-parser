@@ -23,22 +23,23 @@ public class ExprContextValue implements Expression<Object> {
 				ExprContextValue.class,
 				Object.class,
 				false,
-				"[the] [(1:(past|previous)|2:(future|next))] context-<.+>"
+				"[the] (0:(past|previous)|1:|2:(future|next)) context-<.+>"
 		);
 	}
 
 	private String name;
-	private ContextValueState time;
+	private ContextValueState state;
 	private ContextValue<?> value;
 
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, ParseContext parseContext) {
 		name = parseContext.getMatches().get(0).group();
-		time = ContextValueState.values()[parseContext.getParseMark()];
-		for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
-			for (ContextValue<?> val : ContextValues.getContextValues()) {
-				if (val.matches(ctx, name, time)) {
-					value = val;
+		state = ContextValueState.values()[parseContext.getParseMark()];
+
+		for (Class<? extends TriggerContext> contextClass : parseContext.getParserState().getCurrentContexts()) {
+			for (var contextValue : ContextValues.getContextValues(contextClass)) {
+				if (contextValue.matches(name, state, false)) {
+					value = contextValue;
 					return true;
 				}
 			}
@@ -63,12 +64,6 @@ public class ExprContextValue implements Expression<Object> {
 
 	@Override
 	public String toString(final TriggerContext ctx, final boolean debug) {
-		String state = "";
-		if (time == ContextValueState.PAST) {
-			state = "past ";
-		} else if (time == ContextValueState.FUTURE) {
-			state = "future ";
-		}
-		return state + "context-" + name;
+		return new String[] {"past ", "", "future "}[state.ordinal()] + "context-" + name;
 	}
 }

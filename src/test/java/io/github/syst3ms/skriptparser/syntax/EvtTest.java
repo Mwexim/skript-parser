@@ -20,8 +20,8 @@ public class EvtTest extends SkriptEvent {
 	static {
 		Parser.getMainRegistration()
 				.newEvent(EvtTest.class, "*test [[only] when %=boolean%]")
-				.setHandledContexts(TestContext.class)
-				.addContextValue(TestContext.class, String.class, true, "*test", __ -> new String[] {"Hello World!"})
+				.setHandledContexts(TestContext.RealTestContext.class)
+				.addContextValue(TestContext.RealTestContext.class, String.class, true, "*test", __ -> new String[] {"Hello World!"})
 				.register();
 	}
 

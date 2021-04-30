@@ -1,10 +1,17 @@
 # Author(s):
 # 	- Mwexim
-# Date: 2020/12/29
+# Date:
+#	- 2020/12/29
+#	- 2021/04/30 (ContextParameter annotation)
 
 test:
 	assert context-test = "Hello World!" with "Context value 'test' should be 'Hello World!': %context-test%"
 	assert test = "Hello World!" with "Standalone context value 'test' should be 'Hello World!': %test%"
+
+	# Registered through annotation
+	assert standalone = "It works" with "Standalone context value 'standalone' should be 'It works': %standalone%"
+	throws should_not_work_because_of_underscore # Invalid name
+	throws context-primitive # Primitive values cannot be used
 
 	throws context-arguments # Not registered as context value for this event
 	throws future context-test
