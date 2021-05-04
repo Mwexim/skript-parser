@@ -30,7 +30,7 @@ public class ContextValues {
 
     /**
      * Returns a list of all currently registered context values for a given {@link TriggerContext},
-     * and also all context values of that context, created by using the {@link ContextParameter}
+     * and also all context values of that context, created by using the {@link ContextValueMethod}
      * annotation.
      * @param ctx the context class
      * @return a list with the context values
@@ -48,10 +48,10 @@ public class ContextValues {
 
         // Search context values by the ContextParameter annotation
         for (var method : ctx.getMethods()) {
-            if (method.getAnnotation(ContextParameter.class) != null
+            if (method.getAnnotation(ContextValueMethod.class) != null
                     && method.getParameterTypes().length == 0) {
                 // Less initialisation
-                var annotation = method.getAnnotation(ContextParameter.class);
+                var annotation = method.getAnnotation(ContextValueMethod.class);
                 var returnType = method.getReturnType();
                 var type = TypeManager.getByClass((Class<?>) (returnType.isArray() ? returnType.getComponentType() : returnType));
 
