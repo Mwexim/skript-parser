@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.syntax;
 
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextParameter;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueMethod;
 
 /**
  * The script loading context, which corresponds to running code inside {@code public static void main(String[] args)}
@@ -14,17 +14,17 @@ public class TestContext implements TriggerContext {
         return "main";
     }
 
-    @ContextParameter(name = "standalone", standalone = true)
+    @ContextValueMethod(name = "standalone", standalone = true)
     public String standaloneValue() {
         return "It works";
     }
 
-    @ContextParameter(name = "should_not_work_because_of_underscore")
+    @ContextValueMethod(name = "should_not_work_because_of_underscore")
     public String invalidValue() {
         return "It should not work";
     }
 
-    @ContextParameter(name = "primitive")
+    @ContextValueMethod(name = "primitive")
     public int primitiveValue() {
         return 0;
     }
