@@ -1,0 +1,11 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2021/05/08
+
+test:
+	set {dur} to a day, 3 minutes and 180 seconds
+	assert "%{dur}%" = "a day and 6 minutes" with "{dur} should be 'a day and 6 minutes': %{dur}%"
+
+	assert 5.5 minutes is equal to 5 minutes and 30 seconds with "{dur} should equal 5 minutes and 30 seconds: %{dur}%"
+
+	throws 5 days, 3 minutes, and 5 seconds

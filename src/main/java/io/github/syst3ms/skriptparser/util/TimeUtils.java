@@ -1,98 +1,123 @@
 package io.github.syst3ms.skriptparser.util;
 
 import java.time.Duration;
-import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static io.github.syst3ms.skriptparser.util.math.NumberMath.parseInt;
 
 public class TimeUtils {
-
     /**
-     * A time unit defined to be equal to 50ms.
+     * The amount of milliseconds it takes for a tick to pass.
+     * A 'tick' is a predetermined time-unit of 50 milliseconds.
      */
-    public static Duration TICK = Duration.ofMillis(50);
+    public static final int TICK = 50;
 
-    /**
-     * Parses a string as a duration
-     * @param str the string to parse
-     * @return the parsed duration, empty if no match
-     */
-    public static Optional<Duration> parseDuration(String str) {
-        // TODO parsing gets in trouble with lists
-        if (str.isEmpty())
+    private static final Pattern DURATION_SPLIT_PATTERN = Pattern.compile("\\s*(,)\\s*|\\s+(and)\\s+", Pattern.CASE_INSENSITIVE);
+    private static final Map<String, Integer> DURATION_UNITS = new LinkedHashMap<>();
+
+    static {
+        // LinkedHashMap because order is important
+        DURATION_UNITS.put("days?", 86_400_000);
+        DURATION_UNITS.put("hours?", 3_600_000);
+        DURATION_UNITS.put("minutes?", 60_000);
+        DURATION_UNITS.put("seconds?", 1000);
+        DURATION_UNITS.put("milli(second)?s?", 1);
+    }
+
+    public static Optional<Duration> parseDuration(String value) {
+        if (value.isEmpty())
             return Optional.empty();
-        Duration dur = Duration.ZERO;
 
-        // If there is a ', and' in the string, like '5 days, and 3 seconds',
-        // then we return null since we need to keep consistency with lists.
-        if (str.contains(", and"))
-            return Optional.empty();
-
-        // Removing all ',' except the last one.
-        boolean endsComma = str.endsWith(",");
-        str = str.replaceAll(",", "");
-        if (endsComma) str = str.concat(",");
-
-        String[] split = str.split("\\s+");
-
-        // Days, hours, minutes, seconds, milliseconds. This is to keep track that they come in the right order.
-        // Like '5 days and 3 minutes', not '3 seconds and 5 hours'.
-        boolean[] passed = {false, false, false, false, false};
-
-        // Checks how many 'and' occurrences we had. We can only use 'and' once, before our last part.
-        // This is, again, to keep consistency with lists.
-        int currentAnd = 0;
+        long duration = 0;
+        var split = value.toLowerCase().split("\\s+");
+        var usedUnits = new boolean[5]; // Defaults to false
 
         for (int i = 0; i < split.length; i++) {
-            String s = split[i];
+            var unit = split[i];
+            double delta;
 
-            if (s.equals("and")) {
-                currentAnd++;
-                if ((split.length > 2 && !split[split.length - 3].equals("and")) || currentAnd > 1)
+            if (unit.equals("and")) {
+                if (i == 0 || i == split.length - 1) {
+                    // 'and' in front or at the end
                     return Optional.empty();
+                }
                 continue;
-            }
-
-            long amount;
-
-            try {
-                amount = Long.parseLong(s);
-                s = split[++i];
-            } catch (NumberFormatException | ArrayIndexOutOfBoundsException ex) {
-                return Optional.empty();
-            }
-
-            if (s.matches("days?")) {
-                if (passed[0] || oneIsTrue(passed[1], passed[2], passed[3], passed[4]))
-                    return Optional.empty(); // Days was already used elsewhere and is used again.
-                dur = dur.plusDays(amount);
-                passed[0] = true;
-            } else if (s.matches("hours?")) {
-                if (passed[1] || oneIsTrue(passed[2], passed[3], passed[4]))
-                    return Optional.empty(); // Hours was already used elsewhere and is used again.
-                dur = dur.plusHours(amount);
-                passed[1] = true;
-            } else if (s.matches("minutes?")) {
-                if (passed[2] || oneIsTrue(passed[3], passed[4]))
-                    return Optional.empty(); // Minutes was already used elsewhere and is used again.
-                dur = dur.plusMinutes(amount);
-                passed[2] = true;
-            } else if (s.matches("seconds?")) {
-                if (passed[3] || oneIsTrue(passed[4]))
-                    return Optional.empty(); // Seconds was already used elsewhere and is used again.
-                dur = dur.plusSeconds(amount);
-                passed[3] = true;
-            } else if (s.matches("milli(second)?s?")) {
-                if (passed[4]) return Optional.empty(); // Millis was already used elsewhere and is used again.
-                dur = dur.plusMillis(amount);
-                passed[4] = true;
+            } else if (unit.matches("an?")) {
+                if (i == split.length - 1) {
+                    // 'a' or 'an' at the end
+                    return Optional.empty();
+                }
+                delta = 1;
+                unit = split[++i];
+            } else if (unit.matches("\\d+(\\.\\d+)?")) {
+                if (i == split.length - 1) {
+                    // a number at the end
+                    return Optional.empty();
+                }
+                // We do not catch the exception since we checked it earlier.
+                delta = Double.parseDouble(unit);
+                unit = split[++i];
             } else {
                 return Optional.empty();
             }
+
+            // Remove trailing ','
+            if (unit.endsWith(",")) {
+                if (split[i + 1].equals("and")) {
+                    // ', and' in the parsed string
+                    return Optional.empty();
+                }
+                unit = unit.substring(0, unit.length() - 1);
+            }
+
+            int millis = -1;
+            int iteration = 0;
+            for (var entry : DURATION_UNITS.entrySet()) {
+                if (unit.matches(entry.getKey()) && !usedUnits[iteration]) {
+                    millis = entry.getValue();
+
+                    for (int j = 0; j < iteration + 1; j++)
+                        usedUnits[j] = true;
+                    break;
+                }
+                iteration++;
+            }
+            if (millis == -1)
+                return Optional.empty();
+
+            duration += delta * millis;
         }
-        return Optional.of(dur);
+        return Optional.of(Duration.ofMillis(duration));
+    }
+
+    public static String toStringDuration(Duration duration) {
+        var builder = new StringBuilder();
+        long millis = duration.toMillis();
+
+        boolean first = true;
+        String[] unitNames = {"day", "hour", "minute", "second", "millisecond"};
+        int[] unitMillis = {86_400_000, 3_600_000, 60_000, 1000, 1};
+
+        for (int i = 0; i < unitMillis.length; i++) {
+            long result = Math.floorDiv(millis, unitMillis[i]);
+            if (result > 0) {
+                builder.append(first ? "" : ", ")
+                        .append(result == 1 ? (unitNames[i].equals("hour") ? "an" : "a") : result)
+                        .append(" ")
+                        .append(unitNames[i])
+                        .append(result > 1 ? "s" : "");
+                millis -= result * unitMillis[i];
+                first = false;
+            }
+        }
+        int i = builder.lastIndexOf(",");
+        if (i != -1)
+            builder.replace(i, i + 1, " and");
+
+        return builder.toString();
     }
 
     public static Optional<Time> parseTime(String str) {
@@ -168,66 +193,5 @@ public class TimeUtils {
         } else {
             return Optional.empty();
         }
-    }
-
-    public static String toStringDuration(Duration dur) {
-        StringBuilder sb = new StringBuilder();
-        boolean first = true;
-
-        long days = dur.toDays();
-        if (days > 0) {
-            sb.append(days)
-                    .append(" day")
-                    .append(days == 1 ? "" : "s");
-            dur = dur.minusDays(days);
-            first = false;
-        }
-
-        long hours = dur.toHours();
-        if (hours > 0) {
-            sb.append(first ? "" : ", ")
-                    .append(hours)
-                    .append(" hour")
-                    .append(hours == 1 ? "" : "s");
-            dur = dur.minusHours(hours);
-            first = false;
-        }
-
-        long mins = dur.toMinutes();
-        if (mins > 0) {
-            sb.append(first ? "" : ", ")
-                    .append(mins)
-                    .append(" minute")
-                    .append(mins == 1 ? "" : "s");
-            dur = dur.minusMinutes(mins);
-            first = false;
-        }
-
-        long secs = dur.getSeconds();
-        if (secs > 0) {
-            sb.append(first ? "" : ", ")
-                    .append(secs)
-                    .append(" second")
-                    .append(secs == 1 ? "" : "s");
-            dur = dur.minusSeconds(secs);
-            first = false;
-        }
-
-        long millis = dur.toMillis();
-        if (millis > 0)
-            sb.append(first ? "" : ", ").append(millis).append(" millisecond").append(millis == 1 ? "" : "s");
-
-        String str = sb.toString();
-
-        // Replaces the last ',' with 'and'.
-        int i = sb.lastIndexOf(",");
-        if (i != -1)
-            sb.replace(i, i + 1, " and");
-
-        return str;
-    }
-
-    private static boolean oneIsTrue(Boolean... booleans) {
-        return Arrays.stream(booleans).anyMatch(Boolean::booleanValue);
     }
 }
