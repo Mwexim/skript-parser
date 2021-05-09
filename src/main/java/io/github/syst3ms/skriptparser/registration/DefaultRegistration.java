@@ -228,7 +228,7 @@ public class DefaultRegistration {
                 .register();
 
         registration.newType(Time.class, "time", "time@s")
-                .literalParser(s -> TimeUtils.parseTime(s).orElse(null))
+                .literalParser(s -> Time.parse(s).orElse(null))
                 .toStringFunction(Time::toString)
                 .arithmetic(new Arithmetic<Time, Duration>() {
                     @Override

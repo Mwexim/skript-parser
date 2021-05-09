@@ -4,9 +4,8 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static io.github.syst3ms.skriptparser.util.math.NumberMath.parseInt;
 
 public class TimeUtils {
     /**
@@ -15,7 +14,7 @@ public class TimeUtils {
      */
     public static final int TICK = 50;
 
-    private static final Pattern DURATION_SPLIT_PATTERN = Pattern.compile("\\s*(,)\\s*|\\s+(and)\\s+", Pattern.CASE_INSENSITIVE);
+    private static final Pattern TICK_PATTERN = Pattern.compile("(a|\\d+) ticks?");
     private static final Map<String, Integer> DURATION_UNITS = new LinkedHashMap<>();
 
     static {
@@ -28,9 +27,23 @@ public class TimeUtils {
     }
 
     public static Optional<Duration> parseDuration(String value) {
-        if (value.isEmpty())
+        if (value.isEmpty()) {
             return Optional.empty();
+        }
 
+        // Tick duration
+        Matcher matcher = TICK_PATTERN.matcher(value);
+        if (matcher.matches()) {
+            var amount = matcher.group(1);
+            if (amount.equals("a")) {
+                return Optional.of(Duration.ofMillis(TICK));
+            } else {
+                int delta = Integer.parseInt(matcher.group(1));
+                return Optional.of(Duration.ofMillis(TICK * delta));
+            }
+        }
+
+        // Normal duration
         long duration = 0;
         var split = value.toLowerCase().split("\\s+");
         var usedUnits = new boolean[5]; // Defaults to false
@@ -118,80 +131,5 @@ public class TimeUtils {
             builder.replace(i, i + 1, " and");
 
         return builder.toString();
-    }
-
-    public static Optional<Time> parseTime(String str) {
-        if (str.isEmpty())
-            return Optional.empty();
-
-        var firstMatcher = Pattern.compile("\\d?\\dh(\\d\\d)?").matcher(str);
-        var secondMatcher = Pattern.compile("(\\d?\\d)(:(\\d\\d))? ?(am|pm)", Pattern.CASE_INSENSITIVE).matcher(str);
-        var thirdMatcher = Pattern.compile("(\\d?\\d):(\\d\\d)(:((\\d\\d)(\\.(\\d\\d\\d))?))?").matcher(str);
-
-        /*
-         * We will sort time literals in 3 categories:
-         * 1. [#]#h[##], like 18h30
-         * 2. [#]#[:##][ ](am|pm), like 11 am or 12:30pm
-         * 3. [#]#:##[:##[.###]], like 18:30:15.500
-         */
-        if (firstMatcher.matches()) {
-            // First category
-            String[] parts = str.split("h");
-            int hours = parseInt(parts[0]);
-            if (hours == 24) {
-                hours = 0; // Allows to write 24:00 -> 24:59 instead of 00:00 -> 00:59
-            } else if (hours < 0 || 23 < hours) {
-                return Optional.empty();
-            }
-            int minutes = (parts.length > 1
-                    ? parseInt(parts[1])
-                    : 0);
-            if (minutes < 0 || 59 < minutes) {
-                return Optional.empty();
-            }
-            return Optional.of(Time.of(hours, minutes, 0, 0));
-        } else if (secondMatcher.matches()) {
-            // Second category
-            int hours = parseInt(secondMatcher.group(1));
-            if (hours == 12) {
-                hours = 0; // 12 AM is 00:00:00.000 for some weird reason
-            } else if (hours < 0 || 11 < hours) {
-                return Optional.empty();
-            }
-            int minutes = 0;
-            if (secondMatcher.group(3) != null)
-                minutes = parseInt(secondMatcher.group(3));
-            if (minutes < 0 || 59 < minutes) {
-                return Optional.empty();
-            }
-            if (secondMatcher.group(4).equalsIgnoreCase("pm"))
-                hours += 12;
-            return Optional.of(Time.of(hours, minutes, 0, 0));
-        } else if (thirdMatcher.matches()) {
-            // Third category
-            int hours = parseInt(thirdMatcher.group(1));
-            if (hours == 24) {
-                hours = 0; // Allows to write 24:00 -> 24:59 instead of 00:00 -> 00:59
-            } else if (hours < 0 || 23 < hours) {
-                return Optional.empty();
-            }
-            int minutes = parseInt(thirdMatcher.group(2));
-            if (minutes < 0 || 59 < minutes) {
-                return Optional.empty();
-            }
-            int seconds = 0, millis = 0;
-            if (thirdMatcher.group(5) != null) {
-                seconds = parseInt(thirdMatcher.group(5));
-            }
-            if (thirdMatcher.group(7) != null) {
-                millis = parseInt(thirdMatcher.group(7));
-            }
-            if (seconds < 0 || 59 < seconds || millis < 0 || 999 < millis) {
-                return Optional.empty();
-            }
-            return Optional.of(Time.of(hours,minutes, seconds, millis));
-        } else {
-            return Optional.empty();
-        }
     }
 }
