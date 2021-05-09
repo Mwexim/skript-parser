@@ -6,9 +6,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static io.github.syst3ms.skriptparser.util.math.NumberMath.parseInt;
 
 /**
  * Represents a time, written as HH:mm:ss.SSS.
@@ -18,6 +17,10 @@ public class Time implements Comparable<Time> {
     // TODO make a config for this
     public final static String TIME_FORMAT = "HH:mm:ss.SSS";
     public final static Locale TIME_LOCALE = Locale.US;
+
+    private final static Pattern DEFAULT_TIME_PATTERN = Pattern.compile("(\\d?\\d)h(\\d\\d)?");
+    private final static Pattern BRITISH_TIME_PATTERN = Pattern.compile("(\\d?\\d)(:(\\d\\d))? ?(am|pm)", Pattern.CASE_INSENSITIVE);
+    private final static Pattern DETAILED_TIME_PATTERN = Pattern.compile("(\\d?\\d):(\\d\\d)(:((\\d\\d)(\\.(\\d\\d\\d))?))?");
 
     /**
      * Returns the latest possible time, being 23:59:59.999.
@@ -72,79 +75,89 @@ public class Time implements Comparable<Time> {
         return new Time(LocalTime.of(lcd.getHour(), lcd.getMinute(), lcd.getSecond(), lcd.getNano()));
     }
 
-    public static Optional<Time> parse(String str) {
-        if (str.isEmpty())
+    /**
+     * Parses a given string as a time, using one of the three patterns.
+     * @param value the string to parse
+     * @return an Optional describing the parsed Time instance
+     * @see #DEFAULT_TIME_PATTERN
+     * @see #BRITISH_TIME_PATTERN
+     * @see #DETAILED_TIME_PATTERN
+     */
+    public static Optional<Time> parse(String value) {
+        if (value.isEmpty())
             return Optional.empty();
 
-        var firstMatcher = Pattern.compile("\\d?\\dh(\\d\\d)?").matcher(str);
-        var secondMatcher = Pattern.compile("(\\d?\\d)(:(\\d\\d))? ?(am|pm)", Pattern.CASE_INSENSITIVE).matcher(str);
-        var thirdMatcher = Pattern.compile("(\\d?\\d):(\\d\\d)(:((\\d\\d)(\\.(\\d\\d\\d))?))?").matcher(str);
-
-        /*
-         * We will sort time literals in 3 categories:
-         * 1. [#]#h[##], like 18h30
-         * 2. [#]#[:##][ ](am|pm), like 11 am or 12:30pm
-         * 3. [#]#:##[:##[.###]], like 18:30:15.500
-         */
-        if (firstMatcher.matches()) {
-            // First category
-            String[] parts = str.split("h");
-            int hours = parseInt(parts[0]);
+        // First pattern
+        Matcher matcher = DEFAULT_TIME_PATTERN.matcher(value);
+        if (matcher.matches()) {
+            // Hours
+            int hours = Integer.parseInt(matcher.group(1));
             if (hours == 24) {
                 hours = 0; // Allows to write 24:00 -> 24:59 instead of 00:00 -> 00:59
             } else if (hours < 0 || 23 < hours) {
                 return Optional.empty();
             }
-            int minutes = (parts.length > 1
-                    ? parseInt(parts[1])
-                    : 0);
+
+            // Minutes
+            int minutes = matcher.group(2) != null ? Integer.parseInt(matcher.group(2)) : 0;
             if (minutes < 0 || 59 < minutes) {
                 return Optional.empty();
             }
+
             return Optional.of(of(hours, minutes, 0, 0));
-        } else if (secondMatcher.matches()) {
-            // Second category
-            int hours = parseInt(secondMatcher.group(1));
+        }
+
+        // Second pattern
+        matcher = BRITISH_TIME_PATTERN.matcher(value);
+        if (matcher.matches()) {
+            // Hours
+            int hours = Integer.parseInt(matcher.group(1));
             if (hours == 12) {
                 hours = 0; // 12 AM is 00:00:00.000 for some weird reason
             } else if (hours < 0 || 11 < hours) {
                 return Optional.empty();
             }
-            int minutes = 0;
-            if (secondMatcher.group(3) != null)
-                minutes = parseInt(secondMatcher.group(3));
+
+            // Minutes
+            int minutes = matcher.group(3) != null ? Integer.parseInt(matcher.group(3)) : 0;
             if (minutes < 0 || 59 < minutes) {
                 return Optional.empty();
             }
-            if (secondMatcher.group(4).equalsIgnoreCase("pm"))
+
+            // AM/PM
+            if (matcher.group(4).equalsIgnoreCase("pm"))
                 hours += 12;
+
             return Optional.of(of(hours, minutes, 0, 0));
-        } else if (thirdMatcher.matches()) {
-            // Third category
-            int hours = parseInt(thirdMatcher.group(1));
+        }
+
+        // Third pattern
+        matcher = DETAILED_TIME_PATTERN.matcher(value);
+        if (matcher.matches()) {
+            // Hours
+            int hours = Integer.parseInt(matcher.group(1));
             if (hours == 24) {
                 hours = 0; // Allows to write 24:00 -> 24:59 instead of 00:00 -> 00:59
             } else if (hours < 0 || 23 < hours) {
                 return Optional.empty();
             }
-            int minutes = parseInt(thirdMatcher.group(2));
+
+            // Minutes
+            int minutes = Integer.parseInt(matcher.group(2));
             if (minutes < 0 || 59 < minutes) {
                 return Optional.empty();
             }
-            int seconds = 0, millis = 0;
-            if (thirdMatcher.group(5) != null) {
-                seconds = parseInt(thirdMatcher.group(5));
-            }
-            if (thirdMatcher.group(7) != null) {
-                millis = parseInt(thirdMatcher.group(7));
-            }
+
+            // Seconds and milliseconds
+            int seconds = matcher.group(5) != null ? Integer.parseInt(matcher.group(5)) : 0;
+            int millis = matcher.group(7) != null ? Integer.parseInt(matcher.group(7)) : 0;
             if (seconds < 0 || 59 < seconds || millis < 0 || 999 < millis) {
                 return Optional.empty();
             }
+
             return Optional.of(of(hours,minutes, seconds, millis));
-        } else {
-            return Optional.empty();
         }
+        return Optional.empty();
     }
 
     public int getHour() {
