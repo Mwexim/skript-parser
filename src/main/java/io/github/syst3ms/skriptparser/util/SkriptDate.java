@@ -78,17 +78,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * @return the string representation of this date
      */
     public String toString(String format) {
-        StringBuilder sb = new StringBuilder();
-
-        SimpleDateFormat formatted = new SimpleDateFormat(
-                format,
-                DATE_LOCALE);
-
-
-        String str = formatted.format(new java.util.Date(timestamp));
-        sb.append(str);
-
-        return sb.toString();
+        return new SimpleDateFormat(format, DATE_LOCALE).format(new java.util.Date(timestamp));
     }
 
     /**
