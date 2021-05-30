@@ -35,9 +35,6 @@ public class EffPrint extends Effect {
     @Override
     public void execute(TriggerContext ctx) {
         String[] strs = StringUtils.applyTags(string, ctx, "console");
-        if (strs.length == 0)
-            return;
-
         for (String str : strs) {
             System.out.println(str);
         }
