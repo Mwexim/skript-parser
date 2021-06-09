@@ -2,11 +2,8 @@ package io.github.syst3ms.skriptparser.lang.base;
 
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.SelfRegistrable;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,11 +19,8 @@ import java.util.Map;
  * The class automatically implements the {@link #execute(TriggerContext)} to just call
  * {@link #getValues(TriggerContext)}, ignoring the results.
  * This behavior can obviously be overridden.
- * Finally, this implements {@link SelfRegistrable}, enabling an easy registration process.
  */
-public abstract class ExecutableExpression<T>
-        extends Effect
-        implements Expression<T>, SelfRegistrable {
+public abstract class ExecutableExpression<T> extends Effect implements Expression<T>{
 
     private final static Map<ExecutableExpression<?>, Object[]> cachedValues = new HashMap<>();
 
@@ -44,18 +38,6 @@ public abstract class ExecutableExpression<T>
     }
 
     public abstract T[] getAppliedValues(TriggerContext ctx);
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void register(SkriptRegistration reg, Object... args) {
-        Class<T> type = (Class<T>) args[0];
-        boolean isSingle = (boolean) args[1];
-        String[] patterns = Arrays.copyOfRange(args, 2, args.length, String[].class);
-
-        // The actual registration
-        reg.addExpression(getClass(), type, isSingle, patterns);
-        reg.addEffect(getClass(), patterns);
-    }
 
     public static Map<ExecutableExpression<?>, Object[]> getCachedValues() {
         return cachedValues;

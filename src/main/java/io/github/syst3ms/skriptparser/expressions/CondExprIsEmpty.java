@@ -61,4 +61,4 @@ public class CondExprIsEmpty extends ConditionalExpression {
     public String toString(TriggerContext ctx, boolean debug) {
         return expr.toString(ctx, debug) + (isNegated() ? " is not " : " is ") + "empty";
     }
-} 
+}

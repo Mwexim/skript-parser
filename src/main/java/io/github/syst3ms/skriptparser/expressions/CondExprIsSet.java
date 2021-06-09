@@ -16,16 +16,26 @@ import io.github.syst3ms.skriptparser.lang.properties.PropertyConditional;
  */
 public class CondExprIsSet extends PropertyConditional<Object> {
     static {
-        Parser.getMainRegistration().addSelfRegisteringElement(
+        Parser.getMainRegistration().addPropertyConditional(
                 CondExprIsSet.class,
-                "*%~objects%",
+                "~objects",
                 ConditionalType.BE,
                 "set"
         );
     }
 
     @Override
+    public boolean check(TriggerContext ctx) {
+        return isNegated() == (getPerformer().getValues(ctx).length == 0);
+    }
+
+    @Override
     public boolean check(TriggerContext ctx, Object[] performers) {
-        return isNegated() == (performers.length == 0);
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String toString(TriggerContext ctx, boolean debug) {
+        return toString(ctx, debug, ConditionalType.BE, "set");
     }
 }

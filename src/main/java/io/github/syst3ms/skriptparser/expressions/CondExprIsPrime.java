@@ -23,19 +23,16 @@ import java.util.Arrays;
  */
 public class CondExprIsPrime extends PropertyConditional<Number> {
     static {
-        Parser.getMainRegistration().addSelfRegisteringElement(
-                CondExprIsPrime.class,
-                "numbers",
-                ConditionalType.BE,
-                "[a] prime [number[s]]",
-                "prime"
-        );
+		Parser.getMainRegistration().addPropertyConditional(
+    			CondExprIsPrime.class,
+				"numbers",
+				ConditionalType.BE,
+				"[a] prime [number[s]]"
+		);
     }
 
     @Override
     public boolean check(TriggerContext ctx, Number[] performers) {
-        if (performers.length == 0)
-            return isNegated();
         return isNegated() != Arrays.stream(performers)
                 .allMatch(n -> {
                     var bd = BigDecimalMath.getBigDecimal(n);
@@ -44,4 +41,9 @@ public class CondExprIsPrime extends PropertyConditional<Number> {
                             && NumberMath.isPrime(BigDecimalMath.getBigInteger(bd));
                 });
     }
+
+	@Override
+	public String toString(TriggerContext ctx, boolean debug) {
+		return toString(ctx, debug, ConditionalType.BE, "prime");
+	}
 }

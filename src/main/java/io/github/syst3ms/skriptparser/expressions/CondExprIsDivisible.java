@@ -24,7 +24,7 @@ import java.util.Arrays;
  */
 public class CondExprIsDivisible extends PropertyConditional<Number> {
     static {
-        Parser.getMainRegistration().addSelfRegisteringElement(
+        Parser.getMainRegistration().addPropertyConditional(
                 CondExprIsDivisible.class,
                 "numbers",
                 ConditionalType.BE,
@@ -43,8 +43,6 @@ public class CondExprIsDivisible extends PropertyConditional<Number> {
 
     @Override
     public boolean check(TriggerContext ctx, Number[] performers) {
-        if (performers.length == 0)
-            return isNegated();
         return isNegated() != Arrays.stream(performers)
                 .allMatch(val -> divider.getSingle(ctx)
                         .filter(__ -> BigDecimalMath.isIntValue(BigDecimalMath.getBigDecimal(val)))
@@ -55,7 +53,6 @@ public class CondExprIsDivisible extends PropertyConditional<Number> {
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
-        return getPerformer().toString(ctx, debug) + (isNegated() ? " is not " : " is ")
-                + "divisible by " + divider.toString(ctx, debug);
+        return toString(ctx, debug, ConditionalType.BE, "divisible by " + divider.toString(ctx, debug));
     }
 }

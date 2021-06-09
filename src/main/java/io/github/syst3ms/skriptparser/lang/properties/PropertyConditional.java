@@ -1,12 +1,9 @@
 package io.github.syst3ms.skriptparser.lang.properties;
 
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.SelfRegistrable;
-import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 
 /**
  * This class can be used for an easier writing of conditions that contain only one type in the pattern
@@ -20,29 +17,16 @@ import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
  *
  * The gains of using this class:
  * <ul>
- *     <li>The {@link SyntaxElement#toString(TriggerContext, boolean) toString(TriggerContext, boolean)}
- *     method is already implemented and it works well with the plural and negated forms</li>
- *     <li>It implements {@link SelfRegistrable}, which means an easy registration is possible</li>
+ *     <li>There is a useful {@link #toString(TriggerContext, boolean, ConditionalType, String) toString()}
+ *     method and it works well with the plural and negated forms.</li>
+ *     <li>Registration is very straightforward.</li>
+ *     <li>The performer expression is automatically checked for nullity.</li>
  * </ul>
- * </br>
- * <i>Description partly copied from original Skript project.</i>
  * @param <P> the type of the performer in this condition
  * @author Mwexim
  */
-public abstract class PropertyConditional<P> extends ConditionalExpression implements SelfRegistrable {
+public abstract class PropertyConditional<P> extends ConditionalExpression {
     private Expression<P> performer;
-    private String performerName;
-    private ConditionalType conditionalType;
-    private String propertyName;
-    private String propertyRepresentation;
-
-    public Expression<P> getPerformer() {
-        return performer;
-    }
-
-    public void setPerformer(Expression<P> performer) {
-        this.performer = performer;
-    }
 
     /**
      * This default {@code init()} implementation automatically properly sets the performer in this condition,
@@ -66,55 +50,39 @@ public abstract class PropertyConditional<P> extends ConditionalExpression imple
 
     @Override
     public boolean check(TriggerContext ctx) {
+        if (performer.getValues(ctx).length == 0)
+            return isNegated();
         return check(ctx, performer.getValues(ctx));
     }
 
     public abstract boolean check(TriggerContext ctx, P[] performers);
 
-    @Override
-    public String toString(TriggerContext ctx, boolean debug) {
-        return toString(ctx, debug, performer, conditionalType,
-                propertyRepresentation != null ? propertyRepresentation : propertyName);
-    }
-
-    private String toString(TriggerContext ctx, boolean debug,
-                            Expression<P> perf,
-                            ConditionalType conditionalType,
-                            String property) {
+    protected String toString(TriggerContext ctx, boolean debug, ConditionalType conditionalType, String property) {
         switch (conditionalType) {
             case BE:
-                return perf.toString(ctx, debug) + (perf.isSingle() ? " is " : " are ") + (isNegated() ? "not " : "") + property;
+                return getPerformer().toString(ctx, debug) + (getPerformer().isSingle() ? " is " : " are ") + (isNegated() ? "not " : "") + property;
             case CAN:
-                return perf.toString(ctx, debug) + (isNegated() ? " can't " : " can ") + property;
+                return getPerformer().toString(ctx, debug) + (isNegated() ? " can't " : " can ") + property;
             case HAVE:
-                if (perf.isSingle())
-                    return perf.toString(ctx, debug) + (isNegated() ? " doesn't have " : " has ") + property;
-                else
-                    return perf.toString(ctx, debug) + (isNegated() ? " don't have " : " have ") + property;
+                if (getPerformer().isSingle()) {
+                    return getPerformer().toString(ctx, debug) + (isNegated() ? " doesn't have " : " has ") + property;
+                } else {
+                    return getPerformer().toString(ctx, debug) + (isNegated() ? " don't have " : " have ") + property;
+                }
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public void register(SkriptRegistration reg, Object... args) {
-        if (args.length < 3 || 4 < args.length)
-            throw new IllegalArgumentException("A PropertyCondition needs exactly 3 or 4 arguments");
-        performerName = (String) args[0];
-        conditionalType = (ConditionalType) args[1];
-        propertyName = (String) args[2];
-        if (args.length == 4)
-            propertyRepresentation = (String) args[3];
-
-        reg.addExpression(getClass(),
-                Boolean.class,
-                true,
-                composePatterns(performerName, conditionalType, propertyName)
-        );
+    public Expression<P> getPerformer() {
+        return performer;
     }
 
-    private String[] composePatterns(String performer, ConditionalType conditionalType, String property) {
+    public void setPerformer(Expression<P> performer) {
+        this.performer = performer;
+    }
+
+    public static String[] composePatterns(String performer, ConditionalType conditionalType, String property) {
         var type = performer.startsWith("*") ? performer.substring(1) : "%" + performer + "%";
         switch (conditionalType) {
             case BE:
