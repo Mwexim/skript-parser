@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 
 /**
- * Check if a given date is a certain duration before or after the current date.
+ * Check if the given strings match a certain regex expression.
  *
  * @name Match
  * @type CONDITION

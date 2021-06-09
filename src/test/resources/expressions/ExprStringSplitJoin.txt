@@ -1,5 +1,6 @@
 # Author(s):
 # 	- Olyno
+#	- Mwexim
 # Date:
 #	- 2020/12/13
 #	- 2021/04/18 (regex support)
