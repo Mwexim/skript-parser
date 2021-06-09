@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 
-import java.util.Arrays;
 import java.util.regex.Pattern;
 
 /**
@@ -45,41 +44,17 @@ public class CondExprMatch extends ConditionalExpression {
 
     @Override
     public boolean check(TriggerContext ctx) {
-        String[] matchedValues = matched.getValues(ctx);
-        String[] patternValues = pattern.getValues(ctx);
-        boolean matchedAnd = matched.isAndList();
-        boolean patternAnd = pattern.isAndList();
-
-        boolean result;
-        if (matchedAnd) {
-            if (patternAnd) {
-                result = Arrays.stream(matchedValues)
-                        .allMatch(val -> Arrays.stream(patternValues)
-                                .parallel()
-                                .map(Pattern::compile)
-                                .allMatch(pattern -> matches(val, pattern, partly)));
-            } else {
-                result = Arrays.stream(matchedValues)
-                        .allMatch(val -> Arrays.stream(patternValues)
-                                .parallel()
-                                .map(Pattern::compile)
-                                .anyMatch(pattern -> matches(val, pattern, partly)));
-            }
-        } else {
-            if (patternAnd) {
-                result = Arrays.stream(matchedValues)
-                        .anyMatch(val -> Arrays.stream(patternValues)
-                                .parallel().map(Pattern::compile)
-                                .allMatch(pattern -> matches(val, pattern, partly)));
-            } else {
-                result = Arrays.stream(matchedValues)
-                        .anyMatch(val -> Arrays.stream(patternValues)
-                                .parallel()
-                                .map(Pattern::compile)
-                                .anyMatch(pattern -> matches(val, pattern, partly)));
-            }
-        }
-        return isNegated() != result;
+        return Expression.check(
+                matched.getValues(ctx),
+                toMatch -> Expression.check(
+                        pattern.getValues(ctx),
+                        val -> matches(toMatch, Pattern.compile(val), partly),
+                        false,
+                        pattern.isAndList()
+                ),
+                isNegated(),
+                matched.isAndList()
+        );
     }
 
     @Override
