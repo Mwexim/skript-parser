@@ -93,17 +93,21 @@ public class ExecExprReplace extends ExecutableExpression<String> {
 				}
 				switch (type) {
 					case 0:
+						// All occurrences
 						replaced = regex
 								? current.replaceAll(match, replacementValue)
 								: current.replace(match, replacementValue);
 						break;
 					case 1:
+						// First occurrence
 						replaced = current.replaceFirst(
 								regex ? match : Pattern.quote(match),
 								replacementValue
 						);
 						break;
 					case 2:
+						// Last occurrence
+						// This regex pattern flushes away as many characters as it can, leaving the last occurrence.
 						Matcher matcher = Pattern.compile(".*(" + match + ")").matcher(current);
 						if (regex && !matcher.matches())
 							continue;
