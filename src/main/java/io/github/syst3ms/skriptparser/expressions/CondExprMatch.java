@@ -48,7 +48,7 @@ public class CondExprMatch extends ConditionalExpression {
                 matched.getValues(ctx),
                 toMatch -> Expression.check(
                         pattern.getValues(ctx),
-                        val -> matches(toMatch, Pattern.compile(val), partly),
+                        pattern -> partly ? Pattern.compile(pattern).matcher(toMatch).find() : toMatch.matches(pattern),
                         false,
                         pattern.isAndList()
                 ),
@@ -64,9 +64,5 @@ public class CondExprMatch extends ConditionalExpression {
                 + (partly ? " partially" : "")
                 + (isNegated() ? " match " : " matches ")
                 + pattern.toString(ctx, debug);
-    }
-
-    private static boolean matches(String value, Pattern pattern, boolean partly) {
-        return partly ? pattern.matcher(value).find() : value.matches(pattern.pattern());
     }
 }
