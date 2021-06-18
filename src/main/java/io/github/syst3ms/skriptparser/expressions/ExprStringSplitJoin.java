@@ -10,7 +10,6 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -75,12 +74,10 @@ public class ExprStringSplitJoin implements Expression<String> {
 	public String[] getValues(TriggerContext ctx) {
 		switch (pattern) {
 			case 0:
-				return Optional.ofNullable(delimiter)
-						.flatMap(val -> val.getSingle(ctx))
-						.map(val -> (String) val)
-						.or(() -> Optional.of(""))
-						.map(val -> new String[] {String.join(val, expression.getValues(ctx))})
-						.orElse(new String[0]);
+				return new String[] {String.join(
+						delimiter != null ? delimiter.getSingle(ctx).map(val -> (String) val).orElse("") : "",
+						expression.getValues(ctx)
+				)};
 			case 1:
 				assert delimiter != null;
 				return DoubleOptional.ofOptional(expression.getSingle(ctx), delimiter.getSingle(ctx))
