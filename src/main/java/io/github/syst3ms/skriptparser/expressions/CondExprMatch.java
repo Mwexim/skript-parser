@@ -44,16 +44,13 @@ public class CondExprMatch extends ConditionalExpression {
 
     @Override
     public boolean check(TriggerContext ctx) {
-        return Expression.check(
-                matched.getValues(ctx),
-                toMatch -> Expression.check(
-                        pattern.getValues(ctx),
-                        pattern -> partly ? Pattern.compile(pattern).matcher(toMatch).find() : toMatch.matches(pattern),
-                        false,
-                        pattern.isAndList()
+        return matched.check(
+                ctx,
+                toMatch -> pattern.check(
+                        ctx,
+                        pattern -> partly ? Pattern.compile(pattern).matcher(toMatch).find() : toMatch.matches(pattern)
                 ),
-                isNegated(),
-                matched.isAndList()
+                isNegated()
         );
     }
 

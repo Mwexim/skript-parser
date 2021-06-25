@@ -80,7 +80,7 @@ public class TypeManager {
         return type;
     }
 
-    public static String toString(Object... objects) {
+    public static String toString(Object[] objects) {
         var sb = new StringBuilder();
         for (var i = 0; i < objects.length; i++) {
             if (i > 0) {

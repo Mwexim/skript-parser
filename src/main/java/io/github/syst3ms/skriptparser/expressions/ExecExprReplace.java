@@ -57,7 +57,7 @@ public class ExecExprReplace extends ExecutableExpression<String> {
 		toReplace = (Expression<String>) expressions[1 + matchedPattern];
 		replacement = (Expression<String>) expressions[2 - matchedPattern];
 
-		if (!toReplace.acceptsChange(ChangeMode.SET, String[].class)) {
+		if (!toReplace.acceptsChange(ChangeMode.SET, toReplace)) {
 			var logger = parseContext.getLogger();
 			logger.error(
 					"The expression '"
@@ -132,7 +132,7 @@ public class ExecExprReplace extends ExecutableExpression<String> {
 			}
 		}
 		if (isEffect)
-			toReplace.change(ctx, replacedValues, ChangeMode.SET);
+			toReplace.change(ctx, ChangeMode.SET, replacedValues);
 		return replacedValues;
 	}
 

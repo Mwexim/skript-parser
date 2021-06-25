@@ -45,6 +45,11 @@ public class ExprTernary implements Expression<Object> {
     }
 
     @Override
+    public boolean isSingle() {
+        return firstValue.isSingle() && secondValue.isSingle();
+    }
+
+    @Override
     public String toString(TriggerContext ctx, boolean debug) {
         return firstValue.toString(ctx, debug) + " if " + valueToCheck.toString(ctx, debug) + " else " + secondValue.toString(ctx, debug);
     }
