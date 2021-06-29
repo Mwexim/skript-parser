@@ -464,7 +464,7 @@ public class SyntaxParser {
         List<String> parts = new ArrayList<>();
         var m = LIST_SPLIT_PATTERN.matcher(s);
         var lastIndex = 0;
-        for (var i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i+1)) {
+        for (var i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i + 1)) {
             if (i == -1) {
                 return Optional.empty();
             } else if (StringUtils.nextSimpleCharacterIndex(s, i) > i) { // We are currently at the start of something we need to skip over
@@ -514,8 +514,24 @@ public class SyntaxParser {
                 logger.recurse();
                 var expression = parseExpression(part, expectedType, parserState, logger);
                 logger.callback();
-                if (expression.isEmpty())
+                if (expression.isEmpty()) {
                     return Optional.empty();
+                } else if (expression.get() instanceof ExpressionList<?> && expression.get().isAndList() != isAndList) {
+                    /*
+                     * We prevent this behavior to keep conditions as clean as possible.
+                     * Otherwise, the two different types of lists can be used interchangeably,
+                     * resulting in unexpected results in conditions, since the parser does not
+                     * support this level of subtlety.
+                     */
+                    logger.error(
+                            "An " + (!isAndList ? "and" : "or") + "-list ('"
+                                    + expression.get().toString(TriggerContext.DUMMY, logger.isDebug())
+                                    + "') cannot be used as a component of an "
+                                    + (isAndList ? "and" : "or") + "-list",
+                            ErrorType.SEMANTIC_ERROR
+                    );
+                    return Optional.empty();
+                }
                 isLiteralList &= Literal.isLiteral(expression.get());
                 expressions.add(expression.get());
             }
