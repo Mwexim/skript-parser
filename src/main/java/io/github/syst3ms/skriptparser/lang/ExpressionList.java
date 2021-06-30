@@ -61,7 +61,11 @@ public class ExpressionList<T> implements Expression<T> {
     @Override
     public T[] getValues(TriggerContext ctx) {
         if (and) {
-            return getArray(ctx);
+            List<T> values = new ArrayList<>();
+            for (var expr : expressions) {
+                Collections.addAll(values, expr.getValues(ctx));
+            }
+            return values.toArray((T[]) Array.newInstance(returnType, values.size()));
         } else {
             var shuffle = Arrays.asList(expressions);
             Collections.shuffle(shuffle);
@@ -77,8 +81,8 @@ public class ExpressionList<T> implements Expression<T> {
     @Override
     public T[] getArray(TriggerContext ctx) {
         List<T> values = new ArrayList<>();
-        for (var expression : expressions) {
-            Collections.addAll(values, expression.getValues(ctx));
+        for (var expr : expressions) {
+            Collections.addAll(values, expr.getArray(ctx));
         }
         return values.toArray((T[]) Array.newInstance(returnType, values.size()));
     }

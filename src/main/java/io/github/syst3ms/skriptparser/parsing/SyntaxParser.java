@@ -514,24 +514,8 @@ public class SyntaxParser {
                 logger.recurse();
                 var expression = parseExpression(part, expectedType, parserState, logger);
                 logger.callback();
-                if (expression.isEmpty()) {
+                if (expression.isEmpty())
                     return Optional.empty();
-                } else if (expression.get() instanceof ExpressionList<?> && expression.get().isAndList() != isAndList) {
-                    /*
-                     * We prevent this behavior to keep conditions as clean as possible.
-                     * Otherwise, the two different types of lists can be used interchangeably,
-                     * resulting in unexpected results in conditions, since the parser does not
-                     * support this level of subtlety.
-                     */
-                    logger.error(
-                            "An " + (!isAndList ? "and" : "or") + "-list ('"
-                                    + expression.get().toString(TriggerContext.DUMMY, logger.isDebug())
-                                    + "') cannot be used as a component of an "
-                                    + (isAndList ? "and" : "or") + "-list",
-                            ErrorType.SEMANTIC_ERROR
-                    );
-                    return Optional.empty();
-                }
                 isLiteralList &= Literal.isLiteral(expression.get());
                 expressions.add(expression.get());
             }
