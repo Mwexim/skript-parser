@@ -190,8 +190,7 @@ public interface Expression<T> extends SyntaxElement {
         return true;
     }
 
-    default void setAndList(boolean isAndList) {
-    }
+    default void setAndList(boolean isAndList) { /* Nothing*/ }
 
     default Expression<?> getSource() {
         return this;
@@ -222,12 +221,12 @@ public interface Expression<T> extends SyntaxElement {
      * Checks an array of elements against a given predicate
      * @param all the array to check
      * @param predicate the predicate
-     * @param invert whether the result should be inverted
+     * @param negated whether the result should be inverted
      * @param and whether all elements of the array should match the predicate, or only one
      * @param <T> the type of the elements to check
      * @return whether the elements match the given predicate
      */
-    static <T> boolean check(T[] all, Predicate<? super T> predicate, boolean invert, boolean and) {
+    static <T> boolean check(T[] all, Predicate<? super T> predicate, boolean negated, boolean and) {
         boolean hasElement = false;
         for (var t : all) {
             if (t == null)
@@ -235,13 +234,13 @@ public interface Expression<T> extends SyntaxElement {
             hasElement = true;
             boolean b = predicate.test(t);
             if (and && !b)
-                return invert;
+                return negated;
             if (!and && b)
-                return !invert;
+                return !negated;
         }
         if (!hasElement)
-            return invert;
-        return invert != and;
+            return negated;
+        return negated != and;
     }
 
     @SuppressWarnings("unchecked")
