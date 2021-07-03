@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * A list of expressions
@@ -60,17 +61,26 @@ public class ExpressionList<T> implements Expression<T> {
 
     @Override
     public T[] getValues(TriggerContext ctx) {
+        return getValues(expr -> expr.getValues(ctx));
+    }
+
+    /**
+     * Retrieves all values of this Expression using a function that will be applied to each expression.
+     * @param function the function
+     * @return an array of the values
+     */
+    public T[] getValues(Function<Expression<? extends T>, T[]> function) {
         if (and) {
             List<T> values = new ArrayList<>();
             for (var expr : expressions) {
-                Collections.addAll(values, expr.getValues(ctx));
+                Collections.addAll(values, function.apply(expr));
             }
             return values.toArray((T[]) Array.newInstance(returnType, values.size()));
         } else {
             var shuffle = Arrays.asList(expressions);
             Collections.shuffle(shuffle);
             for (var expr : shuffle) {
-                var values = expr.getValues(ctx);
+                var values = function.apply(expr);
                 if (values.length > 0)
                     return values;
             }
