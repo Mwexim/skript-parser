@@ -66,7 +66,7 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     public T[] getValues(TriggerContext ctx) {
         var owners = getOwner().getValues(ctx);
         if (owners.length == 0)
-            return (T[]) Array.newInstance(owners.getClass().getComponentType(), 0);
+            return (T[]) new Object[0];
         return getProperty(owners);
     }
 

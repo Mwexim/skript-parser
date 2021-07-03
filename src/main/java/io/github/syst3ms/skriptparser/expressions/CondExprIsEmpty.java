@@ -25,7 +25,6 @@ public class CondExprIsEmpty extends ConditionalExpression {
         Parser.getMainRegistration().addExpression(CondExprIsEmpty.class,
                 Boolean.class,
                 true,
-                5,
                 "%objects% (is|are)[1:( not|n't)] empty",
                 "%strings% (is|are)[1:( not|n't)] [an] empty string[s]"
         );
