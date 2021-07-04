@@ -9,7 +9,6 @@ import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
 
@@ -90,7 +89,7 @@ public class ExprNumberConvertBase implements Expression<String> {
 			&& radixTo != 64)
 			return new String[0];
 
-		String[] convertedValues = Arrays.stream(expression.getValues(ctx))
+		String[] convertedValues = expression.stream(ctx)
 				.map(val -> {
 					if (pattern == 0) {
 						// From integer (always decimal)

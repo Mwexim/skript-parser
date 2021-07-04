@@ -49,22 +49,13 @@ public class ExprBooleanOperators implements Expression<Boolean> {
     @Override
     public Boolean[] getValues(TriggerContext ctx) {
         assert second != null || pattern == 0;
-        return first.getSingle(ctx).flatMap(f -> {
-            if (pattern == 0) {
-                return Optional.of(new Boolean[]{!f});
-            } else {
-                return second.getSingle(ctx)
-                        .map(
-                            s -> {
-                                if (pattern == 1) {
-                                    return new Boolean[]{f || s};
-                                } else {
-                                    return new Boolean[]{f && s};
-                                }
-                            }
-                        );
-            }
-        }).orElse(new Boolean[0]);
+        return first.getSingle(ctx)
+                .flatMap(f -> pattern == 0
+                        ? Optional.of(!f)
+                        : second.getSingle(ctx).map(s -> pattern == 1 ? f || s : f && s)
+                )
+                .map(val -> new Boolean[] {val})
+                .orElse(new Boolean[0]);
     }
 
     @Override

@@ -6,6 +6,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import io.github.syst3ms.skriptparser.util.Time;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 
@@ -15,7 +16,7 @@ import java.time.Duration;
  *
  * @name Today At
  * @type EXPRESSION
- * @pattern today at %time%
+ * @pattern today [at %time%]
  * @since ALPHA
  * @author Mwexim
  */
@@ -25,35 +26,32 @@ public class ExprDateTodayAt implements Expression<SkriptDate> {
 				ExprDateTodayAt.class,
 				SkriptDate.class,
 				true,
-				"today [1:at %time%]"
+				"today [at %time%]"
 		);
 	}
 
+	@Nullable
 	private Expression<Time> time;
-	private boolean simple;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		simple = parseContext.getParseMark() == 1;
-		if (simple)
+		if (expressions.length > 0)
 			time = (Expression<Time>) expressions[0];
  		return true;
 	}
 
 	@Override
 	public SkriptDate[] getValues(TriggerContext ctx) {
-		return simple
-				? time.getSingle(ctx)
-				.map(ti -> new SkriptDate[] {
-						SkriptDate.today().plus(Duration.ofMillis(ti.toMillis()))
-				})
-				.orElse(new SkriptDate[0])
-				: new SkriptDate[] {SkriptDate.today()};
+		if (time != null)
+			return time.getSingle(ctx)
+					.map(ti -> new SkriptDate[] {SkriptDate.today().plus(Duration.ofMillis(ti.toMillis()))})
+					.orElse(new SkriptDate[0]);
+		return new SkriptDate[] {SkriptDate.today()};
 	}
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return "today" + (simple ? " at " + time.toString(ctx, debug) : "");
+		return "today" + (time != null ? " at " + time.toString(ctx, debug) : "");
 	}
 }
