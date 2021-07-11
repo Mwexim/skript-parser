@@ -4,8 +4,6 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class TimeUtils {
     /**
@@ -14,7 +12,6 @@ public class TimeUtils {
      */
     public static final int TICK = 50;
 
-    private static final Pattern TICK_PATTERN = Pattern.compile("(a|\\d+) ticks?");
     private static final Map<String, Integer> DURATION_UNITS = new LinkedHashMap<>();
 
     static {
@@ -29,18 +26,6 @@ public class TimeUtils {
     public static Optional<Duration> parseDuration(String value) {
         if (value.isEmpty()) {
             return Optional.empty();
-        }
-
-        // Tick duration
-        Matcher matcher = TICK_PATTERN.matcher(value);
-        if (matcher.matches()) {
-            var amount = matcher.group(1);
-            if (amount.equals("a")) {
-                return Optional.of(Duration.ofMillis(TICK));
-            } else {
-                int delta = Integer.parseInt(matcher.group(1));
-                return Optional.of(Duration.ofMillis(TICK * delta));
-            }
         }
 
         // Normal duration
