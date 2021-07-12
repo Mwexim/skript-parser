@@ -48,7 +48,7 @@ public class ExprStringSplitJoin implements Expression<String> {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		pattern = matchedPattern;
-		delimiterPresent = parseContext.getParseMark() == 1;
+		delimiterPresent = parseContext.getNumericMark() == 1;
 		expr = (Expression<String>) expressions[0];
 		if (pattern == 0) {
 			if (delimiterPresent) {

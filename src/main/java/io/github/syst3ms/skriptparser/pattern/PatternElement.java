@@ -21,6 +21,16 @@ public interface PatternElement {
      */
     int match(String s, int index, MatchContext context);
 
+    /**
+     * This method should return all components that are literal and will always be present
+     * no matter how the pattern is used. This means that only {@linkplain TextElement}s will
+     * return any meaningful values.
+     * @return the literal and always-present elements of this pattern
+     */
+    default List<String> simplify() {
+        return Collections.emptyList();
+    }
+
     static List<PatternElement> flatten(PatternElement element) {
         if (element instanceof CompoundElement) {
             return ((CompoundElement) element).getElements();

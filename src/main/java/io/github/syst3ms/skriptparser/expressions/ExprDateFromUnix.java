@@ -36,7 +36,7 @@ public class ExprDateFromUnix implements Expression<SkriptDate> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		unix = parseContext.getParseMark() == 1;
+		unix = parseContext.getNumericMark() == 1;
 		timestamp = (Expression<BigInteger>) expressions[0];
 		return true;
 	}

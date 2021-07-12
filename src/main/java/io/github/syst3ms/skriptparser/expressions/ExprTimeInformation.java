@@ -40,7 +40,7 @@ public class ExprTimeInformation extends PropertyExpression<Number, Time> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		parseMark = parseContext.getParseMark();
+		parseMark = parseContext.getNumericMark();
 		setOwner((Expression<Time>) expressions[0]);
 		return true;
 	}

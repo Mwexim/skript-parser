@@ -2,7 +2,13 @@ package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.TestRegistration;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
-import io.github.syst3ms.skriptparser.pattern.*;
+import io.github.syst3ms.skriptparser.pattern.ChoiceElement;
+import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
+import io.github.syst3ms.skriptparser.pattern.CompoundElement;
+import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
+import io.github.syst3ms.skriptparser.pattern.OptionalGroup;
+import io.github.syst3ms.skriptparser.pattern.RegexGroup;
+import io.github.syst3ms.skriptparser.pattern.TextElement;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import org.junit.Test;
 
@@ -11,6 +17,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import static io.github.syst3ms.skriptparser.pattern.PatternParser.parsePattern;
 import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -31,9 +38,8 @@ public class PatternParserTest {
     @Test
     public void testParsePattern() {
         SkriptLogger logger = new SkriptLogger();
-        PatternParser parser = new PatternParser();
-        assertEqualsOptional(new TextElement("syntax"), parser.parsePattern("syntax", logger));
-        assertEqualsOptional(new OptionalGroup(new TextElement("optional")), parser.parsePattern("[optional]", logger));
+        assertEqualsOptional(new TextElement("syntax"), parsePattern("syntax", logger));
+        assertEqualsOptional(new OptionalGroup(new TextElement("optional")), parsePattern("[optional]", logger));
         assertEqualsOptional(
                 new OptionalGroup(
                     new CompoundElement(
@@ -41,49 +47,79 @@ public class PatternParserTest {
                             new OptionalGroup(new TextElement("optional"))
                     )
                 ),
-                parser.parsePattern("[nested [optional]]", logger)
+                parsePattern("[nested [optional]]", logger)
         );
         assertEqualsOptional(
                 new ChoiceGroup(
-                        new ChoiceElement(new TextElement("single choice"), 0)
+                        new ChoiceElement(new TextElement("single choice"), null)
                 ),
-                parser.parsePattern("(single choice)", logger)
+                parsePattern("(single choice)", logger)
         );
         assertEqualsOptional(
                 new ChoiceGroup(
-                        new ChoiceElement(new TextElement("parse mark"), 1)
+                        new ChoiceElement(new TextElement("parse mark"), "1")
                 ),
-                parser.parsePattern("(1:parse mark)", logger)
+                parsePattern("(1:parse mark)", logger)
         );
         assertEqualsOptional(
                 new ChoiceGroup(
-                        new ChoiceElement(new TextElement("first choice"), 0),
-                        new ChoiceElement(new TextElement("second choice"), 0)
+                        new ChoiceElement(
+                                new CompoundElement(
+                                        new TextElement("simplified "),
+                                        new OptionalGroup(
+                                                new TextElement("mark")
+                                        )
+                                ),
+                                "simplified"
+                        )
                 ),
-                parser.parsePattern("(first choice|second choice)", logger)
+                parsePattern("(*:simplified [mark])", logger)
         );
         assertEqualsOptional(
                 new ChoiceGroup(
-                        new ChoiceElement(new TextElement("first mark"), 0),
-                        new ChoiceElement(new TextElement("second mark"), 1)
+                        new ChoiceElement(new TextElement("first choice"), null),
+                        new ChoiceElement(new TextElement("second choice"), null)
                 ),
-                parser.parsePattern("(first mark|1:second mark)", logger)
+                parsePattern("(first choice|second choice)", logger)
+        );
+        assertEqualsOptional(
+                new ChoiceGroup(
+                        new ChoiceElement(new TextElement("first mark"), null),
+                        new ChoiceElement(new TextElement("second mark"), "1")
+                ),
+                parsePattern("(first mark|1:second mark)", logger)
+        );
+        assertEqualsOptional(
+                new ChoiceGroup(
+                        new ChoiceElement(new TextElement("first mark"), null),
+                        new ChoiceElement(new TextElement("second mark"), "second mark")
+                ),
+                parsePattern("(first mark|*:second mark)", logger)
+        );
+        assertEqualsOptional(
+                new ChoiceGroup(
+                        new ChoiceElement(new TextElement("first mark"), null),
+                        new ChoiceElement(new TextElement("second mark"), "0"),
+                        new ChoiceElement(new TextElement("third custom mark"), "custom"),
+                        new ChoiceElement(new TextElement("fourth mark"), "1")
+                ),
+                parsePattern("(first mark|:second mark|custom:third custom mark|:fourth mark)", logger)
         );
         assertEqualsOptional(
                 new OptionalGroup(
                         new CompoundElement(
                                 new TextElement("optional "),
                                 new ChoiceGroup(
-                                        new ChoiceElement(new TextElement("first choice"), 0),
-                                        new ChoiceElement(new TextElement("second choice"), 1)
+                                        new ChoiceElement(new TextElement("first choice"), null),
+                                        new ChoiceElement(new TextElement("second choice"), "second")
                                 )
                         )
                 ),
-                parser.parsePattern("[optional (first choice|1:second choice)]", logger)
+                parsePattern("[optional (first choice|second:second choice)]", logger)
         );
         assertEqualsOptional(
                 new RegexGroup(Pattern.compile(".+")),
-                parser.parsePattern("<.+>", logger)
+                parsePattern("<.+>", logger)
         );
         assertEqualsOptional(
                 new ExpressionElement(
@@ -92,7 +128,7 @@ public class PatternParserTest {
                         false,
                         false
                 ),
-                parser.parsePattern("%number%", logger)
+                parsePattern("%number%", logger)
         );
         assertEqualsOptional(
                 new ExpressionElement(
@@ -104,10 +140,10 @@ public class PatternParserTest {
                         true,
                         false
                 ),
-                parser.parsePattern("%*number/strings%", logger)
+                parsePattern("%*number/strings%", logger)
         );
-        assertOptionalEmpty(parser.parsePattern("(unclosed", logger));
-        assertOptionalEmpty(parser.parsePattern("%unfinished type", logger));
+        assertOptionalEmpty(parsePattern("(unclosed", logger));
+        assertOptionalEmpty(parsePattern("%unfinished type", logger));
     }
 
 }

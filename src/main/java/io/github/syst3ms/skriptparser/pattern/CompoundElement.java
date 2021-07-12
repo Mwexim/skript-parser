@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.parsing.MatchContext;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Multiple {@link PatternElement}s put together in order.
@@ -40,8 +41,6 @@ public class CompoundElement implements PatternElement {
 
     @Override
     public int match(String s, int index, MatchContext context) {
-        if (s.startsWith("pls test"))
-            System.out.println(s + " :: " + index);
         var i = index;
         for (var element : elements) {
             var m = element.match(s, i, context);
@@ -54,6 +53,14 @@ public class CompoundElement implements PatternElement {
         if (context.getSource().isEmpty() && i < s.length() - 1)
             return -1;
         return i;
+    }
+
+    @Override
+    public List<String> simplify() {
+        return elements.stream()
+                .map(PatternElement::simplify)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     @Override

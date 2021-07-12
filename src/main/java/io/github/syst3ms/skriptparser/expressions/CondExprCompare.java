@@ -80,7 +80,7 @@ public class CondExprCompare extends ConditionalExpression {
             third = expressions[2];
         SkriptLogger logger = result.getLogger();
         relation = PATTERNS.getInfo(matchedPattern);
-        int parseMark = result.getParseMark();
+        int parseMark = result.getNumericMark();
         if ((parseMark & 2) != 0) // "not" somewhere in the condition
             setNegated(true);
         if ((parseMark & 1) != 0) // "neither" on the left side

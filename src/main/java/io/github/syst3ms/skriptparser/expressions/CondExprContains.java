@@ -40,7 +40,7 @@ public class CondExprContains extends ConditionalExpression {
         first = expressions[0];
         second = expressions[1];
         onlyString = matchedPattern == 0;
-        setNegated(parseContext.getParseMark() == 1);
+        setNegated(parseContext.getNumericMark() == 1);
         return true;
     }
 

@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 
 import java.util.List;
-import java.util.Map;
 import java.util.regex.MatchResult;
 
 /**
@@ -18,17 +17,15 @@ public class ParseContext {
     private final PatternElement element;
     private final String expressionString;
     private final List<MatchResult> matches;
-    private final Map<String, String> namedGroups;
-    private final int parseMark;
+    private final List<String> marks;
     private final SkriptLogger logger;
 
-    public ParseContext(ParserState parserState, PatternElement element, List<MatchResult> matches, Map<String, String> namedGroups, int parseMark, String expressionString, SkriptLogger logger) {
+    public ParseContext(ParserState parserState, PatternElement element, List<MatchResult> matches, List<String> marks, String expressionString, SkriptLogger logger) {
         this.parserState = parserState;
         this.element = element;
         this.expressionString = expressionString;
         this.matches = matches;
-        this.namedGroups = namedGroups;
-        this.parseMark = parseMark;
+        this.marks = marks;
         this.logger = logger;
     }
 
@@ -40,14 +37,6 @@ public class ParseContext {
     }
 
     /**
-     * @param name the name of the group
-     * @return the contents of this matched group
-     */
-    public String getNamedGroup(String name) {
-        return namedGroups.get(name);
-    }
-
-    /**
      * @return the {@link PatternElement} that was successfully matched
      */
     public PatternElement getElement() {
@@ -55,10 +44,42 @@ public class ParseContext {
     }
 
     /**
-     * @return the parse mark
+     * @return the parse marks
      */
-    public int getParseMark() {
-        return parseMark;
+    public List<String> getMarks() {
+        return marks;
+    }
+
+    public String getSingleMark() {
+        if (marks.size() != 1)
+            throw new UnsupportedOperationException("There should be exactly one mark, found " + marks.size());
+        return marks.get(0);
+    }
+
+    /**
+     * If all matched parse marks represent numerical values, this will parse and combine them
+     * into one final result by XOR-ing each match with the previous match.
+     * @return the numerical parse mark
+     */
+    public int getNumericMark() {
+        int numeric = 0;
+        for (var mark : marks) {
+            if (mark.startsWith("0b")) {
+                numeric ^= Integer.parseInt(mark.substring("0b".length()), 2);
+            } else if (mark.startsWith("0x")) {
+                numeric ^= Integer.parseInt(mark.substring("0x".length()), 16);
+            } else {
+                numeric ^= Integer.parseInt(mark);
+            }
+        }
+        return numeric;
+    }
+
+    /**
+     * @return whether the given parse mark was included when matching
+     */
+    public boolean hasMark(String parseMark) {
+        return marks.contains(parseMark);
     }
 
     /**

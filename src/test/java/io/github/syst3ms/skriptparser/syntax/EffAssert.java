@@ -47,7 +47,7 @@ public class EffAssert extends Effect {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		logger = parseContext.getLogger();
 		pattern = matchedPattern;
-		parseMark = parseContext.getParseMark();
+		parseMark = parseContext.getNumericMark();
 		if (pattern == 0) {
 			condition = (Expression<Boolean>) expressions[0];
 			if (expressions.length == 2)

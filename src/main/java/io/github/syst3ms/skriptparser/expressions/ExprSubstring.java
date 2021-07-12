@@ -52,12 +52,12 @@ public class ExprSubstring implements Expression<String> {
 				} else {
 					value = (Expression<String>) expressions[0];
 				}
-				first = parseContext.getParseMark() == 0;
+				first = parseContext.getNumericMark() == 0;
 				break;
 			case 2:
 				lower = (Expression<BigInteger>) expressions[0];
 				value = (Expression<String>) expressions[1];
-				first = parseContext.getParseMark() == 0;
+				first = parseContext.getNumericMark() == 0;
 				break;
 			default:
 				throw new IllegalStateException();

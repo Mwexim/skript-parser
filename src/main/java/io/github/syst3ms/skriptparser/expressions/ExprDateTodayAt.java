@@ -35,7 +35,7 @@ public class ExprDateTodayAt implements Expression<SkriptDate> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		simple = parseContext.getParseMark() == 1;
+		simple = parseContext.getNumericMark() == 1;
 		if (simple)
 			time = (Expression<Time>) expressions[0];
  		return true;

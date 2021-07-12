@@ -17,8 +17,7 @@ import java.util.regex.PatternSyntaxException;
  * A class for parsing syntaxes in string form into parser-usable objects
  */
 public class PatternParser {
-    private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(0[bx])?(\\d+?):(.*)");
-    private static final Pattern NAME_MARK_PATTERN = Pattern.compile("'([a-z_]+)':(.*)");
+    private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("([A-Za-z0-9]+|\\*?):(.*)");
     private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*^~])?(=)?(?<types>[\\w/]+)?");
 
     /**
@@ -41,37 +40,7 @@ public class PatternParser {
         for (var i = 0; i < chars.length; i++) {
             var c = chars[i];
             var initialPos = i;
-            if (c == '{') {
-                var s = StringUtils.getEnclosedText(pattern, '{', '}', i);
-                if (s.isEmpty()) {
-                    logger.error("Unmatched curly bracket (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
-                    return Optional.empty();
-                } else if (s.get().isEmpty()) {
-                    logger.warn("There is an empty named group. Place a backslash before a curly bracket for it to be interpreted literally : {" + s.get() + "}");
-                }
-                if (textBuilder.length() != 0) {
-                    elements.add(new TextElement(textBuilder.toString()));
-                    textBuilder = new StringBuilder();
-                }
-
-                i += s.get().length() + 1; // sets i to the closing bracket, for loop does the rest
-                Optional<NamedGroup> namedGroup;
-                var matcher = NAME_MARK_PATTERN.matcher(s.get());
-                if (matcher.matches()) {
-                    var name = matcher.group(1);
-                    var rest = matcher.group(2);
-                    namedGroup = parsePattern(rest, logger)
-                            .map(val -> new NamedGroup(val, name));
-                } else {
-                    return Optional.empty();
-                }
-
-                if (namedGroup.isEmpty()) {
-                    return Optional.empty();
-                } else {
-                    elements.add(namedGroup.get());
-                }
-            } else if (c == '[') {
+            if (c == '[') {
                 var s = StringUtils.getEnclosedText(pattern, '[', ']', i);
                 if (s.isEmpty()) {
                     logger.error("Unmatched square bracket (index " + initialPos + ") : '" + pattern.substring(initialPos) + "'", ErrorType.MALFORMED_INPUT);
@@ -91,29 +60,23 @@ public class PatternParser {
                     return Optional.empty(); // The content is malformed anyway
                 }
                 if (matcher.matches() && vertParts.get().length == 1) {
-                    var base = matcher.group(1);
-                    var mark = matcher.group(2);
-                    int markNumber;
-                    try {
-                        if (base == null) {
-                            markNumber = Integer.parseInt(mark);
-                        } else if (base.equals("0b")) {
-                            markNumber = Integer.parseInt(mark, 2);
-                        } else if (base.equals("0x")) {
-                            markNumber = Integer.parseInt(mark, 16);
-                        } else {
-                            logger.error("Invalid parse mark (index " + initialPos + ") : '" + base + mark + "'", ErrorType.MALFORMED_INPUT);
-                            return Optional.empty();
-                        }
-                    } catch (NumberFormatException e) {
-                        logger.error("Couldn't parse the parser mark (index " + initialPos + ") : '" + mark + "'", ErrorType.MALFORMED_INPUT);
-                        return Optional.empty();
-                    }
-                    var rest = matcher.group(3);
-                    optionalGroup = parsePattern(rest, logger)
-                            .map(e -> new ChoiceGroup(Collections.singletonList(new ChoiceElement(e, markNumber))))
+                    final var mark = matcher.group(1);
+                    optionalGroup = parsePattern(matcher.group(2), logger)
+                            .map(el -> {
+                                if (mark.isEmpty()) {
+                                    return new ChoiceElement(el, "1");
+                                } else if (mark.equals("*")) {
+                                    var simplified = el.simplify();
+                                    return new ChoiceElement(
+                                            el,
+                                            simplified.size() > 0 ? simplified.get(0) : el.toString()
+                                    );
+                                } else {
+                                    return new ChoiceElement(el, mark);
+                                }
+                            })
+                            .map(el -> new ChoiceGroup(Collections.singletonList(el)))
                             .map(OptionalGroup::new);
-
                 } else {
                     optionalGroup = s.flatMap(st -> parsePattern(st, logger))
                             .map(OptionalGroup::new);
@@ -139,6 +102,7 @@ public class PatternParser {
                     return Optional.empty();
                 }
                 List<ChoiceElement> choiceElements = new ArrayList<>();
+                final int[] current = {0};
                 for (var choice : choices.get()) {
                     if (choice.isEmpty()) {
                         logger.warn("There is an empty choice in the choice group. Place a backslash before the vertical bar for it to be interpreted literally : (" + s.get() + ")");
@@ -146,30 +110,24 @@ public class PatternParser {
                     Optional<ChoiceElement> choiceElement;
                     var matcher = PARSE_MARK_PATTERN.matcher(choice);
                     if (matcher.matches()) {
-                        var base = matcher.group(1);
-                        var mark = matcher.group(2);
-                        int markNumber;
-                        try {
-                            if (base == null) {
-                                markNumber = Integer.parseInt(mark);
-                            } else if (base.equals("0b")) {
-                                markNumber = Integer.parseInt(mark, 2);
-                            } else if (base.equals("0x")) {
-                                markNumber = Integer.parseInt(mark, 16);
-                            } else {
-                                logger.error("Invalid parse mark (index " + initialPos + ") : '" + base + mark + "'", ErrorType.MALFORMED_INPUT);
-                                return Optional.empty();
-                            }
-                        } catch (NumberFormatException e) {
-                            logger.error("Couldn't parse the parser mark (index " + initialPos + ") : '" + mark + "'", ErrorType.MALFORMED_INPUT);
-                            return Optional.empty();
-                        }
-                        var rest = matcher.group(3);
-                        choiceElement = parsePattern(rest, logger)
-                                .map(p -> new ChoiceElement(p, markNumber));
+                        final var mark = matcher.group(1);
+                        choiceElement = parsePattern(matcher.group(2), logger)
+                                .map(el -> {
+                                    if (mark.isEmpty()) {
+                                        return new ChoiceElement(el, String.valueOf(current[0]++));
+                                    } else if (mark.equals("*")) {
+                                        var simplified = el.simplify();
+                                        return new ChoiceElement(
+                                                el,
+                                                simplified.size() > 0 ? simplified.get(0) : el.toString()
+                                        );
+                                    } else {
+                                        return new ChoiceElement(el, mark);
+                                    }
+                                });
                     } else {
                         choiceElement = parsePattern(choice, logger)
-                                .map(p -> new ChoiceElement(p, 0));
+                                .map(p -> new ChoiceElement(p, null));
                     }
                     if (choiceElement.isEmpty()) {
                         return Optional.empty();

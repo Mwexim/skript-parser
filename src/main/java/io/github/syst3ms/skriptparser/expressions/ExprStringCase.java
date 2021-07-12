@@ -65,7 +65,7 @@ public class ExprStringCase implements Expression<String> {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		expr = (Expression<String>) expressions[0];
-		mode = parseContext.getParseMark();
+		mode = parseContext.getNumericMark();
 		switch (matchedPattern) {
 			case 0:
 			case 1:

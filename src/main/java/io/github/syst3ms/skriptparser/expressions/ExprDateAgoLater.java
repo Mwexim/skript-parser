@@ -41,7 +41,7 @@ public class ExprDateAgoLater implements Expression<SkriptDate> {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		past = matchedPattern == 0;
-		relative = parseContext.getParseMark() == 1;
+		relative = parseContext.getNumericMark() == 1;
 		duration = (Expression<Duration>) expressions[0];
 		if (relative)
 			date = (Expression<SkriptDate>) expressions[1];

@@ -45,7 +45,7 @@ public class ExprRandomNumber implements Expression<Number> {
         lowerNumber = (Expression<Number>) expressions[0];
         maxNumber = (Expression<Number>) expressions[1];
         isInteger = matchedPattern == 0;
-        isExclusive = context.getParseMark() == 1;
+        isExclusive = context.getNumericMark() == 1;
         numComp = Comparators.getComparator(Number.class, Number.class).orElseThrow(AssertionError::new);
         return true;
     }

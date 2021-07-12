@@ -37,7 +37,7 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		parseMark = parseContext.getParseMark();
+		parseMark = parseContext.getNumericMark();
 		setOwner((Expression<SkriptDate>) expressions[0]);
 		return true;
 	}
