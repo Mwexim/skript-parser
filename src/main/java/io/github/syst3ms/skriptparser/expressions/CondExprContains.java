@@ -15,7 +15,7 @@ import java.util.Optional;
  *
  * @name Contain
  * @type CONDITION
- * @pattern %string% [does(n't| not)] contains %string%
+ * @pattern %string% [does(n't| not)] contain[s] %string%
  * @pattern %objects% [do[es](n't| not)] contain[s] %object%
  * @since ALPHA
  * @author Mwexim

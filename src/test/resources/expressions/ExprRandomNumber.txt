@@ -1,0 +1,20 @@
+# Author(s):
+# 	- Skylyxx
+# Date: 2021/04/26
+
+test:
+    set {_integer} to random integer from 5 to 10
+    assert {_integer} is greater than 4 with "random integer from 5 to 10 should be greater than 4: %{_integer}%"
+    assert {_integer} is less than 11 with "random integer from 5 to 10 should be less than 11: %{_integer}%"
+
+    set {_number} to random number from 5.2 to 8.3
+    assert {_number} is greater than 5.1 with "random number from 5.2 to 8.3 should be greater than 501: %{_number}%"
+    assert {_number} is less than 8.4 with "random number from 5.2 to 8.3 should be less than 8.4: %{_number}%"
+
+    set {_bigint} to random integer from 2147483647 to 3000000000
+    assert {_bigint} is greater than 2147483646 with "random integer from 2147483647 to 3000000000 should be greater than 2147483646: %{_bigint}%"
+    assert {_bigint} is less than 3000000001 with "random integer from 2147483646 to 3000000000 should be less than 3000000001: %{_bigint}%"
+
+    set {_bigdecimal} to random number from 2147483647.2 to 3000000000.5
+    assert {_bigdecimal} is greater than 2147483647.1 with "random number from 2147483647.2 to 3000000000.5 should be greater than 2147483647.1: %{_bigdecimal}%"
+    assert {_bigdecimal} is less than 3000000000.6 with "random number from 2147483647.2 to 3000000000.5 should be less than 3000000000.6: %{_bigdecimal}%"
