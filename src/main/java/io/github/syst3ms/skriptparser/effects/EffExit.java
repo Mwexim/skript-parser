@@ -38,9 +38,9 @@ public class EffExit extends Effect {
         Parser.getMainRegistration().addEffect(
                 EffExit.class,
                 "(exit|stop) [[the] trigger]",
-                "(exit|stop) [a|the [current]|this] (:section|:loop|:condition[al])",
-                "(exit|stop) %*integer% (:section|:loop|:condition[al])[s]",
-                "(exit|stop) (every|all [[of] the]) (:section|:loop|:condition[al])[s]"
+                "(exit|stop) [a|the [current]|this] (0:section|1:loop|2:condition[al])",
+                "(exit|stop) %*integer% (0:section|1:loop|2:condition[al])[s]",
+                "(exit|stop) (every|all [[of] the]) (0:section|1:loop|2:condition[al])[s]"
         );
     }
 

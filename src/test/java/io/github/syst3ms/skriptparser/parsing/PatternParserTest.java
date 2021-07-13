@@ -73,7 +73,7 @@ public class PatternParserTest {
                                 "simplified"
                         )
                 ),
-                parsePattern("(*:simplified [mark])", logger)
+                parsePattern("(:simplified [mark])", logger)
         );
         assertEqualsOptional(
                 new ChoiceGroup(
@@ -91,19 +91,26 @@ public class PatternParserTest {
         );
         assertEqualsOptional(
                 new ChoiceGroup(
-                        new ChoiceElement(new TextElement("first mark"), null),
-                        new ChoiceElement(new TextElement("second mark"), "second mark")
+                        new ChoiceElement(new TextElement("first choice "), "first choice"),
+                        new ChoiceElement(new TextElement("second choice"), "second choice")
                 ),
-                parsePattern("(first mark|*:second mark)", logger)
+                parsePattern(":(first choice |second choice)", logger)
         );
         assertEqualsOptional(
                 new ChoiceGroup(
                         new ChoiceElement(new TextElement("first mark"), null),
-                        new ChoiceElement(new TextElement("second mark"), "0"),
-                        new ChoiceElement(new TextElement("third custom mark"), "custom"),
-                        new ChoiceElement(new TextElement("fourth mark"), "1")
+                        new ChoiceElement(new TextElement("second mark"), "second mark")
                 ),
-                parsePattern("(first mark|:second mark|custom:third custom mark|:fourth mark)", logger)
+                parsePattern("(first mark|:second mark)", logger)
+        );
+        assertEqualsOptional(
+                new ChoiceGroup(
+                        new ChoiceElement(new TextElement("first mark"), null),
+                        new ChoiceElement(new TextElement("second mark"), "second mark"),
+                        new ChoiceElement(new TextElement("third custom mark"), "custom"),
+                        new ChoiceElement(new TextElement("fourth mark"), null)
+                ),
+                parsePattern("(first mark|:second mark|custom:third custom mark|fourth mark)", logger)
         );
         assertEqualsOptional(
                 new OptionalGroup(

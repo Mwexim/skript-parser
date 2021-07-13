@@ -47,7 +47,7 @@ public class VariablesTest {
 	}
 
 	@Test
-	public void testVariables() throws Exception {
+	public void testVariables() {
 		SkriptLogger logger = new SkriptLogger();
 		ParserState parserState = new ParserState();
 		run(SyntaxParser.parseEffect("set {variable} to \"test\"", parserState, logger));
