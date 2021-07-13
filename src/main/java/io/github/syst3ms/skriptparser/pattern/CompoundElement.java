@@ -41,6 +41,13 @@ public class CompoundElement implements PatternElement {
 
     @Override
     public int match(String s, int index, MatchContext context) {
+        // Keywords - makes matching remarkably faster in almost all cases
+        var toCheck = s.substring(index).toLowerCase();
+        for (var keyword : simplify()) {
+            if (!toCheck.contains(keyword.toLowerCase()))
+                return -1;
+        }
+
         var i = index;
         for (var element : elements) {
             var m = element.match(s, i, context);
