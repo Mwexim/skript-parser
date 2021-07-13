@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -30,8 +31,8 @@ public class ExprNumberConvertBase implements Expression<String> {
 				ExprNumberConvertBase.class,
 				String.class,
 				false,
-				"%integers% [converted] to (0:binary|1:octal|2:hex[adecimal]|3:base[ ]64|4:base %integer%)",
-				"(0:binary|1:octal|2:hex[adecimal]|3:base[ ]64) %strings% [converted] to (0:binary|8:octal|16:hex[adecimal]|24:base[ ]64|32:base %integer%|40:decimal)"
+				"%integers% [converted] to :(binary|octal|hex[adecimal]|base64:base[ ]64|custom:base %integer%)",
+				":(binary|octal|hex[adecimal]|base64:base[ ]64) %strings% [converted] to :(binary|octal|hex[adecimal]|base64:base[ ]64|custom:base %integer%|decimal)"
 		);
 	}
 
@@ -39,22 +40,22 @@ public class ExprNumberConvertBase implements Expression<String> {
 	@Nullable
 	private Expression<BigInteger> baseTo;
 	private int pattern;
-	private int typeFrom;
-	private int typeTo;
+	private String typeFrom;
+	private String typeTo;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		pattern = matchedPattern;
 		if (pattern == 0) {
-			typeTo = parseContext.getParseMark();
+			typeTo = parseContext.getSingleMark().orElseThrow();
 		} else {
-			typeFrom = parseContext.getParseMark() & 0b111;
-			typeTo = (parseContext.getParseMark() ^ typeFrom) / 0b1000;
+			typeFrom = parseContext.getMarks().get(0);
+			typeTo = parseContext.getMarks().get(1);
 		}
 
 		expression = expressions[0];
-		if (typeTo == 4) {
+		if (typeTo.equals("custom")) {
 			baseTo = (Expression<BigInteger>) expressions[1];
 		}
 		return true;
@@ -64,23 +65,23 @@ public class ExprNumberConvertBase implements Expression<String> {
 	public String[] getValues(TriggerContext ctx) {
 		int radixTo;
 		switch (typeTo) {
-			case 0:
+			case "binary":
 				radixTo = 2;
 				break;
-			case 1:
+			case "octal":
 				radixTo = 8;
 				break;
-			case 2:
+			case "hex":
 				radixTo = 16;
 				break;
-			case 3:
+			case "base64":
 				radixTo = 64;
 				break;
-			case 4:
+			case "custom":
 				assert baseTo != null;
 				radixTo = baseTo.getSingle(ctx).map(BigInteger::intValue).orElse(-1);
 				break;
-			case 5:
+			case "decimal":
 				radixTo = 10;
 				break;
 			default:
@@ -104,16 +105,16 @@ public class ExprNumberConvertBase implements Expression<String> {
 
 						int radixFrom;
 						switch (typeFrom) {
-							case 0:
+							case "binary":
 								radixFrom = 2;
 								break;
-							case 1:
+							case "octal":
 								radixFrom = 8;
 								break;
-							case 2:
+							case "hex":
 								radixFrom = 16;
 								break;
-							case 3:
+							case "base64":
 								radixFrom = 64;
 								break;
 							default:
@@ -148,7 +149,7 @@ public class ExprNumberConvertBase implements Expression<String> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <C> Optional<? extends Expression<C>> convertExpression(Class<C> to) {
-		if (to.isAssignableFrom(BigInteger.class) && typeTo == 5) {
+		if (to.isAssignableFrom(BigInteger.class) && typeTo.equals("decimal")) {
 			// We will only convert to the integer if it is actually a decimal,
 			// otherwise things will be messy.
 			return Optional.of((Expression<C>) ConvertedExpression.newInstance(
@@ -162,23 +163,8 @@ public class ExprNumberConvertBase implements Expression<String> {
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		switch (typeTo) {
-			case 0:
-				return expression.toString(ctx, debug) + " converted to binary";
-			case 1:
-				return expression.toString(ctx, debug) + " converted to octal";
-			case 2:
-				return expression.toString(ctx, debug) + " converted to hexadecimal";
-			case 3:
-				return expression.toString(ctx, debug) + " converted to base 64";
-			case 4:
-				assert baseTo != null;
-				return expression.toString(ctx, debug) + " converted to base " + baseTo.toString(ctx, debug);
-			case 5:
-				return expression.toString(ctx, debug) + " converted to decimal";
-			default:
-				throw new IllegalStateException();
-		}
+		return typeFrom + " converted to "
+				+ (typeTo.equals("custom") ? Objects.requireNonNull(baseTo).toString(ctx, debug) : typeTo);
 	}
 
 	private static long bytesToLong(byte[] bytes) {

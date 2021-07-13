@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 /**
@@ -85,7 +86,14 @@ public class ExprStringSplitJoin implements Expression<String> {
 						.orElse(new String[0]);
 			case 2:
 				return DoubleOptional.ofOptional(expression.getSingle(ctx), step.getSingle(ctx))
-						.mapToOptional((val, step) -> split(val, step.intValue()))
+						.map(Function.identity(), BigInteger::intValue)
+						.mapToOptional((val, step) -> {
+							List<String> ret = new ArrayList<>();
+							for (int i = 0; i < val.length(); i += step) {
+								ret.add(val.substring(i, Math.min(i + step, val.length())));
+							}
+							return ret.toArray(new String[0]);
+						})
 						.orElse(new String[0]);
 			default:
 				throw new IllegalStateException();
@@ -105,15 +113,5 @@ public class ExprStringSplitJoin implements Expression<String> {
 			default:
 				throw new IllegalStateException();
 		}
-	}
-
-	private static String[] split(String value, int step) {
-		List<String> ret = new ArrayList<>();
-		int i = 0;
-		while (i < value.length()) {
-			ret.add(value.substring(i, Math.min(i + step, value.length())));
-			i += step;
-		}
-		return ret.toArray(new String[0]);
 	}
 }

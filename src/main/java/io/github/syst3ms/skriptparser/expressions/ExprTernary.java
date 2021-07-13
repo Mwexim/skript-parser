@@ -21,7 +21,7 @@ public class ExprTernary implements Expression<Object> {
             Object.class,
             false,
             "%objects% if %=boolean%[,] (otherwise|else) %objects%",
-            "%=boolean% ? %objects% : %objects%"
+            "%=boolean% ? %objects% \\: %objects%"
         );
     }
 

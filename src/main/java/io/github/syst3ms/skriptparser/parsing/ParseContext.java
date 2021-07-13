@@ -67,20 +67,22 @@ public class ParseContext {
     }
 
     /**
-     * If all matched parse marks represent numerical values, this will parse and combine them
-     * into one final result by XOR-ing each match with the previous match.
+     * Parses and combines all valid numerical mark into one final result
+     * by XOR-ing each match with the previous match.
      * @return the numerical parse mark
      */
     public int getNumericMark() {
         int numeric = 0;
         for (var mark : marks) {
-            if (mark.startsWith("0b")) {
-                numeric ^= Integer.parseInt(mark.substring("0b".length()), 2);
-            } else if (mark.startsWith("0x")) {
-                numeric ^= Integer.parseInt(mark.substring("0x".length()), 16);
-            } else {
-                numeric ^= Integer.parseInt(mark);
-            }
+            try {
+                if (mark.startsWith("0b")) {
+                    numeric ^= Integer.parseInt(mark.substring("0b".length()), 2);
+                } else if (mark.startsWith("0x")) {
+                    numeric ^= Integer.parseInt(mark.substring("0x".length()), 16);
+                } else {
+                    numeric ^= Integer.parseInt(mark);
+                }
+            } catch (NumberFormatException ignored) { /* Nothing */ }
         }
         return numeric;
     }
