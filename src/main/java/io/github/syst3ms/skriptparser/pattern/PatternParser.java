@@ -128,11 +128,7 @@ public class PatternParser {
                                 .map(el -> {
                                     if (mark.isEmpty()) {
                                         var simplified = el.simplify();
-                                        System.out.println(mark + ";" + rest + ";" + (simplified.size() > 0 ? simplified.get(0) : el.toString()) + ";");
-                                        return new ChoiceElement(
-                                                el,
-                                                simplified.size() > 0 ? simplified.get(0) : el.toString()
-                                        );
+                                        return new ChoiceElement(el, simplified.size() > 0 ? simplified.get(0) : el.toString());
                                     } else {
                                         return new ChoiceElement(el, mark);
                                     }
