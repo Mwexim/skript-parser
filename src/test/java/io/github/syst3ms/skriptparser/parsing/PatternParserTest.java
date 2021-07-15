@@ -38,8 +38,12 @@ public class PatternParserTest {
     @Test
     public void testParsePattern() {
         SkriptLogger logger = new SkriptLogger();
+
+        // Simple patterns with one element
         assertEqualsOptional(new TextElement("syntax"), parsePattern("syntax", logger));
         assertEqualsOptional(new OptionalGroup(new TextElement("optional")), parsePattern("[optional]", logger));
+
+        // Nested optionals
         assertEqualsOptional(
                 new OptionalGroup(
                     new CompoundElement(
@@ -49,6 +53,8 @@ public class PatternParserTest {
                 ),
                 parsePattern("[nested [optional]]", logger)
         );
+
+        // Choice groups with parse marks
         assertEqualsOptional(
                 new ChoiceGroup(
                         new ChoiceElement(new TextElement("single choice"), null)
@@ -112,6 +118,20 @@ public class PatternParserTest {
                 ),
                 parsePattern("(first mark|:second mark|custom:third custom mark|fourth mark)", logger)
         );
+
+        // Optional choice group (syntax sugar)
+        assertEqualsOptional(
+                new OptionalGroup(
+                        new ChoiceGroup(
+                                new ChoiceElement(new TextElement("one"), "one"),
+                                new ChoiceElement(new TextElement(" two"), "two"),
+                                new ChoiceElement(new TextElement("three"), "four")
+                        )
+                ),
+                parsePattern(":[one| two|four:three]", logger)
+        );
+
+        // Optional with nested group with parse marks
         assertEqualsOptional(
                 new OptionalGroup(
                         new CompoundElement(
@@ -124,10 +144,14 @@ public class PatternParserTest {
                 ),
                 parsePattern("[optional (first choice|second:second choice)]", logger)
         );
+
+        // Regex group
         assertEqualsOptional(
                 new RegexGroup(Pattern.compile(".+")),
                 parsePattern("<.+>", logger)
         );
+
+        // Expression elements
         assertEqualsOptional(
                 new ExpressionElement(
                         Collections.singletonList(TypeManager.getPatternType("number").orElseThrow(AssertionError::new)),
@@ -149,6 +173,8 @@ public class PatternParserTest {
                 ),
                 parsePattern("%*number/strings%", logger)
         );
+
+        // Failing patterns
         assertOptionalEmpty(parsePattern("(unclosed", logger));
         assertOptionalEmpty(parsePattern("%unfinished type", logger));
     }

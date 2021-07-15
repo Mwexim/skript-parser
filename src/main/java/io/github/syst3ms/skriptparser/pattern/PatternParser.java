@@ -23,9 +23,21 @@ public class PatternParser {
     /**
      * Parses a pattern and returns a {@link PatternElement}. This method can be called by itself, for example when parsing group constructs.
      * @param pattern the pattern to be parsed
+     * @param logger the logger
      * @return the parsed PatternElement, or {@literal null} if something went wrong.
      */
     public static Optional<? extends PatternElement> parsePattern(String pattern, SkriptLogger logger) {
+        return parsePattern(pattern, logger, false);
+    }
+
+    /**
+     * Parses a pattern and returns a {@link PatternElement}. This method can be called by itself, for example when parsing group constructs.
+     * @param pattern the pattern to be parsed
+     * @param logger the logger
+     * @param marked whether the elements have a default mark
+     * @return the parsed PatternElement, or {@literal null} if something went wrong.
+     */
+    private static Optional<? extends PatternElement> parsePattern(String pattern, SkriptLogger logger, boolean marked) {
         if (pattern.isEmpty())
             return Optional.of(new TextElement(""));
 
@@ -40,12 +52,12 @@ public class PatternParser {
         }
 
         var chars = pattern.toCharArray();
-        boolean marked = false;
         for (var i = 0; i < chars.length; i++) {
             char c = chars[i];
             int initialPos = i;
             if (c == ':') {
-                if (chars[i + 1] != '(') {
+                char next = chars[i + 1];
+                if (next != '(' && next != '[') {
                     logger.warn("No group found after leading mark sign (index " + initialPos + "): '" + pattern.substring(initialPos) + "'. Escape the character to prevent ambiguity.");
                     textBuilder.append(c);
                     continue;
@@ -75,15 +87,12 @@ public class PatternParser {
                     return Optional.empty(); // The content is malformed anyway
                 }
                 if (matcher.matches() && vertParts.get().length == 1) {
-                    final var mark = matcher.group(1);
+                    var mark = matcher.group(1);
                     optionalGroup = parsePattern(matcher.group(3), logger)
                             .map(el -> {
                                 if (mark.isEmpty()) {
                                     var simplified = el.simplify();
-                                    return new ChoiceElement(
-                                            el,
-                                            simplified.size() > 0 ? simplified.get(0) : el.toString()
-                                    );
+                                    return new ChoiceElement(el, simplified.size() > 0 ? simplified.get(0) : el.toString());
                                 } else {
                                     return new ChoiceElement(el, mark);
                                 }
@@ -91,7 +100,8 @@ public class PatternParser {
                             .map(el -> new ChoiceGroup(Collections.singletonList(el)))
                             .map(OptionalGroup::new);
                 } else {
-                    optionalGroup = s.flatMap(st -> parsePattern(st, logger))
+                    boolean finalMarked = marked;
+                    optionalGroup = s.flatMap(st -> parsePattern(st, logger, finalMarked))
                             .map(OptionalGroup::new);
                 }
                 if (optionalGroup.isEmpty()) {
