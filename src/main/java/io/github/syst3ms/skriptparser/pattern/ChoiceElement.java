@@ -16,7 +16,7 @@ public class ChoiceElement {
 
     public ChoiceElement(PatternElement element, @Nullable String mark) {
         this.element = element;
-        this.mark = mark;
+        this.mark = mark != null ? getEffectiveMark(element, mark) : null;
     }
 
     @Nullable
@@ -38,5 +38,13 @@ public class ChoiceElement {
             var other = (ChoiceElement) obj;
             return element.equals(other.element) && Objects.equals(mark, other.mark);
         }
+    }
+
+    private static String getEffectiveMark(PatternElement element, String mark) {
+        if (mark.isEmpty()) {
+            var simplified = element.simplify();
+            return (simplified.size() > 0 ? simplified.get(0) : element.toString()).toLowerCase();
+        }
+        return mark;
     }
 }

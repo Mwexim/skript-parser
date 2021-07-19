@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.MatchResult;
 
 /**
@@ -56,14 +55,11 @@ public class ParseContext {
      * @return the matched mark
      * @throws UnsupportedOperationException if multiple marks were found
      */
-    public Optional<String> getSingleMark() {
-        if (marks.size() == 0) {
-            return Optional.empty();
-        } else if (marks.size() > 1) {
+    public String getSingleMark() {
+        if (marks.size() != 1) {
             throw new UnsupportedOperationException("There should be exactly 1 mark, found " + marks.size());
-        } else {
-            return Optional.of(marks.get(0));
         }
+        return marks.get(0);
     }
 
     /**

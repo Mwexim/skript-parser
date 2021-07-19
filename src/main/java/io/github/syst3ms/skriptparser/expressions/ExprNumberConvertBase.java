@@ -48,7 +48,7 @@ public class ExprNumberConvertBase implements Expression<String> {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		pattern = matchedPattern;
 		if (pattern == 0) {
-			typeTo = parseContext.getSingleMark().orElseThrow();
+			typeTo = parseContext.getSingleMark();
 		} else {
 			typeFrom = parseContext.getMarks().get(0);
 			typeTo = parseContext.getMarks().get(1);
