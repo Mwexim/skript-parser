@@ -51,18 +51,6 @@ public class ParseContext {
     }
 
     /**
-     * Returns the single matched mark that was found.
-     * @return the matched mark
-     * @throws UnsupportedOperationException if there was more than or less than 1 mark found.
-     */
-    public String getSingleMark() {
-        if (marks.size() != 1) {
-            throw new UnsupportedOperationException("There should be exactly 1 mark, found " + marks.size());
-        }
-        return marks.get(0);
-    }
-
-    /**
      * Parses and combines all valid numerical mark into one final result
      * by XOR-ing each match with the previous match.
      * @return the numerical parse mark

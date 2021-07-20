@@ -45,7 +45,7 @@ public class ExprNumberConvertBase implements Expression<String> {
 		pattern = matchedPattern;
 		if (pattern == 0) {
 			baseFrom = "10";
-			baseTo = parseContext.getSingleMark();
+			baseTo = parseContext.getMarks().get(0);
 		} else {
 			baseFrom = parseContext.getMarks().get(0);
 			baseTo = parseContext.getMarks().get(1);
