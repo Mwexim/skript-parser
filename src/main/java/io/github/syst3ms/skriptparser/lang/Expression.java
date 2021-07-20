@@ -55,6 +55,20 @@ public interface Expression<T> extends SyntaxElement {
     }
 
     /**
+     * Determines whether this expression can be changed to a specific {@link ChangeMode} and type class.
+     * @param mode the mode this Expression would be changed with
+     * @param type the type class of the instance this Expression would be changed with
+     * @return whether or not this Expression accepts this specific change
+     */
+    default boolean acceptsChange(ChangeMode mode, Class<?> type) {
+        for (var value : acceptsChange(mode).orElse(new Class[0])) {
+            if (value.isAssignableFrom(type))
+                return true;
+        }
+        return false;
+    }
+
+    /**
      * Changes this expression with the given values according to the given mode
      * @param ctx the event
      * @param changeWith the values to change this Expression with

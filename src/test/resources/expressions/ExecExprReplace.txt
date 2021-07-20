@@ -1,0 +1,31 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2021/04/17
+
+test:
+	# All
+	set {var} to "Hello world, my name is Skript."
+	assert replace "o" in {var} with "a" = "Hella warld, my name is Skript." with "Single replacement didn't work"
+	assert {var} = "Hello world, my name is Skript." with "{var} should not be changed yet: %{var}%"
+	replace all "." with "!" in {var}
+	assert {var} = "Hello world, my name is Skript!" with "{var} should be 'Hello world, my name is Skript!': %{var}%"
+
+	# First
+	set {var} to "Hello, hello there!"
+	replace first "Hello" in {var} with "Goodbye"
+	assert {var} = "Goodbye, hello there!" with "{var} should be 'Goodbye, hello there!': %{var}%"
+
+	# Last
+	set {var} to "HELP, PLEASE!"
+	replace last "E" in {var} with "="
+	assert {var} = "HELP, PLEAS=!" with "{var} should be 'HELP, PLEAS=!': %{var}%"
+
+	# Multiple
+	set {list::*} to "testee", "testtee" and "testttee"
+	replace last "t" and "e" in {list::*} with "u"
+	assert {list::*} = "tesueu", "testueu" and "testtueu" with "Combined replacement didn't work: %{list::*}%"
+
+	# Regex
+	set {var} to "Hello World"
+	replace last regex patterns '[A-Za-z]{2}' with "$" in {var}
+	assert {var} = "Hello Wor$" with "{var} should be 'Hello Wor$': %{var}%"

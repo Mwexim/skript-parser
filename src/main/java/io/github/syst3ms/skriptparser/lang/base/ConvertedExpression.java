@@ -25,7 +25,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
     private final Class<T> to;
     private final Function<? super F, Optional<? extends T>> converter;
 
-    public ConvertedExpression(Expression<? extends F> source, Class<T> to, Function<? super F, Optional<? extends T>> converter) {
+    private ConvertedExpression(Expression<? extends F> source, Class<T> to, Function<? super F, Optional<? extends T>> converter) {
         this.source = source;
         this.to = to;
         this.converter = converter;
@@ -46,20 +46,17 @@ public class ConvertedExpression<F, T> implements Expression<T> {
     }
 
     /**
-     * Creates a new instance that simply casts the values to the converted Class.
+     * Creates a new instance that converts the result by using the given converter.
      * @param v the source Expression
-     * @param to the Class to cast to
+     * @param to the Class to convert to
+     * @param converter the converter to use
+     * @param <F> the original return type
      * @param <T> the converted return type
-     * @return a ConvertedExpression instance
+     * @return an optional ConvertedExpression instance
      */
-    public static <T> ConvertedExpression<Object, T> newCastInstance(Expression<Object> v, Class<T> to) {
-        return new ConvertedExpression<>(v, to, value -> {
-            try {
-                return Optional.of(to.cast(value));
-            } catch (ClassCastException ignored) {
-                return Optional.empty();
-            }
-        });
+    @SuppressWarnings("unchecked")
+    public static <F, T> ConvertedExpression<F, T> newInstance(Expression<F> v, Class<T> to, Function<?, Optional<? extends T>> converter) {
+        return new ConvertedExpression<>(v, to, (Function<? super F, Optional<? extends T>>) converter);
     }
 
     @Override
@@ -74,8 +71,9 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
-        if (debug && ctx == null)
+        if (debug) {
             return "(" + source.toString(TriggerContext.DUMMY, true) + " >> " + converter + ": " + source.getReturnType().getName() + "->" + to.getName() + ")";
+        }
         return source.toString(ctx, debug);
     }
 
