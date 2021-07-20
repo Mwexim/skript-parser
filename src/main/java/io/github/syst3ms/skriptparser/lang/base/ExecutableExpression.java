@@ -3,11 +3,7 @@ package io.github.syst3ms.skriptparser.lang.base;
 import io.github.syst3ms.skriptparser.expressions.ExecExprListOperators;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.SelfRegistrable;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
-
-import java.util.Arrays;
 
 /**
  * A base class for syntax that can be used as {@link Expression} or {@link Effect}.
@@ -30,7 +26,6 @@ import java.util.Arrays;
  *     {@code set {x} to pop {y::*}} should set the variable {@code x} to the last element of the list {@code y}. <br>
  *     {@code pop {y::*}} should remove the last element of the list {@code y}, because it is used as an effect now.
  * </ul>
- * Finally, this implements {@link SelfRegistrable}, enabling an easy registration process.
  */
 public abstract class ExecutableExpression<T> extends Effect implements Expression<T> {
 

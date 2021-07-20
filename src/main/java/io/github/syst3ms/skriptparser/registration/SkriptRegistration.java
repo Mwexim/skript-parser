@@ -46,6 +46,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * A mutable object keeping track of all syntax and types registered by an {@link SkriptAddon addon}
@@ -553,6 +554,19 @@ public class SkriptRegistration {
             this.priority = priority;
             return this;
         }
+
+        protected List<PatternElement> computePatterns() {
+            boolean computePriority = priority == -1;
+            priority = computePriority ? 5 : priority;
+            return patterns.stream()
+                    .map(s -> PatternParser.parsePattern(s, logger).orElse(null))
+                    .filter(Objects::nonNull)
+                    .peek(e -> {
+                        if (computePriority)
+                            setPriority(Math.min(priority, findAppropriatePriority(e)));
+                    })
+                    .collect(Collectors.toList());
+        }
     }
 
     public class ExpressionRegistrar<C extends Expression<? extends T>, T> extends SyntaxRegistrar<C> {
@@ -575,26 +589,16 @@ public class SkriptRegistration {
          */
         @Override
         public void register() {
-            List<PatternElement> elements = new ArrayList<>();
-            boolean computePriority = priority == -1;
-            priority = computePriority ? 5 : priority;
-            super.patterns.forEach(s -> PatternParser.parsePattern(s, logger).ifPresent(e -> {
-                if (computePriority)
-                    setPriority(Math.min(priority, findAppropriatePriority(e)));
-                elements.add(e);
-            }));
             var type = TypeManager.getByClassExact(returnType);
             if (type.isEmpty()) {
                 logger.error("Couldn't find a type corresponding to the class '" + returnType.getName() + "'", ErrorType.NO_MATCH);
                 return;
             }
-            var info = new ExpressionInfo<>(super.c, elements, registerer, type.get(), isSingle, priority);
-            expressions.putOne(super.c, info);
+            expressions.putOne(super.c, new ExpressionInfo<>(super.c, computePatterns(), registerer, type.get(), isSingle, priority));
         }
     }
 
     public class EffectRegistrar<C extends Effect> extends SyntaxRegistrar<C> {
-
         EffectRegistrar(Class<C> c, String... patterns) {
             super(c, patterns);
             typeCheck();
@@ -605,21 +609,11 @@ public class SkriptRegistration {
          */
         @Override
         public void register() {
-            List<PatternElement> elements = new ArrayList<>();
-            boolean computePriority = priority == -1;
-            priority = computePriority ? 5 : priority;
-            super.patterns.forEach(s -> PatternParser.parsePattern(s, logger).ifPresent(e -> {
-                if (computePriority)
-                    setPriority(Math.min(priority, findAppropriatePriority(e)));
-                elements.add(e);
-            }));
-            var info = new SyntaxInfo<>(super.c, elements, priority, registerer);
-            effects.add(info);
+            effects.add(new SyntaxInfo<>(super.c, computePatterns(), priority, registerer));
         }
     }
 
     public class SectionRegistrar<C extends CodeSection> extends SyntaxRegistrar<C> {
-
         SectionRegistrar(Class<C> c, String... patterns) {
             super(c, patterns);
             typeCheck();
@@ -630,16 +624,7 @@ public class SkriptRegistration {
          */
         @Override
         public void register() {
-            List<PatternElement> elements = new ArrayList<>();
-            boolean computePriority = priority == -1;
-            priority = computePriority ? 5 : priority;
-            super.patterns.forEach(s -> PatternParser.parsePattern(s, logger).ifPresent(e -> {
-                if (computePriority)
-                    setPriority(Math.min(priority, findAppropriatePriority(e)));
-                elements.add(e);
-            }));
-            var info = new SyntaxInfo<>(super.c, elements, priority, registerer);
-            sections.add(info);
+            sections.add(new SyntaxInfo<>(super.c, computePatterns(), priority, registerer));
         }
     }
 
