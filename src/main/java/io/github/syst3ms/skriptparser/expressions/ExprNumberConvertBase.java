@@ -3,16 +3,13 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Convert a number to a different base (like binary, octal or hexadecimal) or convert a string to its decimal form.
@@ -31,65 +28,47 @@ public class ExprNumberConvertBase implements Expression<String> {
 				ExprNumberConvertBase.class,
 				String.class,
 				false,
-				"%integers% [converted] to :(binary|octal|hex[adecimal]|base64:base[ ]64|custom:base %integer%)",
-				":(binary|octal|hex[adecimal]|base64:base[ ]64) %strings% [converted] to :(binary|octal|hex[adecimal]|base64:base[ ]64|custom:base %integer%|decimal)"
+				"%integers% [converted] to (2:binary|8:octal|16:hex[adecimal]|64:base[ ]64|custom:base %integer%)",
+				"(2:binary|8:octal|10:decimal|16:hex[adecimal]|64:base[ ]64) %strings% [converted] to (2:binary|8:octal|10:decimal|16:hex[adecimal]|64:base[ ]64|custom:base %integer%)"
 		);
 	}
 
 	private Expression<?> expression;
-	@Nullable
-	private Expression<BigInteger> baseTo;
+	private Expression<BigInteger> base;
 	private int pattern;
-	private String typeFrom;
-	private String typeTo;
+	private String baseFrom;
+	private String baseTo;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		pattern = matchedPattern;
 		if (pattern == 0) {
-			typeTo = parseContext.getSingleMark();
+			baseFrom = "10";
+			baseTo = parseContext.getSingleMark();
 		} else {
-			typeFrom = parseContext.getMarks().get(0);
-			typeTo = parseContext.getMarks().get(1);
+			baseFrom = parseContext.getMarks().get(0);
+			baseTo = parseContext.getMarks().get(1);
 		}
 
 		expression = expressions[0];
-		if (typeTo.equals("custom")) {
-			baseTo = (Expression<BigInteger>) expressions[1];
+		if (baseTo.equals("custom")) {
+			base = (Expression<BigInteger>) expressions[1];
 		}
 		return true;
 	}
 
 	@Override
 	public String[] getValues(TriggerContext ctx) {
-		int radixTo;
-		switch (typeTo) {
-			case "binary":
-				radixTo = 2;
-				break;
-			case "octal":
-				radixTo = 8;
-				break;
-			case "hex":
-				radixTo = 16;
-				break;
-			case "base64":
-				radixTo = 64;
-				break;
-			case "custom":
-				assert baseTo != null;
-				radixTo = baseTo.getSingle(ctx).map(BigInteger::intValue).orElse(-1);
-				break;
-			case "decimal":
-				radixTo = 10;
-				break;
-			default:
-				throw new IllegalStateException();
-		}
-		if ((radixTo < Character.MIN_RADIX || radixTo > Character.MAX_RADIX)
-			&& radixTo != 64)
+		int radixFrom = Integer.parseInt(baseFrom);
+		int radixTo = baseTo.equals("custom")
+				? base.getSingle(ctx).map(BigInteger::intValue).orElse(-1)
+				: Integer.parseInt(baseTo);
+		if ((radixTo < Character.MIN_RADIX || radixTo > Character.MAX_RADIX) && radixTo != 64) {
 			return new String[0];
+		} else if (radixFrom == radixTo) {
+			return Arrays.stream(expression.getValues(ctx)).map(Object::toString).toArray(String[]::new);
+		}
 
 		String[] convertedValues = Arrays.stream(expression.getValues(ctx))
 				.map(val -> {
@@ -102,24 +81,6 @@ public class ExprNumberConvertBase implements Expression<String> {
 					} else {
 						// From string
 						assert val instanceof String;
-
-						int radixFrom;
-						switch (typeFrom) {
-							case "binary":
-								radixFrom = 2;
-								break;
-							case "octal":
-								radixFrom = 8;
-								break;
-							case "hex":
-								radixFrom = 16;
-								break;
-							case "base64":
-								radixFrom = 64;
-								break;
-							default:
-								throw new IllegalStateException();
-						}
 						try {
 							var converted = BigInteger.valueOf(radixFrom == 64
 									? bytesToLong(Base64.getDecoder().decode((String) val))
@@ -146,25 +107,10 @@ public class ExprNumberConvertBase implements Expression<String> {
 		return expression.isSingle();
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <C> Optional<? extends Expression<C>> convertExpression(Class<C> to) {
-		if (to.isAssignableFrom(BigInteger.class) && typeTo.equals("decimal")) {
-			// We will only convert to the integer if it is actually a decimal,
-			// otherwise things will be messy.
-			return Optional.of((Expression<C>) ConvertedExpression.newInstance(
-					this,
-					BigInteger.class,
-					val -> Optional.of(new BigInteger((String) val))
-			));
-		}
-		return Optional.empty();
-	}
-
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return typeFrom + " converted to "
-				+ (typeTo.equals("custom") ? Objects.requireNonNull(baseTo).toString(ctx, debug) : typeTo);
+		return baseFrom + " converted to "
+				+ (baseTo.equals("custom") ? Objects.requireNonNull(base).toString(ctx, debug) : baseTo);
 	}
 
 	private static long bytesToLong(byte[] bytes) {

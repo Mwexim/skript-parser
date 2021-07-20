@@ -51,9 +51,9 @@ public class ParseContext {
     }
 
     /**
-     * Returns the single matched mark that was found, empty if no match was found.
+     * Returns the single matched mark that was found.
      * @return the matched mark
-     * @throws UnsupportedOperationException if multiple marks were found
+     * @throws UnsupportedOperationException if there was more than or less than 1 mark found.
      */
     public String getSingleMark() {
         if (marks.size() != 1) {
