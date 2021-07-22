@@ -3,9 +3,6 @@ package io.github.syst3ms.skriptparser.pattern;
 import io.github.syst3ms.skriptparser.parsing.MatchContext;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
  * Text inside of a pattern. Is case and whitespace insensitive.
  */
@@ -53,11 +50,6 @@ public class TextElement implements PatternElement {
         } else {
             return -1;
         }
-    }
-
-    @Override
-    public List<String> simplify() {
-        return Collections.singletonList(text.strip());
     }
 
     @Override
