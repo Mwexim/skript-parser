@@ -35,7 +35,7 @@ public class CondExprIsEmpty extends ConditionalExpression {
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         expression = expressions[0];
         stringCheck = matchedPattern == 0;
-        setNegated(parseContext.getParseMark() == 1);
+        setNegated(parseContext.getNumericMark() == 1);
         return true;
     }
 

@@ -337,7 +337,7 @@ public class SyntaxParser {
         CONTEXT_VALUE_PATTERN.match(toParse, 0, matchContext);
 
         var parseContext = matchContext.toParseResult();
-        var time = ContextValueState.values()[parseContext.getParseMark()];
+        var time = ContextValueState.values()[parseContext.getNumericMark()];
         var name = parseContext.getMatches().get(0).group();
         for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
             String representation = (time == ContextValueState.PAST

@@ -66,7 +66,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		switch (matchedPattern) {
 			case 0:
-				type = parseContext.getParseMark();
+				type = parseContext.getNumericMark();
 				list = (Expression<Object>) (type == 2 ? expressions[1] : expressions[0]);
 				if (type == 2)
 					index = (Expression<BigInteger>) expressions[0];
@@ -79,7 +79,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 			case 3:
 				type = 3;
 				list = (Expression<Object>) expressions[0];
-				switch (parseContext.getParseMark()) {
+				switch (parseContext.getNumericMark()) {
 					case 0:
 						lower = (Expression<BigInteger>) expressions[1];
 						upper = (Expression<BigInteger>) expressions[2];

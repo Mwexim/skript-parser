@@ -79,9 +79,9 @@ public class CondExprCompare extends ConditionalExpression {
         second = expressions[1];
         if (expressions.length == 3)
             third = expressions[2];
-        SkriptLogger logger = result.getLogger();
         relation = PATTERNS.getInfo(matchedPattern);
-        int parseMark = result.getParseMark();
+
+        int parseMark = result.getNumericMark();
         if ((parseMark & 2) != 0) // "not" somewhere in the condition
             setNegated(true);
         if ((parseMark & 1) != 0) // "neither" on the left side
@@ -91,6 +91,8 @@ public class CondExprCompare extends ConditionalExpression {
                 second.setAndList(!second.isAndList());
             }
         }
+
+        SkriptLogger logger = result.getLogger();
         if ((parseMark & 0x18) != 0) {
             firstEach = (parseMark & 0x8) != 0;
             secondEach = (parseMark & 0x10) != 0;

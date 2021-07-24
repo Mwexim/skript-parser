@@ -52,7 +52,7 @@ public class LitMathConstants implements Literal<Number> {
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        pattern = parseContext.getParseMark();
+        pattern = parseContext.getNumericMark();
         return true;
     }
 

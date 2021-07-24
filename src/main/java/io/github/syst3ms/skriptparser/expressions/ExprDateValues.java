@@ -34,7 +34,7 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		parseMark = parseContext.getParseMark();
+		parseMark = parseContext.getNumericMark();
 		return super.init(expressions, matchedPattern, parseContext);
 	}
 

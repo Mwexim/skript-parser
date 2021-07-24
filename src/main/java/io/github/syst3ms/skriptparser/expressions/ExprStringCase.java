@@ -55,15 +55,14 @@ public class ExprStringCase implements Expression<String> {
 	private Expression<String> expression;
 	// 0: no change, 1: upper case, 2: lower case, 3: strict
 	private int mode;
-	// 0: basic case change, 1: proper/capitalized, 2: camel, 3: pascal,
-	// 4: snake, 5: kebab, 6: reversed
+	// 0: basic case change, 1: proper/capitalized, 2: camel, 3: pascal, 4: snake, 5: kebab, 6: reversed
 	private int type;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		expression = (Expression<String>) expressions[0];
-		mode = parseContext.getParseMark();
+		mode = parseContext.getNumericMark();
 		switch (matchedPattern) {
 			case 0:
 			case 1:

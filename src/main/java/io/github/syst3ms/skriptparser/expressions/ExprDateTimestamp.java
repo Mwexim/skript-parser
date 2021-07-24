@@ -36,7 +36,7 @@ public class ExprDateTimestamp extends PropertyExpression<Number, SkriptDate> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		unix = parseContext.getParseMark() == 1;
+		unix = parseContext.getNumericMark() == 1;
 		return super.init(expressions, matchedPattern, parseContext);
 	}
 

@@ -33,7 +33,7 @@ public class ExprColorValues extends PropertyExpression<Object, Color> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		mark = parseContext.getParseMark();
+		mark = parseContext.getNumericMark();
 		return super.init(expressions, matchedPattern, parseContext);
 	}
 

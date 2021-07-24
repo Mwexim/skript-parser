@@ -38,7 +38,7 @@ public class ExprTimeInformation extends PropertyExpression<Number, Time> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		mark = parseContext.getParseMark();
+		mark = parseContext.getNumericMark();
 		return super.init(expressions, matchedPattern, parseContext);
 	}
 
