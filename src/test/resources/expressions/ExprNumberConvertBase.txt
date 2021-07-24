@@ -23,6 +23,8 @@ test:
 	assert base64 {var} to decimal = "8352" with "base64 {var} to decimal should be '8352': %base64 {var} to decimal%"
 	assert base64 {var} to binary = "10000010100000" with "base64 {var} to binary should be '10000010100000': %base64 {var} to binary%"
 
+	assert octal "20321" converted to octal = "20321" with "octal to octal should be '20321'"
+
 	set {var} to "101"
 	assert binary {var} converted to decimal = "5" with "binary {var} to decimal should '5': %binary {var} converted to decimal%"
 	# TODO implement better converter system

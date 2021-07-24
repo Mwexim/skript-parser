@@ -66,7 +66,7 @@ public class ExprNumberConvertBase implements Expression<String> {
 		if ((radixTo < Character.MIN_RADIX || radixTo > Character.MAX_RADIX) && radixTo != 64) {
 			return new String[0];
 		} else if (radixFrom == radixTo) {
-			return Arrays.stream(expression.getValues(ctx)).map(Object::toString).toArray(String[]::new);
+			return expression.stream(ctx).map(Object::toString).toArray(String[]::new);
 		}
 
 		String[] convertedValues = expression.stream(ctx)

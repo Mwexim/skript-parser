@@ -29,7 +29,7 @@ public class ExprDateNow implements Expression<SkriptDate> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		parseMark = parseContext.getNumericMark();
+		mark = parseContext.getNumericMark();
 		return true;
 	}
 
