@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 
-import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 
 /**
@@ -25,7 +24,6 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprDateValues.class,
 				String.class,
-				true,
 				3,
 				"*[date] %date%",
 				"(0:era|1:month|2:weekday|2:day [(of|in) week]) [name]"
@@ -34,30 +32,22 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 
 	private int parseMark;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		parseMark = parseContext.getParseMark();
-		setOwner((Expression<SkriptDate>) expressions[0]);
-		return true;
+		return super.init(expressions, matchedPattern, parseContext);
 	}
 
 	@Override
-	public String[] getProperty(SkriptDate[] owners) {
-		LocalDateTime lcd = owners[0].toLocalDateTime();
+	public String getProperty(SkriptDate owner) {
+		var local = owner.toLocalDateTime();
 		switch (parseMark) {
 			case 0:
-				return new String[] {
-						lcd.toLocalDate().getEra().getDisplayName(TextStyle.SHORT, SkriptDate.DATE_LOCALE)
-				};
+				return local.toLocalDate().getEra().getDisplayName(TextStyle.SHORT, SkriptDate.DATE_LOCALE);
 			case 1:
-				return new String[] {
-						lcd.getMonth().getDisplayName(TextStyle.FULL, SkriptDate.DATE_LOCALE)
-				};
+				return local.getMonth().getDisplayName(TextStyle.FULL, SkriptDate.DATE_LOCALE);
 			case 2:
-				return new String[] {
-						lcd.getDayOfWeek().getDisplayName(TextStyle.FULL, SkriptDate.DATE_LOCALE)
-				};
+				return local.getDayOfWeek().getDisplayName(TextStyle.FULL, SkriptDate.DATE_LOCALE);
 			default:
 				throw new IllegalStateException();
 		}
@@ -73,7 +63,7 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 			case 2:
 				return "weekday name of " + getOwner().toString(ctx, debug);
 			default:
-				return "date value of " + getOwner().toString(ctx, debug);
+				throw new IllegalStateException();
 		}
 	}
 }

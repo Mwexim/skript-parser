@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * All indices of a given list variable.
  *
- * @name Indices of List
+ * @name Variable Indices
  * @type EXPRESSION
  * @pattern [all [of] [the]] ind(exes|ices) of %^objects%
  * @since ALPHA
@@ -37,7 +37,7 @@ public class ExprVariableIndices implements Expression<String> {
 		if (value.isSingle()) {
 			var logger = parseContext.getLogger();
 			logger.error(
-					"Only list variables are allowed, found '" + value.toString(TriggerContext.DUMMY, logger.isDebug()) + "'",
+					"Single variables are not allowed, found '" + value.toString(TriggerContext.DUMMY, logger.isDebug()) + "'",
 					ErrorType.SEMANTIC_ERROR
 			);
 			return false;
@@ -49,8 +49,7 @@ public class ExprVariableIndices implements Expression<String> {
 	@Override
 	public String[] getValues(TriggerContext ctx) {
 		return value.getRaw(ctx)
-				.map(val -> (Map<String, Object>) val) // We know for a fact it is a list variable
-				.map(val -> val.keySet().toArray(new String[0]))
+				.map(val -> ((Map<String, Object>) val).keySet().toArray(new String[0]))
 				.orElse(new String[0]);
 
 	}

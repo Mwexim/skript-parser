@@ -8,7 +8,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 
 import java.math.BigInteger;
-import java.time.LocalDateTime;
 
 /**
  * Information of a certain date.
@@ -25,7 +24,6 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprDateInformation.class,
 				Number.class,
-				true,
 				4,
 				"*[date] %date%",
 				"(0:year[s]|1:month[s]|2:day[s] (of|in) year|3:day[s] (of|in) month|4:day[s] (of|in) week|5:hour[s]|6:minute[s]|7:second[s]|8:milli[second][s])"
@@ -36,38 +34,36 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 			"year", "month", "day of year", "day of month", "day of week", "hours", "minutes", "seconds", "milliseconds"
 	};
 
-	private int parseMark;
+	private int mark;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		parseMark = parseContext.getParseMark();
-		setOwner((Expression<SkriptDate>) expressions[0]);
-		return true;
+		mark = parseContext.getParseMark();
+		return super.init(expressions, matchedPattern, parseContext);
 	}
 
 	@Override
-	public Number[] getProperty(SkriptDate[] owners) {
-		LocalDateTime lcd = owners[0].toLocalDateTime();
-		switch (parseMark) {
+	public Number getProperty(SkriptDate owner) {
+		var local = owner.toLocalDateTime();
+		switch (mark) {
 			case 0:
-				return new Number[] {BigInteger.valueOf(lcd.getYear())};
+				return BigInteger.valueOf(local.getYear());
 			case 1:
-				return new Number[] {BigInteger.valueOf(lcd.getMonthValue())};
+				return BigInteger.valueOf(local.getMonthValue());
 			case 2:
-				return new Number[] {BigInteger.valueOf(lcd.getDayOfYear())};
+				return BigInteger.valueOf(local.getDayOfYear());
 			case 3:
-				return new Number[] {BigInteger.valueOf(lcd.getDayOfMonth())};
+				return BigInteger.valueOf(local.getDayOfMonth());
 			case 4:
-				return new Number[] {BigInteger.valueOf(lcd.getDayOfWeek().getValue())};
+				return BigInteger.valueOf(local.getDayOfWeek().getValue());
 			case 5:
-				return new Number[] {BigInteger.valueOf(lcd.getHour())};
+				return BigInteger.valueOf(local.getHour());
 			case 6:
-				return new Number[] {BigInteger.valueOf(lcd.getMinute())};
+				return BigInteger.valueOf(local.getMinute());
 			case 7:
-				return new Number[] {BigInteger.valueOf(lcd.getSecond())};
+				return BigInteger.valueOf(local.getSecond());
 			case 8:
-				return new Number[] {BigInteger.valueOf(lcd.getNano() / 1_000_000)};
+				return BigInteger.valueOf(local.getNano() / 1_000_000);
 			default:
 				throw new IllegalStateException();
 		}
@@ -75,6 +71,6 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return CHOICES[parseMark] + " of date " + getOwner().toString(ctx, debug);
+		return CHOICES[mark] + " of date " + getOwner().toString(ctx, debug);
 	}
 }

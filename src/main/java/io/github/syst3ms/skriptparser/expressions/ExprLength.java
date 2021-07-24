@@ -20,15 +20,14 @@ public class ExprLength extends PropertyExpression<Number, String> {
         Parser.getMainRegistration().addPropertyExpression(
                 ExprLength.class,
                 Number.class,
-                true,
-                "string",
+				"string",
                 "length"
         );
     }
 
     @Override
-    public Number[] getProperty(String[] owners) {
-        return new Number[] {BigInteger.valueOf(owners[0].length())};
+    public Number getProperty(String owner) {
+        return BigInteger.valueOf(owner.length());
     }
 
     @Override

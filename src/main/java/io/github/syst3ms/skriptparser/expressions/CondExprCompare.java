@@ -213,16 +213,6 @@ public class CondExprCompare extends ConditionalExpression {
 
         if (f == Object.class || s == Object.class) {
             return true;
-        } else if (f != s) {
-            // Tries to convert the instances to each other.
-            // Basically takes expression conversions into account.
-            var converted = Expression.convertPair(first, second);
-            if (!first.equals(converted.getFirst()) || !second.equals(converted.getSecond())) {
-                first = converted.getFirst();
-                second = converted.getSecond();
-                comparator = (Comparator<Object, Object>) Comparators.getComparator(first.getReturnType(), second.getReturnType()).orElseThrow(AssertionError::new);
-                return true;
-            }
         }
         return (comparator = (Comparator<Object, Object>) Comparators.getComparator(f, s).orElse(null)) != null;
     }
@@ -263,9 +253,9 @@ public class CondExprCompare extends ConditionalExpression {
      */
     @Override
     public boolean check(TriggerContext ctx) {
-        Object[] firstValues = first.getValues(ctx);
-        Object[] secondValues = second.getValues(ctx);
-        Object[] thirdValues = third != null ? third.getValues(ctx) : null;
+        Object[] firstValues = first.getArray(ctx);
+        Object[] secondValues = second.getArray(ctx);
+        Object[] thirdValues = third != null ? third.getArray(ctx) : null;
         if (thirdValues == null) {
             if (firstEach && secondEach) {
                 if (firstValues.length != secondValues.length)

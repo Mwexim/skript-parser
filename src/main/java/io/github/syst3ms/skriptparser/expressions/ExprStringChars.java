@@ -26,7 +26,7 @@ public class ExprStringChars implements Expression<String> {
             {"[all [[of] the]] upper[ ]case char[acter]s in %strings%", (Predicate<Character>) Character::isUpperCase},
             {"[all [[of] the]] lower[ ]case char[acter]s in %strings%", (Predicate<Character>) Character::isLowerCase},
             {"[all [[of] the]] digit char[acter]s in %strings%", (Predicate<Character>) Character::isDigit},
-            {"[all [[of] the]] special char[acter]s in %strings%", (Predicate<Character>) (c) -> !Character.isLetterOrDigit(c) && !Character.isWhitespace(c)},
+            {"[all [[of] the]] special char[acter]s in %strings%", (Predicate<Character>) c -> !Character.isLetterOrDigit(c) && !Character.isWhitespace(c)},
             {"[all [[of] the]] [white[ ]]space char[acter]s in %strings%", (Predicate<Character>) Character::isWhitespace}
         }
     );

@@ -82,7 +82,7 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 	@Override
 	public Number[] getValues(TriggerContext ctx) {
 		return number.getSingle(ctx)
-				.map(n -> new Number[]{ PATTERNS.getInfo(pattern).apply(n) })
+				.map(n -> new Number[] {PATTERNS.getInfo(pattern).apply(n)})
 				.orElse(new Number[0]);
 	}
 

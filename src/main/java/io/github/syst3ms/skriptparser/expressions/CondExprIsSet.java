@@ -18,14 +18,14 @@ public class CondExprIsSet extends PropertyConditional<Object> {
     static {
         Parser.getMainRegistration().addSelfRegisteringElement(
                 CondExprIsSet.class,
-                "*%~objects%",
+                "~objects",
                 ConditionalType.BE,
                 "set"
         );
     }
 
     @Override
-    public boolean check(TriggerContext ctx, Object[] performers) {
-        return isNegated() == (performers.length == 0);
+    public boolean check(TriggerContext ctx, Object performer) {
+        return true;
     }
 }

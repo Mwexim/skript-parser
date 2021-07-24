@@ -7,8 +7,6 @@ import io.github.syst3ms.skriptparser.lang.properties.PropertyConditional;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 
-import java.util.Arrays;
-
 /**
  * Check if a given number is a prime number.
  * This means that for a number {@code n},
@@ -33,15 +31,10 @@ public class CondExprIsPrime extends PropertyConditional<Number> {
     }
 
     @Override
-    public boolean check(TriggerContext ctx, Number[] performers) {
-        if (performers.length == 0)
-            return isNegated();
-        return isNegated() != Arrays.stream(performers)
-                .allMatch(n -> {
-                    var bd = BigDecimalMath.getBigDecimal(n);
-                    return bd.signum() != -1
-                            && BigDecimalMath.isIntValue(bd)
-                            && NumberMath.isPrime(BigDecimalMath.getBigInteger(bd));
-                });
+    public boolean check(TriggerContext ctx, Number performer) {
+        var bd = BigDecimalMath.getBigDecimal(performer);
+        return bd.signum() != -1
+                && BigDecimalMath.isIntValue(bd)
+                && NumberMath.isPrime(BigDecimalMath.getBigInteger(bd));
     }
 }

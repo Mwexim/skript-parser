@@ -3,8 +3,9 @@ package io.github.syst3ms.skriptparser.lang.properties;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Array;
+import java.util.Objects;
 
 /**
  * A base class for expressions that contain general properties.
@@ -45,29 +46,29 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     }
 
     /**
-     * If this property only relies on one simple method applied to the owner, it can be represented
-     * using this method. This function will be applied in the default implementation of {@link #getValues(TriggerContext)}
-     * supplied by this class.
-     * @param owners the owners of this property, never is empty
-     * @return the return values of this property
-     */
-    @SuppressWarnings("unchecked")
-    public T[] getProperty(O[] owners) {
-        return (T[]) Array.newInstance(owners.getClass().getComponentType(), 0);
-    }
-
-    /**
-     * A simple default method that will apply {@link #getProperty(Object[])} on the {@link #owner} of this property.
+     * A simple default method that will apply {@link #getProperty(Object)} on the {@link #owner} of this property.
      * @param ctx the event
-     * @return the values of this property after applying the {@link #getProperty(Object[])} function on the owner.
+     * @return the values of this property after applying the {@link #getProperty(Object)} function on the owner.
      */
     @SuppressWarnings("unchecked")
     @Override
     public T[] getValues(TriggerContext ctx) {
-        var owners = getOwner().getValues(ctx);
-        if (owners.length == 0)
-            return (T[]) Array.newInstance(owners.getClass().getComponentType(), 0);
-        return getProperty(owners);
+        return (T[]) owner.stream(ctx).map(this::getProperty).filter(Objects::nonNull).toArray(Object[]::new);
+    }
+
+    /**
+     * For each owner, this method will be ran individually to convert it to this particular property.
+     * @param owner the owner
+     * @return the property value
+     */
+    @Nullable
+    public T getProperty(O owner) {
+        throw new UnsupportedOperationException("Override getProperty if you are planning to use the default functionality.");
+    }
+
+    @Override
+    public boolean isSingle() {
+        return owner.isSingle();
     }
 
     public Expression<O> getOwner() {

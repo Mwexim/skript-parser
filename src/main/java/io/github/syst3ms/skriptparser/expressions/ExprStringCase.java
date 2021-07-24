@@ -6,8 +6,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 
-import java.util.Arrays;
-
 /**
  * Converts a given string into a certain case type.
  * Click <a href="https://www.chaseadams.io/posts/most-common-programming-case-types/">here</a> to learn about all these cases.
@@ -54,7 +52,7 @@ public class ExprStringCase implements Expression<String> {
 		);
 	}
 
-	private Expression<String> expr;
+	private Expression<String> expression;
 	// 0: no change, 1: upper case, 2: lower case, 3: strict
 	private int mode;
 	// 0: basic case change, 1: proper/capitalized, 2: camel, 3: pascal,
@@ -64,7 +62,7 @@ public class ExprStringCase implements Expression<String> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		expr = (Expression<String>) expressions[0];
+		expression = (Expression<String>) expressions[0];
 		mode = parseContext.getParseMark();
 		switch (matchedPattern) {
 			case 0:
@@ -106,7 +104,7 @@ public class ExprStringCase implements Expression<String> {
 
 	@Override
 	public String[] getValues(TriggerContext ctx) {
-		return Arrays.stream(expr.getValues(ctx))
+		return expression.stream(ctx)
 				.map(val -> {
 					switch (type) {
 						case 0: // Basic case change
@@ -143,19 +141,19 @@ public class ExprStringCase implements Expression<String> {
 	public String toString(TriggerContext ctx, boolean debug) {
 		switch (type) {
 			case 0: // Basic Case Change
-				return expr.toString(ctx, debug) + " in " + (mode == 1 ? "uppercase" : "lowercase");
+				return expression.toString(ctx, debug) + " in " + (mode == 1 ? "uppercase" : "lowercase");
 			case 1: // Proper Case
-				return expr.toString(ctx, debug) + " in " + (mode == 3 ? "strict" : "lenient") + " proper case";
+				return expression.toString(ctx, debug) + " in " + (mode == 3 ? "strict" : "lenient") + " proper case";
 			case 2: // Camel Case
-				return expr.toString(ctx, debug) + " in " + (mode == 3 ? "strict" : "lenient") + " camel case";
+				return expression.toString(ctx, debug) + " in " + (mode == 3 ? "strict" : "lenient") + " camel case";
 			case 3: // Pascal Case
-				return expr.toString(ctx, debug) + " in " + (mode == 3 ? "strict" : "lenient") + " pascal case";
+				return expression.toString(ctx, debug) + " in " + (mode == 3 ? "strict" : "lenient") + " pascal case";
 			case 4: // Snake Case
-				return expr.toString(ctx, debug) + " in " + (mode == 0 ? "" : (mode == 1 ? "upper " : "lower ")) + "snake case";
+				return expression.toString(ctx, debug) + " in " + (mode == 0 ? "" : (mode == 1 ? "upper " : "lower ")) + "snake case";
 			case 5: // Kebab Case
-				return expr.toString(ctx, debug) + " in " + (mode == 0 ? "" : (mode == 1 ? "upper " : "lower ")) + "kebab case";
+				return expression.toString(ctx, debug) + " in " + (mode == 0 ? "" : (mode == 1 ? "upper " : "lower ")) + "kebab case";
 			case 6:
-				return "reversed " + expr.toString(ctx, debug);
+				return "reversed " + expression.toString(ctx, debug);
 			default:
 				throw new IllegalStateException();
 		}

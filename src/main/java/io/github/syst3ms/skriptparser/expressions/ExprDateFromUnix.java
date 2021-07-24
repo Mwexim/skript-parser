@@ -44,11 +44,8 @@ public class ExprDateFromUnix implements Expression<SkriptDate> {
 	@Override
 	public SkriptDate[] getValues(TriggerContext ctx) {
 		return timestamp.getSingle(ctx)
-				.map(
-					t -> new SkriptDate[]{
-							SkriptDate.of(unix ? t.longValue() * 1000 : t.longValue())
-					}
-				).orElse(new SkriptDate[0]);
+				.map(t -> new SkriptDate[] {SkriptDate.of(unix ? t.longValue() * 1000 : t.longValue())})
+				.orElse(new SkriptDate[0]);
 	}
 
 	@Override

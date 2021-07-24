@@ -14,80 +14,54 @@ import java.math.BigInteger;
  *
  * @name Date Values
  * @type EXPRESSION
- * @pattern [the] (0:rgb (value|color)|1:red [value]|2:green [value]|3:blue [value]) of %color%
- * @pattern %color%'[s] (0:rgb (value|color)|1:red [value]|2:green [value]|3:blue [value])
+ * @pattern [the] (hex[adecimal]|red|green|blue|alpha) value of %color%
+ * @pattern %color%'[s] (hex[adecimal]|red|green|blue|alpha)
  * @since ALPHA
  * @author Mwexim
  */
-public class ExprColorValues extends PropertyExpression<BigInteger, Color> {
+public class ExprColorValues extends PropertyExpression<Object, Color> {
 	static {
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprColorValues.class,
-				BigInteger.class,
-				false,
-				"color",
-				"(rgb[4:a] [value[s]]|1:red value|2:green value|3:blue value)"
+				Object.class,
+				"colors",
+				"(0:hex[adecimal]|1:red|2:green|3:blue|4:alpha) value"
 		);
 	}
 
-	private int parseMark;
+	private int mark;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		parseMark = parseContext.getParseMark();
-		setOwner((Expression<Color>) expressions[0]);
-		return true;
+		mark = parseContext.getParseMark();
+		return super.init(expressions, matchedPattern, parseContext);
 	}
 
 	@Override
-	public BigInteger[] getProperty(Color[] owners) {
-		Color c = owners[0];
-		switch (parseMark) {
+	public Object getProperty(Color owner) {
+		switch (mark) {
 			case 0:
-				return new BigInteger[] {
-						BigInteger.valueOf(c.getRed()),
-						BigInteger.valueOf(c.getGreen()),
-						BigInteger.valueOf(c.getBlue())
-				};
+				return owner.getHex();
 			case 1:
-				return new BigInteger[] {BigInteger.valueOf(c.getRed())};
+				return BigInteger.valueOf(owner.getRed());
 			case 2:
-				return new BigInteger[] {BigInteger.valueOf(c.getGreen())};
+				return BigInteger.valueOf(owner.getGreen());
 			case 3:
-				return new BigInteger[] {BigInteger.valueOf(c.getBlue())};
+				return BigInteger.valueOf(owner.getBlue());
 			case 4:
-				return new BigInteger[] {
-						BigInteger.valueOf(c.getRed()),
-						BigInteger.valueOf(c.getGreen()),
-						BigInteger.valueOf(c.getBlue()),
-						BigInteger.valueOf(c.getAlpha())
-				};
+				return BigInteger.valueOf(owner.getAlpha());
 			default:
 				throw new IllegalStateException();
 		}
 	}
 
 	@Override
-	public boolean isSingle() {
-		return parseMark != 0 && parseMark != 4;
+	public Class<?> getReturnType() {
+		return mark == 0 ? String.class : BigInteger.class;
 	}
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		switch (parseMark) {
-			case 0:
-				return "rgb value of " + getOwner().toString(ctx, debug);
-			case 1:
-				return "red value of " + getOwner().toString(ctx, debug);
-			case 2:
-				return "green value of " + getOwner().toString(ctx, debug);
-			case 3:
-				return "blue value of " + getOwner().toString(ctx, debug);
-			case 4:
-				return "rgba value of " + getOwner().toString(ctx, debug);
-			default:
-				throw new IllegalStateException();
-		}
+		return new String[] {"hex", "red", "green", "blue", "alpha"}[mark] + " value of " + getOwner().toString(ctx, debug);
 	}
 }

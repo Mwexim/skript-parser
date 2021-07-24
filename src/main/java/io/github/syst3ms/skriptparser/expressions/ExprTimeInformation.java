@@ -24,8 +24,7 @@ public class ExprTimeInformation extends PropertyExpression<Number, Time> {
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprTimeInformation.class,
 				Number.class,
-				true,
-				5,
+				5, // Leave this here
 				"*[time] %time%",
 				"(0:hour[s]|1:minute[s]|2:second[s]|3:milli[second][s])"
 		);
@@ -35,27 +34,25 @@ public class ExprTimeInformation extends PropertyExpression<Number, Time> {
 			"hours", "minutes", "seconds", "milliseconds"
 	};
 
-	private int parseMark;
+	private int mark;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		parseMark = parseContext.getParseMark();
-		setOwner((Expression<Time>) expressions[0]);
-		return true;
+		mark = parseContext.getParseMark();
+		return super.init(expressions, matchedPattern, parseContext);
 	}
 
 	@Override
-	public Number[] getProperty(Time[] owners) {
-		switch (parseMark) {
+	public Number getProperty(Time owner) {
+		switch (mark) {
 			case 0:
-				return new Number[] {BigInteger.valueOf(owners[0].getHour())};
+				return BigInteger.valueOf(owner.getHour());
 			case 1:
-				return new Number[] {BigInteger.valueOf(owners[0].getMinute())};
+				return BigInteger.valueOf(owner.getMinute());
 			case 2:
-				return new Number[] {BigInteger.valueOf(owners[0].getSecond())};
+				return BigInteger.valueOf(owner.getSecond());
 			case 3:
-				return new Number[] {BigInteger.valueOf(owners[0].getMillis())};
+				return BigInteger.valueOf(owner.getMillis());
 			default:
 				throw new IllegalStateException();
 		}
@@ -63,6 +60,6 @@ public class ExprTimeInformation extends PropertyExpression<Number, Time> {
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return CHOICES[parseMark] + " of time " + getOwner().toString(ctx, debug);
+		return CHOICES[mark] + " of time " + getOwner().toString(ctx, debug);
 	}
 }
