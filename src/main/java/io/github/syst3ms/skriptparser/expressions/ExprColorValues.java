@@ -35,7 +35,7 @@ public class ExprColorValues extends PropertyExpression<BigInteger, Color> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		parseMark = parseContext.getParseMark();
+		parseMark = parseContext.getNumericMark();
 		setOwner((Expression<Color>) expressions[0]);
 		return true;
 	}

@@ -62,7 +62,7 @@ public class ExprParseAs implements Expression<Object> {
 			);
 			return false;
 		}
-		useFormat = parseContext.getParseMark() == 1;
+		useFormat = parseContext.getNumericMark() == 1;
 		if (useFormat)
 			format = (Expression<String>) expressions[2];
 		assert !useFormat || format != null;

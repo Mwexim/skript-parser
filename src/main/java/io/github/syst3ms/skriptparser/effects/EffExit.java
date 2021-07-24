@@ -48,7 +48,7 @@ public class EffExit extends Effect {
 
     private final List<CodeSection> currentSections = new ArrayList<>();
     private int pattern;
-    private int parseMark;
+    private int mark;
     private Literal<BigInteger> amount;
 
     @SuppressWarnings("unchecked")
@@ -56,7 +56,7 @@ public class EffExit extends Effect {
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         currentSections.addAll(parseContext.getParserState().getCurrentSections());
         pattern = matchedPattern;
-        parseMark = parseContext.getParseMark();
+        mark = parseContext.getNumericMark();
         if (pattern == 2)
             amount = (Literal<BigInteger>) expressions[0];
         return true;
@@ -93,11 +93,11 @@ public class EffExit extends Effect {
             case 0:
                 return "exit";
             case 1:
-                return "exit this " + names[parseMark];
+                return "exit this " + names[mark];
             case 2:
-                return "exit " + amount.toString(ctx, debug) + " " + names[parseMark] + "s";
+                return "exit " + amount.toString(ctx, debug) + " " + names[mark] + "s";
             case 3:
-                return "exit all " + names[parseMark] + "s";
+                return "exit all " + names[mark] + "s";
             default:
                 throw new IllegalStateException();
         }
@@ -115,9 +115,9 @@ public class EffExit extends Effect {
                 return Optional.empty();
             stm = statement.get();
             // 0 = all, 1 = only loops, 2 = only conditionals
-            if (parseMark == 0
-                    || parseMark == 1 && (stm instanceof SecLoop || stm instanceof SecWhile)
-                    || parseMark == 2 && stm instanceof Conditional) {
+            if (mark == 0
+                    || mark == 1 && (stm instanceof SecLoop || stm instanceof SecWhile)
+                    || mark == 2 && stm instanceof Conditional) {
                 if (stm instanceof Finishing)
                     ((Finishing) stm).finish();
                 amount--;

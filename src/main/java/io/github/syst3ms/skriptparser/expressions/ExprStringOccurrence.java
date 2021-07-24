@@ -35,7 +35,7 @@ public class ExprStringOccurrence implements Expression<Number> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		first = parseContext.getParseMark() == 0;
+		first = parseContext.getNumericMark() == 0;
 		value = (Expression<String>) expressions[0];
 		expr = (Expression<String>) expressions[1];
 		return true;

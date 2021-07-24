@@ -38,7 +38,7 @@ public class ExprDateTimestamp extends PropertyExpression<Number, SkriptDate> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		unix = parseContext.getParseMark() == 1;
+		unix = parseContext.getNumericMark() == 1;
 		setOwner((Expression<SkriptDate>) expressions[0]);
 		return true;
 	}

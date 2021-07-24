@@ -42,7 +42,7 @@ public class ExprAmount extends PropertyExpression<Number, Object> {
 	@Override
 	public boolean init(Expression<?> @NotNull [] expressions, int matchedPattern, @NotNull ParseContext parseContext) {
 		setOwner((Expression<Object>) expressions[0]);
-		this.recursive = parseContext.getParseMark() == 1;
+		this.recursive = parseContext.getNumericMark() == 1;
 		if (recursive && !(getOwner() instanceof Variable<?>)) {
 			parseContext.getLogger().error("Getting the recursive size of an expression only applies to variables.", ErrorType.SEMANTIC_ERROR);
 			return false;

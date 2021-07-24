@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.parsing.MatchContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The superclass of all elements of a pattern.
@@ -27,6 +28,19 @@ public interface PatternElement {
         } else {
             return Collections.singletonList(element);
         }
+    }
+
+    /**
+     * This method should return all text components that will always be present,
+     * no matter how the pattern is used.
+     * @param element the element
+     * @return the always-present text elements of this pattern
+     */
+    static List<String> getKeywords(PatternElement element) {
+        return flatten(element).stream()
+                .filter(el -> el instanceof TextElement)
+                .map(el -> ((TextElement) el).getText().strip().toLowerCase())
+                .collect(Collectors.toList());
     }
 
     static List<PatternElement> getPossibleInputs(List<PatternElement> elements) {

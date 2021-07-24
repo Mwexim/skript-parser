@@ -34,7 +34,7 @@ public class ExprContextValue implements Expression<Object> {
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, ParseContext parseContext) {
 		name = parseContext.getMatches().get(0).group();
-		time = ContextValueState.values()[parseContext.getParseMark()];
+		time = ContextValueState.values()[parseContext.getNumericMark()];
 		for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
 			for (ContextValue<?> val : ContextValues.getContextValues()) {
 				if (val.matches(ctx, name, time)) {

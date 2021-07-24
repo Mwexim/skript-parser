@@ -38,7 +38,7 @@ public class CondExprStartsEnds extends ConditionalExpression {
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         expr = (Expression<String>) expressions[0];
         value = (Expression<String>) expressions[1];
-        start = parseContext.getParseMark() == 0;
+        start = parseContext.getNumericMark() == 0;
         setNegated(matchedPattern == 1);
         return true;
     }
