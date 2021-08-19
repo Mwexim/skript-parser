@@ -27,6 +27,8 @@ import java.util.stream.IntStream;
  * A class registering features such as types and comparators at startup.
  */
 public class DefaultRegistration {
+    private static final String INTEGER_PATTERN = "-?[0-9]+";
+    private static final String DECIMAL_PATTERN = "-?[0-9]+\\.[0-9]+";
 
     public static void register() {
         SkriptRegistration registration = Parser.getMainRegistration();
@@ -42,22 +44,12 @@ public class DefaultRegistration {
 
         registration.newType(Number.class,"number", "number@s")
                     .literalParser(s -> {
-                        Number n;
-                        if (s.contains(".")) {
-                            try {
-                                n = new BigDecimal(s);
-                            } catch (NumberFormatException e) {
-                                return null;
-                            }
-                        } else {
-                            try {
-                                // This allows formats like 1_000_000.
-                                n = new BigInteger(s.replaceAll("_", ""));
-                            } catch (NumberFormatException e) {
-                                return null;
-                            }
+                        if (s.matches(DECIMAL_PATTERN)) {
+                            return new BigDecimal(s);
                         }
-                        return n;
+                        // This allows formats like 1_000_000.
+                        var toMatch = s.replace("_", "");
+                        return toMatch.matches(INTEGER_PATTERN) ? new BigInteger(toMatch) : null;
                     })
                     .toStringFunction(o -> {
                         if (o instanceof BigDecimal) {
@@ -117,11 +109,9 @@ public class DefaultRegistration {
 
         registration.newType(BigInteger.class, "integer", "integer@s")
                 .literalParser(s -> {
-                    try {
-                        return new BigInteger(s);
-                    } catch (NumberFormatException e) {
-                        return null;
-                    }
+                    // This allows formats like 1_000_000.
+                    var toMatch = s.replace("_", "");
+                    return toMatch.matches(INTEGER_PATTERN) ? new BigInteger(toMatch) : null;
                 })
                 .arithmetic(new Arithmetic<BigInteger, BigInteger>() {
                     @Override

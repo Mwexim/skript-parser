@@ -5,8 +5,6 @@
 test:
 	set {var} to 1000
 	set {var2} to 1000.0
-	set {var3} to 1000.
-	set {var4} to 1_000
+	set {var3} to 1_000
 	assert {var} = {var2} with "{var} (%{var}%) != {var2} (%{var2}%)"
 	assert {var2} = {var3} with "{var2} (%{var2}%) != {var3} (%{var3}%)"
-	assert {var3} = {var4} with "{var3} (%{var3}%) != {var4} (%{var4}%)"
