@@ -4,6 +4,7 @@
 # Date:
 #	- 2020/11/16
 #	- 2021/06/25 (logical improvements)
+#	- 2021/08/19 (error message and stored comparator)
 
 test:
 	set {list::*} to "a", 2 and true
@@ -27,3 +28,6 @@ test:
 	assert (1, 2 and 3) does not contain (2 and 4) with "1, 2 and 3 should not contain 2 and 4"
 	assert (1, 2 and 3) contains (2 or 4) with "1, 2 and 3 should contain 2 or 4"
 	throws (1, 2 or 3) contains (2 or 5) with "or-list cannot contain any values"
+
+	# Stored comparator with error message
+	throws (1, 2 and 3) contains range from 'a' to 'f'
