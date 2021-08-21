@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.properties.ConditionalType;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyConditional;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
@@ -31,7 +30,7 @@ public class CondExprIsPrime extends PropertyConditional<Number> {
     }
 
     @Override
-    public boolean check(TriggerContext ctx, Number performer) {
+    public boolean check(Number performer) {
         var bd = BigDecimalMath.getBigDecimal(performer);
         return bd.signum() != -1
                 && BigDecimalMath.isIntValue(bd)

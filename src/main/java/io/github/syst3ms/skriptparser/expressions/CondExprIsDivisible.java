@@ -41,11 +41,15 @@ public class CondExprIsDivisible extends PropertyConditional<Number> {
     }
 
     @Override
-    public boolean check(TriggerContext ctx, Number performer) {
-        return divider.getSingle(ctx)
-                .filter(__ -> BigDecimalMath.isIntValue(BigDecimalMath.getBigDecimal(performer)))
-                .filter(val -> BigDecimalMath.getBigInteger(performer).mod(val).equals(BigInteger.ZERO))
-                .isPresent();
+    public boolean check(TriggerContext ctx) {
+        return getPerformer().check(
+                ctx,
+                performer -> divider.getSingle(ctx)
+                        .filter(__ -> BigDecimalMath.isIntValue(BigDecimalMath.getBigDecimal(performer)))
+                        .filter(val -> BigDecimalMath.getBigInteger(performer).mod(val).equals(BigInteger.ZERO))
+                        .isPresent(),
+                isNegated()
+        );
     }
 
     @Override

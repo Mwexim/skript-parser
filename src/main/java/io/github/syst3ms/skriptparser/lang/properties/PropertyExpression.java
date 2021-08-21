@@ -63,7 +63,7 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
      */
     @Nullable
     public T getProperty(O owner) {
-        throw new UnsupportedOperationException("Override getProperty if you are planning to use the default functionality.");
+        throw new UnsupportedOperationException("Override #getProperty(O) if you are planning to use the default functionality.");
     }
 
     @Override
