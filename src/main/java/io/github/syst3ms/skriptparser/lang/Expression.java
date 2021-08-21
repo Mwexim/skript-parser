@@ -108,23 +108,12 @@ public interface Expression<T> extends SyntaxElement {
 
     /**
      * Determines whether this expression can be changed to a specific {@link ChangeMode} and type class.
-     * If the class is an array class, it also checks if this expression accepts a change with multiple values.
-     * @param mode the mode this Expression would be changed with
-     * @param needle the type class of the instance this Expression would be changed with
-     * @return whether or not this Expression should be changed with the given {@linkplain ChangeMode change mode} and class.
-     */
-    default boolean acceptsChange(ChangeMode mode, Class<?> needle) {
-        return acceptsChange(mode, needle, !needle.isArray());
-    }
-
-    /**
-     * Determines whether this expression can be changed to a specific {@link ChangeMode} and type class.
      * @param mode the mode this Expression would be changed with
      * @param needle the type class of the instance this Expression would be changed with
      * @param isSingle whether or not the instance this Expression would be changed with is single
      * @return whether or not this Expression should be changed with the given {@linkplain ChangeMode change mode} and class.
      */
-    private boolean acceptsChange(ChangeMode mode, Class<?> needle, boolean isSingle) {
+    default boolean acceptsChange(ChangeMode mode, Class<?> needle, boolean isSingle) {
         if (mode == ChangeMode.DELETE || mode == ChangeMode.RESET)
             throw new UnsupportedOperationException();
         for (var haystack : acceptsChange(mode).orElse(new Class[0])) {

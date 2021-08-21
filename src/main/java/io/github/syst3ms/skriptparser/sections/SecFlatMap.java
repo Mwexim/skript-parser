@@ -63,7 +63,7 @@ public class SecFlatMap extends ReturnSection<Object> implements SelfReferencing
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         flatMapped = expressions[0];
         var logger = parseContext.getLogger();
-        if (!flatMapped.acceptsChange(ChangeMode.SET, Object[].class)
+        if (!flatMapped.acceptsChange(ChangeMode.SET, flatMapped.getReturnType(), false)
 				|| flatMapped.acceptsChange(ChangeMode.DELETE).isEmpty()) {
             logger.error(
                     "The expression '" +

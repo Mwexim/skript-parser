@@ -101,7 +101,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 				}
 		}
 		var logger = parseContext.getLogger();
-		if (!list.acceptsChange(ChangeMode.SET, type == 3 ? Object[].class : Object.class)) {
+		if (!list.acceptsChange(ChangeMode.SET, list.getReturnType(), false)) {
 			logger.error(
 					list.toString(TriggerContext.DUMMY, logger.isDebug())
 							+ "' cannot be set to multiple values",

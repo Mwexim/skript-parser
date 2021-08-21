@@ -60,7 +60,7 @@ public class SecMap extends ReturnSection<Object> implements SelfReferencing {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		mapped = expressions[0];
 		var logger = parseContext.getLogger();
-		if (!mapped.acceptsChange(ChangeMode.SET, Object[].class)
+		if (!mapped.acceptsChange(ChangeMode.SET, mapped)
 				|| mapped.acceptsChange(ChangeMode.DELETE).isEmpty()) {
 			logger.error(
 					"The expression '" +

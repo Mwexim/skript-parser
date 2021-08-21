@@ -52,7 +52,7 @@ public class SecFilter extends ReturnSection<Boolean> implements SelfReferencing
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         filtered = expressions[0];
         var logger = parseContext.getLogger();
-        if (!filtered.acceptsChange(ChangeMode.SET, Object[].class)
+        if (!filtered.acceptsChange(ChangeMode.SET, filtered.getReturnType(), false)
                 || filtered.acceptsChange(ChangeMode.DELETE).isEmpty()) {
             logger.error(
                     "The expression '" +
