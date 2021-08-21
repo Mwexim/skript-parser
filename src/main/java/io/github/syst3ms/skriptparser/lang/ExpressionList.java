@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
@@ -12,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * A list of expressions
@@ -52,24 +54,33 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
-    public Class<T> getReturnType() {
-        return returnType;
-    }
-
-    @Override
+    @Contract("_, _, _ -> fail")
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public T[] getArray(TriggerContext ctx) {
+    public T[] getValues(TriggerContext ctx) {
+        return getValues(expr -> expr.getValues(ctx));
+    }
+
+    /**
+     * Retrieves all values of this Expression using a function that will be applied to each expression.
+     * @param function the function
+     * @return an array of the values
+     */
+    public T[] getValues(Function<Expression<? extends T>, T[]> function) {
         if (and) {
-            return getValues(ctx);
+            List<T> values = new ArrayList<>();
+            for (var expr : expressions) {
+                Collections.addAll(values, function.apply(expr));
+            }
+            return values.toArray((T[]) Array.newInstance(returnType, values.size()));
         } else {
             var shuffle = Arrays.asList(expressions);
             Collections.shuffle(shuffle);
             for (var expr : shuffle) {
-                var values = expr.getValues(ctx);
+                var values = function.apply(expr);
                 if (values.length > 0)
                     return values;
             }
@@ -78,10 +89,10 @@ public class ExpressionList<T> implements Expression<T> {
     }
 
     @Override
-    public T[] getValues(TriggerContext ctx) {
+    public T[] getArray(TriggerContext ctx) {
         List<T> values = new ArrayList<>();
-        for (var expression : expressions) {
-            Collections.addAll(values, expression.getValues(ctx));
+        for (var expr : expressions) {
+            Collections.addAll(values, expr.getArray(ctx));
         }
         return values.toArray((T[]) Array.newInstance(returnType, values.size()));
     }
@@ -89,6 +100,11 @@ public class ExpressionList<T> implements Expression<T> {
     @Override
     public boolean isSingle() {
         return single;
+    }
+
+    @Override
+    public Class<T> getReturnType() {
+        return returnType;
     }
 
     @Override
@@ -102,8 +118,7 @@ public class ExpressionList<T> implements Expression<T> {
                     sb.append(", ");
                 }
             }
-            var expr = expressions[i];
-            sb.append(expr.toString(ctx, debug));
+            sb.append(expressions[i].toString(ctx, debug));
         }
         return sb.toString();
     }
@@ -115,14 +130,6 @@ public class ExpressionList<T> implements Expression<T> {
             if ((exprs[i] = expressions[i].convertExpression(to).orElse(null)) == null)
                 return Optional.empty();
         return Optional.of(new ExpressionList<>(exprs, (Class<R>) ClassUtils.getCommonSuperclass(to), and, this));
-    }
-
-    @Override
-    public boolean isLoopOf(String s) {
-        for (Expression<?> e : expressions)
-            if (!e.isSingle() && e.isLoopOf(s))
-                return true;
-        return false;
     }
 
     @Override
@@ -165,6 +172,14 @@ public class ExpressionList<T> implements Expression<T> {
                 throw new UnsupportedOperationException();
             }
         };
+    }
+
+    @Override
+    public boolean isLoopOf(String s) {
+        for (Expression<?> e : expressions)
+            if (!e.isSingle() && e.isLoopOf(s))
+                return true;
+        return false;
     }
 
     @Override

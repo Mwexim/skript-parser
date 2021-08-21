@@ -16,6 +16,9 @@ import java.util.function.Function;
  * A class handling registration and usage of {@link Comparator}s
  */
 public class Comparators {
+    /**
+     * A comparator that can compare two objects with the same superclass for equality.
+     */
     public static final Comparator<Object, Object> EQUALS_COMPARATOR = new Comparator<>(false) {
         @Override
         public Relation apply(@Nullable Object o, @Nullable Object o2) {
@@ -42,14 +45,9 @@ public class Comparators {
     public static <F, S> Relation compare(@Nullable F o1, @Nullable S o2) {
         if (o1 == null || o2 == null)
             return Relation.NOT_EQUAL;
-        var c = getComparator((Class<F>) o1.getClass(), (Class<S>) o2.getClass());
-        return c.map(comp -> comp.apply(o1, o2)).orElse(Relation.NOT_EQUAL);
-    }
-
-    private final static java.util.Comparator<Object> javaComparator = (o1, o2) -> compare(o1, o2).getComparison();
-
-    public static java.util.Comparator<Object> getJavaComparator() {
-        return javaComparator;
+        return getComparator((Class<F>) o1.getClass(), (Class<S>) o2.getClass())
+                .map(comp -> comp.apply(o1, o2))
+                .orElse(Relation.NOT_EQUAL);
     }
 
     private final static Map<Pair<Class<?>, Class<?>>, Comparator<?, ?>> comparatorsQuickAccess = new HashMap<>();
@@ -69,7 +67,7 @@ public class Comparators {
         // Perfect match
         for (var info : comparators) {
             if (info.getFirstClass().isAssignableFrom(f) && info.getSecondClass().isAssignableFrom(s)) {
-                return Optional.ofNullable((Comparator<? super F, ? super S>) info.getComparator());
+                return Optional.of((Comparator<? super F, ? super S>) info.getComparator());
             } else if (info.getFirstClass().isAssignableFrom(s) && info.getSecondClass().isAssignableFrom(f)) {
                 return Optional.of(new InverseComparator<>((Comparator<? super S, ? super F>) info.getComparator()));
             }
@@ -92,9 +90,7 @@ public class Comparators {
                     if (c2.isPresent()) {
                         return Optional.of(first
                                 ? new ConvertedComparator<>(info.getComparator(), c2.get())
-                                : new InverseComparator<>(
-                                        new ConvertedComparator<>(c2.get(), info.getComparator())
-                                )
+                                : new InverseComparator<>(new ConvertedComparator<>(c2.get(), info.getComparator()))
                         );
                     }
                 }
@@ -102,13 +98,8 @@ public class Comparators {
                     c1 = (Optional<? extends Function<? super F, Optional<?>>>) Converters.getConverter(f, info.getType(!first));
                     if (c1.isPresent()) {
                         return Optional.of(!first
-                                ? new ConvertedComparator<>(
-                                        (Comparator<? super F, ?>) c1.get(),
-                                        (Function<? super S, Optional<?>>) info.getComparator()
-                                )
-                                : new InverseComparator<>(
-                                        new ConvertedComparator<>(info.getComparator(), c1.get())
-                                )
+                                ? new ConvertedComparator<>((Comparator<? super F, ?>) c1.get(), (Function<? super S, Optional<?>>) info.getComparator())
+                                : new InverseComparator<>(new ConvertedComparator<>(info.getComparator(), c1.get()))
                         );
                     }
                 }

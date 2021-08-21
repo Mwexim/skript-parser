@@ -101,11 +101,10 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 				}
 		}
 		var logger = parseContext.getLogger();
-		if (list.acceptsChange(ChangeMode.SET).isEmpty()) {
+		if (!list.acceptsChange(ChangeMode.SET, list.getReturnType(), false)) {
 			logger.error(
-					"The expression '"
-							+ list.toString(TriggerContext.DUMMY, logger.isDebug())
-							+ "' cannot be changed",
+					list.toString(TriggerContext.DUMMY, logger.isDebug())
+							+ "' cannot be set to multiple values",
 					ErrorType.SEMANTIC_ERROR
 			);
 			return false;
@@ -129,11 +128,11 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 		switch (type) {
 			case 0:
 				if (isEffect)
-					list.change(ctx, Arrays.copyOfRange(values, 0, values.length - 1), ChangeMode.SET);
+					list.change(ctx, ChangeMode.SET, Arrays.copyOfRange(values, 0, values.length - 1));
 				return new Object[] {values[values.length - 1]};
 			case 1:
 				if (isEffect)
-					list.change(ctx, Arrays.copyOfRange(values, 1, values.length), ChangeMode.SET);
+					list.change(ctx, ChangeMode.SET, Arrays.copyOfRange(values, 1, values.length));
 				return new Object[] {values[0]};
 			case 2:
 				int ind = index.getSingle(ctx)
@@ -153,7 +152,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 						}
 						skipped[k++] = values[i];
 					}
-					list.change(ctx, skipped, ChangeMode.SET);
+					list.change(ctx, ChangeMode.SET, skipped);
 				}
 				return new Object[] {values[ind]};
 			case 3:
@@ -176,7 +175,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 				}
 				if (low == -1 || up == -1 || up == 0 || st == 0 || low > up) {
 					if (isEffect)
-						list.change(ctx, new Object[0], ChangeMode.SET);
+						list.change(ctx, ChangeMode.SET, new Object[0]);
 					return new Object[0];
 				} else if (low == up) {
 					// Nothing to change
@@ -194,7 +193,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 				}
 
 				if (isEffect)
-					list.change(ctx, changed.toArray(), ChangeMode.SET);
+					list.change(ctx, ChangeMode.SET, changed.toArray());
 				return spliced.toArray(new Object[0]);
 			default:
 				throw new IllegalStateException();
@@ -203,7 +202,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 
 	@Override
 	public boolean isSingle() {
-		return type == 0 || type == 1;
+		return type != 3;
 	}
 
 	@Override

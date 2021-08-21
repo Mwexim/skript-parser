@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
+import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
 
 /**
  * An object used to retrieve depending on which pattern was matched
@@ -41,5 +42,17 @@ public class PatternInfos<T> {
      */
     public String[] getPatterns() {
         return patterns;
+    }
+
+    /**
+     * Joins all the possibilities together, forming a {@link ChoiceGroup}
+     * with numeric parse marks.
+     * @return a single choice group pattern
+     */
+    public String toChoiceGroup() {
+        var builder = new StringBuilder("(");
+        for (int i = 0; i < patterns.length; i++)
+            builder.append(i).append(':').append(patterns[i]).append('|');
+        return builder.append(')').toString();
     }
 }

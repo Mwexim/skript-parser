@@ -20,18 +20,17 @@ import java.math.BigInteger;
 public class ExprSubstring implements Expression<String> {
 	static {
 		Parser.getMainRegistration().addExpression(
-			ExprSubstring.class,
-			String.class,
-			true,
-			"[the] (part|sub[ ](text|string)) of %string% (between|from) [(ind(ex[es]|ices)|char[acter][s])] %integer% (and|to) [(index|char[acter])] %integer%",
+				ExprSubstring.class,
+				String.class,
+				true,
+				"[the] (part|sub[ ](text|string)) of %string% (between|from) [(ind(ex[es]|ices)|char[acter][s])] %integer% (and|to) [(index|char[acter])] %integer%",
 				"[the] (0:first|1:last) [%integer%] char[acter][s] (of|in) %string%",
 				"[the] %integer% (0:first|1:last) char[acter]s (of|in) %string%"
 		);
 	}
 
 	private Expression<String> value;
-	private Expression<BigInteger> lower;
-	private Expression<BigInteger> upper;
+	private Expression<BigInteger> lower, upper;
 	private int pattern;
 	private boolean first;
 

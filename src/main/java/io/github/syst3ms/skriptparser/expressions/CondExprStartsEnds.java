@@ -6,8 +6,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 
-import java.util.Arrays;
-
 /**
  * Check if a given string starts or ends with a certain string.
  *
@@ -24,19 +22,19 @@ public class CondExprStartsEnds extends ConditionalExpression {
                 CondExprStartsEnds.class,
                 Boolean.class,
                 true,
-                "%strings% (0:start|1:end)[s] with %string%",
-                "%strings% do[es](n't| not) (0:start|1:end) with %string%"
+                "%strings% (0:start|1:end)[s] with %strings%",
+                "%strings% do[es](n't| not) (0:start|1:end) with %strings%"
         );
     }
 
-    private Expression<String> expr;
+    private Expression<String> expression;
     private Expression<String> value;
     private boolean start;
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        expr = (Expression<String>) expressions[0];
+        expression = (Expression<String>) expressions[0];
         value = (Expression<String>) expressions[1];
         start = parseContext.getNumericMark() == 0;
         setNegated(matchedPattern == 1);
@@ -45,15 +43,15 @@ public class CondExprStartsEnds extends ConditionalExpression {
 
     @Override
     public boolean check(TriggerContext ctx) {
-        String[] values = expr.getValues(ctx);
-        return isNegated() != value.getSingle(ctx)
-                .filter(val -> Arrays.stream(values)
-                        .allMatch(val2 -> start ? val2.startsWith(val) : val2.endsWith(val)))
-                .isPresent();
+        return expression.check(
+                ctx,
+                toCheck -> value.check(ctx, toMatch -> start ? toCheck.startsWith(toMatch) : toCheck.endsWith(toMatch)),
+                isNegated()
+        );
     }
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
-        return expr.toString(ctx, debug) + (isNegated() ? " does not" : "") + (start ? " start with " : " end with ") + value.toString(ctx, debug);
+        return expression.toString(ctx, debug) + (isNegated() ? " does not" : "") + (start ? " start with " : " end with ") + value.toString(ctx, debug);
     }
 }

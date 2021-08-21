@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.math.BigInteger;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * The amount of elements in a given list.
@@ -30,7 +29,6 @@ public class ExprAmount extends PropertyExpression<Number, Object> {
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprAmount.class,
 				Number.class,
-				true,
 				"~objects",
 				"[1:recursive] (amount|number|size)"
 		);
@@ -38,11 +36,10 @@ public class ExprAmount extends PropertyExpression<Number, Object> {
 
 	private boolean recursive;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?> @NotNull [] expressions, int matchedPattern, @NotNull ParseContext parseContext) {
-		setOwner((Expression<Object>) expressions[0]);
-		this.recursive = parseContext.getNumericMark() == 1;
+		super.init(expressions, matchedPattern, parseContext);
+		recursive = parseContext.getNumericMark() == 1;
 		if (recursive && !(getOwner() instanceof Variable<?>)) {
 			parseContext.getLogger().error("Getting the recursive size of an expression only applies to variables.", ErrorType.SEMANTIC_ERROR);
 			return false;
@@ -54,7 +51,7 @@ public class ExprAmount extends PropertyExpression<Number, Object> {
 	@Override
 	public Number[] getValues(TriggerContext ctx) {
 		if (recursive) {
-			Optional<Object> var = ((Variable<?>) getOwner()).getRaw(ctx);
+			var var = ((Variable<?>) getOwner()).getRaw(ctx);
 			if (var.isPresent())
 				return new Number[] {
 						BigInteger.valueOf(getRecursiveSize((Map<String, ?>) var.get()))
@@ -73,10 +70,11 @@ public class ExprAmount extends PropertyExpression<Number, Object> {
 		long count = 0;
 		for (Map.Entry<String, ?> entry : map.entrySet()) {
 			Object value = entry.getValue();
-			if (value instanceof Map)
+			if (value instanceof Map) {
 				count += getRecursiveSize((Map<String, ?>) value);
-			else
+			} else {
 				count++;
+			}
 		}
 		return count;
 	}

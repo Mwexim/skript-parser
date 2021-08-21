@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 
 /**
  * The character at a given position in a string. Note that indices in Skript start at 1.
@@ -40,7 +39,7 @@ public class ExprStringCharAt implements Expression<String> {
 	@Override
 	public String[] getValues(TriggerContext ctx) {
 		return value.getSingle(ctx)
-				.map(val -> Arrays.stream(position.getValues(ctx))
+				.map(val -> position.stream(ctx)
 						.filter(pos -> pos.signum() > 0 && pos.compareTo(BigInteger.valueOf(val.length())) <= 0)
 						.map(pos -> String.valueOf(val.charAt(pos.intValue() - 1)))
 						.toArray(String[]::new))

@@ -27,7 +27,6 @@ public class ExprDateTimestamp extends PropertyExpression<Number, SkriptDate> {
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprDateTimestamp.class,
 				Number.class,
-				true,
 				"*[date] %date%",
 				"[1:unix] timestamp"
 		);
@@ -35,20 +34,16 @@ public class ExprDateTimestamp extends PropertyExpression<Number, SkriptDate> {
 
 	private boolean unix;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		unix = parseContext.getNumericMark() == 1;
-		setOwner((Expression<SkriptDate>) expressions[0]);
-		return true;
+		return super.init(expressions, matchedPattern, parseContext);
 	}
 
 	@Override
-	public Number[] getProperty(SkriptDate[] owners) {
-		return new Number[] {
-				unix ? BigInteger.valueOf(Math.floorDiv(owners[0].getTimestamp(), 1000))
-						: BigInteger.valueOf(owners[0].getTimestamp())
-		};
+	public Number getProperty(SkriptDate owner) {
+		return unix ? BigInteger.valueOf(Math.floorDiv(owner.getTimestamp(), 1000))
+				: BigInteger.valueOf(owner.getTimestamp());
 	}
 
 	@Override

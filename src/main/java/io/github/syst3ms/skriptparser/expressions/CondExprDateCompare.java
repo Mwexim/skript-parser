@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 
 import java.time.Duration;
@@ -26,8 +25,8 @@ public class CondExprDateCompare extends ConditionalExpression {
                 CondExprDateCompare.class,
                 Boolean.class,
                 true,
-                "%date% (was|were)( more|(n't| not) less) than %duration% [ago]",
-                "%date% (was|were)((n't| not) more| less) than %duration% [ago]"
+                "%dates% (was|were)( more|(n't| not) less) than %duration% [ago]",
+                "%dates% (was|were)((n't| not) more| less) than %duration% [ago]"
         );
     }
 
@@ -45,11 +44,13 @@ public class CondExprDateCompare extends ConditionalExpression {
 
     @Override
     public boolean check(TriggerContext ctx) {
-        return DoubleOptional.ofOptional(date.getSingle(ctx), duration.getSingle(ctx))
-                .filter(
-                        (dat, dur) -> isNegated() != (dat.getTimestamp() < SkriptDate.now().getTimestamp() - dur.toMillis())
-                )
-                .isPresent();
+        return date.check(
+                ctx,
+                toCheck -> duration.getSingle(ctx)
+                        .filter(toCompare -> toCheck.compareTo(SkriptDate.now().minus(toCompare)) < 0)
+                        .isPresent(),
+                isNegated()
+        );
     }
 
     @Override

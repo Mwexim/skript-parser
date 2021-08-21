@@ -3,17 +3,23 @@ package io.github.syst3ms.skriptparser.variables;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 class VariableMap {
-    private static final Pattern listSplitPattern = Pattern.compile(Pattern.quote(Variables.LIST_SEPARATOR));
+    /**
+     * If all indexes are numerical, they should be ordered likewise. If not, natural order should take place.
+     */
+    private static final Comparator<String> NUMERIC_INDEX_COMPARATOR = Comparator.comparingInt(Integer::parseInt);
+
     private final Map<String, Object> map = new HashMap<>(); // Ordering is not important right now
 
     private static String[] splitList(String name) {
-        return listSplitPattern.split(name);
+        return Pattern.compile(Pattern.quote(Variables.LIST_SEPARATOR)).split(name);
     }
 
     /**
@@ -35,7 +41,14 @@ class VariableMap {
                 var n = split[i];
                 if (n.equals("*")) {
                     assert i == split.length - 1;
-                    return Optional.of(current);
+
+                    // We sort the indexes as best as we can
+                    boolean numerical = current.keySet().stream()
+                            .allMatch(val -> val.matches("[1-9][0-9]*"));
+                    var treeMap = new TreeMap<>(numerical ? NUMERIC_INDEX_COMPARATOR : Comparator.<String>naturalOrder());
+                    treeMap.putAll(current);
+
+                    return Optional.of(treeMap);
                 }
                 var o = current.get(n);
                 if (o == null) {

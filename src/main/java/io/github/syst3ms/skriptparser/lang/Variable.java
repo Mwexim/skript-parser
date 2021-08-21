@@ -14,6 +14,7 @@ import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.Pair;
 import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import io.github.syst3ms.skriptparser.variables.Variables;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
@@ -21,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -48,10 +48,39 @@ public class Variable<T> implements Expression<T> {
         this.supertype = ClassUtils.getCommonSuperclass(this.type);
     }
 
+    @Override
+    @Contract("_, _, _ -> fail")
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public T[] getValues(TriggerContext ctx) {
+        if (list)
+            return getConvertedArray(ctx);
+        var o = getConverted(ctx);
+        if (o.isEmpty()) {
+            return (T[]) Array.newInstance(supertype, 0);
+        }
+        var one = (T[]) Array.newInstance(supertype, 1);
+        one[0] = o.get();
+        return one;
+    }
+
+    /**
+     * @param ctx the event
+     * @return the index of this Variable
+     */
     public String getIndex(TriggerContext ctx) {
         return name.toString(ctx);
     }
 
+    /**
+     * Returns the raw value stored inside the variable map. This can either be the object
+     * this Variable is referencing to or some sort of Map containing nested nodes.
+     * @param ctx the event
+     * @return the raw value
+     */
     public Optional<Object> getRaw(TriggerContext ctx) {
         var n = name.toString(ctx);
         if (n.endsWith(Variables.LIST_SEPARATOR + "*") != list) // prevents e.g. {%expr%} where "%expr%" ends with "::*" from returning a Map
@@ -61,41 +90,7 @@ public class Variable<T> implements Expression<T> {
                         (local ? Variables.LOCAL_VARIABLE_TOKEN : "") + name.defaultVariableName(),
                         ctx,
                         false
-                    )
-                );
-    }
-
-    private Optional<Object> get(TriggerContext ctx) {
-        var val = getRaw(ctx);
-        if (!list)
-            return val;
-        if (val.isEmpty())
-            return Optional.of(Array.newInstance(type, 0));
-        List<Object> l = new ArrayList<>();
-        for (Map.Entry<String, ?> v : ((Map<String, ?>) val.get()).entrySet()) {
-            if (v.getKey() != null && v.getValue() != null) {
-                Object o;
-                if (v.getValue() instanceof Map)
-                    o = ((Map<String, ?>) v.getValue()).get(null);
-                else
-                    o = v.getValue();
-                l.add(o);
-            }
-        }
-        return Optional.ofNullable(l.toArray());
-    }
-
-    @Override
-    public T[] getValues(TriggerContext ctx) {
-        if(list)
-            return getConvertedArray(ctx);
-        Optional<? extends T> o = getConverted(ctx);
-        if (o.isEmpty()) {
-            return (T[]) Array.newInstance(supertype, 0);
-        }
-        var one = (T[]) Array.newInstance(supertype, 1);
-        one[0] = o.get();
-        return one;
+                ));
     }
 
     private Optional<? extends T> getConverted(TriggerContext ctx) {
@@ -107,9 +102,25 @@ public class Variable<T> implements Expression<T> {
         return Converters.convertArray((Object[]) get(ctx).orElse(null), (Class<T>) type, (Class<T>) supertype);
     }
 
-    @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        throw new UnsupportedOperationException();
+    private Optional<Object> get(TriggerContext ctx) {
+        var val = getRaw(ctx);
+        if (!list)
+            return val;
+        if (val.isEmpty())
+            return Optional.of(Array.newInstance(type, 0));
+        var list = new ArrayList<>();
+        for (Map.Entry<String, ?> v : ((Map<String, ?>) val.get()).entrySet()) {
+            if (v.getKey() != null && v.getValue() != null) {
+                Object o;
+                if (v.getValue() instanceof Map) {
+                    o = ((Map<String, ?>) v.getValue()).get(null);
+                } else {
+                    o = v.getValue();
+                }
+                list.add(o);
+            }
+        }
+        return Optional.ofNullable(list.toArray());
     }
 
     @Override
@@ -117,13 +128,174 @@ public class Variable<T> implements Expression<T> {
         return !list;
     }
 
-    @Override
-    public boolean isLoopOf(String s) {
-        return s.equalsIgnoreCase("var") || s.equalsIgnoreCase("variable") || s.equalsIgnoreCase("value") || s.equalsIgnoreCase("index");
+    public Class<? extends T> getReturnType() {
+        return (Class<? extends T>) supertype;
     }
 
-    public boolean isIndexLoop(String s) {
-        return s.equalsIgnoreCase("index");
+    @Override
+    public Optional<Class<?>[]> acceptsChange(ChangeMode mode) {
+        return Optional.of(new Class[] {list ? Object[].class : Object.class});
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public void change(TriggerContext ctx, ChangeMode mode, Object[] changeWith) throws UnsupportedOperationException {
+        switch (mode) {
+            case DELETE:
+                if (list) {
+                    var rem = new ArrayList<String>();
+                    var o = (Map<String, Object>) getRaw(ctx).orElse(null);
+                    if (o == null)
+                        return;
+                    for (var i : o.entrySet()) {
+                        if (i.getKey() != null){
+                            rem.add(i.getKey());
+                        }
+                    }
+                    for (var r : rem) {
+                        assert r != null;
+                        setIndex(ctx, r, null);
+                    }
+                }
+                set(ctx, null);
+                break;
+            case SET:
+                assert changeWith.length > 0;
+                if (list) {
+                    set(ctx, null);
+                    int i = 1;
+                    for (var d : changeWith) {
+                        if (d instanceof Object[]) {
+                            assert false;
+                            for (var j = 0; j < ((Object[]) d).length; j++)
+                                setIndex(ctx, i + Variables.LIST_SEPARATOR + j, ((Object[]) d)[j]);
+                        } else {
+                            setIndex(ctx, String.valueOf(i), d);
+                        }
+                        i++;
+                    }
+                } else {
+                    set(ctx, changeWith[0]);
+                }
+                break;
+            case RESET:
+                Optional<? extends Collection<?>> x = getRaw(ctx).map(r -> r instanceof Map
+                        ? ((Map<?, ?>) r).values()
+                        : Collections.singletonList(r)
+                );
+                if (x.isEmpty())
+                    return;
+                for (Object o : x.get()) {
+                    var c = o.getClass();
+                    var type = TypeManager.getByClass(c);
+                    assert type.isPresent();
+                    var changer = type.get().getDefaultChanger();
+                    if (changer.map(ch -> ch.acceptsChange(ChangeMode.RESET)).isPresent()) {
+                        var one = (Object[]) Array.newInstance(o.getClass(), 1);
+                        one[0] = o;
+                        changer.ifPresent(ch -> ((Changer<Object>) ch).change(one, new Object[0], ChangeMode.RESET));
+                    }
+                }
+                break;
+            case ADD:
+            case REMOVE:
+            case REMOVE_ALL:
+                assert changeWith.length > 0;
+                if (list) {
+                    Optional<? extends Map<String, Object>> o = getRaw(ctx).map(r -> (Map<String, Object>) r);
+                    if (mode == ChangeMode.REMOVE) {
+                        if (o.isEmpty())
+                            return;
+                        var rem = new ArrayList<String>(); // prevents CMEs
+                        for (var d : changeWith) {
+                            for (var i : o.get().entrySet()) {
+                                if (Relation.EQUAL.is(Comparators.compare(i.getValue(), d))) {
+                                    rem.add(i.getKey());
+                                    break;
+                                }
+                            }
+                        }
+                        for (var r : rem) {
+                            assert r != null;
+                            setIndex(ctx, r, null);
+                        }
+                    } else if (mode == ChangeMode.REMOVE_ALL) {
+                        if (o.isEmpty())
+                            return;
+                        var rem = new ArrayList<String>(); // prevents CMEs
+                        for (var i : o.get().entrySet()) {
+                            for (var d : changeWith) {
+                                if (Relation.EQUAL.is(Comparators.compare(i.getValue(), d)))
+                                    rem.add(i.getKey());
+                            }
+                        }
+                        for (var r : rem) {
+                            assert r != null;
+                            setIndex(ctx, r, null);
+                        }
+                    } else {
+                        assert mode == ChangeMode.ADD;
+                        var i = 1;
+                        for (var d : changeWith) {
+                            if (o.isPresent())
+                                while (o.get().containsKey(String.valueOf(i)))
+                                    i++;
+                            setIndex(ctx, String.valueOf(i), d);
+                            i++;
+                        }
+                    }
+                } else {
+                    Optional<Object> o = get(ctx);
+                    var type = o.flatMap(ob -> (Optional<? extends Type<?>>) TypeManager.getByClass(ob.getClass()));
+                    Optional<? extends Arithmetic> a = Optional.empty();
+                    Optional<? extends Changer<?>> changer;
+                    Class<?>[] cs;
+                    if (o.isEmpty() || type.isEmpty() || (a = type.get().getArithmetic()).isPresent()) {
+                        var changed = false;
+                        for (var d : changeWith) {
+                            if (o.isEmpty() || type.isEmpty()) {
+                                type = TypeManager.getByClass(d.getClass());
+                                if (type.filter(t -> t.getArithmetic().isPresent()).isPresent())
+                                    o = Optional.of(d);
+                                if (d instanceof Number) {
+                                    o = mode == ChangeMode.REMOVE
+                                            ? Optional.of(NumberMath.negate((Number) d))
+                                            : Optional.of(d);
+                                }
+                                changed = true;
+                                continue;
+                            }
+                            assert a.isPresent();
+                            Class<?> r = a.get().getRelativeType();
+                            var diff = Converters.convert(d, r);
+                            if (diff.isPresent()) {
+                                if (mode == ChangeMode.ADD) {
+                                    o = Optional.ofNullable(a.get().add(o.orElse(null), diff.get()));
+                                } else {
+                                    o = Optional.ofNullable(a.get().subtract(o.orElse(null), diff.get()));
+                                }
+                                changed = true;
+                            }
+                        }
+                        if (changed)
+                            set(ctx, o.orElse(null));
+                    } else if ((changer = type.get().getDefaultChanger()).isPresent() && (cs = changer.get().acceptsChange(mode)) != null) {
+                        var one = (Object[]) Array.newInstance(o.get().getClass(), 1);
+                        one[0] = o.get();
+                        var cs2 = new Class<?>[cs.length];
+                        for (var i = 0; i < cs.length; i++)
+                            cs2[i] = cs[i].isArray() ? cs[i].getComponentType() : cs[i];
+                        var l = new ArrayList<>();
+                        for (var d : changeWith) {
+                            Object d2 = Converters.convert(d, cs2);
+                            if (d2 != null)
+                                l.add(d2);
+                        }
+                        ((Changer<Object>) changer.get()).change(one, l.toArray(), mode);
+                    }
+                    break;
+                }
+        }
     }
 
     public Iterator<T> iterator(TriggerContext ctx) {
@@ -230,17 +402,22 @@ public class Variable<T> implements Expression<T> {
     }
 
     @Override
-    public String toString(TriggerContext ctx, boolean debug) {
-        return TypeManager.toString((Object[]) getValues(ctx));
-    }
-
-    public Class<? extends T> getReturnType() {
-        return (Class<? extends T>) supertype;
+    public <C> Optional<? extends Expression<C>> convertExpression(Class<C> to) {
+        return Optional.of(new Variable<>(name, local, list, to));
     }
 
     @Override
-    public <C> Optional<? extends Expression<C>> convertExpression(Class<C> to) {
-        return Optional.of(new Variable<>(name, local, list, to));
+    public boolean isLoopOf(String s) {
+        return s.equalsIgnoreCase("var") || s.equalsIgnoreCase("variable") || s.equalsIgnoreCase("value") || s.equalsIgnoreCase("index");
+    }
+
+    public boolean isIndexLoop(String s) {
+        return s.equalsIgnoreCase("index");
+    }
+
+    @Override
+    public String toString(TriggerContext ctx, boolean debug) {
+        return TypeManager.toString(getValues(ctx));
     }
 
     private void set(TriggerContext ctx, @Nullable Object value) {
@@ -252,170 +429,5 @@ public class Variable<T> implements Expression<T> {
         var s = name.toString(ctx);
         assert s.endsWith("::*") : s + "; " + name;
         Variables.setVariable(s.substring(0, s.length() - 1) + index, value, ctx, local);
-    }
-
-    @Override
-    public Optional<Class<?>[]> acceptsChange(ChangeMode mode) {
-        return Optional.of(new Class[]{Object[].class});
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public void change(TriggerContext ctx, Object[] changeWith, ChangeMode mode) throws UnsupportedOperationException {
-        switch (mode) {
-            case DELETE:
-                if (list) {
-                    var rem = new ArrayList<String>();
-                    var o = (Map<String, Object>) getRaw(ctx).orElse(null);
-                    if (o == null)
-                        return;
-                    for (var i : o.entrySet()) {
-                        if (i.getKey() != null){
-                            rem.add(i.getKey());
-                        }
-                    }
-                    for (var r : rem) {
-                        assert r != null;
-                        setIndex(ctx, r, null);
-                    }
-                }
-                set(ctx, null);
-                break;
-            case SET:
-                assert changeWith.length > 0;
-                if (list) {
-                    set(ctx, null);
-                    var i = 1;
-                    for (var d : changeWith) {
-                        if (d instanceof Object[]) {
-                            for (var j = 0; j < ((Object[]) d).length; j++)
-                                setIndex(ctx, i + Variables.LIST_SEPARATOR + j, ((Object[]) d)[j]);
-                        } else {
-                            setIndex(ctx, String.valueOf(i), d);
-                        }
-                        i++;
-                    }
-                } else {
-                    set(ctx, changeWith[0]);
-                }
-                break;
-            case RESET:
-                Optional<? extends Collection<?>> x = getRaw(ctx).map(r -> r instanceof Map
-                        ? ((Map<?, ?>) r).values()
-                        : Collections.singletonList(r)
-                );
-                if (x.isEmpty())
-                    return;
-                for (Object o : x.get()) {
-                    var c = o.getClass();
-                    var type = TypeManager.getByClass(c);
-                    assert type.isPresent();
-                    var changer = type.get().getDefaultChanger();
-                    if (changer.map(ch -> ch.acceptsChange(ChangeMode.RESET)).isPresent()) {
-                        var one = (Object[]) Array.newInstance(o.getClass(), 1);
-                        one[0] = o;
-                        changer.ifPresent(ch -> ((Changer) ch).change(one, new Object[0], ChangeMode.RESET));
-                    }
-                }
-                break;
-            case ADD:
-            case REMOVE:
-            case REMOVE_ALL:
-                assert changeWith.length > 0;
-                if (list) {
-                    Optional<? extends Map<String, Object>> o = getRaw(ctx).map(r -> (Map<String, Object>) r);
-                    if (mode == ChangeMode.REMOVE) {
-                        if (o.isEmpty())
-                            return;
-                        var rem = new ArrayList<String>(); // prevents CMEs
-                        for (var d : changeWith) {
-                            for (var i : o.get().entrySet()) {
-                                if (Relation.EQUAL.is(Comparators.compare(i.getValue(), d))) {
-                                    rem.add(i.getKey());
-                                    break;
-                                }
-                            }
-                        }
-                        for (var r : rem) {
-                            assert r != null;
-                            setIndex(ctx, r, null);
-                        }
-                    } else if (mode == ChangeMode.REMOVE_ALL) {
-                        if (o.isEmpty())
-                            return;
-                        var rem = new ArrayList<String>(); // prevents CMEs
-                        for (var i : o.get().entrySet()) {
-                            for (var d : changeWith) {
-                                if (Relation.EQUAL.is(Comparators.compare(i.getValue(), d)))
-                                    rem.add(i.getKey());
-                            }
-                        }
-                        for (var r : rem) {
-                            assert r != null;
-                            setIndex(ctx, r, null);
-                        }
-                    } else {
-                        assert mode == ChangeMode.ADD;
-                        var i = 1;
-                        for (var d : changeWith) {
-                            if (o.isPresent())
-                                while (o.get().containsKey(String.valueOf(i)))
-                                    i++;
-                            setIndex(ctx, String.valueOf(i), d);
-                            i++;
-                        }
-                    }
-                } else {
-                    Optional<Object> o = get(ctx);
-                    var type = o.flatMap(ob -> (Optional<? extends Type<?>>) TypeManager.getByClass(ob.getClass()));
-                    Optional<? extends Arithmetic> a = Optional.empty();
-                    Optional<? extends Changer<?>> changer;
-                    Class<?>[] cs;
-                    if (o.isEmpty() || type.isEmpty() || (a = type.get().getArithmetic()).isPresent()) {
-                        var changed = false;
-                        for (var d : changeWith) {
-                            if (o.isEmpty() || type.isEmpty()) {
-                                type = TypeManager.getByClass(d.getClass());
-                                if (type.filter(t -> t.getArithmetic().isPresent()).isPresent())
-                                    o = Optional.of(d);
-                                if (d instanceof Number) {
-                                    o = mode == ChangeMode.REMOVE
-                                            ? Optional.of(NumberMath.negate((Number) d))
-                                            : Optional.of(d);
-                                }
-                                changed = true;
-                                continue;
-                            }
-                            assert a.isPresent();
-                            Class<?> r = a.get().getRelativeType();
-                            var diff = Converters.convert(d, r);
-                            if (diff.isPresent()) {
-                                if (mode == ChangeMode.ADD) {
-                                    o = Optional.ofNullable(a.get().add(o.orElse(null), diff.get()));
-                                } else {
-                                    o = Optional.ofNullable(a.get().subtract(o.orElse(null), diff.get()));
-                                }
-                                changed = true;
-                            }
-                        }
-                        if (changed)
-                            set(ctx, o.orElse(null));
-                    } else if ((changer = type.get().getDefaultChanger()).isPresent() && (cs = changer.get().acceptsChange(mode)) != null) {
-                        var one = (Object[]) Array.newInstance(o.get().getClass(), 1);
-                        one[0] = o.get();
-                        var cs2 = new Class<?>[cs.length];
-                        for (var i = 0; i < cs.length; i++)
-                            cs2[i] = cs[i].isArray() ? cs[i].getComponentType() : cs[i];
-                        var l = new ArrayList<>();
-                        for (var d : changeWith) {
-                            Object d2 = Converters.convert(d, cs2);
-                            if (d2 != null)
-                                l.add(d2);
-                        }
-                        ((Changer<Object>) changer.get()).change(one, l.toArray(), mode);
-                    }
-                    break;
-            }
-        }
     }
 }

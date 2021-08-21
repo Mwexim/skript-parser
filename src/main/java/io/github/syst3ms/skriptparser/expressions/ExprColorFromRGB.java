@@ -42,22 +42,18 @@ public class ExprColorFromRGB implements Expression<Color> {
 
 	@Override
 	public Color[] getValues(TriggerContext ctx) {
-		BigInteger[] values = rgb.getValues(ctx);
-		if (values.length != 3 && values.length != 4)
+		var values = rgb.stream(ctx).map(BigInteger::intValue).toArray(Integer[]::new);
+		if (values.length == 3) {
+			return Color.of(values[0], values[1], values[2])
+					.map(val -> new Color[] {val})
+					.orElse(new Color[0]);
+		} else if (values.length == 4) {
+			return Color.of(values[0], values[1], values[2], values[3])
+					.map(val -> new Color[] {val})
+					.orElse(new Color[0]);
+		} else {
 			return new Color[0];
-		int r = values[0].intValue();
-		int g = values[1].intValue();
-		int b = values[2].intValue();
-		int a = Color.MAX_VALUE;
-		if (values.length == 4)
-			a = values[3].intValue();
-
-		if (0 <= r && r < 256
-				&& 0 <= g && g < 256
-				&& 0 <= b && b < 256
-				&& 0 <= a && a < 256)
-			return new Color[]{Color.of(r, g, b, a)};
-		return new Color[0];
+		}
 	}
 
 	@Override

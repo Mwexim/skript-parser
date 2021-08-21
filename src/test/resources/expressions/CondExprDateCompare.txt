@@ -1,13 +1,24 @@
 # Author(s):
 # 	- Mwexim
-# Date: 2020/12/18
+# Date:
+#	- 2020/12/18
+#	- 2021/29/06 (multiple dates)
 
 test:
-	set {var} to yesterday
-	assert {var} wasn't more than 2 days ago with "{var} should not be more than 2 days ago: %{var}% - %now% (now)"
+	set {list::1} to yesterday
+	assert {list::1} wasn't more than 2 days ago with "{list::1} should not be more than 2 days ago: %{list::1}% - %now% (now)"
 
-	set {var} to 3 hours later
-	assert {var} was less than 1 second ago with "{var}, a future date, should be less than 1 second ago: %{var}% - %now% (now)"
+	set {list::2} to 3 hours later
+	assert {list::2} was less than 1 second ago with "{list::2}, a future date, should be less than 1 second ago: %{list::2}% - %now% (now)"
 
-	set {var} to 5 hours ago
-	assert {var} was more than (4 hours, 59 minutes, 59 seconds and 999 milliseconds) ago with "{var} should be more than 4:59:59.999 hours ago: %{var}% - %now% (now)"
+	set {list::3} to 5 hours ago
+	set {var} to 5 hours
+	remove 1 millisecond from {var}
+	assert {list::3} was more than {var} ago with "{list::3} should be more than 4:59:59.999 hours ago: %{list::3}% - %now% (now)"
+
+	# This code took too long for the parser to load
+	# TODO improve duration parsing to be much more efficient
+	# assert {list::3} was more than (4 hours, 59 minutes, 59 seconds and 999 milliseconds) ago with "{list::3} should be more than 4:59:59.999 hours ago: %{list::3}% - %now% (now)"
+
+	# Multiple dates
+	assert {list::*} was less than 1 day and 3 minutes ago with "{list::*} should all be less than 1 day and 3 minutes ago"

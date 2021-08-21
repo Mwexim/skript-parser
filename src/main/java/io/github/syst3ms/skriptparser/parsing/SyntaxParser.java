@@ -464,7 +464,7 @@ public class SyntaxParser {
         List<String> parts = new ArrayList<>();
         var m = LIST_SPLIT_PATTERN.matcher(s);
         var lastIndex = 0;
-        for (var i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i+1)) {
+        for (var i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i + 1)) {
             if (i == -1) {
                 return Optional.empty();
             } else if (StringUtils.nextSimpleCharacterIndex(s, i) > i) { // We are currently at the start of something we need to skip over

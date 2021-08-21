@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.lang.base;
 
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.ExpressionList;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 
 /**
@@ -10,7 +11,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
  * {@link TaggedExpression} is used.
  */
 public abstract class TaggedExpression implements Expression<String> {
-
 	@Override
 	public String[] getValues(TriggerContext ctx) {
 		return new String[] {toString(ctx, "default")};
@@ -24,4 +24,25 @@ public abstract class TaggedExpression implements Expression<String> {
 	 */
 	public abstract String toString(TriggerContext ctx, String tagCtx);
 
+	/**
+	 * Returns the string values of this expression after applying all tags.
+	 * This means if the expression is a {@link TaggedExpression}
+	 * or an {@link ExpressionList} containing a TaggedExpression,
+	 * all the tags will be applied with the given tag context. If not, it will
+	 * just return the string values of this expression.
+	 * @param expr the single expression
+	 * @param ctx the context
+	 * @param tagCtx the tag context
+	 * @return the strings with optional tags applied
+	 */
+	@SuppressWarnings("unchecked")
+	public static String[] apply(Expression<String> expr, TriggerContext ctx, String tagCtx) {
+		if (expr instanceof TaggedExpression) {
+			return new String[] {((TaggedExpression) expr).toString(ctx, tagCtx)};
+		} else if (expr instanceof ExpressionList) {
+			return ((ExpressionList<String>) expr).getValues(val -> apply((Expression<String>) val, ctx, tagCtx));
+		} else {
+			return expr.getValues(ctx);
+		}
+	}
 }
