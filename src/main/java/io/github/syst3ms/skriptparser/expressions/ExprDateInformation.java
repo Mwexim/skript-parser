@@ -5,9 +5,12 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
+import java.util.function.Function;
 
 /**
  * Information of a certain date.
@@ -20,19 +23,27 @@ import java.math.BigInteger;
  * @author Mwexim
  */
 public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> {
+	public static final PatternInfos<Function<LocalDateTime, Integer>> PATTERNS = new PatternInfos<>(new Object[][] {
+			{"year[s]", (Function<LocalDateTime, Number>) LocalDateTime::getYear},
+			{"month[s]", (Function<LocalDateTime, Number>) LocalDateTime::getMonthValue},
+			{"day[s] (of|in) year", (Function<LocalDateTime, Number>) LocalDateTime::getDayOfYear},
+			{"day[s] (of|in) month", (Function<LocalDateTime, Number>) LocalDateTime::getDayOfMonth},
+			{"day[s] (of|in) week", (Function<LocalDateTime, Number>) val -> val.getDayOfWeek().getValue()},
+			{"hour[s]", (Function<LocalDateTime, Number>) LocalDateTime::getHour},
+			{"minute[s]", (Function<LocalDateTime, Number>) LocalDateTime::getMinute},
+			{"second[s]", (Function<LocalDateTime, Number>) LocalDateTime::getSecond},
+			{"milli[second][s]", (Function<LocalDateTime, Number>) val -> val.getNano() / 1_000_000}
+	});
+
 	static {
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprDateInformation.class,
 				Number.class,
 				4,
 				"*[date] %date%",
-				"(0:year[s]|1:month[s]|2:day[s] (of|in) year|3:day[s] (of|in) month|4:day[s] (of|in) week|5:hour[s]|6:minute[s]|7:second[s]|8:milli[second][s])"
+				PATTERNS.toChoiceGroup()
 		);
 	}
-
-	private final static String[] CHOICES = {
-			"year", "month", "day of year", "day of month", "day of week", "hours", "minutes", "seconds", "milliseconds"
-	};
 
 	private int mark;
 
@@ -44,33 +55,11 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 
 	@Override
 	public Number getProperty(SkriptDate owner) {
-		var local = owner.toLocalDateTime();
-		switch (mark) {
-			case 0:
-				return BigInteger.valueOf(local.getYear());
-			case 1:
-				return BigInteger.valueOf(local.getMonthValue());
-			case 2:
-				return BigInteger.valueOf(local.getDayOfYear());
-			case 3:
-				return BigInteger.valueOf(local.getDayOfMonth());
-			case 4:
-				return BigInteger.valueOf(local.getDayOfWeek().getValue());
-			case 5:
-				return BigInteger.valueOf(local.getHour());
-			case 6:
-				return BigInteger.valueOf(local.getMinute());
-			case 7:
-				return BigInteger.valueOf(local.getSecond());
-			case 8:
-				return BigInteger.valueOf(local.getNano() / 1_000_000);
-			default:
-				throw new IllegalStateException();
-		}
+		return BigInteger.valueOf(PATTERNS.getInfo(mark).apply(owner.toLocalDateTime()));
 	}
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return CHOICES[mark] + " of date " + getOwner().toString(ctx, debug);
+		return new String[] {"year", "month", "day of year", "day of month", "day of week", "hours", "minutes", "seconds", "milliseconds"}[mark] + " of date " + getOwner().toString(ctx, debug);
 	}
 }
