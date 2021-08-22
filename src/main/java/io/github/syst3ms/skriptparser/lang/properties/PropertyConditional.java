@@ -50,12 +50,18 @@ public abstract class PropertyConditional<P> extends ConditionalExpression {
 
     @Override
     public boolean check(TriggerContext ctx) {
-        if (performer.getValues(ctx).length == 0)
-            return isNegated();
-        return check(ctx, performer.getValues(ctx));
+        return getPerformer().check(ctx, this::check, isNegated());
     }
 
-    public abstract boolean check(TriggerContext ctx, P[] performers);
+    /**
+     * Tests this condition for each individual performer. Negated conditions are taken care of
+     * automatically, so one must not account for it in here.
+     * @param performer the performer
+     * @return whether the conditions is true for this performer
+     */
+    public boolean check(P performer) {
+        throw new UnsupportedOperationException("Override #check(P) if you are planning to use the default functionality.");
+    }
 
     protected String toString(TriggerContext ctx, boolean debug, ConditionalType conditionalType, String property) {
         switch (conditionalType) {

@@ -1,6 +1,9 @@
 # Author(s):
 # 	- Olyno
-# Date: 2020/12/06
+#	- Mwexim
+# Date:
+#	- 2020/12/06
+#	- 2021/07/03 (logic improvements)
 
 test:
 	set {var} to "Hello World"
@@ -9,3 +12,8 @@ test:
 	assert {list::*} start with "H" with "{list::*} should start with 'H': %{list::*}%"
 	assert {var} does not end with "H" with "{var} should not end with 'H': %{var}%"
 	assert {list::*} does not end with "H" with "{list::*} should not end with 'H': %{list::*}%"
+
+	# Logical improvements
+	assert "Test", "Not a test" or "Hello" starts with "T", "Tes" and "Test" with "double or-list comparison failed"
+	assert "Test", "Not a test" and "Hello" start with "Te", "Not a ", "Nothing" or "Hel" with "and-list with or-list comparison failed"
+	assert "Test", "Second test" and "We did it!" end with "t" or "it!" with "and-list with or-list comparison failed"

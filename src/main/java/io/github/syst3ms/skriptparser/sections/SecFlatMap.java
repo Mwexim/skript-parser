@@ -63,7 +63,7 @@ public class SecFlatMap extends ReturnSection<Object> implements SelfReferencing
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         flatMapped = expressions[0];
         var logger = parseContext.getLogger();
-        if (flatMapped.acceptsChange(ChangeMode.SET).isEmpty()
+        if (!flatMapped.acceptsChange(ChangeMode.SET, flatMapped.getReturnType(), false)
 				|| flatMapped.acceptsChange(ChangeMode.DELETE).isEmpty()) {
             logger.error(
                     "The expression '" +
@@ -93,9 +93,9 @@ public class SecFlatMap extends ReturnSection<Object> implements SelfReferencing
 			return start();
 		} else {
 			if (result.size() == 0) {
-				flatMapped.change(ctx, new Object[0], ChangeMode.DELETE);
+				flatMapped.change(ctx, ChangeMode.DELETE, new Object[0]);
 			} else {
-				flatMapped.change(ctx, result.toArray(), ChangeMode.SET);
+				flatMapped.change(ctx, ChangeMode.SET, result.toArray());
 			}
 			finish();
 			return Optional.ofNullable(actualNext);

@@ -9,10 +9,10 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Optional;
 import java.util.TimeZone;
 
 /**
@@ -36,14 +36,14 @@ public class ExprParseAs implements Expression<Object> {
 				ExprParseAs.class,
 				Object.class,
 				true,
-				"%string% parsed as %*type% [1:(using format|formatted as) %string%]"
+				"%string% parsed as %*type% [(using format|formatted as) %string%]"
 				);
 	}
 
 	private Expression<String> expr;
 	private Expression<Type<?>> type;
 	private Class<?> parseTo;
-	private boolean useFormat;
+	@Nullable
 	private Expression<String> format;
 
 	@SuppressWarnings("unchecked")
@@ -62,21 +62,20 @@ public class ExprParseAs implements Expression<Object> {
 			);
 			return false;
 		}
-		useFormat = parseContext.getParseMark() == 1;
-		if (useFormat)
+		if (expressions.length > 2)
 			format = (Expression<String>) expressions[2];
-		assert !useFormat || format != null;
 		return true;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Object[] getValues(TriggerContext ctx) {
 		return expr.getSingle(ctx)
 				.map(s -> {
 					if (parseTo == SkriptDate.class) {
 						SimpleDateFormat parseFormat = new SimpleDateFormat(
-								useFormat ? ((Optional<String>) format.getSingle(ctx)).orElse(SkriptDate.DATE_FORMAT) : SkriptDate.DATE_FORMAT,
+								format != null
+										? format.getSingle(ctx).map(val -> (String) val).orElse(SkriptDate.DATE_FORMAT)
+										: SkriptDate.DATE_FORMAT,
 								SkriptDate.DATE_LOCALE
 						);
 						// We need to parse from the correct time zone.
@@ -106,6 +105,7 @@ public class ExprParseAs implements Expression<Object> {
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return expr.toString(ctx, debug) + " parsed as " + type.toString(ctx, debug) + (useFormat ? " formatted as " + format.toString(ctx, debug) : "");
+		return expr.toString(ctx, debug) + " parsed as " + type.toString(ctx, debug)
+				+ (format != null ? " formatted as " + format.toString(ctx, debug) : "");
 	}
 }

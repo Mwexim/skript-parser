@@ -34,7 +34,8 @@ public class ExprRandomNumber implements Expression<Number> {
         );
     }
 
-    private final ThreadLocalRandom random = ThreadLocalRandom.current();
+    private static final ThreadLocalRandom random = ThreadLocalRandom.current();
+
     private Expression<Number> lowerNumber, maxNumber;
     private boolean isInteger, isExclusive;
     private Comparator<? super Number, ? super Number> numComp;
@@ -45,7 +46,7 @@ public class ExprRandomNumber implements Expression<Number> {
         lowerNumber = (Expression<Number>) expressions[0];
         maxNumber = (Expression<Number>) expressions[1];
         isInteger = matchedPattern == 0;
-        isExclusive = context.getParseMark() == 1;
+        isExclusive = context.getNumericMark() == 1;
         numComp = Comparators.getComparator(Number.class, Number.class).orElseThrow(AssertionError::new);
         return true;
     }

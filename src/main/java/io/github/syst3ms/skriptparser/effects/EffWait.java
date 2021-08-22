@@ -51,7 +51,7 @@ public class EffWait extends Effect {
             condition = (Expression<Boolean>) expressions[0];
             if (expressions.length == 2)
                 duration = (Literal<Duration>) expressions[1];
-            negated = parseContext.getParseMark() == 0;
+            negated = parseContext.getNumericMark() == 0;
         } else {
             duration = (Expression<Duration>) expressions[0];
         }

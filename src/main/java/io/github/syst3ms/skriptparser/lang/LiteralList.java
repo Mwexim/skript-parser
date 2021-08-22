@@ -21,12 +21,12 @@ public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
 
     @Override
     public T[] getValues() {
-        return getValues(TriggerContext.DUMMY);
+        return super.getValues(TriggerContext.DUMMY);
     }
 
     @Override
     public Optional<? extends T> getSingle() {
-        return getSingle(TriggerContext.DUMMY);
+        return super.getSingle(TriggerContext.DUMMY);
     }
 
     @SuppressWarnings("unchecked")
@@ -40,10 +40,5 @@ public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
             classes[i] = exprs[i].getReturnType();
         }
         return Optional.of(new LiteralList<>(exprs, (Class<R>) ClassUtils.getCommonSuperclass(classes), and, this));
-    }
-
-    @Override
-    public boolean isSingle() {
-        return single;
     }
 }

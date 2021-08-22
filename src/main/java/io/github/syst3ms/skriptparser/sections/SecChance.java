@@ -40,7 +40,7 @@ public class SecChance extends CodeSection {
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         chance = (Expression<Number>) expressions[0];
-        percent = parseContext.getParseMark() == 1;
+        percent = parseContext.getNumericMark() == 1;
         return true;
     }
 

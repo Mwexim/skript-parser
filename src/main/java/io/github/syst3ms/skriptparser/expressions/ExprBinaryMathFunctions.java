@@ -25,7 +25,7 @@ public class ExprBinaryMathFunctions implements Expression<Number> {
 	public static final PatternInfos<BinaryOperator<Number>> PATTERNS = new PatternInfos<>(
 		new Object[][] {
 				{"log[arithm] [base] %number% of %number%", (BinaryOperator<Number>) NumberMath::log},
-				{"(root %number%|[the] %integer%(st|nd|rd|th) root) of %number%", (BinaryOperator<Number>) (r, n) -> {
+				{"root %number% of %number%", (BinaryOperator<Number>) (r, n) -> {
 					var root = r instanceof BigDecimal ? (BigDecimal) r : new BigDecimal(r.toString());
 					if (root.equals(BigDecimal.ONE)) {
 						return n;

@@ -337,7 +337,7 @@ public class SyntaxParser {
         CONTEXT_VALUE_PATTERN.match(toParse, 0, matchContext);
 
         var parseContext = matchContext.toParseResult();
-        var time = ContextValueState.values()[parseContext.getParseMark()];
+        var time = ContextValueState.values()[parseContext.getNumericMark()];
         var name = parseContext.getMatches().get(0).group();
         for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
             String representation = (time == ContextValueState.PAST
@@ -464,7 +464,7 @@ public class SyntaxParser {
         List<String> parts = new ArrayList<>();
         var m = LIST_SPLIT_PATTERN.matcher(s);
         var lastIndex = 0;
-        for (var i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i+1)) {
+        for (var i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i + 1)) {
             if (i == -1) {
                 return Optional.empty();
             } else if (StringUtils.nextSimpleCharacterIndex(s, i) > i) { // We are currently at the start of something we need to skip over

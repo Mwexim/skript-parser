@@ -28,33 +28,30 @@ public class ExprStringOccurrence implements Expression<Number> {
 		);
 	}
 
-	private Expression<String> value, expr;
+	private Expression<String> haystack, needle;
 	private boolean first;
 
 	// TODO let this support nth occurrence
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		first = parseContext.getParseMark() == 0;
-		value = (Expression<String>) expressions[0];
-		expr = (Expression<String>) expressions[1];
+		first = parseContext.getNumericMark() == 0;
+		needle = (Expression<String>) expressions[0];
+		haystack = (Expression<String>) expressions[1];
 		return true;
 	}
 
 	@Override
 	public Number[] getValues(TriggerContext ctx) {
-		return DoubleOptional.ofOptional(value.getSingle(ctx), expr.getSingle(ctx))
-				.mapToOptional((v, e) -> first ? e.indexOf(v) : e.lastIndexOf(v))
+		return DoubleOptional.ofOptional(haystack.getSingle(ctx), needle.getSingle(ctx))
+				.mapToOptional((h, n) -> first ? h.indexOf(n) : h.lastIndexOf(n))
 				.filter(i -> i != -1)
-				.map(i -> {
-					// Return i + 1, since Skript indices start at 1.
-					return new Number[]{BigInteger.valueOf(i + 1)};
-				})
+				.map(i -> new Number[] {BigInteger.valueOf(i + 1)}) // Return i + 1, since Skript indices start at 1.
 				.orElse(new Number[0]);
 	}
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return (first ? "first" : "last") + " occurrence of " + value.toString(ctx, debug) + " in " + expr.toString(ctx, debug);
+		return (first ? "first" : "last") + " occurrence of " + needle.toString(ctx, debug) + " in " + haystack.toString(ctx, debug);
 	}
 }

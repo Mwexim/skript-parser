@@ -47,7 +47,7 @@ public class ExprElement implements Expression<Object> {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		pattern = matchedPattern;
-		parseMark = parseContext.getParseMark();
+		parseMark = parseContext.getNumericMark();
 
 		switch (pattern) {
 			case 0:
@@ -118,7 +118,7 @@ public class ExprElement implements Expression<Object> {
 			case 3:
 				return new Object[] {values[r - 1]};
 			default:
-				return new Object[0];
+				throw new IllegalStateException();
 		}
 	}
 

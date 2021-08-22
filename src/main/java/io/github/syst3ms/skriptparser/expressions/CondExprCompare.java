@@ -79,9 +79,9 @@ public class CondExprCompare extends ConditionalExpression {
         second = expressions[1];
         if (expressions.length == 3)
             third = expressions[2];
-        SkriptLogger logger = result.getLogger();
         relation = PATTERNS.getInfo(matchedPattern);
-        int parseMark = result.getParseMark();
+
+        int parseMark = result.getNumericMark();
         if ((parseMark & 2) != 0) // "not" somewhere in the condition
             setNegated(true);
         if ((parseMark & 1) != 0) // "neither" on the left side
@@ -91,6 +91,8 @@ public class CondExprCompare extends ConditionalExpression {
                 second.setAndList(!second.isAndList());
             }
         }
+
+        SkriptLogger logger = result.getLogger();
         if ((parseMark & 0x18) != 0) {
             firstEach = (parseMark & 0x8) != 0;
             secondEach = (parseMark & 0x10) != 0;
@@ -213,16 +215,6 @@ public class CondExprCompare extends ConditionalExpression {
 
         if (f == Object.class || s == Object.class) {
             return true;
-        } else if (f != s) {
-            // Tries to convert the instances to each other.
-            // Basically takes expression conversions into account.
-            var converted = Expression.convertPair(first, second);
-            if (!first.equals(converted.getFirst()) || !second.equals(converted.getSecond())) {
-                first = converted.getFirst();
-                second = converted.getSecond();
-                comparator = (Comparator<Object, Object>) Comparators.getComparator(first.getReturnType(), second.getReturnType()).orElseThrow(AssertionError::new);
-                return true;
-            }
         }
         return (comparator = (Comparator<Object, Object>) Comparators.getComparator(f, s).orElse(null)) != null;
     }
@@ -263,9 +255,9 @@ public class CondExprCompare extends ConditionalExpression {
      */
     @Override
     public boolean check(TriggerContext ctx) {
-        Object[] firstValues = first.getValues(ctx);
-        Object[] secondValues = second.getValues(ctx);
-        Object[] thirdValues = third != null ? third.getValues(ctx) : null;
+        Object[] firstValues = first.getArray(ctx);
+        Object[] secondValues = second.getArray(ctx);
+        Object[] thirdValues = third != null ? third.getArray(ctx) : null;
         if (thirdValues == null) {
             if (firstEach && secondEach) {
                 if (firstValues.length != secondValues.length)

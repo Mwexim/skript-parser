@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.properties.ConditionalType;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyConditional;
 
@@ -25,13 +24,8 @@ public class CondExprIsSet extends PropertyConditional<Object> {
     }
 
     @Override
-    public boolean check(TriggerContext ctx) {
-        return isNegated() == (getPerformer().getValues(ctx).length == 0);
-    }
-
-    @Override
-    public boolean check(TriggerContext ctx, Object[] performers) {
-        throw new UnsupportedOperationException();
+    public boolean check(Object performer) {
+        return true;
     }
 
     @Override

@@ -9,6 +9,7 @@ import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import org.jetbrains.annotations.Contract;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -28,8 +29,7 @@ public class SimpleLiteral<T> implements Literal<T> {
 
     @SafeVarargs
     public SimpleLiteral(Class<T> c, T... values) {
-        this.values = (T[]) Array.newInstance(c, values.length);
-        System.arraycopy(values, 0, this.values, 0, values.length);
+        this.values = Arrays.copyOf(values, values.length);
     }
 
     @Override
@@ -50,12 +50,8 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     @Override
-    public String toString(TriggerContext ctx, boolean debug) {
-        if (isSingle()) {
-            return values[0].toString();
-        } else {
-            return TypeManager.toString((Object[]) values);
-        }
+    public T[] getArray(TriggerContext ctx) {
+        return values;
     }
 
     @Override
@@ -67,13 +63,25 @@ public class SimpleLiteral<T> implements Literal<T> {
         if (returnType != null) {
             return returnType;
         } else {
-            return (returnType = (Class<T>) values.getClass().getComponentType());
+            return returnType = (Class<T>) values.getClass().getComponentType();
         }
     }
 
     @Override
-    public void setAndList(boolean isAndList) {
-        this.isAndList = isAndList;
+    public String toString(TriggerContext ctx, boolean debug) {
+        return TypeManager.toString(values);
+    }
+
+    @Override
+    public Iterator<T> iterator(TriggerContext context) {
+        if (isSingle())
+            throw new SkriptRuntimeException("Can't loop a single literal!");
+        return Arrays.asList(values).iterator();
+    }
+
+    @Override
+    public boolean isLoopOf(String loop) {
+        return false;
     }
 
     @Override
@@ -82,14 +90,8 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     @Override
-    public T[] getArray(TriggerContext ctx) {
-        if (isAndList) {
-            return values;
-        } else {
-            var newArray = (T[]) Array.newInstance(getReturnType(), 1);
-            newArray[0] = CollectionUtils.getRandom(values);
-            return newArray;
-        }
+    public void setAndList(boolean isAndList) {
+        this.isAndList = isAndList;
     }
 
     @Override
@@ -101,17 +103,5 @@ public class SimpleLiteral<T> implements Literal<T> {
         if (converted.length != values.length)
             return Optional.empty();
         return Optional.of(new SimpleLiteral<>(superType, converted));
-    }
-
-    @Override
-    public boolean isLoopOf(String loop) {
-        return false;
-    }
-
-    @Override
-    public Iterator<T> iterator(TriggerContext context) {
-        if (isSingle())
-            throw new SkriptRuntimeException("Can't loop a single literal !");
-        return CollectionUtils.iterator(values);
     }
 }

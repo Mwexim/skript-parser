@@ -4,8 +4,8 @@ import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.base.TaggedExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.util.StringUtils;
 
 /**
  * Prints some text to the console
@@ -23,25 +23,24 @@ public class EffPrint extends Effect {
         );
     }
 
-    private Expression<String> string;
+    private Expression<String> expression;
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        string = (Expression<String>) expressions[0];
+        expression = (Expression<String>) expressions[0];
         return true;
     }
 
     @Override
     public void execute(TriggerContext ctx) {
-        String[] strs = StringUtils.applyTags(string, ctx, "console");
-        for (String str : strs) {
-            System.out.println(str);
+        for (String val : TaggedExpression.apply(expression, ctx, "console")) {
+            System.out.println(val);
         }
     }
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
-        return "print " + string.toString(ctx, debug);
+        return "print " + expression.toString(ctx, debug);
     }
 }

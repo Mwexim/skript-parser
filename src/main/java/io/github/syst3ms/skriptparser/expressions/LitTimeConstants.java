@@ -39,7 +39,7 @@ public class LitTimeConstants implements Literal<Time> {
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         onClock = matchedPattern == 1;
-        midnight = parseContext.getParseMark() == 1;
+        midnight = parseContext.getNumericMark() == 1;
         if (onClock) {
             hours = (Literal<BigInteger>) expressions[0];
             if (hours.getSingle().isPresent()) {

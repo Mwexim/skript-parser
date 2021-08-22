@@ -178,15 +178,14 @@ public class SkriptRegistration {
      * Starts a registration process for a {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
-     * @param isSingle whether the Expression is a single value
      * @param ownerType the type of the owner
      * @param property the property
      * @param <C> the Expression
      * @param <T> the Expression's return type
      * @return an {@link ExpressionRegistrar} to continue the registration process
      */
-    public <C extends PropertyExpression<T, ?>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
-        return newExpression(c, returnType, isSingle,
+    public <C extends PropertyExpression<T, ?>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, String ownerType, String property) {
+        return newExpression(c, returnType, false,
                 adaptPropertyPrefix(ownerType) + "'[s] " + property,
                 (property.startsWith("[the]") ? property : "[the] " + property) + " of " + adaptPropertyPrefix(ownerType)
         );
@@ -196,29 +195,27 @@ public class SkriptRegistration {
      * Registers a {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
-     * @param isSingle whether the Expression is a single value
      * @param ownerType the type of the owner
      * @param property the property
      * @param <C> the Expression
      * @param <T> the Expression's return type
      */
-    public <C extends PropertyExpression<T, ?>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
-        newPropertyExpression(c, returnType, isSingle, ownerType, property).register();
+    public <C extends PropertyExpression<T, ?>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, String ownerType, String property) {
+        newPropertyExpression(c, returnType, ownerType, property).register();
     }
 
     /**
      * Registers a {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
-     * @param isSingle whether the Expression is a single value
      * @param priority the parsing priority this Expression has. 5 by default, a lower number means lower priority
      * @param ownerType the type of the owner
      * @param property the property
      * @param <C> the Expression
      * @param <T> the Expression's return type
      */
-    public <C extends PropertyExpression<T, ?>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, int priority, String ownerType, String property) {
-        newPropertyExpression(c, returnType, isSingle, ownerType, property).setPriority(priority).register();
+    public <C extends PropertyExpression<T, ?>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, int priority, String ownerType, String property) {
+        newPropertyExpression(c, returnType, ownerType, property).setPriority(priority).register();
     }
 
     /**

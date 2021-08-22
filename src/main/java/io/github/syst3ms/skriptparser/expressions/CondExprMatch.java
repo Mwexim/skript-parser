@@ -37,23 +37,20 @@ public class CondExprMatch extends ConditionalExpression {
         matched = (Expression<String>) expressions[0];
         pattern = (Expression<String>) expressions[1];
         // 1 = negated, 2 = partially, 3 = negated and partially
-        setNegated(parseContext.getParseMark() == 1 || parseContext.getParseMark() == 3);
-        partly = parseContext.getParseMark() == 2 || parseContext.getParseMark() == 3;
+        setNegated(parseContext.getNumericMark() == 1 || parseContext.getNumericMark() == 3);
+        partly = parseContext.getNumericMark() == 2 || parseContext.getNumericMark() == 3;
         return true;
     }
 
     @Override
     public boolean check(TriggerContext ctx) {
-        return Expression.check(
-                matched.getValues(ctx),
-                toMatch -> Expression.check(
-                        pattern.getValues(ctx),
-                        pattern -> partly ? Pattern.compile(pattern).matcher(toMatch).find() : toMatch.matches(pattern),
-                        false,
-                        pattern.isAndList()
+        return matched.check(
+                ctx,
+                toMatch -> pattern.check(
+                        ctx,
+                        pattern -> partly ? Pattern.compile(pattern).matcher(toMatch).find() : toMatch.matches(pattern)
                 ),
-                isNegated(),
-                matched.isAndList()
+                isNegated()
         );
     }
 

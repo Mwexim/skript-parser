@@ -9,7 +9,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
  *
  * @see EffChange
  * @see Expression#acceptsChange(ChangeMode)
- * @see Expression#change(TriggerContext, Object[], ChangeMode)
+ * @see Expression#change(TriggerContext, ChangeMode, Object[])
  */
 public enum ChangeMode {
 

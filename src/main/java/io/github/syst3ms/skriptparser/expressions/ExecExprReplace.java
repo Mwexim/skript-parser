@@ -34,12 +34,11 @@ public class ExecExprReplace extends ExecutableExpression<String> {
 				ExecExprReplace.class,
 				String.class,
 				false,
-				"replace [(0:all|0:every|1:[the] first|2:[the] last)] [4:regex [pattern[s]]] %strings% in %strings% with %string%",
-				"replace [(0:all|0:every|1:[the] first|2:[the] last)] [4:regex [pattern[s]]] %strings% with %string% in %strings%"
+				"replace [(0:all|0:every|1:[the] first|2:[the] last)] [:regex [pattern[s]]] %strings% in %strings% with %string%",
+				"replace [(0:all|0:every|1:[the] first|2:[the] last)] [:regex [pattern[s]]] %strings% with %string% in %strings%"
 		);
 	}
 
-	// 0 = all, 1 = first, 2 = last
 	private Expression<String> toMatch;
 	private Expression<String> toReplace;
 	private Expression<String> replacement;
@@ -50,14 +49,14 @@ public class ExecExprReplace extends ExecutableExpression<String> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		type = parseContext.getParseMark() & 0b11;
-		regex = (parseContext.getParseMark() ^ type) == 4;
+		type = parseContext.getNumericMark();
+		regex = parseContext.hasMark("regex");
 
 		toMatch = (Expression<String>) expressions[0];
 		toReplace = (Expression<String>) expressions[1 + matchedPattern];
 		replacement = (Expression<String>) expressions[2 - matchedPattern];
 
-		if (!toReplace.acceptsChange(ChangeMode.SET, String[].class)) {
+		if (!toReplace.acceptsChange(ChangeMode.SET, toReplace)) {
 			var logger = parseContext.getLogger();
 			logger.error(
 					"The expression '"
@@ -132,7 +131,7 @@ public class ExecExprReplace extends ExecutableExpression<String> {
 			}
 		}
 		if (isEffect)
-			toReplace.change(ctx, replacedValues, ChangeMode.SET);
+			toReplace.change(ctx, ChangeMode.SET, replacedValues);
 		return replacedValues;
 	}
 
