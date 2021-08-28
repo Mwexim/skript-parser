@@ -54,6 +54,6 @@ public class CondExprIsDivisible extends PropertyConditional<Number> {
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
-        return toString(ctx, debug, ConditionalType.BE, "divisible by " + divider.toString(ctx, debug));
+        return toString(ctx, debug, "divisible by " + divider.toString(ctx, debug));
     }
 }

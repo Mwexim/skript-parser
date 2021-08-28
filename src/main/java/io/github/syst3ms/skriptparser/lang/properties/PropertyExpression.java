@@ -3,6 +3,9 @@ package io.github.syst3ms.skriptparser.lang.properties;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
+import io.github.syst3ms.skriptparser.registration.SyntaxManager;
+import io.github.syst3ms.skriptparser.registration.properties.PropertyExpressionInfo;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -14,17 +17,17 @@ import java.util.Objects;
  *     <li>Mwexim's book</li>
  *     <li>the book of Mwexim</li>
  * </ul>
- * This utility class acknowledges how useful and common such "property expressions" are, and provides a simple way
+ * This utility class acknowledges how useful and common such 'property expressions' are, and provides a simple way
  * to implement them.
  * The class also provides default implementations of {@link #init(Expression[], int, ParseContext)}
  * and {@link #getValues(TriggerContext)}. Their default functionality is specified below.
- *
  * @param <T> The returned type of this expression.
  * @param <O> The type of the owner of this expression.
  * @author Mwexim
  */
 public abstract class PropertyExpression<T, O> implements Expression<T> {
     private Expression<O> owner;
+    private boolean genitive;
 
     /**
      * This default {@code init()} implementation automatically properly sets the owner of this property,
@@ -42,6 +45,7 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         setOwner((Expression<O>) expressions[0]);
+        genitive = matchedPattern == 0;
         return true;
     }
 
@@ -71,6 +75,22 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
         return owner.isSingle();
     }
 
+    @Override
+    public String toString(TriggerContext ctx, boolean debug) {
+        var property = SyntaxManager.getExpressionExact(this)
+                .filter(PropertyExpressionInfo.class::isInstance)
+                .map(PropertyExpressionInfo.class::cast)
+                .orElseThrow(() -> new SkriptParserException("Unregistered or incorrectly registered property class: " + getClass().getName()))
+                .getProperty();
+        return toString(ctx, debug, property);
+    }
+
+    protected String toString(TriggerContext ctx, boolean debug, String property) {
+        return genitive
+                ? owner.toString(ctx, debug) + "'s " + property
+                : property + " of " + owner.toString(ctx, debug);
+    }
+
     public Expression<O> getOwner() {
         return owner;
     }
@@ -80,16 +100,15 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     }
 
     /**
-     * There are 2 kinds of possession:
+     * You can express possession in two different ways:
      * <ul>
-     *     <li><b>Genitive:</b>Mwexim's book</li>
-     *     <li><b>Regular:</b>book of Mwexim</li>
+     *     <li><b>genitive:</b> Mwexim's book</li>
+     *     <li><b>regular:</b> book of Mwexim</li>
      * </ul>
-     * One may use this method to check if the pattern is in the genitive form.
-     * @param matchedPattern the matched pattern of a property
-     * @return whether this pattern is in the genitive form or not.
+     * One may use this method to check if the pattern used is in the genitive form.
+     * @return whether the pattern is in the genitive form or not.
      */
-    public static boolean isGenitive(int matchedPattern) {
-        return matchedPattern == 0;
+    public boolean isGenitive() {
+        return genitive;
     }
 }

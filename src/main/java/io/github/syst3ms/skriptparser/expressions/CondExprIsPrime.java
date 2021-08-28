@@ -39,6 +39,6 @@ public class CondExprIsPrime extends PropertyConditional<Number> {
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return toString(ctx, debug, ConditionalType.BE, "prime");
+		return toString(ctx, debug, "prime");
 	}
 }

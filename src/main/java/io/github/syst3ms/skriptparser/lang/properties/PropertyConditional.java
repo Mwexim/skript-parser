@@ -4,6 +4,9 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
+import io.github.syst3ms.skriptparser.registration.SyntaxManager;
+import io.github.syst3ms.skriptparser.registration.properties.PropertyExpressionInfo;
 
 /**
  * This class can be used for an easier writing of conditions that contain only one type in the pattern
@@ -17,8 +20,9 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  *
  * The gains of using this class:
  * <ul>
- *     <li>There is a useful {@link #toString(TriggerContext, boolean, ConditionalType, String) toString()}
- *     method and it works well with the plural and negated forms.</li>
+ *     <li>There is a useful {@link #toString(TriggerContext, boolean, String) toString()}
+ *     method and it works well with the plural and negated forms.
+ *     It is implemented by default.</li>
  *     <li>Registration is very straightforward.</li>
  *     <li>The performer expression is automatically checked for nullity.</li>
  * </ul>
@@ -63,17 +67,37 @@ public abstract class PropertyConditional<P> extends ConditionalExpression {
         throw new UnsupportedOperationException("Override #check(P) if you are planning to use the default functionality.");
     }
 
-    protected String toString(TriggerContext ctx, boolean debug, ConditionalType conditionalType, String property) {
-        switch (conditionalType) {
+    /**
+     * The conditional type that is being used in the pattern.
+     * By default, returns {@link ConditionalType#BE}
+     * @return the conditional type
+     */
+    public ConditionalType getConditionalType() {
+        return ConditionalType.BE;
+    }
+
+    @Override
+    public String toString(TriggerContext ctx, boolean debug) {
+        var property = SyntaxManager.getExpressionExact(this)
+                .filter(PropertyExpressionInfo.class::isInstance)
+                .map(PropertyExpressionInfo.class::cast)
+                .orElseThrow(() -> new SkriptParserException("Unregistered or incorrectly registered property class: " + getClass().getName()))
+                .getProperty();
+        return toString(ctx, debug, property);
+    }
+
+    protected String toString(TriggerContext ctx, boolean debug, String property) {
+        var performer = getPerformer();
+        switch (getConditionalType()) {
             case BE:
-                return getPerformer().toString(ctx, debug) + (getPerformer().isSingle() ? " is " : " are ") + (isNegated() ? "not " : "") + property;
+                return performer.toString(ctx, debug) + (performer.isSingle() ? " is " : " are ") + (isNegated() ? "not " : "") + property;
             case CAN:
-                return getPerformer().toString(ctx, debug) + (isNegated() ? " can't " : " can ") + property;
+                return performer.toString(ctx, debug) + (isNegated() ? " can't " : " can ") + property;
             case HAVE:
-                if (getPerformer().isSingle()) {
-                    return getPerformer().toString(ctx, debug) + (isNegated() ? " doesn't have " : " has ") + property;
+                if (performer.isSingle()) {
+                    return performer.toString(ctx, debug) + (isNegated() ? " doesn't have " : " has ") + property;
                 } else {
-                    return getPerformer().toString(ctx, debug) + (isNegated() ? " don't have " : " have ") + property;
+                    return performer.toString(ctx, debug) + (isNegated() ? " don't have " : " have ") + property;
                 }
             default:
                 throw new IllegalStateException();

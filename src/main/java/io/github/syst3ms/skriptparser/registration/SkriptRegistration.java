@@ -26,6 +26,7 @@ import io.github.syst3ms.skriptparser.pattern.TextElement;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueState;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
+import io.github.syst3ms.skriptparser.registration.properties.PropertyExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.tags.Tag;
 import io.github.syst3ms.skriptparser.registration.tags.TagInfo;
 import io.github.syst3ms.skriptparser.registration.tags.TagManager;
@@ -178,69 +179,66 @@ public class SkriptRegistration {
      * Starts a registration process for a {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
-     * @param ownerType the type of the owner
+     * @param owner the owner in the pattern
      * @param property the property
      * @param <C> the Expression
      * @param <T> the Expression's return type
-     * @return an {@link ExpressionRegistrar} to continue the registration process
+     * @return an {@link PropertyExpressionRegistrar} to continue the registration process
      */
-    public <C extends PropertyExpression<T, ?>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, String ownerType, String property) {
-        return newExpression(c, returnType, false,
-                adaptPropertyPrefix(ownerType) + "'[s] " + property,
-                (property.startsWith("[the]") ? property : "[the] " + property) + " of " + adaptPropertyPrefix(ownerType)
-        );
+    public <C extends PropertyExpression<T, ?>, T> PropertyExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, String owner, String property) {
+        return new PropertyExpressionRegistrar<>(c, returnType, owner, property);
     }
 
     /**
      * Registers a {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
-     * @param ownerType the type of the owner
+     * @param owner the owner in the pattern
      * @param property the property
      * @param <C> the Expression
      * @param <T> the Expression's return type
      */
-    public <C extends PropertyExpression<T, ?>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, String ownerType, String property) {
-        newPropertyExpression(c, returnType, ownerType, property).register();
+    public <C extends PropertyExpression<T, ?>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, String owner, String property) {
+        newPropertyExpression(c, returnType, owner, property).register();
     }
 
     /**
      * Registers a {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
-     * @param priority the parsing priority this Expression has. 5 by default, a lower number means lower priority
-     * @param ownerType the type of the owner
+     * @param priority the priority
+     * @param owner the owner in the pattern
      * @param property the property
      * @param <C> the Expression
      * @param <T> the Expression's return type
      */
-    public <C extends PropertyExpression<T, ?>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, int priority, String ownerType, String property) {
-        newPropertyExpression(c, returnType, ownerType, property).setPriority(priority).register();
+    public <C extends PropertyExpression<T, ?>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, int priority, String owner, String property) {
+        newPropertyExpression(c, returnType, owner, property).setPriority(priority).register();
     }
 
     /**
      * Registers a {@link PropertyConditional}
      * @param c the Expression's class
-     * @param performerType the type of the performer
+     * @param performer the type of the performer
      * @param conditionalType the verb used in this conditional property
      * @param property the property
      * @param <C> the Expression
      */
-    public <C extends PropertyConditional<?>> void addPropertyConditional(Class<C> c, String performerType, ConditionalType conditionalType, String property) {
-        addExpression(c, Boolean.class, true, PropertyConditional.composePatterns(performerType, conditionalType, property));
+    public <C extends PropertyConditional<?>> void addPropertyConditional(Class<C> c, String performer, ConditionalType conditionalType, String property) {
+        new PropertyExpressionRegistrar<>(c, Boolean.class, property, PropertyConditional.composePatterns(performer, conditionalType, property)).register();
     }
 
     /**
      * Registers a {@link PropertyConditional}
      * @param c the Expression's class
      * @param priority the parsing priority this Expression has. 5 by default, a lower number means lower priority
-     * @param performerType the type of the performer
+     * @param performer the type of the performer
      * @param conditionalType the verb used in this conditional property
      * @param property the property
      * @param <C> the Expression
      */
-    public <C extends PropertyConditional<?>> void addPropertyConditional(Class<C> c, int priority, String performerType, ConditionalType conditionalType, String property) {
-        addExpression(c, Boolean.class, true, priority, PropertyConditional.composePatterns(performerType, conditionalType, property));
+    public <C extends PropertyConditional<?>> void addPropertyConditional(Class<C> c, int priority, String performer, ConditionalType conditionalType, String property) {
+        new PropertyExpressionRegistrar<>(c, Boolean.class, property, PropertyConditional.composePatterns(performer, conditionalType, property)).setPriority(priority).register();
     }
 
     /**
@@ -520,12 +518,7 @@ public class SkriptRegistration {
         protected int priority;
 
         SyntaxRegistrar(Class<C> c, String... patterns) {
-            this(c, -1, patterns);
-        }
-
-        SyntaxRegistrar(Class<C> c, int priority, String... patterns) {
             this.c = c;
-            this.priority = priority;
             Collections.addAll(this.patterns, patterns);
             typeCheck();
         }
@@ -552,7 +545,7 @@ public class SkriptRegistration {
             return this;
         }
 
-        protected List<PatternElement> computePatterns() {
+        protected List<PatternElement> parsePatterns() {
             boolean computePriority = priority == -1;
             priority = computePriority ? 5 : priority;
             return patterns.stream()
@@ -570,15 +563,11 @@ public class SkriptRegistration {
         private final Class<T> returnType;
         private final boolean isSingle;
 
-        ExpressionRegistrar(Class<C> c, Class<T> returnType, boolean isSingle) {
-            this(c, returnType, isSingle, new String[0]);
-            typeCheck();
-        }
-
         ExpressionRegistrar(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
             super(c, patterns);
             this.returnType = returnType;
             this.isSingle = isSingle;
+            typeCheck();
         }
 
         /**
@@ -591,14 +580,41 @@ public class SkriptRegistration {
                 logger.error("Couldn't find a type corresponding to the class '" + returnType.getName() + "'", ErrorType.NO_MATCH);
                 return;
             }
-            expressions.putOne(super.c, new ExpressionInfo<>(super.c, computePatterns(), registerer, type.get(), isSingle, priority));
+            expressions.putOne(super.c, new ExpressionInfo<>(super.c, parsePatterns(), registerer, type.get(), isSingle, priority));
+        }
+    }
+
+    public class PropertyExpressionRegistrar<C extends Expression<? extends T>, T> extends ExpressionRegistrar<C, T> {
+        private final String property;
+
+        PropertyExpressionRegistrar(Class<C> c, Class<T> returnType, String owner, String property) {
+            this(c, returnType, property,
+                    adaptPropertyPrefix(owner) + "'[s] " + property,
+                    "[the] " + property + " of " + adaptPropertyPrefix(owner));
+        }
+
+        PropertyExpressionRegistrar(Class<C> c, Class<T> returnType, String property, String... patterns) {
+            super(c, returnType, false, patterns);
+            this.property = property;
+        }
+
+        /**
+         * Adds this expression to the list of currently registered syntaxes
+         */
+        @Override
+        public void register() {
+            var type = TypeManager.getByClassExact(super.returnType);
+            if (type.isEmpty()) {
+                logger.error("Couldn't find a type corresponding to the class '" + super.returnType.getName() + "'", ErrorType.NO_MATCH);
+                return;
+            }
+            expressions.putOne(super.c, new PropertyExpressionInfo<>(super.c, parsePatterns(), registerer, type.get(), property, priority));
         }
     }
 
     public class EffectRegistrar<C extends Effect> extends SyntaxRegistrar<C> {
         EffectRegistrar(Class<C> c, String... patterns) {
             super(c, patterns);
-            typeCheck();
         }
 
         /**
@@ -606,7 +622,7 @@ public class SkriptRegistration {
          */
         @Override
         public void register() {
-            effects.add(new SyntaxInfo<>(super.c, computePatterns(), priority, registerer));
+            effects.add(new SyntaxInfo<>(super.c, parsePatterns(), priority, registerer));
         }
     }
 
@@ -621,7 +637,7 @@ public class SkriptRegistration {
          */
         @Override
         public void register() {
-            sections.add(new SyntaxInfo<>(super.c, computePatterns(), priority, registerer));
+            sections.add(new SyntaxInfo<>(super.c, parsePatterns(), priority, registerer));
         }
     }
 
@@ -639,23 +655,7 @@ public class SkriptRegistration {
          */
         @Override
         public void register() {
-            List<PatternElement> elements = new ArrayList<>();
-            boolean computePriority = priority == -1;
-            priority = computePriority ? 5 : priority;
-            for (var s : super.patterns) {
-                if (s.startsWith("*")) {
-                    s = s.substring(1);
-                } else {
-                    s = "[on] " + s;
-                }
-                PatternParser.parsePattern(s, logger).ifPresent(e -> {
-                    if (computePriority)
-                        setPriority(Math.min(priority, findAppropriatePriority(e)));
-                    elements.add(e);
-                });
-            }
-            var info = new SkriptEventInfo<>(super.c, handledContexts, elements, priority, registerer);
-            events.add(info);
+            events.add(new SkriptEventInfo<>(super.c, handledContexts, parsePatterns(), priority, registerer));
             registerer.addHandledEvent(this.c);
         }
 
