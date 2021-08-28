@@ -16,6 +16,9 @@ import java.util.regex.Pattern;
 public class FileParser {
     public static final Pattern LINE_PATTERN = Pattern.compile("^((?:[^#]|##)*)(\\s*#(?!#).*)$"); // Might as well take that from Skript
 
+    // 0 = not in a comment, 1 = in a one-line comment, 2 = in a block comment
+    private static int COMMENT_STATUS = 0;
+
     /**
      * Parses a {@linkplain List} of strings into a list of {@link FileElement}s. This creates {@link FileElement} and
      * {@link FileSection} objects from the lines, effectively structuring the lines into a tree.
@@ -36,10 +39,13 @@ public class FileParser {
 
             if (content == null) {
                 content = line.replace("##", "#").strip();
-            } else if (content.isEmpty()) {
+            }
+            else if (content.isEmpty()) {
                 elements.add(new VoidElement(fileName, lastLine + i, expectedIndentation));
                 continue;
             }
+
+            //System.out.println(content);
 
             var lineIndentation = FileUtils.getIndentationLevel(line, false);
             if (lineIndentation > expectedIndentation) { // The line is indented too much
@@ -92,39 +98,34 @@ public class FileParser {
      */
     @Nullable
     private static String removeComments(String string) {
-        if (string.matches("^[\\s\\t]*#[^#]+") || string.startsWith("#") || string.isBlank()) {
-            return ""; // Whole string is a comment
-        }
-
-        var builder = new StringBuilder();
-        outer:
-        for (int i = 0; i < string.length(); i++) {
-            char c = string.charAt(i);
-
+        StringBuilder stringBuilder = new StringBuilder();
+        for (char c : string.toCharArray()) {
             if (c == '#') {
-                if (string.charAt(i + 1) == '#') {
-                    builder.append(c).append(string.charAt(++i));
-                } else {
-                    var checked = string.substring(i + 1);
-                    for (int j : new int[] {3, 6, 8}) {
-                        if (checked.length() >= j
-                                && Color.COLOR_PATTERN.matcher(checked.substring(0, j)).matches()) {
-                            builder.append(c).append(checked, 0, j);
-                            i+=j;
-                            continue outer;
+                int index = string.indexOf(c);
+                //System.out.println(c + " : " + COMMENT_STATUS);
+                //Checking if it isn't color hex and if no double # (for escaping first #)
+                for (int i : new int[]{3, 6, 9}) {
+                    if (index + i <= string.length())
+                        if (!Color.COLOR_PATTERN.matcher(string.substring(index, index + i)).matches() || string.charAt(index + 1) != '#') {
+                            COMMENT_STATUS = 1;
+                            System.out.println(COMMENT_STATUS);
                         }
-                    }
-
-                    // Comment was found. Erase it from the string
-                    assert !builder.toString().isEmpty();
-                    return builder.toString().strip();
                 }
-            } else {
-                builder.append(c);
+                //System.out.println(string.substring(index, index + 2));
+                if (index + 2 <= string.length() && string.substring(index, index + 2).equals("##")) {
+                    COMMENT_STATUS = COMMENT_STATUS == 2 ? 0 : 2;
+                    System.out.println(COMMENT_STATUS);
+                }
+
+            }
+            if (COMMENT_STATUS == 0) {
+                stringBuilder.append(c);
             }
         }
-        if (builder.toString().equals(string))
-            return null;
-        return builder.toString().strip();
+        if (COMMENT_STATUS == 1) COMMENT_STATUS = 0;
+        //System.out.println(stringBuilder.toString());
+        return stringBuilder.toString().strip();
+
     }
+
 }
