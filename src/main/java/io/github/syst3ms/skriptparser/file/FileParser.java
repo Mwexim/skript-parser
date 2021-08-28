@@ -37,15 +37,10 @@ public class FileParser {
             var line = lines.get(i);
             String content = removeComments(line);
 
-            if (content == null) {
-                content = line.replace("##", "#").strip();
-            }
-            else if (content.isEmpty()) {
+            if (content.isEmpty()) {
                 elements.add(new VoidElement(fileName, lastLine + i, expectedIndentation));
                 continue;
             }
-
-            //System.out.println(content);
 
             var lineIndentation = FileUtils.getIndentationLevel(line, false);
             if (lineIndentation > expectedIndentation) { // The line is indented too much
@@ -102,19 +97,17 @@ public class FileParser {
         for (char c : string.toCharArray()) {
             if (c == '#') {
                 int index = string.indexOf(c);
-                //System.out.println(c + " : " + COMMENT_STATUS);
-                //Checking if it isn't color hex and if no double # (for escaping first #)
-                for (int i : new int[]{3, 6, 9}) {
-                    if (index + i <= string.length())
-                        if (!Color.COLOR_PATTERN.matcher(string.substring(index, index + i)).matches() || string.charAt(index + 1) != '#') {
+                if (index + 1 >= string.length()) return "";
+                if (string.charAt(index + 1) != '#') { //double # escape the first #
+                    //Checking if it isn't color hex and if no double # (for escaping first #)
+                    for (int i : new int[]{3, 6, 9}) {
+                        if (index + i <= string.length() - 1 && !Color.COLOR_PATTERN.matcher(string.substring(index + 1, index + i + 1)).matches())
                             COMMENT_STATUS = 1;
-                            System.out.println(COMMENT_STATUS);
-                        }
+                    }
                 }
-                //System.out.println(string.substring(index, index + 2));
+                //set start or end of a block comment ("###" characters)
                 if (index + 2 <= string.length() && string.substring(index, index + 2).equals("##")) {
                     COMMENT_STATUS = COMMENT_STATUS == 2 ? 0 : 2;
-                    System.out.println(COMMENT_STATUS);
                 }
 
             }
@@ -123,7 +116,6 @@ public class FileParser {
             }
         }
         if (COMMENT_STATUS == 1) COMMENT_STATUS = 0;
-        //System.out.println(stringBuilder.toString());
         return stringBuilder.toString().strip();
 
     }
