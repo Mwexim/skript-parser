@@ -1,14 +1,11 @@
 package io.github.syst3ms.skriptparser.syntax;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-
-import java.util.List;
 
 /**
  * Kills a {@link SecBirth} section.
@@ -26,10 +23,17 @@ public class EffDeath extends Effect {
 		);
 	}
 
+	private SecBirth birth;
+
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		List<CodeSection> currentSections = parseContext.getParserState().getCurrentSections();
-		if (currentSections.stream().noneMatch(s -> s instanceof SecBirth)) {
+		var sections = parseContext.getParserState().getCurrentSections();
+		birth = sections.stream()
+				.filter(SecBirth.class::isInstance)
+				.map(SecBirth.class::cast)
+				.findFirst()
+				.orElse(null);
+		if (birth == null) {
 			parseContext.getLogger().error("'death'-statements cannot be used outside of a 'birth'-section", ErrorType.SEMANTIC_ERROR);
 			return false;
 		}
@@ -38,7 +42,7 @@ public class EffDeath extends Effect {
 
 	@Override
 	public void execute(TriggerContext ctx) {
-		SecBirth.addDeath(this);
+		birth.setDead(true);
 	}
 
 	@Override

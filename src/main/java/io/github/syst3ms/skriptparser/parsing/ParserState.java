@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.lang.CodeSection;
+import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.util.Pair;
@@ -17,6 +18,12 @@ import java.util.Set;
 public class ParserState {
     private Set<Class<? extends TriggerContext>> currentContexts = new HashSet<>();
     private final LinkedList<CodeSection> currentSections = new LinkedList<>();
+
+    // Current statements
+    private LinkedList<Statement> currentStatements = new LinkedList<>();
+    private final LinkedList<LinkedList<Statement>> statementsReference = new LinkedList<>();
+
+    // Restrictions
     private List<Class<? extends SyntaxElement>> allowedSyntaxes = Collections.emptyList();
     private boolean restrictingExpressions = false;
     private final LinkedList<Pair<List<Class<? extends SyntaxElement>>, Boolean>> restrictionsReference = new LinkedList<>();
@@ -37,10 +44,10 @@ public class ParserState {
     }
 
     /**
-     * @return a list of all enclosing {@link CodeSection}, with the closest one first
+     * @return a list of all enclosing {@linkplain CodeSection}s, with the closest one first
      */
-    public List<CodeSection> getCurrentSections() {
-        return Collections.unmodifiableList(currentSections);
+    public LinkedList<CodeSection> getCurrentSections() {
+        return new LinkedList<>(currentSections);
     }
 
     /**
@@ -56,6 +63,38 @@ public class ParserState {
      */
     public void removeCurrentSection() {
         currentSections.removeFirst();
+    }
+
+    /**
+     * Returns a list of all consecutive, successfully parsed {@linkplain Statement}s
+     * in the enclosing section.
+     * This is essentially a list with all previously parsed items of this section.
+     * @return a list of all {@linkplain Statement}s in the enclosing section.
+     */
+    public LinkedList<Statement> getCurrentStatements() {
+        return new LinkedList<>(currentStatements);
+    }
+
+    /**
+     * Adds a new {@link Statement} to the items of the enclosing section.
+     * @param statement the enclosing {@link Statement}
+     */
+    public void addCurrentStatement(Statement statement) {
+        currentStatements.addLast(statement);
+    }
+
+    public void recurseCurrentStatements() {
+        statementsReference.addLast(currentStatements);
+        currentStatements.clear();
+    }
+
+    /**
+     * Clears all stored items of this enclosing section,
+     * after all parsing inside it has been completed.
+     */
+    public void clearCurrentStatements() {
+        currentStatements = statementsReference.getLast();
+        statementsReference.removeLast();
     }
 
     /**

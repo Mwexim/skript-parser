@@ -133,8 +133,8 @@ public class SyntaxParser {
             if (variable.filter(v -> !v.isSingle() && expectedType.isSingle()).isPresent()) {
                 logger.error(
                         "A single value was expected, but " +
-                        s +
-                        " represents multiple values.",
+                                s +
+                                " represents multiple values.",
                         ErrorType.SEMANTIC_ERROR,
                         "Use a loop/map to divert each element of this list into single elements"
                 );
@@ -227,8 +227,8 @@ public class SyntaxParser {
             if (variable.filter(v -> !v.isSingle()).isPresent()) {
                 logger.error(
                         "A single value was expected, but " +
-                        s +
-                        " represents multiple values.",
+                                s +
+                                " represents multiple values.",
                         ErrorType.SEMANTIC_ERROR,
                         "Use a loop/map to divert each element of this list into single elements"
                 );
@@ -600,21 +600,33 @@ public class SyntaxParser {
     public static Optional<? extends Effect> parseEffect(String s, ParserState parserState, SkriptLogger logger) {
         if (s.isEmpty())
             return Optional.empty();
+
         for (var recentEffect : recentEffects) {
             var eff = matchEffectInfo(s, recentEffect, parserState, logger);
             if (eff.isPresent()) {
+                if (parserState.forbidsSyntax(eff.get().getClass())) {
+                    logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+                    logger.error("The enclosing section does not allow the use of this effect: " + eff.get().toString(TriggerContext.DUMMY, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+                    return Optional.empty();
+                }
                 recentEffects.acknowledge(recentEffect);
                 logger.clearErrors();
                 return eff;
             }
             logger.forgetError();
         }
+
         // Let's not loop over the same elements again
         var remainingEffects = SyntaxManager.getEffects();
         recentEffects.removeFrom(remainingEffects);
         for (var remainingEffect : remainingEffects) {
             var eff = matchEffectInfo(s, remainingEffect, parserState, logger);
             if (eff.isPresent()) {
+                if (parserState.forbidsSyntax(eff.get().getClass())) {
+                    logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+                    logger.error("The enclosing section does not allow the use of this effect: " + eff.get().toString(TriggerContext.DUMMY, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+                    return Optional.empty();
+                }
                 recentEffects.acknowledge(remainingEffect);
                 logger.clearErrors();
                 return eff;
@@ -655,60 +667,43 @@ public class SyntaxParser {
     }
 
     /**
-     * Parses a line of code as a {@link Statement}, basically an {@link Effect}, but other Statements can be added later.
-     * @param s the line to be parsed
-     * @param parserState the current parser state
-     * @param logger the logger
-     * @return a statement that was successfully parsed, or {@literal null} if the string is empty,
-     * no match was found
-     * or for another reason detailed in an error message
-     */
-    public static Optional<? extends Statement> parseStatement(String s, ParserState parserState, SkriptLogger logger) {
-        if (s.isEmpty())
-            return Optional.empty();
-        var eff = parseEffect(s, parserState, logger);
-        if (eff.isEmpty()) {
-            return Optional.empty();
-        } else if (parserState.forbidsSyntax(eff.get().getClass())) {
-            logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
-            logger.error(
-                    "The enclosing section does not allow the use of this effect : "
-                            + eff.get().toString(TriggerContext.DUMMY, logger.isDebug()),
-                    ErrorType.SEMANTIC_ERROR,
-                    "The current section limits the usage of syntax. This means that certain syntax cannot be used here, which was the case. Remove this effect entirely and refer to the documentation for the correct usage of this section"
-            );
-            return Optional.empty();
-        } else {
-            return eff;
-        }
-    }
-
-    /**
      * Parses a section of a file as a {@link CodeSection}
      * @param section the section to be parsed
      * @param parserState the current parser state
      * @param logger the logger
      * @return a section that was successfully parsed, or {@literal null} if the section is empty,
-     * no match was found
-     * or for another reason detailed in an error message
+     * no match was found or for another reason detailed in an error message
      */
     public static Optional<? extends CodeSection> parseSection(FileSection section, ParserState parserState, SkriptLogger logger) {
-        if (section.getLineContent().isEmpty())
+        var content = section.getLineContent();
+        if (content.isEmpty())
             return Optional.empty();
+
         for (var recentSection : recentSections) {
             var sec = matchSectionInfo(section, recentSection, parserState, logger);
             if (sec.isPresent()) {
+                if (parserState.forbidsSyntax(sec.get().getClass())) {
+                    logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+                    logger.error("The enclosing section does not allow the use of this section: " + sec.get().toString(TriggerContext.DUMMY, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+                    return Optional.empty();
+                }
                 recentSections.acknowledge(recentSection);
                 logger.clearErrors();
                 return sec;
             }
             logger.forgetError();
         }
+
         var remainingSections = SyntaxManager.getSections();
         recentSections.removeFrom(remainingSections);
         for (var remainingSection : remainingSections) {
             var sec = matchSectionInfo(section, remainingSection, parserState, logger);
             if (sec.isPresent()) {
+                if (parserState.forbidsSyntax(sec.get().getClass())) {
+                    logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+                    logger.error("The enclosing section does not allow the use of this section: " + sec.get().toString(TriggerContext.DUMMY, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+                    return Optional.empty();
+                }
                 recentSections.acknowledge(remainingSection);
                 logger.clearErrors();
                 return sec;
@@ -716,7 +711,7 @@ public class SyntaxParser {
             logger.forgetError();
         }
         logger.setContext(ErrorContext.NO_MATCH);
-        logger.error("No section matching '" + section.getLineContent() + "' was found", ErrorType.NO_MATCH);
+        logger.error("No section matching '" + content + "' was found", ErrorType.NO_MATCH);
         return Optional.empty();
     }
 
@@ -736,7 +731,7 @@ public class SyntaxParser {
                             parser.getParsedExpressions().toArray(Expression[]::new),
                             i,
                             parser.toParseResult()
-                        )
+                    )
                     ) {
                         continue;
                     }

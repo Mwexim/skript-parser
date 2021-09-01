@@ -2,7 +2,6 @@ package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
-import io.github.syst3ms.skriptparser.lang.Conditional;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
@@ -11,6 +10,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.control.Finishing;
 import io.github.syst3ms.skriptparser.lang.control.SelfReferencing;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.sections.SecConditional;
 import io.github.syst3ms.skriptparser.sections.SecLoop;
 import io.github.syst3ms.skriptparser.sections.SecWhile;
 
@@ -117,7 +117,7 @@ public class EffExit extends Effect {
             // 0 = all, 1 = only loops, 2 = only conditionals
             if (mark == 0
                     || mark == 1 && (stm instanceof SecLoop || stm instanceof SecWhile)
-                    || mark == 2 && stm instanceof Conditional) {
+                    || mark == 2 && stm instanceof SecConditional) {
                 if (stm instanceof Finishing)
                     ((Finishing) stm).finish();
                 amount--;
