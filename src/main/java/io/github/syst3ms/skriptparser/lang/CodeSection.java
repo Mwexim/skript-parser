@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -108,8 +109,8 @@ public abstract class CodeSection extends Statement {
      * @return a list of the classes of each syntax allowed inside this CodeSection
      * @see #isRestrictingExpressions()
      */
-    protected List<Class<? extends SyntaxElement>> getAllowedSyntaxes() {
-        return Collections.emptyList();
+    protected Set<Class<? extends SyntaxElement>> getAllowedSyntaxes() {
+        return Collections.emptySet();
     }
 
     /**

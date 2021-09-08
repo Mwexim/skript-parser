@@ -54,7 +54,7 @@ public class SecConditional extends CodeSection {
         if (mode == ConditionalMode.IF)
             return true;
         var items = parseContext.getParserState().getCurrentStatements();
-        var last = items.size() > 0 ? items.getLast() : null;
+        var last = items.size() > 0 ? items.get(items.size() - 1) : null;
         if (last instanceof SecConditional && ((SecConditional) last).mode != ConditionalMode.ELSE) {
             ((SecConditional) last).setFallingClause(this);
             return true;

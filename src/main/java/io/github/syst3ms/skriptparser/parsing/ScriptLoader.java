@@ -120,7 +120,7 @@ public class ScriptLoader {
             items.get(i - 1).setNext(items.get(i));
         }
         logger.callback();
-        parserState.clearCurrentStatements();
+        parserState.callbackCurrentStatements();
         return items;
     }
 

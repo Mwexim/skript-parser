@@ -9,7 +9,6 @@ import io.github.syst3ms.skriptparser.util.Pair;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -18,15 +17,13 @@ import java.util.Set;
 public class ParserState {
     private Set<Class<? extends TriggerContext>> currentContexts = new HashSet<>();
     private final LinkedList<CodeSection> currentSections = new LinkedList<>();
+    private final LinkedList<LinkedList<Statement>> currentStatements = new LinkedList<>();
+    private final LinkedList<Pair<Set<Class<? extends SyntaxElement>>, Boolean>> restrictions = new LinkedList<>();
 
-    // Current statements
-    private LinkedList<Statement> currentStatements = new LinkedList<>();
-    private final LinkedList<LinkedList<Statement>> statementsReference = new LinkedList<>();
-
-    // Restrictions
-    private List<Class<? extends SyntaxElement>> allowedSyntaxes = Collections.emptyList();
-    private boolean restrictingExpressions = false;
-    private final LinkedList<Pair<List<Class<? extends SyntaxElement>>, Boolean>> restrictionsReference = new LinkedList<>();
+    {
+        currentStatements.add(new LinkedList<>());
+        restrictions.add(new Pair<>(Collections.emptySet(), false));
+    }
 
     /**
      * @return the {@link TriggerContext}s handled by the currently parsed event
@@ -72,7 +69,7 @@ public class ParserState {
      * @return a list of all {@linkplain Statement}s in the enclosing section.
      */
     public LinkedList<Statement> getCurrentStatements() {
-        return new LinkedList<>(currentStatements);
+        return currentStatements.getLast();
     }
 
     /**
@@ -80,21 +77,24 @@ public class ParserState {
      * @param statement the enclosing {@link Statement}
      */
     public void addCurrentStatement(Statement statement) {
-        currentStatements.addLast(statement);
+        currentStatements.getLast().add(statement);
     }
 
+    /**
+     * Uses recursion to allow items of a new enclosing section to be added, preserving
+     * the current items to be used when the {@linkplain #callbackCurrentStatements() callback}
+     * has been invoked.
+     */
     public void recurseCurrentStatements() {
-        statementsReference.addLast(currentStatements);
-        currentStatements.clear();
+        currentStatements.addLast(new LinkedList<>());
     }
 
     /**
      * Clears all stored items of this enclosing section,
      * after all parsing inside it has been completed.
      */
-    public void clearCurrentStatements() {
-        currentStatements = statementsReference.getLast();
-        statementsReference.removeLast();
+    public void callbackCurrentStatements() {
+        currentStatements.removeLast();
     }
 
     /**
@@ -102,19 +102,15 @@ public class ParserState {
      * @param allowedSyntaxes all allowed syntaxes
      * @param restrictingExpressions whether expressions are also restricted
      */
-    public void setSyntaxRestrictions(List<Class<? extends SyntaxElement>> allowedSyntaxes, boolean restrictingExpressions) {
-        restrictionsReference.addLast(new Pair<>(this.allowedSyntaxes, this.restrictingExpressions));
-        this.allowedSyntaxes = allowedSyntaxes;
-        this.restrictingExpressions = restrictingExpressions;
+    public void setSyntaxRestrictions(Set<Class<? extends SyntaxElement>> allowedSyntaxes, boolean restrictingExpressions) {
+        restrictions.addLast(new Pair<>(allowedSyntaxes, restrictingExpressions));
     }
 
     /**
      * Clears the previously enforced syntax restrictions
      */
     public void clearSyntaxRestrictions() {
-        allowedSyntaxes = restrictionsReference.getLast().getFirst();
-        restrictingExpressions = restrictionsReference.getLast().getSecond();
-        restrictionsReference.removeLast();
+        restrictions.removeLast();
     }
 
     /**
@@ -122,6 +118,7 @@ public class ParserState {
      * @return whether the current syntax restrictions forbid a given syntax or not
      */
     public boolean forbidsSyntax(Class<? extends SyntaxElement> c) {
+        var allowedSyntaxes = restrictions.getLast().getFirst();
         return !allowedSyntaxes.isEmpty() && !allowedSyntaxes.contains(c);
     }
 
@@ -129,6 +126,6 @@ public class ParserState {
      * @return whether the current syntax restrictions also apply to expressions
      */
     public boolean isRestrictingExpressions() {
-        return restrictingExpressions;
+        return restrictions.getLast().getSecond();
     }
 }
