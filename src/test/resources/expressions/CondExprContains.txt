@@ -1,6 +1,10 @@
 # Author(s):
 # 	- Olyno
-# Date: 2020/11/16
+#	- Mwexim
+# Date:
+#	- 2020/11/16
+#	- 2021/06/25 (logical improvements)
+#	- 2021/08/19 (error message and stored comparator)
 
 test:
 	set {list::*} to "a", 2 and true
@@ -18,3 +22,12 @@ test:
 	assert {nested::1::*} contains 2 with "{nested::1::*} should contain 2: %{nested::1::*}%"
 	assert {nested::1::*} contains true with "{nested::1::*} should contain true: %{nested::1::*}%"
 	assert {nested::*} does not contain "a" with "{nested::*} should not contain value 'a' of its nested nodes: %{nested::*}%"
+
+	# Logical improvements
+	assert (1, 2 and 3) contains (2 and 3) with "1, 2 and 3 should contain 2 and 3"
+	assert (1, 2 and 3) does not contain (2 and 4) with "1, 2 and 3 should not contain 2 and 4"
+	assert (1, 2 and 3) contains (2 or 4) with "1, 2 and 3 should contain 2 or 4"
+	throws (1, 2 or 3) contains (2 or 5) with "or-list cannot contain any values"
+
+	# Stored comparator with error message
+	throws (1, 2 and 3) contains range from 'a' to 'f'

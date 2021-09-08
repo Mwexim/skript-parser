@@ -5,9 +5,11 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.Time;
 
 import java.math.BigInteger;
+import java.util.function.Function;
 
 /**
  * Information of a certain time.
@@ -20,49 +22,37 @@ import java.math.BigInteger;
  * @author Mwexim
  */
 public class ExprTimeInformation extends PropertyExpression<Number, Time> {
+	public static final PatternInfos<Function<Time, Integer>> PATTERNS = new PatternInfos<>(new Object[][] {
+			{"hour[s]", (Function<Time, Integer>) Time::getHour},
+			{"minute[s]", (Function<Time, Integer>) Time::getMinute},
+			{"second[s]", (Function<Time, Integer>) Time::getSecond},
+			{"milli[second][s]", (Function<Time, Integer>) Time::getMillis}
+	});
+
 	static {
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprTimeInformation.class,
 				Number.class,
-				true,
-				5,
+				5, // Leave this here
 				"*[time] %time%",
-				"(0:hour[s]|1:minute[s]|2:second[s]|3:milli[second][s])"
+				PATTERNS.toChoiceGroup()
 		);
 	}
+	private int mark;
 
-	private final static String[] CHOICES = {
-			"hours", "minutes", "seconds", "milliseconds"
-	};
-
-	private int parseMark;
-
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		parseMark = parseContext.getNumericMark();
-		setOwner((Expression<Time>) expressions[0]);
-		return true;
+		mark = parseContext.getNumericMark();
+		return super.init(expressions, matchedPattern, parseContext);
 	}
 
 	@Override
-	public Number[] getProperty(Time[] owners) {
-		switch (parseMark) {
-			case 0:
-				return new Number[] {BigInteger.valueOf(owners[0].getHour())};
-			case 1:
-				return new Number[] {BigInteger.valueOf(owners[0].getMinute())};
-			case 2:
-				return new Number[] {BigInteger.valueOf(owners[0].getSecond())};
-			case 3:
-				return new Number[] {BigInteger.valueOf(owners[0].getMillis())};
-			default:
-				throw new IllegalStateException();
-		}
+	public Number getProperty(Time owner) {
+		return BigInteger.valueOf(PATTERNS.getInfo(mark).apply(owner));
 	}
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return CHOICES[parseMark] + " of time " + getOwner().toString(ctx, debug);
+		return new String[] {"hours", "minutes", "seconds", "milliseconds"}[mark] + " of time " + getOwner().toString(ctx, debug);
 	}
 }

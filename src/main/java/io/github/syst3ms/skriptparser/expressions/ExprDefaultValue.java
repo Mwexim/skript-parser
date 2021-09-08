@@ -35,20 +35,18 @@ public class ExprDefaultValue implements Expression<Object> {
 
     @Override
     public Object[] getValues(TriggerContext ctx) {
-        Object[] first = firstValue.getValues(ctx);
-        Object[] second = secondValue.getValues(ctx);
-        if (first.length != 0) {
-            return first;
-        } else if (second.length != 0) {
-            return second;
-        } else {
-            return new Object[0];
-        }
+        return firstValue.getValues(ctx).length != 0
+                ? firstValue.getValues(ctx)
+                : secondValue.getValues(ctx);
+    }
+
+    @Override
+    public boolean isSingle() {
+        return firstValue.isSingle() && secondValue.isSingle();
     }
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
         return firstValue.toString(ctx, debug) + " otherwise " + secondValue.toString(ctx, debug);
     }
-
 }

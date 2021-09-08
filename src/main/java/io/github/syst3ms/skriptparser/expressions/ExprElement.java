@@ -118,7 +118,7 @@ public class ExprElement implements Expression<Object> {
 			case 3:
 				return new Object[] {values[r - 1]};
 			default:
-				return new Object[0];
+				throw new IllegalStateException();
 		}
 	}
 

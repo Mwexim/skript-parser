@@ -34,7 +34,8 @@ public class ExprRandomNumber implements Expression<Number> {
         );
     }
 
-    private final ThreadLocalRandom random = ThreadLocalRandom.current();
+    private static final ThreadLocalRandom random = ThreadLocalRandom.current();
+
     private Expression<Number> lowerNumber, maxNumber;
     private boolean isInteger, isExclusive;
     private Comparator<? super Number, ? super Number> numComp;

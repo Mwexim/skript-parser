@@ -5,17 +5,11 @@ import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
-import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
-import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
-import io.github.syst3ms.skriptparser.util.ClassUtils;
-import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Optional;
 
 /**
  *  A very general effect that can change many expressions. Many expressions can only be set and/or deleted, while some can have things added to or removed from them.
@@ -54,31 +48,30 @@ public class EffChange extends Effect {
     @Nullable
     private Expression<?> changeWith;
     private ChangeMode mode;
-    private boolean assignment; // A simple flag for identifying which syntax was precisely used
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         ChangeMode mode = PATTERNS.getInfo(matchedPattern);
         if (mode == ChangeMode.RESET || mode == ChangeMode.DELETE) {
             changed = expressions[0];
-        } else if ((matchedPattern & 1) == 1 || mode == ChangeMode.SET) { // Notice the difference in the order of expressions
+        } else if ((matchedPattern & 1) == 1 || mode == ChangeMode.SET) {
+            // Notice the difference in the order of expressions
             changed = expressions[0];
             changeWith = expressions[1];
-            assignment = (matchedPattern & 1) == 1;
         } else {
             changed = expressions[1];
             changeWith = expressions[0];
         }
         this.mode = mode;
-        SkriptLogger logger = parseContext.getLogger();
+
+        var logger = parseContext.getLogger();
         String changedString = changed.toString(TriggerContext.DUMMY, logger.isDebug());
+
         if (changeWith == null) {
             assert mode == ChangeMode.DELETE || mode == ChangeMode.RESET;
             return changed.acceptsChange(mode).isPresent();
         } else {
-            Class<?> changeType = changeWith.getReturnType();
-            Optional<Class<?>[]> acceptance = changed.acceptsChange(mode);
-            if (acceptance.isEmpty()) {
+            if (changed.acceptsChange(mode).isEmpty()) {
                 switch (mode) {
                     case SET:
                         logger.error(changedString + " cannot be set to anything", ErrorType.SEMANTIC_ERROR);
@@ -90,19 +83,14 @@ public class EffChange extends Effect {
                     case REMOVE:
                         logger.error("Nothing can be removed from " + changedString, ErrorType.SEMANTIC_ERROR);
                         break;
-                    case DELETE:
-                    case RESET:
+                    default:
                     	throw new IllegalStateException();
                 }
                 return false;
-            } else if (!ClassUtils.containsSuperclass(acceptance.get(), changeType)) {
-                boolean array = changeType.isArray();
-                Optional<? extends Type<?>> type = TypeManager.getByClassExact(changeType);
+            } else if (!changed.acceptsChange(mode, changeWith)) {
+                var type = TypeManager.getByClassExact(changeWith.getReturnType());
                 assert type.isPresent();
-                String changeTypeName = StringUtils.withIndefiniteArticle(
-                    type.get().getPluralForms()[array ? 1 : 0],
-                    array
-                );
+                String changeTypeName = type.get().withIndefiniteArticle(!changeWith.isSingle());
                 switch (mode) {
                     case SET:
                         logger.error(changedString + " cannot be set to " + changeTypeName, ErrorType.SEMANTIC_ERROR);
@@ -127,12 +115,12 @@ public class EffChange extends Effect {
     @Override
     public void execute(TriggerContext ctx) {
         if (changeWith == null) {
-            changed.change(ctx, new Object[0], mode);
+            changed.change(ctx, mode, new Object[0]);
         } else {
-            var values= changeWith.getValues(ctx);
+            var values = changeWith.getValues(ctx);
             if (values.length == 0)
                 return;
-            changed.change(ctx, values, mode);
+            changed.change(ctx, mode, values);
         }
     }
 
@@ -142,23 +130,11 @@ public class EffChange extends Effect {
         String changedWithString = changeWith != null ? changeWith.toString(ctx, debug) : "";
         switch (mode) {
             case SET:
-                if (assignment) {
-                    return String.format("%s = %s", changedString, changedWithString);
-                } else {
-                    return String.format("set %s to %s", changedString, changedWithString);
-                }
+                return String.format("set %s to %s", changedString, changedWithString);
             case ADD:
-                if (assignment) {
-                    return String.format("%s += %s", changedString, changedWithString);
-                } else {
-                    return String.format("add %s to %s", changedWithString, changedString);
-                }
+                return String.format("add %s to %s", changedWithString, changedString);
             case REMOVE:
-                if (assignment) {
-                    return String.format("%s -= %s", changedString, changedWithString);
-                } else {
-                    return String.format("remove %s from %s", changedWithString, changedString);
-                }
+                return String.format("remove %s from %s", changedWithString, changedString);
             case DELETE:
             case RESET:
                 return String.format("%s %s", mode.name().toLowerCase(), changedString);

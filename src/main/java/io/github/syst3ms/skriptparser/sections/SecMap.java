@@ -60,7 +60,7 @@ public class SecMap extends ReturnSection<Object> implements SelfReferencing {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		mapped = expressions[0];
 		var logger = parseContext.getLogger();
-		if (mapped.acceptsChange(ChangeMode.SET).isEmpty()
+		if (!mapped.acceptsChange(ChangeMode.SET, mapped)
 				|| mapped.acceptsChange(ChangeMode.DELETE).isEmpty()) {
 			logger.error(
 					"The expression '" +
@@ -90,9 +90,9 @@ public class SecMap extends ReturnSection<Object> implements SelfReferencing {
 			return start();
 		} else {
 			if (result.size() == 0) {
-				mapped.change(ctx, new Object[0], ChangeMode.DELETE);
+				mapped.change(ctx, ChangeMode.DELETE, new Object[0]);
 			} else {
-				mapped.change(ctx, result.toArray(), ChangeMode.SET);
+				mapped.change(ctx, ChangeMode.SET, result.toArray());
 			}
 			finish();
 			return Optional.ofNullable(actualNext);

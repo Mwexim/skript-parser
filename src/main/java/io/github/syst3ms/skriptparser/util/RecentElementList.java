@@ -70,8 +70,8 @@ public class RecentElementList<T> implements Iterable<T> {
     }
 
     /**
-     * Custom iterator sorted by frequence of use
-     * @return an iterator where syntaxes appear in decreasing order of frequence of use
+     * Custom iterator sorted by frequency of use
+     * @return an iterator where syntaxes appear in decreasing order of frequency of use
      */
     @NotNull
     @Override

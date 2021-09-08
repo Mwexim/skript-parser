@@ -113,16 +113,41 @@ public class Type<T> {
         this.arithmetic = arithmetic;
     }
 
-    public Optional<Function<String, ? extends T>> getLiteralParser() {
-        return Optional.ofNullable(literalParser);
+    public Class<T> getTypeClass() {
+        return typeClass;
+    }
+
+    public String getBaseName() {
+        return baseName;
     }
 
     public String[] getPluralForms() {
         return pluralForms;
     }
 
-    public Class<T> getTypeClass() {
-        return typeClass;
+    public Function<Object, String> getToStringFunction() {
+        return toStringFunction;
+    }
+
+    public Optional<Function<String, ? extends T>> getLiteralParser() {
+        return Optional.ofNullable(literalParser);
+    }
+
+    public Optional<? extends Changer<? super T>> getDefaultChanger() {
+        return Optional.ofNullable(defaultChanger);
+    }
+
+    public Optional<? extends Arithmetic<T, ?>> getArithmetic() {
+        return Optional.ofNullable(arithmetic);
+    }
+
+    /**
+     * Adds a proper English indefinite article to this type and applies the correct form.
+     * @param plural whether this Type is plural or not
+     * @return the applied form of this Type
+     */
+    public String withIndefiniteArticle(boolean plural) {
+        return StringUtils.withIndefiniteArticle(pluralForms[plural ? 1 : 0], plural);
     }
 
     @Override
@@ -146,21 +171,5 @@ public class Type<T> {
     @Override
     public int hashCode() {
         return Arrays.hashCode(pluralForms);
-    }
-
-    public String getBaseName() {
-        return baseName;
-    }
-
-    public Function<Object, String> getToStringFunction() {
-        return toStringFunction;
-    }
-
-    public Optional<? extends Changer<? super T>> getDefaultChanger() {
-        return Optional.ofNullable(defaultChanger);
-    }
-
-    public Optional<? extends Arithmetic<T, ?>> getArithmetic() {
-        return Optional.ofNullable(arithmetic);
     }
 }

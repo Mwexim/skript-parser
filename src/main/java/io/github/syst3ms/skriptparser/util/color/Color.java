@@ -36,24 +36,11 @@ public class Color {
 
     private final int red, green, blue, alpha;
 
-    private Color(int r, int g, int b) {
-        this(r, g, b, MAX_VALUE);
-    }
-
     private Color(int r, int g, int b, int a) {
-        if (0 <= r && r < 256
-                && 0 <= g && g < 256
-                && 0 <= b && b < 256
-                && 0 <= a && a < 256) {
-            red = r;
-            green = g;
-            blue = b;
-            alpha = a;
-        } else {
-            throw new IllegalArgumentException(
-                    String.format("RGBA values are not in range 0-255: found %s,%s,%s,%s", r, g, b, a)
-            );
-        }
+        red = r;
+        green = g;
+        blue = b;
+        alpha = a;
     }
 
     /**
@@ -63,8 +50,8 @@ public class Color {
      * @param b the blue value
      * @return a new Color instance
      */
-    public static Color of(int r, int g, int b) {
-        return new Color(r, g, b);
+    public static Optional<Color> of(int r, int g, int b) {
+        return of(r, g, b, MAX_VALUE);
     }
 
     /**
@@ -75,8 +62,14 @@ public class Color {
      * @param a the alpha value
      * @return a new Color instance
      */
-    public static Color of(int r, int g, int b, int a) {
-        return new Color(r, g, b, a);
+    public static Optional<Color> of(int r, int g, int b, int a) {
+        if (0 <= r && r < 256
+                && 0 <= g && g < 256
+                && 0 <= b && b < 256
+                && 0 <= a && a < 256) {
+            return Optional.of(new Color(r, g, b, a));
+        }
+        return Optional.empty();
     }
 
     /**
@@ -95,18 +88,19 @@ public class Color {
      * @return a new Color instance
      */
     public static Color of(long hex, boolean isAlpha) {
+        int r, g, b, a;
         if (isAlpha) {
-            int r = (int) ((hex & 0xFF000000) >> 24);
-            int g = (int) ((hex & 0xFF0000) >> 16);
-            int b = (int) ((hex & 0xFF00) >> 8);
-            int a = (int) (hex & 0xFF);
-            return new Color(r, g, b, a);
+            r = (int) ((hex & 0xFF000000) >> 24);
+            g = (int) ((hex & 0xFF0000) >> 16);
+            b = (int) ((hex & 0xFF00) >> 8);
+            a = (int) (hex & 0xFF);
         } else {
-            int r = (int) ((hex & 0xFF0000) >> 16);
-            int g = (int) ((hex & 0xFF00) >> 8);
-            int b = (int) (hex & 0xFF);
-            return new Color(r, g, b);
+            r = (int) ((hex & 0xFF0000) >> 16);
+            g = (int) ((hex & 0xFF00) >> 8);
+            b = (int) (hex & 0xFF);
+            a = MAX_VALUE;
         }
+        return Color.of(r, g, b, a).orElseThrow(AssertionError::new);
     }
 
     /**
@@ -115,9 +109,9 @@ public class Color {
      * @return a new Color instance
      * @see #COLOR_PATTERN
      */
-    public static Color ofHex(String hex) {
+    public static Optional<Color> ofHex(String hex) {
         if (!hex.matches(COLOR_PATTERN.pattern()))
-            throw new IllegalArgumentException("Invalid hex format: " + hex);
+            return Optional.empty();
 
         switch (hex.length()) {
             case 3:
@@ -125,11 +119,11 @@ public class Color {
                 for (char c : hex.toCharArray()) {
                     builder.append(c).append(c);
                 }
-                return of(Integer.parseInt(builder.toString(), 16));
+                return Optional.of(of(Integer.parseInt(builder.toString(), 16)));
             case 6:
-                return of(Integer.parseInt(hex, 16));
+                return Optional.of(of(Integer.parseInt(hex, 16)));
             case 8:
-                return of(Long.parseLong(hex, 16), true);
+                return Optional.of(of(Long.parseLong(hex, 16), true));
             default:
                 throw new IllegalStateException();
         }

@@ -101,6 +101,11 @@ public class ExprStringSplitJoin implements Expression<String> {
 	}
 
 	@Override
+	public boolean isSingle() {
+		return pattern == 0;
+	}
+
+	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
 		switch (pattern) {
 			case 0:
