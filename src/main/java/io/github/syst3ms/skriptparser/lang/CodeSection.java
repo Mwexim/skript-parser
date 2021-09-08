@@ -19,11 +19,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
- * Represents a section of runnable code. This parser guarantees the existence of {@link SecConditional}, {@link SecLoop} and
- * {@link SecWhile}.<br>
- * <br>
- * It is important to note that Conditional is the only section to be understood
- * natively by the parser, meaning it won't go through the process of syntax parsing.
+ * Represents a section of runnable code.
  * @see SecConditional
  * @see SecLoop
  * @see SecWhile
