@@ -62,6 +62,6 @@ public class ExprColorValues extends PropertyExpression<Object, Color> {
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return new String[] {"hex", "red", "green", "blue", "alpha"}[mark] + " value of " + getOwner().toString(ctx, debug);
+		return toString(ctx, debug, new String[] {"hex", "red", "green", "blue", "alpha"}[mark] + " value");
 	}
 }

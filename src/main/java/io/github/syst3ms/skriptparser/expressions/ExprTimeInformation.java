@@ -53,6 +53,6 @@ public class ExprTimeInformation extends PropertyExpression<Number, Time> {
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return new String[] {"hours", "minutes", "seconds", "milliseconds"}[mark] + " of time " + getOwner().toString(ctx, debug);
+		return toString(ctx, debug, new String[] {"hours", "minutes", "seconds", "milliseconds"}[mark]);
 	}
 }

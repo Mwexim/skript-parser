@@ -60,6 +60,6 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return new String[] {"year", "month", "day of year", "day of month", "day of week", "hours", "minutes", "seconds", "milliseconds"}[mark] + " of date " + getOwner().toString(ctx, debug);
+		return toString(ctx, debug, new String[] {"year", "month", "day of year", "day of month", "day of week", "hours", "minutes", "seconds", "milliseconds"}[mark]);
 	}
 }
