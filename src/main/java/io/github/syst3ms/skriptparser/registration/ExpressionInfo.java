@@ -6,6 +6,7 @@ import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.Type;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * A class containing info about an {@link Expression} syntax
@@ -15,8 +16,8 @@ import java.util.List;
 public class ExpressionInfo<C, T> extends SyntaxInfo<C> {
     private final PatternType<T> returnType;
 
-    public ExpressionInfo(Class<C> c, List<PatternElement> patterns, SkriptAddon registerer, Type<T> returnType, boolean isSingle, int priority) {
-        super(c, patterns, priority, registerer);
+    public ExpressionInfo(SkriptAddon registerer, Class<C> c, boolean isSingle, Type<T> returnType, int priority, List<PatternElement> patterns, Map<String, Object> data) {
+        super(registerer, c, priority, patterns, data);
         this.returnType = new PatternType<>(returnType, isSingle);
     }
 

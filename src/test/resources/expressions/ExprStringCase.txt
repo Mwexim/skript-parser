@@ -1,6 +1,8 @@
 # Author(s):
 # 	- Mwexim
-# Date: 2020/12/26
+# Date:
+#	- 2020/12/26
+#	- 2021/09/15 (reversed test)
 
 test:
 	# Basic case change
@@ -47,3 +49,7 @@ test:
 	assert {var} = "w🧠at-is-your-name?" with "lower kebab case failed: %{var}%"
 	set {var} to "What 🤵s your name" in upper kebab case
 	assert {var} = "WHAT-🤵S-YOUR-NAME" with "upper kebab case failed: %{var}%"
+
+	# Reversed
+	set {var} to reversed "Hi, I'm Mwexim"
+	assert {var} = "mixewM m'I ,iH" with "reversed string should be 'mixewM m'I ,iH': %{var}%"

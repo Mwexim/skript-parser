@@ -5,7 +5,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
-import io.github.syst3ms.skriptparser.registration.properties.PropertyExpressionInfo;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -78,10 +77,8 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
         var property = SyntaxManager.getExpressionExact(this)
-                .filter(PropertyExpressionInfo.class::isInstance)
-                .map(PropertyExpressionInfo.class::cast)
-                .orElseThrow(() -> new SkriptParserException("Unregistered or incorrectly registered property class: " + getClass().getName()))
-                .getProperty();
+                .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
+                .getData("property", String.class);
         return toString(ctx, debug, property);
     }
 
@@ -110,5 +107,13 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
      */
     public boolean isGenitive() {
         return genitive;
+    }
+
+    public static String[] composePatterns(String owner, String property) {
+        var ownerType = owner.startsWith("*") ? owner.substring(1) : "%" + owner + "%";
+        return new String[] {
+                ownerType + "'[s] " + property,
+                "[the] " + property + " of " + ownerType
+        };
     }
 }

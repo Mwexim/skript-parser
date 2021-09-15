@@ -26,7 +26,6 @@ import io.github.syst3ms.skriptparser.pattern.TextElement;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueState;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
-import io.github.syst3ms.skriptparser.registration.properties.PropertyExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.tags.Tag;
 import io.github.syst3ms.skriptparser.registration.tags.TagInfo;
 import io.github.syst3ms.skriptparser.registration.tags.TagManager;
@@ -41,8 +40,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -183,10 +184,10 @@ public class SkriptRegistration {
      * @param property the property
      * @param <C> the Expression
      * @param <T> the Expression's return type
-     * @return an {@link PropertyExpressionRegistrar} to continue the registration process
+     * @return an {@link ExpressionRegistrar} to continue the registration process
      */
-    public <C extends PropertyExpression<T, ?>, T> PropertyExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, String owner, String property) {
-        return new PropertyExpressionRegistrar<>(c, returnType, owner, property);
+    public <C extends PropertyExpression<T, ?>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, String owner, String property) {
+        return (ExpressionRegistrar<C, T>) newExpression(c, returnType, false, PropertyExpression.composePatterns(owner, property)).setData("property", property);
     }
 
     /**
@@ -225,7 +226,10 @@ public class SkriptRegistration {
      * @param <C> the Expression
      */
     public <C extends PropertyConditional<?>> void addPropertyConditional(Class<C> c, String performer, ConditionalType conditionalType, String property) {
-        new PropertyExpressionRegistrar<>(c, Boolean.class, property, PropertyConditional.composePatterns(performer, conditionalType, property)).register();
+        newExpression(c, Boolean.class, true, PropertyConditional.composePatterns(performer, conditionalType, property))
+                .setData("conditionalType", conditionalType)
+                .setData("property", property)
+                .register();
     }
 
     /**
@@ -238,7 +242,11 @@ public class SkriptRegistration {
      * @param <C> the Expression
      */
     public <C extends PropertyConditional<?>> void addPropertyConditional(Class<C> c, int priority, String performer, ConditionalType conditionalType, String property) {
-        new PropertyExpressionRegistrar<>(c, Boolean.class, property, PropertyConditional.composePatterns(performer, conditionalType, property)).setPriority(priority).register();
+        newExpression(c, Boolean.class, true, PropertyConditional.composePatterns(performer, conditionalType, property))
+                .setPriority(priority)
+                .setData("conditionalType", conditionalType)
+                .setData("property", property)
+                .register();
     }
 
     /**
@@ -516,6 +524,7 @@ public class SkriptRegistration {
         protected final Class<C> c;
         protected final List<String> patterns = new ArrayList<>();
         protected int priority;
+        protected final Map<String, Object> data = new HashMap<>();
 
         SyntaxRegistrar(Class<C> c, String... patterns) {
             this.c = c;
@@ -542,6 +551,11 @@ public class SkriptRegistration {
             if (priority < 0)
                 throw new SkriptParserException("Can't have a negative priority !");
             this.priority = priority;
+            return this;
+        }
+
+        public SyntaxRegistrar<C> setData(String identifier, Object data) {
+            this.data.put(identifier, data);
             return this;
         }
 
@@ -580,35 +594,7 @@ public class SkriptRegistration {
                 logger.error("Couldn't find a type corresponding to the class '" + returnType.getName() + "'", ErrorType.NO_MATCH);
                 return;
             }
-            expressions.putOne(super.c, new ExpressionInfo<>(super.c, parsePatterns(), registerer, type.get(), isSingle, priority));
-        }
-    }
-
-    public class PropertyExpressionRegistrar<C extends Expression<? extends T>, T> extends ExpressionRegistrar<C, T> {
-        private final String property;
-
-        PropertyExpressionRegistrar(Class<C> c, Class<T> returnType, String owner, String property) {
-            this(c, returnType, property,
-                    adaptPropertyPrefix(owner) + "'[s] " + property,
-                    "[the] " + property + " of " + adaptPropertyPrefix(owner));
-        }
-
-        PropertyExpressionRegistrar(Class<C> c, Class<T> returnType, String property, String... patterns) {
-            super(c, returnType, false, patterns);
-            this.property = property;
-        }
-
-        /**
-         * Adds this expression to the list of currently registered syntaxes
-         */
-        @Override
-        public void register() {
-            var type = TypeManager.getByClassExact(super.returnType);
-            if (type.isEmpty()) {
-                logger.error("Couldn't find a type corresponding to the class '" + super.returnType.getName() + "'", ErrorType.NO_MATCH);
-                return;
-            }
-            expressions.putOne(super.c, new PropertyExpressionInfo<>(super.c, parsePatterns(), registerer, type.get(), property, priority));
+            expressions.putOne(super.c, new ExpressionInfo<>(registerer, super.c, isSingle, type.get(), priority, parsePatterns(), super.data));
         }
     }
 
@@ -622,7 +608,7 @@ public class SkriptRegistration {
          */
         @Override
         public void register() {
-            effects.add(new SyntaxInfo<>(super.c, parsePatterns(), priority, registerer));
+            effects.add(new SyntaxInfo<>(registerer, super.c, priority, parsePatterns(), super.data));
         }
     }
 
@@ -637,7 +623,7 @@ public class SkriptRegistration {
          */
         @Override
         public void register() {
-            sections.add(new SyntaxInfo<>(super.c, parsePatterns(), priority, registerer));
+            sections.add(new SyntaxInfo<>(registerer, super.c, priority, parsePatterns(), super.data));
         }
     }
 
@@ -648,15 +634,6 @@ public class SkriptRegistration {
         EventRegistrar(Class<T> c, String... patterns) {
             super(c, patterns);
             typeCheck();
-        }
-
-        /**
-         * Adds this event to the list of currently registered syntaxes
-         */
-        @Override
-        public void register() {
-            events.add(new SkriptEventInfo<>(super.c, handledContexts, parsePatterns(), priority, registerer));
-            registerer.addHandledEvent(this.c);
         }
 
         /**
@@ -706,6 +683,23 @@ public class SkriptRegistration {
             contextValues.add(new ContextValue<>(context, type, isSingle, pattern, (Function<TriggerContext, R[]>) contextFunction, time, name.startsWith("*")));
             return this;
         }
+
+        /**
+         * Adds this event to the list of currently registered syntaxes
+         */
+        @Override
+        public void register() {
+            for (int i = 0; i < super.patterns.size(); i++) {
+                var pattern = super.patterns.get(i);
+                if (pattern.startsWith("*")) {
+                    super.patterns.set(i, pattern.substring(1));
+                } else {
+                    super.patterns.set(i, "[on] " + pattern);
+                }
+            }
+            events.add(new SkriptEventInfo<>(registerer, super.c, handledContexts, priority, parsePatterns(), data));
+            registerer.addHandledEvent(this.c);
+        }
     }
 
     private void typeCheck() {
@@ -713,10 +707,6 @@ public class SkriptRegistration {
             TypeManager.register(this);
             newTypes = false;
         }
-    }
-
-    private static String adaptPropertyPrefix(String str) {
-        return str.startsWith("*") ? str.substring(1) : "%" + str + "%";
     }
 
     private static String removePrefix(String str) {

@@ -26,6 +26,13 @@ import io.github.syst3ms.skriptparser.sections.SecWhile;
 public abstract class ConditionalExpression implements Expression<Boolean> {
     private boolean negated = false;
 
+    @Override
+    public Boolean[] getValues(TriggerContext ctx) {
+        return new Boolean[]{check(ctx)};
+    }
+
+    public abstract boolean check(TriggerContext ctx);
+
     /**
      * Whether a condition is negated. This is used in conjunction with {@link #setNegated(boolean)}.
      * @return whether the condition is negated
@@ -42,11 +49,4 @@ public abstract class ConditionalExpression implements Expression<Boolean> {
     public void setNegated(boolean negated) {
         this.negated = negated;
     }
-
-    @Override
-    public Boolean[] getValues(TriggerContext ctx) {
-        return new Boolean[]{check(ctx)};
-    }
-
-    public abstract boolean check(TriggerContext ctx);
 }

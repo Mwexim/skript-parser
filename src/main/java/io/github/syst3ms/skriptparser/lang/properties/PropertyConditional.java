@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
-import io.github.syst3ms.skriptparser.registration.properties.PropertyExpressionInfo;
 
 /**
  * This class can be used for an easier writing of conditions that contain only one type in the pattern
@@ -67,28 +66,20 @@ public abstract class PropertyConditional<P> extends ConditionalExpression {
         throw new UnsupportedOperationException("Override #check(P) if you are planning to use the default functionality.");
     }
 
-    /**
-     * The conditional type that is being used in the pattern.
-     * By default, returns {@link ConditionalType#BE}
-     * @return the conditional type
-     */
-    public ConditionalType getConditionalType() {
-        return ConditionalType.BE;
-    }
-
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
         var property = SyntaxManager.getExpressionExact(this)
-                .filter(PropertyExpressionInfo.class::isInstance)
-                .map(PropertyExpressionInfo.class::cast)
-                .orElseThrow(() -> new SkriptParserException("Unregistered or incorrectly registered property class: " + getClass().getName()))
-                .getProperty();
+                .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
+                .getData("property", String.class);
         return toString(ctx, debug, property);
     }
 
     protected String toString(TriggerContext ctx, boolean debug, String property) {
         var performer = getPerformer();
-        switch (getConditionalType()) {
+        var conditionalType = SyntaxManager.getExpressionExact(this)
+                .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
+                .getData("conditionalType", ConditionalType.class);
+        switch (conditionalType) {
             case BE:
                 return performer.toString(ctx, debug) + (performer.isSingle() ? " is " : " are ") + (isNegated() ? "not " : "") + property;
             case CAN:
