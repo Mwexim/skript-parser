@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.properties.ConditionalType;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyConditional;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
@@ -21,12 +20,15 @@ import io.github.syst3ms.skriptparser.util.math.NumberMath;
  */
 public class CondExprIsPrime extends PropertyConditional<Number> {
     static {
-		Parser.getMainRegistration().addPropertyConditional(
-    			CondExprIsPrime.class,
-				"numbers",
-				ConditionalType.BE,
-				"[a] prime [number[s]]"
-		);
+		Parser.getMainRegistration()
+				.newPropertyConditional(
+						CondExprIsPrime.class,
+						"numbers",
+						ConditionalType.BE,
+						"[a] prime [number[s]]"
+				)
+				.addData(PROPERTY_IDENTIFIER, "prime")
+				.register();
     }
 
     @Override
@@ -36,9 +38,4 @@ public class CondExprIsPrime extends PropertyConditional<Number> {
                 && BigDecimalMath.isIntValue(bd)
                 && NumberMath.isPrime(BigDecimalMath.getBigInteger(bd));
     }
-
-	@Override
-	public String toString(TriggerContext ctx, boolean debug) {
-		return toString(ctx, debug, "prime");
-	}
 }

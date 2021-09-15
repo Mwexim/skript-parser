@@ -187,7 +187,8 @@ public class SkriptRegistration {
      * @return an {@link ExpressionRegistrar} to continue the registration process
      */
     public <C extends PropertyExpression<T, ?>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, String owner, String property) {
-        return (ExpressionRegistrar<C, T>) newExpression(c, returnType, false, PropertyExpression.composePatterns(owner, property)).setData("property", property);
+        return (ExpressionRegistrar<C, T>) newExpression(c, returnType, false, PropertyExpression.composePatterns(owner, property))
+                .addData(PropertyExpression.PROPERTY_IDENTIFIER, property);
     }
 
     /**
@@ -218,6 +219,21 @@ public class SkriptRegistration {
     }
 
     /**
+     * Starts a registration process for a {@link PropertyConditional}
+     * @param c the Expression's class
+     * @param performer the type of the performer
+     * @param conditionalType the verb used in this conditional property
+     * @param property the property
+     * @param <C> the Expression
+     * @return an {@link ExpressionRegistrar} to continue the registration process
+     */
+    public <C extends PropertyConditional<?>> ExpressionRegistrar<C, Boolean> newPropertyConditional(Class<C> c, String performer, ConditionalType conditionalType, String property) {
+        return (ExpressionRegistrar<C, Boolean>) newExpression(c, Boolean.class, true, PropertyConditional.composePatterns(performer, conditionalType, property))
+                .addData(PropertyConditional.CONDITIONAL_TYPE_IDENTIFIER, conditionalType)
+                .addData(PropertyConditional.PROPERTY_IDENTIFIER, property);
+    }
+
+    /**
      * Registers a {@link PropertyConditional}
      * @param c the Expression's class
      * @param performer the type of the performer
@@ -226,10 +242,7 @@ public class SkriptRegistration {
      * @param <C> the Expression
      */
     public <C extends PropertyConditional<?>> void addPropertyConditional(Class<C> c, String performer, ConditionalType conditionalType, String property) {
-        newExpression(c, Boolean.class, true, PropertyConditional.composePatterns(performer, conditionalType, property))
-                .setData("conditionalType", conditionalType)
-                .setData("property", property)
-                .register();
+        newPropertyConditional(c, performer, conditionalType, property).register();
     }
 
     /**
@@ -242,11 +255,7 @@ public class SkriptRegistration {
      * @param <C> the Expression
      */
     public <C extends PropertyConditional<?>> void addPropertyConditional(Class<C> c, int priority, String performer, ConditionalType conditionalType, String property) {
-        newExpression(c, Boolean.class, true, PropertyConditional.composePatterns(performer, conditionalType, property))
-                .setPriority(priority)
-                .setData("conditionalType", conditionalType)
-                .setData("property", property)
-                .register();
+        newPropertyConditional(c, performer, conditionalType, property).setPriority(priority).register();
     }
 
     /**
@@ -554,7 +563,7 @@ public class SkriptRegistration {
             return this;
         }
 
-        public SyntaxRegistrar<C> setData(String identifier, Object data) {
+        public SyntaxRegistrar<C> addData(String identifier, Object data) {
             this.data.put(identifier, data);
             return this;
         }

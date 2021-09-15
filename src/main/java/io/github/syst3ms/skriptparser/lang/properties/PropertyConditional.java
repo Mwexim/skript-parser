@@ -29,6 +29,9 @@ import io.github.syst3ms.skriptparser.registration.SyntaxManager;
  * @author Mwexim
  */
 public abstract class PropertyConditional<P> extends ConditionalExpression {
+    public static final String PROPERTY_IDENTIFIER = "property";
+    public static final String CONDITIONAL_TYPE_IDENTIFIER = "conditionalType";
+
     private Expression<P> performer;
 
     /**
@@ -70,7 +73,7 @@ public abstract class PropertyConditional<P> extends ConditionalExpression {
     public String toString(TriggerContext ctx, boolean debug) {
         var property = SyntaxManager.getExpressionExact(this)
                 .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
-                .getData("property", String.class);
+                .getData(PROPERTY_IDENTIFIER, String.class);
         return toString(ctx, debug, property);
     }
 
@@ -78,7 +81,7 @@ public abstract class PropertyConditional<P> extends ConditionalExpression {
         var performer = getPerformer();
         var conditionalType = SyntaxManager.getExpressionExact(this)
                 .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
-                .getData("conditionalType", ConditionalType.class);
+                .getData(CONDITIONAL_TYPE_IDENTIFIER, ConditionalType.class);
         switch (conditionalType) {
             case BE:
                 return performer.toString(ctx, debug) + (performer.isSingle() ? " is " : " are ") + (isNegated() ? "not " : "") + property;

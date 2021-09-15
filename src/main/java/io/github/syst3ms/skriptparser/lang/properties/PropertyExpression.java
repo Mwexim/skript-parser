@@ -25,6 +25,8 @@ import java.util.Objects;
  * @author Mwexim
  */
 public abstract class PropertyExpression<T, O> implements Expression<T> {
+    public static final String PROPERTY_IDENTIFIER = "property";
+
     private Expression<O> owner;
     private boolean genitive;
 
@@ -78,7 +80,7 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     public String toString(TriggerContext ctx, boolean debug) {
         var property = SyntaxManager.getExpressionExact(this)
                 .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
-                .getData("property", String.class);
+                .getData(PROPERTY_IDENTIFIER, String.class);
         return toString(ctx, debug, property);
     }
 
