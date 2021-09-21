@@ -11,8 +11,6 @@ import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParserTest;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -35,10 +33,10 @@ public class SecBirth extends CodeSection {
         );
     }
 
-    private static final List<EffDeath> currentDeaths = new ArrayList<>();
-
     private Expression<String> message;
     private SkriptLogger logger;
+
+    private boolean dead;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -51,18 +49,23 @@ public class SecBirth extends CodeSection {
 
     @Override
     public Optional<? extends Statement> walk(TriggerContext ctx) {
+        /*
+         * This 'trapping' mechanism is done by design. We don't want 'birth' sections
+         * to end early, since that is literally what they are supposed to do: discover
+         * tests that are exiting too soon.
+         */
         var item = getFirst();
         while (!item.equals(getNext())) {
             item = item.flatMap(val -> val.walk(ctx));
         }
-        if (currentDeaths.isEmpty()) {
+        if (!dead) {
             SyntaxParserTest.addError(new SkriptRuntimeException(
                     message == null
                             ? "Birth section was not killed afterwards (" + logger.getFileName() + ")"
                             : message.getSingle(ctx).map(s -> (String) s).orElse(TypeManager.EMPTY_REPRESENTATION) + " (" + logger.getFileName() + ")"
             ));
         }
-        currentDeaths.clear();
+        dead = false;
         return getNext();
     }
 
@@ -71,11 +74,11 @@ public class SecBirth extends CodeSection {
         return "birth";
     }
 
-    public static void addDeath(EffDeath death) {
-        currentDeaths.add(death);
+    public boolean isDead() {
+        return dead;
     }
 
-    public static void removeDeath(EffDeath death) {
-        currentDeaths.remove(death);
+    public void setDead(boolean dead) {
+        this.dead = dead;
     }
 }

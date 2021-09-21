@@ -28,7 +28,7 @@ public class MatchContext {
     private final List<Expression<?>> parsedExpressions = new ArrayList<>();
     private final List<MatchResult> regexMatches = new ArrayList<>();
     private int patternIndex = 0;
-    private int parseMark = 0;
+    private final List<String> marks = new ArrayList<>();
 
     public MatchContext(PatternElement e, ParserState parserState, SkriptLogger logger) {
         this(e, parserState, logger, null);
@@ -96,19 +96,18 @@ public class MatchContext {
     }
 
     /**
-     * @return the parse mark so far
+     * @return the parse marks so far
      */
-    public int getParseMark() {
-        return parseMark;
+    public List<String> getMarks() {
+        return marks;
     }
 
     /**
-     * Calculates the new parse mark based on the just matched mark. This matched mark is XORed with the current
-     * parse mark.
-     * @param mark the just matched mark
+     * Adds the just matched parse marks to the list of all parse marks matched so far
+     * @param mark the just matched parse mark
      */
-    public void addMark(int mark) {
-        parseMark ^= mark;
+    public void addMark(String mark) {
+        marks.add(mark);
     }
 
     /**
@@ -136,7 +135,7 @@ public class MatchContext {
     public void merge(MatchContext branch) {
         parsedExpressions.addAll(branch.parsedExpressions);
         regexMatches.addAll(branch.regexMatches);
-        addMark(branch.parseMark);
+        marks.addAll(branch.marks);
     }
 
     /**
@@ -144,7 +143,7 @@ public class MatchContext {
      * @return a {@link ParseContext} based on this {@link MatchContext}
      */
     public ParseContext toParseResult() {
-        return new ParseContext(parserState, originalElement, regexMatches, parseMark, originalPattern, logger);
+        return new ParseContext(parserState, originalElement, regexMatches, marks, originalPattern, logger);
     }
 
     public ParserState getParserState() {

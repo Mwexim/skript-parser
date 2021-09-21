@@ -1,7 +1,5 @@
 package io.github.syst3ms.skriptparser.lang;
 
-import io.github.syst3ms.skriptparser.lang.base.ExecutableExpression;
-import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -55,9 +53,11 @@ public abstract class Statement implements SyntaxElement {
     }
 
     /**
-     * Sets the Statement that is placed after this Statement in the file
+     * Sets the Statement that is placed after this Statement in the file.
+     * You can assume that the {@linkplain #next} statement of the {@code next} parameter
+     * is known if it has such a statement.
      * @param next the Statement that is following this one
-     * @return this Statement
+     * @return this statement
      */
     public Statement setNext(@Nullable Statement next) {
         this.next = next;
@@ -67,15 +67,10 @@ public abstract class Statement implements SyntaxElement {
     /**
      * By default, runs {@link #run(TriggerContext)} ; returns {@link #getNext()} if it returns true, or {@code null} otherwise.
      * Note that if this method is overridden, then the implementation of {@linkplain #run(TriggerContext)} doesn't matter.
-     * <br>
-     * This method also calls {@link SkriptAddon#walkingForward()} for all registered addons. This
-     * implementation is not particularly required, unless you are make extensive use of {@link ExecutableExpression}
-     * and cache that needs to be cleared after each statement.
      * @param ctx the event
      * @return the next item to be ran, or {@code null} if this is the last item to be executed
      */
     public Optional<? extends Statement> walk(TriggerContext ctx) {
-        SkriptAddon.getAddons().forEach(SkriptAddon::walkingForward);
         var proceed = run(ctx);
         if (proceed) {
             return getNext();

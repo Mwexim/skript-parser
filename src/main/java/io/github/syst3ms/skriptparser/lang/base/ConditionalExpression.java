@@ -1,9 +1,9 @@
 package io.github.syst3ms.skriptparser.lang.base;
 
 import io.github.syst3ms.skriptparser.expressions.ExprWhether;
-import io.github.syst3ms.skriptparser.lang.Conditional;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.sections.SecConditional;
 import io.github.syst3ms.skriptparser.sections.SecWhile;
 
 /**
@@ -20,7 +20,7 @@ import io.github.syst3ms.skriptparser.sections.SecWhile;
  *
  * Other, non-conditional boolean expressions should implement {@link Expression<Boolean>}
  * @see ExprWhether
- * @see Conditional
+ * @see SecConditional
  * @see SecWhile
  */
 public abstract class ConditionalExpression implements Expression<Boolean> {

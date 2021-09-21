@@ -43,8 +43,8 @@ public class ExprColorFromHex implements Expression<Color> {
 	@Override
 	public Color[] getValues(TriggerContext ctx) {
 		return hex.getSingle(ctx)
-				.map(val -> val.startsWith("#") ? val.substring(1) : val)
-				.map(val -> new Color[] {Color.ofHex(val)})
+				.flatMap(val -> Color.ofHex(val.startsWith("#") ? val.substring(1) : val))
+				.map(val -> new Color[] {val})
 				.orElse(new Color[0]);
 	}
 

@@ -25,37 +25,30 @@ public class ExprDateNow implements Expression<SkriptDate> {
 		);
 	}
 
-	private int parseMark;
+	private int mark;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		parseMark = parseContext.getParseMark();
+		mark = parseContext.getNumericMark();
 		return true;
 	}
 
 	@Override
 	public SkriptDate[] getValues(TriggerContext ctx) {
-		switch (parseMark) {
+		switch (mark) {
 			case 0:
 				return new SkriptDate[] {SkriptDate.now()};
 			case 1:
 				return new SkriptDate[] {SkriptDate.of(SkriptDate.now().getTimestamp() - SkriptDate.MILLIS_PER_DAY)};
 			case 2:
 				return new SkriptDate[] {SkriptDate.of(SkriptDate.now().getTimestamp() + SkriptDate.MILLIS_PER_DAY)};
+			default:
+				throw new IllegalStateException();
 		}
-		return new SkriptDate[0];
 	}
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		switch (parseMark) {
-			case 1:
-				return "yesterday";
-			case 2:
-				return "tomorrow";
-			case 0:
-			default:
-				return "now";
-		}
+		return new String[] {"now", "yesterday", "tomorrow"}[mark];
 	}
 }

@@ -3,7 +3,6 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
-import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -96,13 +95,6 @@ public class ExprArithmeticOperators implements Expression<Number> {
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
         return first.toString(ctx, debug) + " " + op + " " + second.toString(ctx, debug);
-    }
-
-    @Override
-    public Expression<? extends Number> simplify() {
-        if (first instanceof Literal && second instanceof Literal)
-            return new SimpleLiteral<>(Number.class, getValues(TriggerContext.DUMMY));
-        return this;
     }
 
     private enum Operator {

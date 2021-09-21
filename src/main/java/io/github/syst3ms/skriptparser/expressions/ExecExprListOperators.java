@@ -14,23 +14,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Basic list operators with the following behavior:
+ * Basic list operators that return the following elements:
  * <ul>
- *      <li>{@code pop} removes the last element and returns that removed element.</li>
- *      <li>{@code shift/poll} removes the first element and returns that removed element.</li>
- *      <li>{@code extract} removes a specific (or just the first/last element) and returns that removed element</li>
- *      <li>{@code splice} removes elements in a certain bound and returns those removed elements.</li>
+ *      <li>{@code pop}: the last element</li>
+ *      <li>{@code shift/poll}: the first element</li>
+ *      <li>{@code extract}: a specific (or just the first/last) element</li>
+ *      <li>{@code splice}: elements in a certain bound</li>
  * </ul>
- * These are all changing operators, which mean they apply the operator on the source list
- * and return other elements accordingly to the operator type. If the list is not changeable,
- * then these operators will not work.
+ * However, this syntax can also be used as an effect. If this is the case, instead of returning
+ * the elements, specified above, it will <b>remove</b> them from the list, similar to their
+ * JavaScript counter-parts.
+ * <br>
  * Note that indices in Skript start at one and that both the lower and upper bounds are inclusive.
  * The step function can be used in the {@code splice} pattern to skip over certain values. Note that
  * when a negative step function is used, the list is reversed as well as the lower and upper bounds,
  * which means the lower bound must be higher than the upper bound.
  *
  * @name List Operators
- * @type EXPRESSION
+ * @type EFFECT/EXPRESSION
  * @pattern extract [the] (last|first|%integer%(st|nd|rd|th)) element out [of] %objects%
  * @pattern pop %objects%
  * @pattern (shift|poll) %objects%
@@ -65,7 +66,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
 		switch (matchedPattern) {
 			case 0:
-				type = parseContext.getParseMark();
+				type = parseContext.getNumericMark();
 				list = (Expression<Object>) (type == 2 ? expressions[1] : expressions[0]);
 				if (type == 2)
 					index = (Expression<BigInteger>) expressions[0];
@@ -78,7 +79,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 			case 3:
 				type = 3;
 				list = (Expression<Object>) expressions[0];
-				switch (parseContext.getParseMark()) {
+				switch (parseContext.getNumericMark()) {
 					case 0:
 						lower = (Expression<BigInteger>) expressions[1];
 						upper = (Expression<BigInteger>) expressions[2];
@@ -100,9 +101,10 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 				}
 		}
 		var logger = parseContext.getLogger();
-		if (list.acceptsChange(ChangeMode.SET).isEmpty()) {
+		if (!list.acceptsChange(ChangeMode.SET, list.getReturnType(), false)) {
 			logger.error(
-					list.toString(TriggerContext.DUMMY, logger.isDebug()) + " is constant and cannot be changed",
+					list.toString(TriggerContext.DUMMY, logger.isDebug())
+							+ "' cannot be set to multiple values",
 					ErrorType.SEMANTIC_ERROR
 			);
 			return false;
@@ -118,17 +120,19 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 	}
 
 	@Override
-	public Object[] getAppliedValues(TriggerContext ctx) {
+	public Object[] getValues(TriggerContext ctx, boolean isEffect) {
 		var values = list.getValues(ctx);
 		if (values.length == 0)
 			return new Object[0];
 
 		switch (type) {
 			case 0:
-				list.change(ctx, Arrays.copyOfRange(values, 0, values.length - 1), ChangeMode.SET);
+				if (isEffect)
+					list.change(ctx, ChangeMode.SET, Arrays.copyOfRange(values, 0, values.length - 1));
 				return new Object[] {values[values.length - 1]};
 			case 1:
-				list.change(ctx, Arrays.copyOfRange(values, 1, values.length), ChangeMode.SET);
+				if (isEffect)
+					list.change(ctx, ChangeMode.SET, Arrays.copyOfRange(values, 1, values.length));
 				return new Object[] {values[0]};
 			case 2:
 				int ind = index.getSingle(ctx)
@@ -138,14 +142,18 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 				if (ind == -1) {
 					return new Object[0];
 				}
-				var skipped = new Object[values.length - 1];
-				for (int i = 0, k = 0; i < values.length; i++) {
-					if (i == ind) {
-						continue;
+
+				// When used as an effect
+				if (isEffect) {
+					var skipped = new Object[values.length - 1];
+					for (int i = 0, k = 0; i < values.length; i++) {
+						if (i == ind) {
+							continue;
+						}
+						skipped[k++] = values[i];
 					}
-					skipped[k++] = values[i];
+					list.change(ctx, ChangeMode.SET, skipped);
 				}
-				list.change(ctx, skipped, ChangeMode.SET);
 				return new Object[] {values[ind]};
 			case 3:
 				var low = lower != null
@@ -166,7 +174,8 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 					up = temp + 1;
 				}
 				if (low == -1 || up == -1 || up == 0 || st == 0 || low > up) {
-					list.change(ctx, new Object[0], ChangeMode.SET);
+					if (isEffect)
+						list.change(ctx, ChangeMode.SET, new Object[0]);
 					return new Object[0];
 				} else if (low == up) {
 					// Nothing to change
@@ -183,7 +192,8 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 					}
 				}
 
-				list.change(ctx, changed.toArray(), ChangeMode.SET);
+				if (isEffect)
+					list.change(ctx, ChangeMode.SET, changed.toArray());
 				return spliced.toArray(new Object[0]);
 			default:
 				throw new IllegalStateException();
@@ -192,7 +202,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 
 	@Override
 	public boolean isSingle() {
-		return type == 0 || type == 1;
+		return type != 3;
 	}
 
 	@Override

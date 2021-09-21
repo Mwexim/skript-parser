@@ -3,9 +3,9 @@ package io.github.syst3ms.skriptparser.util;
 import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
  */
 public class RecentElementList<T> implements Iterable<T> {
     /**
-     * Suppose you use a bunch of different syntaxes in your script : they all get sorted properly in the frequency
+     * Suppose you use a bunch of different syntaxes in your script: they all get sorted properly in the frequency
      * hierarchy, and the "recent syntaxes" check works fine. But if there are many syntaxes in that list, then if one
      * wants to use a syntax one hasn't used before, it would take a lot of time to actually match the pattern against
      * it, since there's all the previously used syntaxes to check beforehand.
@@ -34,7 +34,7 @@ public class RecentElementList<T> implements Iterable<T> {
     // Sorts entries by their value in decreasing order
     private static final Comparator<Map.Entry<?, Integer>> ENTRY_COMPARATOR = (f, s) -> s.getValue() - f.getValue();
 
-    private final List<Map.Entry<T, Integer>> backing = new ArrayList<>();
+    private final Map<T, Integer> backing = new HashMap<>();
     private final List<T> occurrences = new ArrayList<>();
 
     public RecentElementList() {}
@@ -49,16 +49,27 @@ public class RecentElementList<T> implements Iterable<T> {
             if (occurrences.size() >= MAX_LIST_SIZE)
                 return;
             occurrences.add(element);
-            backing.add(new AbstractMap.SimpleEntry<>(element, 1));
+            backing.put(element, 1);
         } else {
-            for (var i = 0; i < backing.size(); i++) {
-                var freq = backing.get(i);
-                if (freq.getKey().equals(element)) {
-                    freq.setValue(freq.getValue() + 1);
-                    backing.set(i, freq);
-                }
+            for (var freq : backing.entrySet()) {
+                if (freq.getKey().equals(element))
+                    backing.put(freq.getKey(), freq.getValue() + 1);
             }
         }
+    }
+
+    /**
+     * Merges the elements of this list and the elements of the other list into a new set.
+     * The elements of this list have priority over the other elements. There will be
+     * no duplicate elements in the returned collection.
+     * @param other the other list
+     * @return a merged set with the elements of both lists
+     */
+    public List<T> mergeWith(List<T> other) {
+        List<T> merged = new ArrayList<>(occurrences);
+        other.removeAll(occurrences);
+        merged.addAll(other);
+        return merged;
     }
 
     /**
@@ -70,34 +81,33 @@ public class RecentElementList<T> implements Iterable<T> {
     }
 
     /**
-     * Custom iterator sorted by frequence of use
-     * @return an iterator where syntaxes appear in decreasing order of frequence of use
+     * Custom iterator sorted by frequency of use
+     * @return an iterator where syntaxes appear in decreasing order of frequency of use
      */
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        backing.sort(ENTRY_COMPARATOR);
+        var entries = new ArrayList<>(backing.entrySet());
+        entries.sort(ENTRY_COMPARATOR);
         /*
          * Anonymous class because usual Iterator implementations check for concurrent modification, which we don't really
          * care about here. This shouldn't cause issues even if parallel parsing is implemented, because any reasonable
          * implementation would not use one RecentElementList across multiple threads. At least I hope so...
          */
         return new Iterator<>() {
-            private final List<Map.Entry<T, Integer>> b = backing;
             private int index = 0;
 
             @Override
             public boolean hasNext() {
-                return index < b.size();
+                return index < entries.size();
             }
 
             @Override
             public T next() {
                 if (!hasNext())
                     throw new NoSuchElementException();
-                return b.get(index++).getKey();
+                return entries.get(index++).getKey();
             }
         };
     }
-
 }

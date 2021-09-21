@@ -1,0 +1,31 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2021/03/30
+
+test:
+	# All tests were made using these tools:
+	# - https://v2.cryptii.com/ (normal conversions)
+	# - https://jalu.ch/coding/base_converter.php (custom base conversions)
+
+	set {var} to 5732
+	assert {var} converted to binary = "1011001100100" with "{var} as binary should be '1011001100100': %{var} converted to binary%"
+	assert {var} to octal = "13144" with "{var} to octal should be '13144': %{var} to octal%"
+	assert {var} converted to hex = "1664" with "{var} to hex should be '1664': %{var} converted to hex%"
+	assert {var} to base64 = "FmQ=" with "{var} to base64 should be 'FmQ=': %{var} to base64%"
+	assert {var} to base 13 = "27bc" with "{var} to base 13 should be '27bc': %{var} to base 13%"
+
+	set {var} to "13144" # from decimal 5732
+	assert octal {var} converted to hex = "1664" with "octal {var} to hex should be '1664': %octal {var} converted to hex%"
+	assert octal {var} converted to base64 = "FmQ=" with "octal {var} to base64 should be 'FmQ=': %octal {var} converted to base64%"
+	assert octal {var} converted to base 19 = "fgd" with "octal {var} to hex should be 'fgd': %octal {var} converted to base 19%"
+
+	set {var} to "IKA=" # from decimal 8352
+	assert base64 {var} to decimal = "8352" with "base64 {var} to decimal should be '8352': %base64 {var} to decimal%"
+	assert base64 {var} to binary = "10000010100000" with "base64 {var} to binary should be '10000010100000': %base64 {var} to binary%"
+
+	assert octal "20321" converted to octal = "20321" with "octal to octal should be '20321'"
+
+	set {var} to "101"
+	assert binary {var} converted to decimal = "5" with "binary {var} to decimal should '5': %binary {var} converted to decimal%"
+	# TODO implement better converter system
+	#assert binary {var} converted to decimal = 5 with "binary {var} to decimal should be 5 (integer): %binary {var} converted to decimal%"

@@ -9,7 +9,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 
 /**
  * Check if a given number is divisible by another number.
@@ -42,15 +41,15 @@ public class CondExprIsDivisible extends PropertyConditional<Number> {
     }
 
     @Override
-    public boolean check(TriggerContext ctx, Number[] performers) {
-        if (performers.length == 0)
-            return isNegated();
-        return isNegated() != Arrays.stream(performers)
-                .allMatch(val -> divider.getSingle(ctx)
-                        .filter(__ -> BigDecimalMath.isIntValue(BigDecimalMath.getBigDecimal(val)))
-                        .filter(d -> BigDecimalMath.getBigInteger(val).mod(d).equals(BigInteger.ZERO))
-                        .isPresent()
-                );
+    public boolean check(TriggerContext ctx) {
+        return getPerformer().check(
+                ctx,
+                performer -> divider.getSingle(ctx)
+                        .filter(__ -> BigDecimalMath.isIntValue(BigDecimalMath.getBigDecimal(performer)))
+                        .filter(val -> BigDecimalMath.getBigInteger(performer).mod(val).equals(BigInteger.ZERO))
+                        .isPresent(),
+                isNegated()
+        );
     }
 
     @Override

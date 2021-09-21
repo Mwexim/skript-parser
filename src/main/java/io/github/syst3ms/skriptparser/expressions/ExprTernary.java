@@ -21,7 +21,7 @@ public class ExprTernary implements Expression<Object> {
             Object.class,
             false,
             "%objects% if %=boolean%[,] (otherwise|else) %objects%",
-            "%=boolean% ? %objects% : %objects%"
+            "%=boolean% ? %objects% \\: %objects%"
         );
     }
 
@@ -42,6 +42,11 @@ public class ExprTernary implements Expression<Object> {
         return valueToCheck.getSingle(ctx)
                 .map(check -> check ? firstValue.getValues(ctx) : secondValue.getValues(ctx))
                 .orElse(new Object[0]);
+    }
+
+    @Override
+    public boolean isSingle() {
+        return firstValue.isSingle() && secondValue.isSingle();
     }
 
     @Override

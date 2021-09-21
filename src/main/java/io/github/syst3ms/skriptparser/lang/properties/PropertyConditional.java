@@ -66,10 +66,18 @@ public abstract class PropertyConditional<P> extends ConditionalExpression imple
 
     @Override
     public boolean check(TriggerContext ctx) {
-        return check(ctx, performer.getValues(ctx));
+        return getPerformer().check(ctx, this::check, isNegated());
     }
 
-    public abstract boolean check(TriggerContext ctx, P[] performers);
+    /**
+     * Tests this condition for each individual performer. Negated conditions are taken care of
+     * automatically, so one must not account for it in here.
+     * @param performer the performer
+     * @return whether the conditions is true for this performer
+     */
+    public boolean check(P performer) {
+        throw new UnsupportedOperationException("Override #check(P) if you are planning to use the default functionality.");
+    }
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
@@ -87,10 +95,11 @@ public abstract class PropertyConditional<P> extends ConditionalExpression imple
             case CAN:
                 return perf.toString(ctx, debug) + (isNegated() ? " can't " : " can ") + property;
             case HAVE:
-                if (perf.isSingle())
+                if (perf.isSingle()) {
                     return perf.toString(ctx, debug) + (isNegated() ? " doesn't have " : " has ") + property;
-                else
+                } else {
                     return perf.toString(ctx, debug) + (isNegated() ? " don't have " : " have ") + property;
+                }
             default:
                 throw new AssertionError();
         }

@@ -65,7 +65,8 @@ public class CondExprCompare extends ConditionalExpression {
     @Nullable
     private Expression<?> third;
     private Relation relation;
-    private Comparator<Object, Object> comp;
+    @Nullable
+    private Comparator<Object, Object> comparator;
 
     private boolean contentComparison;
     private boolean firstEach;
@@ -78,9 +79,9 @@ public class CondExprCompare extends ConditionalExpression {
         second = expressions[1];
         if (expressions.length == 3)
             third = expressions[2];
-        SkriptLogger logger = result.getLogger();
         relation = PATTERNS.getInfo(matchedPattern);
-        int parseMark = result.getParseMark();
+
+        int parseMark = result.getNumericMark();
         if ((parseMark & 2) != 0) // "not" somewhere in the condition
             setNegated(true);
         if ((parseMark & 1) != 0) // "neither" on the left side
@@ -90,6 +91,8 @@ public class CondExprCompare extends ConditionalExpression {
                 second.setAndList(!second.isAndList());
             }
         }
+
+        SkriptLogger logger = result.getLogger();
         if ((parseMark & 0x18) != 0) {
             firstEach = (parseMark & 0x8) != 0;
             secondEach = (parseMark & 0x10) != 0;
@@ -162,8 +165,8 @@ public class CondExprCompare extends ConditionalExpression {
                 && relation == Relation.EQUAL
                 && !(firstEach || secondEach)
                 && !(first.isSingle() || second.isSingle());
-        Expression<?> third = this.third;
-        if (!initialize()) {
+
+        if (!initComparator()) {
             if (third == null) {
                 logger.error(
                         "'" +
@@ -187,12 +190,10 @@ public class CondExprCompare extends ConditionalExpression {
             }
             return false;
         }
-        @SuppressWarnings("rawtypes")
-        Comparator comp = this.comp;
-        if (comp != null) {
+        if (comparator != null) {
             if (third == null) {
-                return relation.isEqualOrInverse() || comp.supportsOrdering();
-            } else if (!comp.supportsOrdering()) {
+                return relation.isEqualOrInverse() || comparator.supportsOrdering();
+            } else if (!comparator.supportsOrdering()) {
                 logger.error(
                         errorString(first, logger.isDebug()) +
                         " cannot be ordered between " +
@@ -205,45 +206,17 @@ public class CondExprCompare extends ConditionalExpression {
         return true;
     }
 
-    private String errorString(Expression<?> expr, boolean debug) {
-        if (expr.getReturnType() == Object.class)
-            return expr.toString(TriggerContext.DUMMY, debug);
-        Optional<? extends Type<?>> exprType = TypeManager.getByClass(expr.getReturnType());
-        assert exprType.isPresent();
-        return StringUtils.withIndefiniteArticle(exprType.get().getBaseName(), !expr.isSingle());
-    }
-
     @SuppressWarnings({"unchecked"})
-    private boolean initialize() {
-        Expression<?> third = this.third;
-//        if (first.getReturnType() == Object.class) {
-//            Optional<? extends Expression<Object>> e = first.convertExpression(Object.class);
-//            if (e.isEmpty()) {
-//                return false;
-//            }
-//            first = e.get();
-//        }
-//        if (second.getReturnType() == Object.class) {
-//            Optional<? extends Expression<Object>> e = second.convertExpression(Object.class);
-//            if (e.isEmpty()) {
-//                return false;
-//            }
-//            second = e.get();
-//        }
-//        if (third != null && third.getReturnType() == Object.class) {
-//            Optional<? extends Expression<Object>> e = third.convertExpression(Object.class);
-//            if (e.isEmpty()) {
-//                return false;
-//            }
-//            this.third = third = e.get();
-//        }
+    private boolean initComparator() {
         Class<?> f = first.getReturnType();
         Class<?> s = third == null
                 ? second.getReturnType()
                 : ClassUtils.getCommonSuperclass(second.getReturnType(), third.getReturnType());
-        if (f == Object.class || s == Object.class)
+
+        if (f == Object.class || s == Object.class) {
             return true;
-        return (comp = (Comparator<Object, Object>) Comparators.getComparator(f, s).orElse(null)) != null;
+        }
+        return (comparator = (Comparator<Object, Object>) Comparators.getComparator(f, s).orElse(null)) != null;
     }
 
     /*
@@ -282,9 +255,9 @@ public class CondExprCompare extends ConditionalExpression {
      */
     @Override
     public boolean check(TriggerContext ctx) {
-        Object[] firstValues = first.getValues(ctx);
-        Object[] secondValues = second.getValues(ctx);
-        Object[] thirdValues = third != null ? third.getValues(ctx) : null;
+        Object[] firstValues = first.getArray(ctx);
+        Object[] secondValues = second.getArray(ctx);
+        Object[] thirdValues = third != null ? third.getArray(ctx) : null;
         if (thirdValues == null) {
             if (firstEach && secondEach) {
                 if (firstValues.length != secondValues.length)
@@ -382,8 +355,8 @@ public class CondExprCompare extends ConditionalExpression {
                     o1 -> Expression.check(
                             secondValues,
                             o2 -> relation.is(
-                                    comp != null ?
-                                            comp.apply(o1, o2)
+                                    comparator != null ?
+                                            comparator.apply(o1, o2)
                                             : Comparators.compare(o1, o2)
                             ),
                             false,
@@ -398,12 +371,12 @@ public class CondExprCompare extends ConditionalExpression {
             for (Object f : firstValues) {
                 boolean isContained = false;
                 for (Object s : secondValues) {
-                    if (comp == null) {
+                    if (comparator == null) {
                         if (Comparators.compare(f, s).is(Relation.EQUAL)) {
                             isContained = true;
                             break;
                         }
-                    } else if (comp.apply(f, s).is(Relation.EQUAL)) {
+                    } else if (comparator.apply(f, s).is(Relation.EQUAL)) {
                         isContained = true;
                         break;
                     }
@@ -425,13 +398,13 @@ public class CondExprCompare extends ConditionalExpression {
                                 thirdValues,
                                 o3 -> {
                                     boolean isBetween;
-                                    if (comp != null) {
+                                    if (comparator != null) {
                                         isBetween =
-                                                (Relation.GREATER_OR_EQUAL.is(comp.apply(o1, o2)) &&
-                                                        Relation.SMALLER_OR_EQUAL.is(comp.apply(o1, o3)))
+                                                (Relation.GREATER_OR_EQUAL.is(comparator.apply(o1, o2)) &&
+                                                        Relation.SMALLER_OR_EQUAL.is(comparator.apply(o1, o3)))
                                                         || // Check OPPOSITE (switching o2 / o3)
-                                                        (Relation.GREATER_OR_EQUAL.is(comp.apply(o1, o3)) &&
-                                                                Relation.SMALLER_OR_EQUAL.is(comp.apply(o1, o2)));
+                                                        (Relation.GREATER_OR_EQUAL.is(comparator.apply(o1, o3)) &&
+                                                                Relation.SMALLER_OR_EQUAL.is(comparator.apply(o1, o2)));
                                     } else {
                                         isBetween =
                                                 (Relation.GREATER_OR_EQUAL.is(Comparators.compare(o1, o2)) &&
@@ -470,8 +443,16 @@ public class CondExprCompare extends ConditionalExpression {
                     third.toString(ctx, debug);
         }
         if (debug) {
-            s += " (comparator: " + comp + ")";
+            s += " (comparator: " + comparator + ")";
         }
         return s;
+    }
+
+    private static String errorString(Expression<?> expr, boolean debug) {
+        if (expr.getReturnType() == Object.class)
+            return expr.toString(TriggerContext.DUMMY, debug);
+        Optional<? extends Type<?>> exprType = TypeManager.getByClass(expr.getReturnType());
+        assert exprType.isPresent();
+        return StringUtils.withIndefiniteArticle(exprType.get().getBaseName(), !expr.isSingle());
     }
 }

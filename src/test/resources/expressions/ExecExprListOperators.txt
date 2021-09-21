@@ -5,17 +5,27 @@
 test:
 	set {list::*} to "a", "b", "c", "d", "e", "f" and "g"
 	set {var} to pop {list::*}
-	assert {list::*} does not contain "g" with "{list::*} should not contain 'g' anymore: %{list::*}%"
 	assert {var} is "g" with "{var} should be 'g': %{var}%"
+	assert {list::*} contains "g" with "{list::*} should contain 'g': %{list::*}%"
+	pop {list::*}
+	assert {list::*} does not contain "g" with "{list::*} should not contain 'g' anymore: %{list::*}%"
 
 	set {var} to shift {list::*}
-	assert {list::*} does not contain "a" with "{list::*} should not contain 'a' anymore: %{list::*}%"
 	assert {var} is "a" with "{var} should be 'a': %{var}%"
+	assert {list::*} contains "a" with "{list::*} should contain 'a': %{list::*}%"
+	poll {list::*}
+	assert {list::*} does not contain "a" with "{list::*} should not contain 'a' anymore: %{list::*}%"
 
 	set {var} to extract 2nd element out of {list::*}
-	assert {list::*} does not contain "c" with "{list::*} should not contain 'c' anymore: %{list::*}%"
 	assert {var} is "c" with "{var} should be 'c': %{var}%"
+	assert {list::*} contains "c" with "{list::*} should contain 'c': %{list::*}%"
+	extract 2nd element out of {list::*}
+	assert {list::*} does not contain "c" with "{list::*} should not contain 'c' anymore: %{list::*}%"
 
 	set {spliced::*} to splice {list::*} from 1 to 3
-	assert {list::*} = "f" with "{list::*} should equal 'f': %{list::*}%"
 	assert {spliced::*} = "b", "d" and "e" with "{spliced::*} should equal 'b', 'd' and 'e': %{spliced::*}%"
+	assert {list::*} = "b", "d", "e" and "f" with "{list::*} should equal 'b', 'd', 'e' and 'f': %{list::*}%"
+	splice {list::*} from 1 to 3
+	assert {list::*} = "f" with "{list::*} should equal 'f': %{list::*}%"
+
+	# Add (negative) step tests?

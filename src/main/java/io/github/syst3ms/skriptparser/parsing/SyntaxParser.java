@@ -133,8 +133,8 @@ public class SyntaxParser {
             if (variable.filter(v -> !v.isSingle() && expectedType.isSingle()).isPresent()) {
                 logger.error(
                         "A single value was expected, but " +
-                        s +
-                        " represents multiple values.",
+                                s +
+                                " represents multiple values.",
                         ErrorType.SEMANTIC_ERROR,
                         "Use a loop/map to divert each element of this list into single elements"
                 );
@@ -163,22 +163,14 @@ public class SyntaxParser {
                 return listLiteral;
             }
         }
-        for (var info : recentExpressions) {
+        for (var info : recentExpressions.mergeWith(SyntaxManager.getAllExpressions())) {
             var expr = matchExpressionInfo(s, info, expectedType, parserState, logger);
             if (expr.isPresent()) {
-                recentExpressions.acknowledge(info);
-                logger.clearErrors();
-                return expr;
-            }
-            logger.forgetError();
-        }
-        // Let's not loop over the same elements again
-        var remainingExpressions = SyntaxManager.getAllExpressions();
-        recentExpressions.removeFrom(remainingExpressions);
-        remainingExpressions.remove(EXPRESSION_BOOLEAN_OPERATORS);
-        for (var info : remainingExpressions) {
-            var expr = matchExpressionInfo(s, info, expectedType, parserState, logger);
-            if (expr.isPresent()) {
+                if (parserState.isRestrictingExpressions() && parserState.forbidsSyntax(expr.get().getClass())) {
+                    logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+                    logger.error("The enclosing section does not allow the use of this expression: " + expr.get().toString(TriggerContext.DUMMY, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+                    return Optional.empty();
+                }
                 recentExpressions.acknowledge(info);
                 logger.clearErrors();
                 return expr;
@@ -227,8 +219,8 @@ public class SyntaxParser {
             if (variable.filter(v -> !v.isSingle()).isPresent()) {
                 logger.error(
                         "A single value was expected, but " +
-                        s +
-                        " represents multiple values.",
+                                s +
+                                " represents multiple values.",
                         ErrorType.SEMANTIC_ERROR,
                         "Use a loop/map to divert each element of this list into single elements"
                 );
@@ -237,7 +229,7 @@ public class SyntaxParser {
                 return variable;
             }
         }
-        for (var info : recentExpressions) {
+        for (var info : recentExpressions.mergeWith(SyntaxManager.getAllExpressions())) {
             if (info.getReturnType().getType().getTypeClass() != Boolean.class)
                 continue;
             var expr = (Optional<? extends Expression<Boolean>>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE, parserState, logger);
@@ -253,6 +245,10 @@ public class SyntaxParser {
                             return Optional.empty();
                         }
                         break;
+                    case 1: // Can be conditional
+                        if (ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
+                            recentConditions.acknowledge((ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>) info);
+                        }
                     case 2: // Has to be conditional
                         if (!ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
                             logger.error(
@@ -261,10 +257,6 @@ public class SyntaxParser {
                                     "Rather than a simple boolean, use a condition here, like '{x} is more than 10'"
                             );
                             return Optional.empty();
-                        }
-                    case 1: // Can be conditional
-                        if (ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
-                            recentConditions.acknowledge((ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>) info);
                         }
                     default: // You just want me dead, don't you ?
                         break;
@@ -275,47 +267,7 @@ public class SyntaxParser {
             }
             logger.forgetError();
         }
-        // Let's not loop over the same elements again
-        var remainingExpressions = SyntaxManager.getAllExpressions();
-        recentExpressions.removeFrom(remainingExpressions);
-        for (var info : remainingExpressions) {
-            if (info.getReturnType().getType().getTypeClass() != Boolean.class)
-                continue;
-            var expr = (Optional<? extends Expression<Boolean>>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE, parserState, logger);
-            if (expr.isPresent()) {
-                switch (conditional) {
-                    case 0: // Can't be conditional
-                        if (ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
-                            logger.error(
-                                    "The boolean expression must not be conditional",
-                                    ErrorType.SEMANTIC_ERROR,
-                                    "Rather than a condition, use a simple boolean here. Use 'whether %=boolean%' to convert a condition into a simple boolean"
-                            );
-                            return Optional.empty();
-                        }
-                        break;
-                    case 2: // Has to be conditional
-                        if (!ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
-                            logger.error(
-                                    "The boolean expression must be conditional",
-                                    ErrorType.SEMANTIC_ERROR,
-                                    "Rather than a simple boolean, use a condition here, like '{x} is more than 10'"
-                            );
-                            return Optional.empty();
-                        }
-                    case 1: // Can be conditional
-                        if (ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
-                            recentConditions.acknowledge((ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>) info);
-                        }
-                    default: // You just want me dead, don't you ?
-                        break;
-                }
-                recentExpressions.acknowledge(info);
-                logger.clearErrors();
-                return expr;
-            }
-            logger.forgetError();
-        }
+
         logger.setContext(ErrorContext.NO_MATCH);
         logger.error("No expression matching '" + s + "' was found", ErrorType.NO_MATCH);
         return Optional.empty();
@@ -337,7 +289,7 @@ public class SyntaxParser {
         CONTEXT_VALUE_PATTERN.match(toParse, 0, matchContext);
 
         var parseContext = matchContext.toParseResult();
-        var time = ContextValueState.values()[parseContext.getParseMark()];
+        var time = ContextValueState.values()[parseContext.getNumericMark()];
         var name = parseContext.getMatches().get(0).group();
         for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
             String representation = (time == ContextValueState.PAST
@@ -346,23 +298,7 @@ public class SyntaxParser {
                     : "") + name;
 
             // First check frequently-used values
-            for (var val : recentContextValues) {
-                if (val.matches(ctx, name, time, true)) {
-                    var contextValue = (ContextValue<T>) val;
-                    recentContextValues.acknowledge(contextValue);
-                    return Optional.of(new SimpleExpression<>(
-                            contextValue.getType().getTypeClass(),
-                            contextValue.isSingle(),
-                            contextValue.getContextFunction(),
-                            representation
-                    ));
-                }
-            }
-
-            // Let's not loop over the same elements again
-            var remainingContextValues = ContextValues.getContextValues();
-            recentContextValues.removeFrom(remainingContextValues);
-            for (var val : remainingContextValues) {
+            for (var val : recentContextValues.mergeWith(ContextValues.getContextValues())) {
                 if (val.matches(ctx, name, time, true)) {
                     var contextValue = (ContextValue<T>) val;
                     recentContextValues.acknowledge(contextValue);
@@ -464,7 +400,7 @@ public class SyntaxParser {
         List<String> parts = new ArrayList<>();
         var m = LIST_SPLIT_PATTERN.matcher(s);
         var lastIndex = 0;
-        for (var i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i+1)) {
+        for (var i = 0; i < s.length(); i = StringUtils.nextSimpleCharacterIndex(s, i + 1)) {
             if (i == -1) {
                 return Optional.empty();
             } else if (StringUtils.nextSimpleCharacterIndex(s, i) > i) { // We are currently at the start of something we need to skip over
@@ -600,27 +536,22 @@ public class SyntaxParser {
     public static Optional<? extends Effect> parseEffect(String s, ParserState parserState, SkriptLogger logger) {
         if (s.isEmpty())
             return Optional.empty();
-        for (var recentEffect : recentEffects) {
+
+        for (var recentEffect : recentEffects.mergeWith(SyntaxManager.getEffects())) {
             var eff = matchEffectInfo(s, recentEffect, parserState, logger);
             if (eff.isPresent()) {
+                if (parserState.forbidsSyntax(eff.get().getClass())) {
+                    logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+                    logger.error("The enclosing section does not allow the use of this effect: " + eff.get().toString(TriggerContext.DUMMY, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+                    return Optional.empty();
+                }
                 recentEffects.acknowledge(recentEffect);
                 logger.clearErrors();
                 return eff;
             }
             logger.forgetError();
         }
-        // Let's not loop over the same elements again
-        var remainingEffects = SyntaxManager.getEffects();
-        recentEffects.removeFrom(remainingEffects);
-        for (var remainingEffect : remainingEffects) {
-            var eff = matchEffectInfo(s, remainingEffect, parserState, logger);
-            if (eff.isPresent()) {
-                recentEffects.acknowledge(remainingEffect);
-                logger.clearErrors();
-                return eff;
-            }
-            logger.forgetError();
-        }
+
         logger.setContext(ErrorContext.NO_MATCH);
         logger.error("No effect matching '" + s + "' was found", ErrorType.NO_MATCH);
         return Optional.empty();
@@ -655,68 +586,35 @@ public class SyntaxParser {
     }
 
     /**
-     * Parses a line of code as a {@link Statement}, basically an {@link Effect}, but other Statements can be added later.
-     * @param s the line to be parsed
-     * @param parserState the current parser state
-     * @param logger the logger
-     * @return a statement that was successfully parsed, or {@literal null} if the string is empty,
-     * no match was found
-     * or for another reason detailed in an error message
-     */
-    public static Optional<? extends Statement> parseStatement(String s, ParserState parserState, SkriptLogger logger) {
-        if (s.isEmpty())
-            return Optional.empty();
-        var eff = parseEffect(s, parserState, logger);
-        if (eff.isEmpty()) {
-            return Optional.empty();
-        } else if (parserState.forbidsSyntax(eff.get().getClass())) {
-            logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
-            logger.error(
-                    "The enclosing section does not allow the use of this effect : "
-                            + eff.get().toString(TriggerContext.DUMMY, logger.isDebug()),
-                    ErrorType.SEMANTIC_ERROR,
-                    "The current section limits the usage of syntax. This means that certain syntax cannot be used here, which was the case. Remove this effect entirely and refer to the documentation for the correct usage of this section"
-            );
-            return Optional.empty();
-        } else {
-            return eff;
-        }
-    }
-
-    /**
      * Parses a section of a file as a {@link CodeSection}
      * @param section the section to be parsed
      * @param parserState the current parser state
      * @param logger the logger
      * @return a section that was successfully parsed, or {@literal null} if the section is empty,
-     * no match was found
-     * or for another reason detailed in an error message
+     * no match was found or for another reason detailed in an error message
      */
     public static Optional<? extends CodeSection> parseSection(FileSection section, ParserState parserState, SkriptLogger logger) {
-        if (section.getLineContent().isEmpty())
+        var content = section.getLineContent();
+        if (content.isEmpty())
             return Optional.empty();
-        for (var recentSection : recentSections) {
-            var sec = matchSectionInfo(section, recentSection, parserState, logger);
+
+        for (var toParse : recentSections.mergeWith(SyntaxManager.getSections())) {
+            var sec = matchSectionInfo(section, toParse, parserState, logger);
             if (sec.isPresent()) {
-                recentSections.acknowledge(recentSection);
+                if (parserState.forbidsSyntax(sec.get().getClass())) {
+                    logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+                    logger.error("The enclosing section does not allow the use of this section: " + sec.get().toString(TriggerContext.DUMMY, logger.isDebug()), ErrorType.SEMANTIC_ERROR);
+                    return Optional.empty();
+                }
+                recentSections.acknowledge(toParse);
                 logger.clearErrors();
                 return sec;
             }
             logger.forgetError();
         }
-        var remainingSections = SyntaxManager.getSections();
-        recentSections.removeFrom(remainingSections);
-        for (var remainingSection : remainingSections) {
-            var sec = matchSectionInfo(section, remainingSection, parserState, logger);
-            if (sec.isPresent()) {
-                recentSections.acknowledge(remainingSection);
-                logger.clearErrors();
-                return sec;
-            }
-            logger.forgetError();
-        }
+
         logger.setContext(ErrorContext.NO_MATCH);
-        logger.error("No section matching '" + section.getLineContent() + "' was found", ErrorType.NO_MATCH);
+        logger.error("No section matching '" + content + "' was found", ErrorType.NO_MATCH);
         return Optional.empty();
     }
 
@@ -735,9 +633,7 @@ public class SyntaxParser {
                     if (!sec.init(
                             parser.getParsedExpressions().toArray(Expression[]::new),
                             i,
-                            parser.toParseResult()
-                        )
-                    ) {
+                            parser.toParseResult())) {
                         continue;
                     }
                     if (!sec.loadSection(section, parserState, logger)) {
@@ -763,7 +659,7 @@ public class SyntaxParser {
     public static Optional<? extends UnloadedTrigger> parseTrigger(FileSection section, SkriptLogger logger) {
         if (section.getLineContent().isEmpty())
             return Optional.empty();
-        for (var recentEvent : recentEvents) {
+        for (var recentEvent : recentEvents.mergeWith(SyntaxManager.getEvents())) {
             var trigger = matchEventInfo(section, recentEvent, logger);
             if (trigger.isPresent()) {
                 recentEvents.acknowledge(recentEvent);
@@ -772,18 +668,7 @@ public class SyntaxParser {
             }
             logger.forgetError();
         }
-        // Let's not loop over the same elements again
-        var remainingEvents = SyntaxManager.getEvents();
-        recentEvents.removeFrom(remainingEvents);
-        for (var remainingEvent : remainingEvents) {
-            var trigger = matchEventInfo(section, remainingEvent, logger);
-            if (trigger.isPresent()) {
-                recentEvents.acknowledge(remainingEvent);
-                logger.clearErrors();
-                return trigger;
-            }
-            logger.forgetError();
-        }
+
         logger.setContext(ErrorContext.NO_MATCH);
         logger.error("No trigger matching '" + section.getLineContent() + "' was found", ErrorType.NO_MATCH);
         return Optional.empty();

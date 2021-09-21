@@ -86,18 +86,17 @@ public class SecCase extends CodeSection {
     @Override
     public Optional<? extends Statement> walk(TriggerContext ctx) {
         if (isMatching) {
-            var first = switchSection.getMatch().getSingle(ctx)
-                    .filter(val -> Expression.check(
-                            matchWith.getValues(ctx),
-                            val2 -> Comparators.compare(val, val2).is(Relation.EQUAL),
-                            false,
-                            false
+            return switchSection.getMatch().getSingle(ctx)
+                    .filter(toMatch -> matchWith.check(
+                            ctx,
+                            with -> Comparators.compare(toMatch, with).is(Relation.EQUAL)
                     ))
-                    .flatMap(val -> {
+                    .flatMap(__ -> {
                         switchSection.setDone(true);
                         return getFirst();
-                    });
-            return first.isPresent() ? first : Optional.of(switchSection);
+                    })
+                    .map(val -> (Statement) val)
+                    .or(() -> Optional.of(switchSection));
         } else {
             return getFirst();
         }

@@ -19,6 +19,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
     // TODO make a config for this
     public final static String DATE_FORMAT = "EEEE dd MMMM yyyy HH:mm:ss.SSS zzzXXX";
     public final static Locale DATE_LOCALE = Locale.US;
+    @SuppressWarnings("FieldMayBeFinal")
     private static ZoneId ZONE_ID = ZoneId.systemDefault();
     public final static int MILLIS_PER_DAY = 86400000;
 

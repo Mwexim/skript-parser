@@ -35,7 +35,7 @@ public class ChoiceGroup implements PatternElement {
             return false;
         } else {
             var choiceElements = ((ChoiceGroup) obj).choices;
-            return choices.size() == choiceElements.size() && choices.equals(choiceElements);
+            return choices.equals(choiceElements);
         }
     }
 
@@ -46,7 +46,8 @@ public class ChoiceGroup implements PatternElement {
             var m = choice.getElement().match(s, index, branch);
             if (m != -1) {
                 context.merge(branch);
-                context.addMark(choice.getParseMark());
+                if (choice.getMark() != null)
+                    context.addMark(choice.getMark());
                 return m;
             }
         }
@@ -57,8 +58,8 @@ public class ChoiceGroup implements PatternElement {
     public String toString() {
         var joiner = new StringJoiner("|", "(", ")");
         for (var choice : choices) {
-            if (choice.getParseMark() != 0) {
-                joiner.add(choice.getParseMark() + ":" + choice.getElement().toString());
+            if (choice.getMark() != null) {
+                joiner.add(choice.getMark() + ":" + choice.getElement().toString());
             } else {
                 joiner.add(choice.getElement().toString());
             }

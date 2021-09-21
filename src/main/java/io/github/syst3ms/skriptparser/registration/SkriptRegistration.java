@@ -193,31 +193,29 @@ public class SkriptRegistration {
      * Starts a registration process for a {@link PropertyExpression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
-     * @param isSingle whether the Expression is a single value
      * @param ownerType the type of the owner
      * @param property the property that is used
      * @param <C> the Expression
      * @param <T> the Expression's return type
      * @return an {@link ExpressionRegistrar} to continue the registration process
      */
-    public <C extends Expression<T>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
-        return new ExpressionRegistrar<>(c, returnType, isSingle,
+    public <C extends Expression<T>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, String ownerType, String property) {
+        return new ExpressionRegistrar<>(c, returnType, false,
                 adaptPropertyPrefix(ownerType) + "'[s] " + property,
                 (property.startsWith("[the]") ? property : "[the] " + property) + " of " + adaptPropertyPrefix(ownerType));
     }
 
     /**
      * Registers a {@link PropertyExpression}
-     * @param c the Expression's class
-     * @param returnType the Expression's return type
-     * @param isSingle whether the Expression is a single value
-     * @param ownerType the type of the owner
-     * @param property the property that is used
      * @param <C> the Expression
      * @param <T> the Expression's return type
+     * @param c the Expression's class
+     * @param returnType the Expression's return type
+     * @param ownerType the type of the owner
+     * @param property the property that is used
      */
-    public <C extends Expression<T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, String ownerType, String property) {
-        new ExpressionRegistrar<>(c, returnType, isSingle,
+    public <C extends Expression<T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, String ownerType, String property) {
+        new ExpressionRegistrar<>(c, returnType, false,
                 adaptPropertyPrefix(ownerType) + "'[s] " + property,
                 (property.startsWith("[the]") ? property : "[the] " + property) + " of " + adaptPropertyPrefix(ownerType))
                 .register();
@@ -225,17 +223,16 @@ public class SkriptRegistration {
 
     /**
      * Registers a {@link PropertyExpression}
+     * @param <C> the Expression
+     * @param <T> the Expression's return type
      * @param c the Expression's class
      * @param returnType the Expression's return type
-     * @param isSingle whether the Expression is a single value
      * @param priority the parsing priority this Expression has. 5 by default, a lower number means lower priority
      * @param ownerType the type of the owner
      * @param property the property that is used
-     * @param <C> the Expression
-     * @param <T> the Expression's return type
      */
-    public <C extends Expression<T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, boolean isSingle, int priority, String ownerType, String property) {
-        new ExpressionRegistrar<>(c, returnType, isSingle,
+    public <C extends Expression<T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, int priority, String ownerType, String property) {
+        new ExpressionRegistrar<>(c, returnType, false,
                 adaptPropertyPrefix(ownerType) + "'[s] " + property,
                 (property.startsWith("[the]") ? property : "[the] " + property) + " of " + adaptPropertyPrefix(ownerType))
                 .setPriority(priority)
