@@ -7,6 +7,7 @@ import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
+import io.github.syst3ms.skriptparser.sections.SecConditional;
 import io.github.syst3ms.skriptparser.sections.SecLoop;
 import io.github.syst3ms.skriptparser.sections.SecWhile;
 import org.jetbrains.annotations.Contract;
@@ -15,15 +16,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
- * Represents a section of runnable code. This parser guarantees the existence of {@link Conditional}, {@link SecLoop} and
- * {@link SecWhile}.<br>
- * <br>
- * It is important to note that Conditional is the only section to be understood
- * natively by the parser, meaning it won't go through the process of syntax parsing.
- * @see Conditional
+ * Represents a section of runnable code.
+ * @see SecConditional
  * @see SecLoop
  * @see SecWhile
  * @see ConditionalExpression
@@ -111,8 +109,8 @@ public abstract class CodeSection extends Statement {
      * @return a list of the classes of each syntax allowed inside this CodeSection
      * @see #isRestrictingExpressions()
      */
-    protected List<Class<? extends SyntaxElement>> getAllowedSyntaxes() {
-        return Collections.emptyList();
+    protected Set<Class<? extends SyntaxElement>> getAllowedSyntaxes() {
+        return Collections.emptySet();
     }
 
     /**

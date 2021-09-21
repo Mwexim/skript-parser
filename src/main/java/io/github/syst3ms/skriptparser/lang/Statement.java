@@ -53,9 +53,11 @@ public abstract class Statement implements SyntaxElement {
     }
 
     /**
-     * Sets the Statement that is placed after this Statement in the file
+     * Sets the Statement that is placed after this Statement in the file.
+     * You can assume that the {@linkplain #next} statement of the {@code next} parameter
+     * is known if it has such a statement.
      * @param next the Statement that is following this one
-     * @return this Statement
+     * @return this statement
      */
     public Statement setNext(@Nullable Statement next) {
         this.next = next;

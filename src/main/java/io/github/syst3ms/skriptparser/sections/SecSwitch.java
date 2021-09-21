@@ -11,9 +11,11 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Basic switch control statement. Only {@link SecCase case} sections/effects are allowed within this section.
@@ -96,8 +98,8 @@ public class SecSwitch extends CodeSection implements Finishing {
     }
 
     @Override
-    protected List<Class<? extends SyntaxElement>> getAllowedSyntaxes() {
-        return List.of(SecCase.class);
+    protected Set<Class<? extends SyntaxElement>> getAllowedSyntaxes() {
+        return Collections.singleton(SecCase.class);
     }
 
     @Override

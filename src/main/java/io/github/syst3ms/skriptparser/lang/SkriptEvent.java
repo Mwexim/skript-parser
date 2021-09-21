@@ -7,6 +7,7 @@ import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The entry point for all code in Skript. Once an event triggers, all of the code inside it may be run.
@@ -57,8 +58,8 @@ public abstract class SkriptEvent implements SyntaxElement {
      * @return a list of the classes of each syntax allowed inside this SkriptEvent
      * @see #isRestrictingExpressions()
      */
-    protected List<Class<? extends SyntaxElement>> getAllowedSyntaxes() {
-        return Collections.emptyList();
+    protected Set<Class<? extends SyntaxElement>> getAllowedSyntaxes() {
+        return Collections.emptySet();
     }
 
     /**
