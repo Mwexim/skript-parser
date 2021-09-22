@@ -27,6 +27,8 @@ import java.util.stream.IntStream;
  * A class registering features such as types and comparators at startup.
  */
 public class DefaultRegistration {
+    private static final String INTEGER_PATTERN = "-?[0-9]+";
+    private static final String DECIMAL_PATTERN = "-?[0-9]+\\.[0-9]+";
 
     public static void register() {
         SkriptRegistration registration = Parser.getMainRegistration();
@@ -41,87 +43,80 @@ public class DefaultRegistration {
         );
 
         registration.newType(Number.class,"number", "number@s")
-                    .literalParser(s -> {
-                        Number n;
-                        if (s.contains(".")) {
-                            try {
-                                n = new BigDecimal(s);
-                            } catch (NumberFormatException e) {
-                                return null;
-                            }
+                .literalParser(s -> {
+                    if (s.startsWith("_") || s.endsWith("_"))
+                        return null;
+                    s = s.replaceAll("_", "");
+                    if (s.matches(DECIMAL_PATTERN)) {
+                        return new BigDecimal(s);
+                    } else if (s.matches(INTEGER_PATTERN)) {
+                        return new BigInteger(s);
+                    } else {
+                        return null;
+                    }
+                })
+                .toStringFunction(o -> {
+                    if (o instanceof BigDecimal) {
+                        BigDecimal bd = (BigDecimal) o;
+                        int significantDigits = bd.scale() <= 0
+                                ? bd.precision() + bd.stripTrailingZeros().scale()
+                                : bd.precision();
+                        return ((BigDecimal) o).setScale(Math.min(10, significantDigits), RoundingMode.HALF_UP)
+                                .stripTrailingZeros()
+                                .toPlainString();
+                    } else {
+                        return o.toString();
+                    }
+                })
+                .arithmetic(new Arithmetic<Number, Number>() {
+                    @Override
+                    public Number difference(Number first, Number second) {
+                        if (first instanceof BigDecimal || second instanceof BigDecimal) {
+                            var f = BigDecimalMath.getBigDecimal(first);
+                            var s = BigDecimalMath.getBigDecimal(second);
+                            return f.subtract(s).abs();
                         } else {
-                            try {
-                                // This allows formats like 1_000_000.
-                                n = new BigInteger(s.replaceAll("_", ""));
-                            } catch (NumberFormatException e) {
-                                return null;
-                            }
+                            assert first instanceof BigInteger && second instanceof BigInteger;
+                            return ((BigInteger) first).subtract(((BigInteger) second)).abs();
                         }
-                        return n;
-                    })
-                    .toStringFunction(o -> {
-                        if (o instanceof BigDecimal) {
-                            BigDecimal bd = (BigDecimal) o;
-                            int significantDigits = bd.scale() <= 0
-                                    ? bd.precision() + bd.stripTrailingZeros().scale()
-                                    : bd.precision();
-                            return ((BigDecimal) o).setScale(Math.min(10, significantDigits), RoundingMode.HALF_UP)
-                                                   .stripTrailingZeros()
-                                                   .toPlainString();
+                    }
+
+                    @Override
+                    public Number add(Number value, Number difference) {
+                        if (value instanceof BigDecimal || difference instanceof BigDecimal) {
+                            var v = BigDecimalMath.getBigDecimal(value);
+                            var d = BigDecimalMath.getBigDecimal(difference);
+                            return v.add(d);
                         } else {
-                            return o.toString();
+                            assert value instanceof BigInteger && difference instanceof BigInteger;
+                            return ((BigInteger) value).add(((BigInteger) difference));
                         }
-                    })
-                    .arithmetic(new Arithmetic<Number, Number>() {
-                        @Override
-                        public Number difference(Number first, Number second) {
-                            if (first instanceof BigDecimal || second instanceof BigDecimal) {
-                                var f = BigDecimalMath.getBigDecimal(first);
-                                var s = BigDecimalMath.getBigDecimal(second);
-                                return f.subtract(s).abs();
-                            } else {
-                                assert first instanceof BigInteger && second instanceof BigInteger;
-                                return ((BigInteger) first).subtract(((BigInteger) second)).abs();
-                            }
-                        }
+                    }
 
-                        @Override
-                        public Number add(Number value, Number difference) {
-                            if (value instanceof BigDecimal || difference instanceof BigDecimal) {
-                                var v = BigDecimalMath.getBigDecimal(value);
-                                var d = BigDecimalMath.getBigDecimal(difference);
-                                return v.add(d);
-                            } else {
-                                assert value instanceof BigInteger && difference instanceof BigInteger;
-                                return ((BigInteger) value).add(((BigInteger) difference));
-                            }
+                    @Override
+                    public Number subtract(Number value, Number difference) {
+                        if (value instanceof BigDecimal || difference instanceof BigDecimal) {
+                            var v = BigDecimalMath.getBigDecimal(value);
+                            var d = BigDecimalMath.getBigDecimal(difference);
+                            return v.subtract(d);
+                        } else {
+                            assert value instanceof BigInteger && difference instanceof BigInteger;
+                            return ((BigInteger) value).subtract(((BigInteger) difference));
                         }
+                    }
 
-                        @Override
-                        public Number subtract(Number value, Number difference) {
-                            if (value instanceof BigDecimal || difference instanceof BigDecimal) {
-                                var v = BigDecimalMath.getBigDecimal(value);
-                                var d = BigDecimalMath.getBigDecimal(difference);
-                                return v.subtract(d);
-                            } else {
-                                assert value instanceof BigInteger && difference instanceof BigInteger;
-                                return ((BigInteger) value).subtract(((BigInteger) difference));
-                            }
-                        }
-
-                        @Override
-                        public Class<? extends Number> getRelativeType() {
-                            return Number.class;
-                        }
-                    }).register();
+                    @Override
+                    public Class<? extends Number> getRelativeType() {
+                        return Number.class;
+                    }
+                }).register();
 
         registration.newType(BigInteger.class, "integer", "integer@s")
                 .literalParser(s -> {
-                    try {
-                        return new BigInteger(s);
-                    } catch (NumberFormatException e) {
+                    if (s.startsWith("_") || s.endsWith("_"))
                         return null;
-                    }
+                    s = s.replaceAll("_", "");
+                    return s.matches(INTEGER_PATTERN) ? new BigInteger(s) : null;
                 })
                 .arithmetic(new Arithmetic<BigInteger, BigInteger>() {
                     @Override
@@ -153,21 +148,20 @@ public class DefaultRegistration {
         );
 
         registration.newType(Boolean.class, "boolean", "boolean@s")
-                    .literalParser(s -> {
-                        if (s.equalsIgnoreCase("true")) {
-                            return true;
-                        } else if (s.equalsIgnoreCase("false")) {
-                            return false;
-                        } else {
-                            return null;
-                        }
-                    })
-                    .toStringFunction(String::valueOf)
-                    .register();
+                .literalParser(s -> {
+                    if (s.equalsIgnoreCase("true")) {
+                        return true;
+                    } else if (s.equalsIgnoreCase("false")) {
+                        return false;
+                    } else {
+                        return null;
+                    }
+                })
+                .toStringFunction(String::valueOf)
+                .register();
 
         registration.newType(Type.class, "type", "type@s")
-                .literalParser(s -> TypeManager.getByExactName(s.toLowerCase())
-                        .orElse(null))
+                .literalParser(s -> TypeManager.getByExactName(s.toLowerCase()).orElse(null))
                 .toStringFunction(Type::getBaseName)
                 .register();
 
