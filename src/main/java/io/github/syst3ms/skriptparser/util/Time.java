@@ -19,8 +19,8 @@ public class Time implements Comparable<Time> {
     public final static Locale TIME_LOCALE = Locale.US;
 
     private final static Pattern DEFAULT_TIME_PATTERN = Pattern.compile("(\\d?\\d)h(\\d\\d)?");
-    private final static Pattern BRITISH_TIME_PATTERN = Pattern.compile("(\\d?\\d)(:(\\d\\d))? ?(am|pm)", Pattern.CASE_INSENSITIVE);
-    private final static Pattern DETAILED_TIME_PATTERN = Pattern.compile("(\\d?\\d):(\\d\\d)(:((\\d\\d)(\\.(\\d\\d\\d))?))?");
+    private final static Pattern BRITISH_TIME_PATTERN = Pattern.compile("(\\d?\\d)(?::(\\d\\d))? ?(?:am|pm)", Pattern.CASE_INSENSITIVE);
+    private final static Pattern DETAILED_TIME_PATTERN = Pattern.compile("(\\d?\\d):(\\d\\d)(?::(?:(\\d\\d)(?:\\.(\\d\\d\\d))?))?");
 
     /**
      * Returns the latest possible time, being 23:59:59.999.
@@ -87,77 +87,33 @@ public class Time implements Comparable<Time> {
         if (value.isEmpty())
             return Optional.empty();
 
-        // First pattern
         Matcher matcher = DEFAULT_TIME_PATTERN.matcher(value);
-        if (matcher.matches()) {
-            // Hours
-            int hours = Integer.parseInt(matcher.group(1));
-            if (hours == 24) {
-                hours = 0; // Allows to write 24:00 -> 24:59 instead of 00:00 -> 00:59
-            } else if (hours < 0 || 23 < hours) {
-                return Optional.empty();
-            }
+        if (!matcher.matches())
+            matcher = BRITISH_TIME_PATTERN.matcher(value);
+        if (!matcher.matches())
+            matcher = DETAILED_TIME_PATTERN.matcher(value);
+        if (!matcher.matches())
+            return Optional.empty();
 
-            // Minutes
-            int minutes = matcher.group(2) != null ? Integer.parseInt(matcher.group(2)) : 0;
-            if (minutes < 0 || 59 < minutes) {
-                return Optional.empty();
-            }
+        int hours = Integer.parseInt(matcher.group(1));
+        if (hours == 24)
+            hours = 0; // Allows to write 24:00 -> 24:59 instead of 00:00 -> 00:59
+        if (value.toLowerCase().contains("am") && hours == 12)
+            hours = 0; // Apparently 12AM is equal to 0:00.
+        if (value.toLowerCase().contains("pm") && hours != 12)
+            hours += 12;
 
-            return Optional.of(of(hours, minutes, 0, 0));
-        }
+        int count = matcher.groupCount();
+        int minutes = count >= 2 && matcher.group(2) != null ? Integer.parseInt(matcher.group(2)) : 0;
+        int seconds = count >= 3 && matcher.group(3) != null ? Integer.parseInt(matcher.group(3)) : 0;
+        int millis = count >= 4 && matcher.group(4) != null ? Integer.parseInt(matcher.group(4)) : 0;
+        if (hours < 0 || 23 < hours
+                || minutes < 0 || 59 < minutes
+                || seconds < 0 || 59 < seconds
+                || millis < 0 || 999 < millis)
+            return Optional.empty();
 
-        // Second pattern
-        matcher = BRITISH_TIME_PATTERN.matcher(value);
-        if (matcher.matches()) {
-            // Hours
-            int hours = Integer.parseInt(matcher.group(1));
-            if (hours == 12) {
-                hours = 0; // 12 AM is 00:00:00.000 for some weird reason
-            } else if (hours < 0 || 11 < hours) {
-                return Optional.empty();
-            }
-
-            // Minutes
-            int minutes = matcher.group(3) != null ? Integer.parseInt(matcher.group(3)) : 0;
-            if (minutes < 0 || 59 < minutes) {
-                return Optional.empty();
-            }
-
-            // AM/PM
-            if (matcher.group(4).equalsIgnoreCase("pm"))
-                hours += 12;
-
-            return Optional.of(of(hours, minutes, 0, 0));
-        }
-
-        // Third pattern
-        matcher = DETAILED_TIME_PATTERN.matcher(value);
-        if (matcher.matches()) {
-            // Hours
-            int hours = Integer.parseInt(matcher.group(1));
-            if (hours == 24) {
-                hours = 0; // Allows to write 24:00 -> 24:59 instead of 00:00 -> 00:59
-            } else if (hours < 0 || 23 < hours) {
-                return Optional.empty();
-            }
-
-            // Minutes
-            int minutes = Integer.parseInt(matcher.group(2));
-            if (minutes < 0 || 59 < minutes) {
-                return Optional.empty();
-            }
-
-            // Seconds and milliseconds
-            int seconds = matcher.group(5) != null ? Integer.parseInt(matcher.group(5)) : 0;
-            int millis = matcher.group(7) != null ? Integer.parseInt(matcher.group(7)) : 0;
-            if (seconds < 0 || 59 < seconds || millis < 0 || 999 < millis) {
-                return Optional.empty();
-            }
-
-            return Optional.of(of(hours,minutes, seconds, millis));
-        }
-        return Optional.empty();
+        return Optional.of(of(hours, minutes, seconds, millis));
     }
 
     public int getHour() {
