@@ -1,8 +1,6 @@
 package io.github.syst3ms.skriptparser.util;
 
 import java.time.Duration;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Optional;
 
 public class TimeUtils {
@@ -12,16 +10,14 @@ public class TimeUtils {
      */
     public static final int TICK = 50;
 
-    private static final Map<String, Integer> DURATION_UNITS = new LinkedHashMap<>();
-
-    static {
-        // LinkedHashMap because order is important
-        DURATION_UNITS.put("days?", 86_400_000);
-        DURATION_UNITS.put("hours?", 3_600_000);
-        DURATION_UNITS.put("minutes?", 60_000);
-        DURATION_UNITS.put("seconds?", 1000);
-        DURATION_UNITS.put("milli(second)?s?", 1);
-    }
+    /*
+     * See these arrays as one single array with triplets of information
+     * about a certain time unit. Sadly, Java does not allow to create a
+     * clean alternative for this.
+     */
+    private static final String[] unitPatterns = {"days?", "hours?", "minutes?", "seconds?", "milli(second)?s?"};
+    private static final String[] unitNames = {"day", "hour", "minute", "second", "millisecond"};
+    private static final int[] unitMillis = {86_400_000, 3_600_000, 60_000, 1000, 1};
 
     public static Optional<Duration> parseDuration(String value) {
         if (value.isEmpty()) {
@@ -73,12 +69,12 @@ public class TimeUtils {
 
             int millis = -1;
             int iteration = 0;
-            for (var entry : DURATION_UNITS.entrySet()) {
-                if (unit.matches(entry.getKey()) && !usedUnits[iteration]) {
-                    millis = entry.getValue();
+            for (int j = 0; j < unitPatterns.length; j++) {
+                if (unit.matches(unitPatterns[j]) && !usedUnits[iteration]) {
+                    millis = unitMillis[j];
 
-                    for (int j = 0; j < iteration + 1; j++)
-                        usedUnits[j] = true;
+                    for (int k = 0; k < iteration + 1; k++)
+                        usedUnits[k] = true;
                     break;
                 }
                 iteration++;
@@ -96,9 +92,6 @@ public class TimeUtils {
         long millis = duration.toMillis();
 
         boolean first = true;
-        String[] unitNames = {"day", "hour", "minute", "second", "millisecond"};
-        int[] unitMillis = {86_400_000, 3_600_000, 60_000, 1000, 1};
-
         for (int i = 0; i < unitMillis.length; i++) {
             long result = Math.floorDiv(millis, unitMillis[i]);
             if (result > 0) {
