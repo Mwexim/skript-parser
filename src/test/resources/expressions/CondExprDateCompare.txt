@@ -17,7 +17,7 @@ test:
 	assert {list::3} was more than {var} ago with "{list::3} should be more than 4:59:59.999 hours ago: %{list::3}% - %now% (now)"
 
 	# This code took too long for the parser to load
-	# TODO improve duration parsing to be much more efficient
+	# I tried looking into it, but it seems that the syntax is just very cumbersome to handle.
 	# assert {list::3} was more than (4 hours, 59 minutes, 59 seconds and 999 milliseconds) ago with "{list::3} should be more than 4:59:59.999 hours ago: %{list::3}% - %now% (now)"
 
 	# Multiple dates

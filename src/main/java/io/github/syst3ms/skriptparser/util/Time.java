@@ -5,6 +5,9 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Represents a time, written as HH:mm:ss.SSS.
@@ -14,6 +17,10 @@ public class Time implements Comparable<Time> {
     // TODO make a config for this
     public final static String TIME_FORMAT = "HH:mm:ss.SSS";
     public final static Locale TIME_LOCALE = Locale.US;
+
+    private final static Pattern DEFAULT_TIME_PATTERN = Pattern.compile("(\\d?\\d)h(\\d\\d)?");
+    private final static Pattern BRITISH_TIME_PATTERN = Pattern.compile("(\\d?\\d)(?::(\\d\\d))? ?(?:am|pm)", Pattern.CASE_INSENSITIVE);
+    private final static Pattern DETAILED_TIME_PATTERN = Pattern.compile("(\\d?\\d):(\\d\\d)(?::(?:(\\d\\d)(?:\\.(\\d\\d\\d))?))?");
 
     /**
      * Returns the latest possible time, being 23:59:59.999.
@@ -66,6 +73,45 @@ public class Time implements Comparable<Time> {
     public static Time of(SkriptDate date) {
         var lcd = date.toLocalDateTime();
         return new Time(LocalTime.of(lcd.getHour(), lcd.getMinute(), lcd.getSecond(), lcd.getNano()));
+    }
+
+    /**
+     * Parses a given string as a time, using one of the three patterns.
+     * @param value the string to parse
+     * @return an Optional describing the parsed Time instance
+     * @see #DEFAULT_TIME_PATTERN
+     * @see #BRITISH_TIME_PATTERN
+     * @see #DETAILED_TIME_PATTERN
+     */
+    public static Optional<Time> parse(String value) {
+        if (value.isEmpty())
+            return Optional.empty();
+
+        Matcher matcher;
+        if (!(matcher = DEFAULT_TIME_PATTERN.matcher(value)).matches()
+                && !(matcher = BRITISH_TIME_PATTERN.matcher(value)).matches()
+                && !(matcher = DETAILED_TIME_PATTERN.matcher(value)).matches())
+            return Optional.empty();
+
+        int hours = Integer.parseInt(matcher.group(1));
+        if (hours == 24)
+            hours = 0; // Allows to write 24:00 -> 24:59 instead of 00:00 -> 00:59
+        if (value.toLowerCase().contains("am") && hours == 12)
+            hours = 0; // Apparently 12AM is equal to 0:00.
+        if (value.toLowerCase().contains("pm") && hours != 12)
+            hours += 12;
+
+        int count = matcher.groupCount();
+        int minutes = count >= 2 && matcher.group(2) != null ? Integer.parseInt(matcher.group(2)) : 0;
+        int seconds = count >= 3 && matcher.group(3) != null ? Integer.parseInt(matcher.group(3)) : 0;
+        int millis = count >= 4 && matcher.group(4) != null ? Integer.parseInt(matcher.group(4)) : 0;
+        if (hours < 0 || 23 < hours
+                || minutes < 0 || 59 < minutes
+                || seconds < 0 || 59 < seconds
+                || millis < 0 || 999 < millis)
+            return Optional.empty();
+
+        return Optional.of(of(hours, minutes, seconds, millis));
     }
 
     public int getHour() {

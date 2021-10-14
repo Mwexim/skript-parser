@@ -66,7 +66,7 @@ public class Skript extends SkriptAddon {
         }
         for (Trigger trigger : whenTriggers) {
             var ctx = new WhenContext();
-            ThreadUtils.runPeriodically(() -> Statement.runAll(trigger, ctx), TimeUtils.TICK);
+            ThreadUtils.runPeriodically(() -> Statement.runAll(trigger, ctx), Duration.ofMillis(TimeUtils.TICK));
         }
         for (Trigger trigger : atTimeTriggers) {
             var ctx = new AtTimeContext();

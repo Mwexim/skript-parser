@@ -1,0 +1,16 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2021/05/08
+
+test:
+	assert 1 day is 1 day
+	set {var} to a day, 3 minutes and 180 seconds
+	assert "%{var}%" = "a day and 6 minutes" with "{var} should be 'a day and 6 minutes': %{var}%"
+
+	assert 5.5 minutes is equal to 5 minutes and 30 seconds with "5.5 minutes should equal 5 minutes and 30 seconds: %5.5 minutes%"
+
+	# Maybe later
+	#assert 3 ticks = 0.15 seconds with "3 ticks should equal 0.15 seconds"
+	#assert a tick = 50 milliseconds with "a tick should equal 50 milliseconds"
+
+	throws 5 days, 3 minutes, and 5 seconds

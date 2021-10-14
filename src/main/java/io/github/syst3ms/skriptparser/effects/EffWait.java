@@ -84,7 +84,7 @@ public class EffWait extends Effect {
                 thread.scheduleAtFixedRate(
                         () -> code.accept(thread),
                         0,
-                        TimeUtils.TICK.toMillis(),
+                        TimeUtils.TICK,
                         TimeUnit.MILLISECONDS
                 );
             } else {
@@ -94,7 +94,7 @@ public class EffWait extends Effect {
                 thread.scheduleAtFixedRate(
                         () -> code.accept(thread),
                         0,
-                        TimeUtils.TICK.toMillis(),
+                        TimeUtils.TICK,
                         TimeUnit.MILLISECONDS
                 );
                 thread.schedule(
