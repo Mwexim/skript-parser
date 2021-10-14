@@ -87,12 +87,10 @@ public class Time implements Comparable<Time> {
         if (value.isEmpty())
             return Optional.empty();
 
-        Matcher matcher = DEFAULT_TIME_PATTERN.matcher(value);
-        if (!matcher.matches())
-            matcher = BRITISH_TIME_PATTERN.matcher(value);
-        if (!matcher.matches())
-            matcher = DETAILED_TIME_PATTERN.matcher(value);
-        if (!matcher.matches())
+        Matcher matcher;
+        if (!(matcher = DEFAULT_TIME_PATTERN.matcher(value)).matches()
+                && !(matcher = BRITISH_TIME_PATTERN.matcher(value)).matches()
+                && !(matcher = DETAILED_TIME_PATTERN.matcher(value)).matches())
             return Optional.empty();
 
         int hours = Integer.parseInt(matcher.group(1));

@@ -20,9 +20,8 @@ public class TimeUtils {
     private static final int[] unitMillis = {86_400_000, 3_600_000, 60_000, 1000, 1};
 
     public static Optional<Duration> parseDuration(String value) {
-        if (value.isEmpty()) {
+        if (value.isBlank())
             return Optional.empty();
-        }
 
         // Normal duration
         long duration = 0;
@@ -97,7 +96,7 @@ public class TimeUtils {
             if (result > 0) {
                 builder.append(first ? "" : ", ")
                         .append(result == 1 ? (unitNames[i].equals("hour") ? "an" : "a") : result)
-                        .append(" ")
+                        .append(' ')
                         .append(unitNames[i])
                         .append(result > 1 ? "s" : "");
                 millis -= result * unitMillis[i];
