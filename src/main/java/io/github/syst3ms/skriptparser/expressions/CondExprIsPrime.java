@@ -19,23 +19,17 @@ import io.github.syst3ms.skriptparser.util.math.NumberMath;
  * @author Mwexim
  */
 public class CondExprIsPrime extends PropertyConditional<Number> {
-    static {
-		Parser.getMainRegistration()
-				.newPropertyConditional(
-						CondExprIsPrime.class,
-						"numbers",
-						ConditionalType.BE,
-						"[a] prime [number[s]]"
-				)
+	static {
+		Parser.getMainRegistration().newPropertyConditional(CondExprIsPrime.class, "numbers", ConditionalType.BE, "[a] prime [number[s]]")
 				.addData(PROPERTY_IDENTIFIER, "prime")
 				.register();
-    }
+	}
 
-    @Override
-    public boolean check(Number performer) {
-        var bd = BigDecimalMath.getBigDecimal(performer);
-        return bd.signum() != -1
-                && BigDecimalMath.isIntValue(bd)
-                && NumberMath.isPrime(BigDecimalMath.getBigInteger(bd));
-    }
+	@Override
+	public boolean check(Number performer) {
+		var bd = BigDecimalMath.getBigDecimal(performer);
+		return bd.signum() != -1
+				&& BigDecimalMath.isIntValue(bd)
+				&& NumberMath.isPrime(BigDecimalMath.getBigInteger(bd));
+	}
 }
