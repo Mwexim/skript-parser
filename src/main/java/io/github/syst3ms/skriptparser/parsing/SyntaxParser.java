@@ -71,7 +71,7 @@ public class SyntaxParser {
 
 
     // We control input, so new SkriptLogger instance is fine
-    public static final PatternElement CONTEXT_VALUE_PATTERN = PatternParser.parsePattern("[the] [(1:(past|previous)|2:(future|next))] <.+>", new SkriptLogger()).orElseThrow();
+    public static final PatternElement CONTEXT_VALUE_PATTERN = PatternParser.parsePattern("[the] (0:(past|previous)|1:|2:(future|next)) <.+>", new SkriptLogger()).orElseThrow();
 
     public static final ExpressionInfo<ExprBooleanOperators, Boolean> EXPRESSION_BOOLEAN_OPERATORS
             = (ExpressionInfo<ExprBooleanOperators, Boolean>) SyntaxManager.getAllExpressions().stream()
@@ -289,17 +289,14 @@ public class SyntaxParser {
         CONTEXT_VALUE_PATTERN.match(toParse, 0, matchContext);
 
         var parseContext = matchContext.toParseResult();
-        var time = ContextValueState.values()[parseContext.getNumericMark()];
+        var state = ContextValueState.values()[parseContext.getNumericMark()];
         var name = parseContext.getMatches().get(0).group();
-        for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
-            String representation = (time == ContextValueState.PAST
-                    ? "past " : time == ContextValueState.FUTURE
-                    ? "future "
-                    : "") + name;
+        String representation = new String[] {"past ", "", "future "}[state.ordinal()];
 
+        for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
             // First check frequently-used values
             for (var val : recentContextValues.mergeWith(ContextValues.getContextValues())) {
-                if (val.matches(ctx, name, time, true)) {
+                if (val.matches(ctx, name, state, true)) {
                     var contextValue = (ContextValue<T>) val;
                     recentContextValues.acknowledge(contextValue);
                     return Optional.of(new SimpleExpression<>(

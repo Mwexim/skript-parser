@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.event;
 
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextParameter;
 
 /**
  * The script loading context, which corresponds to running code inside {@code public static void main(String[] args)}
@@ -18,6 +19,7 @@ public class ScriptLoadContext implements TriggerContext {
         return "main";
     }
 
+    @ContextParameter(name = "arguments")
     public String[] getArguments() {
         return args;
     }

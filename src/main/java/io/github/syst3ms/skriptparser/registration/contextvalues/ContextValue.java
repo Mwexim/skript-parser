@@ -14,7 +14,7 @@ public class ContextValue<T> {
     private final boolean isSingle;
     private final String name;
     private final Function<TriggerContext, T[]> contextFunction;
-    private final ContextValueState time;
+    private final ContextValueState state;
     private final boolean standalone;
 
     /**
@@ -49,10 +49,10 @@ public class ContextValue<T> {
      * @param isSingle whether this value is single
      * @param name the name of this value
      * @param contextFunction the function to apply to the context
-     * @param time the time of this value
+     * @param state the time of this value
      */
-    public ContextValue(Class<? extends TriggerContext> context, Type<T> type, boolean isSingle, String name, Function<TriggerContext, T[]> contextFunction, ContextValueState time) {
-        this(context, type, isSingle, name, contextFunction, time, false);
+    public ContextValue(Class<? extends TriggerContext> context, Type<T> type, boolean isSingle, String name, Function<TriggerContext, T[]> contextFunction, ContextValueState state) {
+        this(context, type, isSingle, name, contextFunction, state, false);
     }
 
     /**
@@ -62,16 +62,16 @@ public class ContextValue<T> {
      * @param isSingle whether this value is single
      * @param name the name of this value
      * @param contextFunction the function to apply to the context
-     * @param time the time of this value
+     * @param state the time of this value
      * @param standalone whether or not this value can be used alone
      */
-    public ContextValue(Class<? extends TriggerContext> context, Type<T> type, boolean isSingle, String name, Function<TriggerContext, T[]> contextFunction, ContextValueState time, boolean standalone) {
+    public ContextValue(Class<? extends TriggerContext> context, Type<T> type, boolean isSingle, String name, Function<TriggerContext, T[]> contextFunction, ContextValueState state, boolean standalone) {
         this.context = context;
         this.type = type;
         this.isSingle = isSingle;
         this.name = name;
         this.contextFunction = contextFunction;
-        this.time = time;
+        this.state = state;
         this.standalone = standalone;
     }
 
@@ -109,8 +109,8 @@ public class ContextValue<T> {
     /**
      * @return whether this happens in the present, past or future
      */
-    public ContextValueState getTime() {
-        return time;
+    public ContextValueState getState() {
+        return state;
     }
 
     /**
@@ -120,14 +120,16 @@ public class ContextValue<T> {
         return standalone;
     }
 
-    public boolean matches(Class<? extends TriggerContext> handledContext, String name, ContextValueState time) {
-        return matches(handledContext, name, time, false);
+    public boolean matches(String name, ContextValueState time, boolean standalone) {
+        return this.name.equalsIgnoreCase(name)
+                && this.state == time
+                && (this.standalone || this.standalone == standalone);
     }
 
     public boolean matches(Class<? extends TriggerContext> handledContext, String name, ContextValueState time, boolean standalone) {
         return this.context.isAssignableFrom(handledContext)
                 && this.name.equalsIgnoreCase(name)
-                && this.time == time
+                && this.state == time
                 && (this.standalone || this.standalone == standalone);
     }
 }
