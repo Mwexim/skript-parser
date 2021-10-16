@@ -54,6 +54,6 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return new String[] {"era", "month", "weekday"}[mark] + " name of " + getOwner().toString(ctx, debug);
+		return toString(ctx, debug, new String[] {"era", "month", "weekday"}[mark] + " name");
 	}
 }

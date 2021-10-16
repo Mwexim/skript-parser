@@ -42,7 +42,7 @@ import java.util.Arrays;
  */
 public class ExecExprListOperators extends ExecutableExpression<Object> {
 	static {
-		Parser.getMainRegistration().addSelfRegisteringElement(
+		Parser.getMainRegistration().addExecutableExpression(
 				ExecExprListOperators.class,
 				Object.class,
 				false,

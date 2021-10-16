@@ -48,6 +48,6 @@ public class ExprDateTimestamp extends PropertyExpression<Number, SkriptDate> {
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return (unix ? "unix " : "") + "timestamp of " + getOwner().toString(ctx, debug);
+		return toString(ctx, debug, (unix ? "unix " : "") + "timestamp");
 	}
 }

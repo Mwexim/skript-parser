@@ -34,7 +34,7 @@ public class ExprStringCase implements Expression<String> {
 		Parser.getMainRegistration().addExpression(
 				ExprStringCase.class,
 				String.class,
-				true,
+				false,
 				"%strings% in (1:upper|2:lower)[ ]case",
 				"(1:upper|2:lower)[ ]case %strings%",
 				"capitali(s|z)e[d] %strings%",
@@ -48,7 +48,7 @@ public class ExprStringCase implements Expression<String> {
 				"[(1:upper|2:lower|1:capital|1:screaming)[ ]]snake[ ]case %strings%",
 				"%strings% in [(1:upper|2:lower|1:capital)[ ]]kebab[ ]case",
 				"[(1:upper|2:lower|1:capital)[ ]]kebab[ ]case %strings%",
-				"(reverse[d]|mirror[ed]) %strings%"
+				"(reverse[d]|mirror[ed]) %string%"
 		);
 	}
 
@@ -109,20 +109,11 @@ public class ExprStringCase implements Expression<String> {
 						case 0: // Basic case change
 							return mode == 1 ? val.toUpperCase() : val.toLowerCase();
 						case 1: // Title case
-							return StringUtils.toTitleCase(
-									mode == 3 ? val.toLowerCase() : val,
-									true
-							);
+							return StringUtils.toTitleCase(mode == 3 ? val.toLowerCase() : val, true);
 						case 2: // Camel case
-							return StringUtils.toCamelCase(
-									mode == 3 ? val.toLowerCase() : val,
-									true
-							);
+							return StringUtils.toCamelCase(mode == 3 ? val.toLowerCase() : val, true);
 						case 3: // Pascal case
-							return StringUtils.toCamelCase(
-									mode == 3 ? val.toLowerCase() : val,
-									false
-							);
+							return StringUtils.toCamelCase(mode == 3 ? val.toLowerCase() : val, false);
 						case 4: // Snake case
 							return StringUtils.toSnakeCase(val, mode);
 						case 5: // Kebab case
@@ -134,6 +125,11 @@ public class ExprStringCase implements Expression<String> {
 					}
 				})
 				.toArray(String[]::new);
+	}
+
+	@Override
+	public boolean isSingle() {
+		return expression.isSingle();
 	}
 
 	@Override

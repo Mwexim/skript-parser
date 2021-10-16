@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 
 import java.math.BigInteger;
@@ -28,10 +27,5 @@ public class ExprLength extends PropertyExpression<Number, String> {
     @Override
     public Number getProperty(String owner) {
         return BigInteger.valueOf(owner.length());
-    }
-
-    @Override
-    public String toString(TriggerContext ctx, boolean debug) {
-        return "length of " + getOwner().toString(ctx, debug);
     }
 }

@@ -62,7 +62,7 @@ public class ExprAmount extends PropertyExpression<Number, Object> {
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return (recursive ? "recursive " : "") + "size of " + getOwner().toString(ctx, debug);
+		return toString(ctx, debug, (recursive ? "recursive " : "") + "size");
 	}
 
 	@SuppressWarnings("unchecked")

@@ -30,7 +30,7 @@ import java.util.regex.PatternSyntaxException;
  */
 public class ExecExprReplace extends ExecutableExpression<String> {
 	static {
-		Parser.getMainRegistration().addSelfRegisteringElement(
+		Parser.getMainRegistration().addExecutableExpression(
 				ExecExprReplace.class,
 				String.class,
 				false,

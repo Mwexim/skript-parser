@@ -67,10 +67,6 @@ public class ExprMutableList implements Expression<Object> {
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
-        return (type == 0
-                ? "reversed " : type == 1
-                ? "shuffled "
-                : "sorted ")
-                + list.toString(ctx, debug);
+        return new String[] {"reversed ", "shuffled ", "sorted "}[type] + list.toString(ctx, debug);
     }
 }

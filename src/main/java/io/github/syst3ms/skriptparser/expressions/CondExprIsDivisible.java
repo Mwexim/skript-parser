@@ -23,7 +23,7 @@ import java.math.BigInteger;
  */
 public class CondExprIsDivisible extends PropertyConditional<Number> {
     static {
-        Parser.getMainRegistration().addSelfRegisteringElement(
+        Parser.getMainRegistration().addPropertyConditional(
                 CondExprIsDivisible.class,
                 "numbers",
                 ConditionalType.BE,
@@ -54,7 +54,6 @@ public class CondExprIsDivisible extends PropertyConditional<Number> {
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
-        return getPerformer().toString(ctx, debug) + (isNegated() ? " is not " : " is ")
-                + "divisible by " + divider.toString(ctx, debug);
+        return toString(ctx, debug, "divisible by " + divider.toString(ctx, debug));
     }
 }
