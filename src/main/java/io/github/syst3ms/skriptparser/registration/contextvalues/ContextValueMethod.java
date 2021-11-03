@@ -40,12 +40,14 @@ public @interface ContextValueMethod {
 	String name();
 
 	/**
-	 * @return whether or not this context value can be used alone
+	 * Context values can be used as part of an expression, like in {@code context-user},
+	 * or as a standalone expression.
+	 * @return the usage
 	 */
-	boolean standalone() default false;
+	ContextValueInfo.Usage usage() default ContextValueInfo.Usage.EXPRESSION_ONLY;
 
 	/**
 	 * @return whether this happens in the present, past or future
 	 */
-	ContextValueState state() default ContextValueState.PRESENT;
+	ContextValueInfo.State state() default ContextValueInfo.State.PRESENT;
 }

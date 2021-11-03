@@ -23,8 +23,10 @@ import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.PatternParser;
 import io.github.syst3ms.skriptparser.pattern.RegexGroup;
 import io.github.syst3ms.skriptparser.pattern.TextElement;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueState;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextExpression;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueInfo;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueInfo.State;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueInfo.Usage;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
 import io.github.syst3ms.skriptparser.registration.tags.Tag;
 import io.github.syst3ms.skriptparser.registration.tags.TagInfo;
@@ -38,6 +40,7 @@ import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -65,7 +68,7 @@ public class SkriptRegistration {
     private final List<SkriptEventInfo<?>> events = new ArrayList<>();
     private final List<Type<?>> types = new ArrayList<>();
     private final List<ConverterInfo<?, ?>> converters = new ArrayList<>();
-    private final List<ContextValue<?>> contextValues = new ArrayList<>();
+    private final List<ContextValueInfo<?, ?>> contextValues = new ArrayList<>();
     private final List<TagInfo<? extends Tag>> tags = new ArrayList<>();
     private boolean newTypes = false;
 
@@ -117,7 +120,7 @@ public class SkriptRegistration {
     /**
      * @return all currently registered context values
      */
-    public List<ContextValue<?>> getContextValues() {
+    public List<ContextValueInfo<?, ?>> getContextValues() {
         return contextValues;
     }
 
@@ -558,7 +561,7 @@ public class SkriptRegistration {
          */
         public SyntaxRegistrar<C> setPriority(int priority) {
             if (priority < 0)
-                throw new SkriptParserException("Can't have a negative priority !");
+                throw new SkriptParserException("Can't have a negative priority!");
             this.priority = priority;
             return this;
         }
@@ -603,7 +606,7 @@ public class SkriptRegistration {
                 logger.error("Couldn't find a type corresponding to the class '" + returnType.getName() + "'", ErrorType.NO_MATCH);
                 return;
             }
-            expressions.putOne(super.c, new ExpressionInfo<>(registerer, super.c, isSingle, type.get(), priority, parsePatterns(), super.data));
+            expressions.putOne(super.c, new ExpressionInfo<>(registerer, super.c, type.get(), isSingle, priority, parsePatterns(), super.data));
         }
     }
 
@@ -636,7 +639,6 @@ public class SkriptRegistration {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public class EventRegistrar<T extends SkriptEvent> extends SyntaxRegistrar<T> {
         private Set<Class<? extends TriggerContext>> handledContexts = new HashSet<>();
 
@@ -657,39 +659,97 @@ public class SkriptRegistration {
         }
 
         /**
-         * Registers a {@link ContextValue}
+         * Starts a registration process for a {@link ContextExpression}
          * @param context the context this value appears in
          * @param returnType the returned type of this context value
-         * @param isSingle whether or not this value is single
-         * @param name the name of this context value (used in the suffix)
-         * @param contextFunction the function that needs to be applied in order to get the context value
-         * @param <C> the context class
-         * @param <R> the type class
-         * @return the registrar
+         * @param isSingle whether or not the return value is single
+         * @param pattern the pattern
+         * @param function the function that needs to be applied in order to get the context value
+         * @param <C> the ContextValue
+         * @param <R> the ContextValue's return type
+         * @return a {@link ContextValueRegistrar} to continue the registration process
          */
-        public final <C extends TriggerContext, R> EventRegistrar<T> addContextValue(Class<C> context, Class<R> returnType, boolean isSingle, String name, Function<C, R[]> contextFunction) {
-            var type = (Type<R>) TypeManager.getByClass(returnType).orElseThrow();
-            var pattern = removePrefix(name);
-            contextValues.add(new ContextValue<>(context, type, isSingle, pattern, (Function<TriggerContext, R[]>) contextFunction, name.startsWith("*")));
+        public final <C extends TriggerContext, R> ContextValueRegistrar<C, R> newContextValue(Class<C> context, Class<R> returnType, boolean isSingle, String pattern, Function<C, R[]> function) {
+            return new ContextValueRegistrar<>(context, returnType, isSingle, pattern, function);
+        }
+
+        /**
+         * Registers a {@link ContextValueInfo}
+         * @param context the context this value appears in
+         * @param returnType the returned type of this context value
+         * @param isSingle whether or not the return value is single
+         * @param pattern the pattern
+         * @param function the function that needs to be applied in order to get the context value
+         * @param <C> the ContextValue
+         * @param <R> the ContextValue's return type
+         * @return this {@link EventRegistrar}
+         */
+        public final <C extends TriggerContext, R> EventRegistrar<T> addContextValue(Class<C> context, Class<R> returnType, boolean isSingle, String pattern, Function<C, R[]> function) {
+            new ContextValueRegistrar<>(context, returnType, isSingle, pattern, function).register();
             return this;
         }
 
         /**
-         * Registers a {@link ContextValue}
+         * Registers a {@link ContextValueInfo} that returns a single value.
+         * The {@linkplain Type#getBaseName() base name} of the return type will be used as pattern.
+         * There will be a leading '{@code [the] }' in the pattern if the context value can be used alone.
          * @param context the context this value appears in
          * @param returnType the returned type of this context value
-         * @param isSingle whether or not this value is single
-         * @param name the name of this context value (used in the suffix)
-         * @param contextFunction the function that needs to be applied in order to get the context value
-         * @param state whether this happens in the present, past or future
-         * @param <C> the context class
-         * @param <R> the type class
-         * @return the registrar
+         * @param function the function that needs to be applied in order to get the context value
+         * @param <C> the ContextValue
+         * @param <R> the ContextValue's return type
+         * @return this {@link EventRegistrar}
          */
-        public final <C extends TriggerContext, R> EventRegistrar<T> addContextValue(Class<C> context, Class<R> returnType, boolean isSingle, String name, Function<C, R[]> contextFunction, ContextValueState state) {
-            var type = (Type<R>) TypeManager.getByClass(returnType).orElseThrow();
-            var pattern = removePrefix(name);
-            contextValues.add(new ContextValue<>(context, type, isSingle, pattern, (Function<TriggerContext, R[]>) contextFunction, state, name.startsWith("*")));
+        public final <C extends TriggerContext, R> EventRegistrar<T> addContextType(Class<C> context, Class<R> returnType, Function<C, R> function) {
+            return addContextType(context, returnType, function, State.PRESENT, Usage.EXPRESSION_ONLY);
+        }
+
+        /**
+         * Registers a {@link ContextValueInfo} that returns a single value.
+         * The {@linkplain Type#getBaseName() base name} of the return type will be used as pattern.
+         * There will be a leading '{@code [the] }' in the pattern if the context value can be used alone.
+         * @param context the context this value appears in
+         * @param returnType the returned type of this context value
+         * @param function the function that needs to be applied in order to get the context value
+         * @param state the time state
+         * @param <C> the ContextValue
+         * @param <R> the ContextValue's return type
+         * @return this {@link EventRegistrar}
+         * @see State#PRESENT
+         * @see Usage#EXPRESSION_ONLY
+         */
+        public final <C extends TriggerContext, R> EventRegistrar<T> addContextType(Class<C> context, Class<R> returnType, Function<C, R> function, State state) {
+            return addContextType(context, returnType, function, state, Usage.EXPRESSION_ONLY);
+        }
+
+        /**
+         * Registers a {@link ContextValueInfo} that returns a single value.
+         * The {@linkplain Type#getBaseName() base name} of the return type will be used as pattern.
+         * There will be a leading '{@code [the] }' in the pattern if the context value can be used alone.
+         * @param context the context this value appears in
+         * @param returnType the returned type of this context value
+         * @param function the function that needs to be applied in order to get the context value
+         * @param state the time state
+         * @param usage the usage
+         * @param <C> the ContextValue
+         * @param <R> the ContextValue's return type
+         * @return this {@link EventRegistrar}
+         * @see Usage#EXPRESSION_ONLY
+         */
+        @SuppressWarnings("unchecked")
+        public final <C extends TriggerContext, R> EventRegistrar<T> addContextType(Class<C> context, Class<R> returnType, Function<C, R> function, State state, Usage usage) {
+            var typeName = TypeManager.getByClassExact(returnType).map(Type::getBaseName).orElse(TypeManager.NULL_REPRESENTATION);
+            new ContextValueRegistrar<>(
+                    context,
+                    returnType,
+                    true,
+                    usage.isCorrect(true) ? "[the] " + typeName : "" + typeName,
+                    value -> {
+                        R[] array = (R[]) Array.newInstance(returnType, 1);
+                        array[0] = function.apply(value);
+                        return array;
+                    }
+            ).setState(state).setUsage(usage).register();
             return this;
         }
 
@@ -708,6 +768,51 @@ public class SkriptRegistration {
             }
             events.add(new SkriptEventInfo<>(registerer, super.c, handledContexts, priority, parsePatterns(), data));
             registerer.addHandledEvent(this.c);
+        }
+
+        public class ContextValueRegistrar<C extends TriggerContext, R> {
+            private final Class<C> context;
+            private final Class<R> returnType;
+            private final boolean isSingle;
+            private final String pattern;
+
+            private final Function<C, R[]> function;
+            private State state = State.PRESENT;
+            private Usage usage = Usage.EXPRESSION_ONLY;
+
+            public ContextValueRegistrar(Class<C> context, Class<R> returnType, boolean isSingle, String pattern, Function<C, R[]> function) {
+                this.context = context;
+                this.returnType = returnType;
+                this.isSingle = isSingle;
+                this.pattern = pattern;
+                this.function = function;
+            }
+
+            public ContextValueRegistrar<C, R> setState(State state) {
+                this.state = state;
+                return this;
+            }
+
+            public ContextValueRegistrar<C, R> setUsage(Usage usage) {
+                this.usage = usage;
+                return this;
+            }
+
+            public EventRegistrar<T> register() {
+                var pattern = PatternParser.parsePattern(this.pattern, logger);
+                if (pattern.isEmpty())
+                    return EventRegistrar.this;
+
+                var type = TypeManager.getByClassExact(returnType);
+                if (type.isEmpty()) {
+                    logger.error("Couldn't find a type corresponding to the class '" + returnType.getName() + "'", ErrorType.NO_MATCH);
+                    return EventRegistrar.this;
+                }
+
+                // Register the context value
+                contextValues.add(new ContextValueInfo<>(registerer, context, type.get(), isSingle, pattern.get(), function, state, usage));
+                return EventRegistrar.this;
+            }
         }
     }
 

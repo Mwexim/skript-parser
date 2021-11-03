@@ -5,6 +5,10 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueInfo.Usage;
+import io.github.syst3ms.skriptparser.syntax.TestContext.SubTestContext;
+
+import java.time.Duration;
 
 /**
  * The test event.
@@ -20,8 +24,11 @@ public class EvtTest extends SkriptEvent {
 	static {
 		Parser.getMainRegistration()
 				.newEvent(EvtTest.class, "*test [[only] when %=boolean%]")
-				.setHandledContexts(TestContext.RealTestContext.class)
-				.addContextValue(TestContext.RealTestContext.class, String.class, true, "*test", __ -> new String[] {"Hello World!"})
+				.setHandledContexts(SubTestContext.class)
+				.newContextValue(SubTestContext.class, String.class, true, "test", __ -> new String[] {"Hello World!"})
+				.setUsage(Usage.EXPRESSION_OR_STANDALONE)
+				.register()
+				.addContextType(SubTestContext.class, Duration.class, SubTestContext::oneDay)
 				.register();
 	}
 

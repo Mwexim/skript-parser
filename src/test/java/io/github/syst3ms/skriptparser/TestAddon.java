@@ -28,7 +28,7 @@ public class TestAddon extends SkriptAddon {
     @Override
     public void finishedLoading() {
         for (Trigger trigger : testTriggers) {
-            Statement.runAll(trigger, new TestContext.RealTestContext());
+            Statement.runAll(trigger, new TestContext.SubTestContext());
         }
 
         // Clear triggers for next test.
