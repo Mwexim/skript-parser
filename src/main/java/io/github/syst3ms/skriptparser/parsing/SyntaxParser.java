@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.expressions.ExprBooleanOperators;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
+import io.github.syst3ms.skriptparser.lang.base.ContextExpression;
 import io.github.syst3ms.skriptparser.log.ErrorContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
@@ -13,9 +14,8 @@ import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SkriptEventInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextExpression;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueInfo;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueInfo.State;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue.State;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.Type;
@@ -103,9 +103,9 @@ public class SyntaxParser {
      */
     private static final RecentElementList<ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>> recentConditions = new RecentElementList<>();
     /**
-     * All {@link ContextValueInfo context values} that are successfully parsed during parsing, in order of last successful parsing
+     * All {@link ContextValue context values} that are successfully parsed during parsing, in order of last successful parsing
      */
-    private static final RecentElementList<ContextValueInfo<?, ?>> recentContextValues = new RecentElementList<>();
+    private static final RecentElementList<ContextValue<?, ?>> recentContextValues = new RecentElementList<>();
 
     /**
      * Parses an {@link Expression} from the given {@linkplain String} and {@link PatternType expected return type}
@@ -277,7 +277,7 @@ public class SyntaxParser {
     }
 
     /**
-     * Parses a {@link ContextValueInfo} from the given {@linkplain String} and {@link PatternType expected return type}
+     * Parses a {@link ContextValue} from the given {@linkplain String} and {@link PatternType expected return type}
      * @param <T> the type of the context value
      * @param toParse the string to be parsed as a context value
      * @param expectedType the expected return type
@@ -335,7 +335,7 @@ public class SyntaxParser {
                 }
 
                 recentContextValues.acknowledge(info);
-                return Optional.of(new ContextExpression<>((ContextValueInfo<?, T>) info, value, standalone));
+                return Optional.of(new ContextExpression<>((ContextValue<?, T>) info, value, standalone));
             }
         }
         return Optional.empty();

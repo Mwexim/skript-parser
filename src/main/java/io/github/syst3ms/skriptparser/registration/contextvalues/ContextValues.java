@@ -25,8 +25,8 @@ public class ContextValues {
         }
     };
 
-    private static final List<ContextValueInfo<?, ?>> contextValues = new ArrayList<>();
-    private static final Map<Class<? extends TriggerContext>, List<ContextValueInfo<?, ?>>> cachedContextValues = new HashMap<>();
+    private static final List<ContextValue<?, ?>> contextValues = new ArrayList<>();
+    private static final Map<Class<? extends TriggerContext>, List<ContextValue<?, ?>>> cachedContextValues = new HashMap<>();
 
     public static void register(SkriptRegistration reg) {
         contextValues.addAll(reg.getContextValues());
@@ -35,7 +35,7 @@ public class ContextValues {
     /**
      * @return a list of all currently registered context values
      */
-    public static List<ContextValueInfo<?, ?>> getContextValues() {
+    public static List<ContextValue<?, ?>> getContextValues() {
         return contextValues;
     }
 
@@ -47,7 +47,7 @@ public class ContextValues {
      * @return a list with the context values
      */
     @SuppressWarnings("unchecked")
-    public static List<ContextValueInfo<?, ?>> getContextValues(Class<? extends TriggerContext> ctx) {
+    public static List<ContextValue<?, ?>> getContextValues(Class<? extends TriggerContext> ctx) {
         if (cachedContextValues.containsKey(ctx)) {
             return cachedContextValues.get(ctx);
         }
@@ -70,7 +70,7 @@ public class ContextValues {
 
                 // Now all conditions have been satisfied
                 if (type.isPresent()) {
-                    values.add(new ContextValueInfo<>(
+                    values.add(new ContextValue<>(
                             methodAddon,
                             ctx,
                             (Type<Object>) type.get(),

@@ -1,22 +1,25 @@
-package io.github.syst3ms.skriptparser.registration.contextvalues;
+package io.github.syst3ms.skriptparser.lang.base;
 
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 import org.jetbrains.annotations.Contract;
 
 /**
- * A tagged expression is a string expression that contains tags.
- * Tags are small structures of code that can affect a certain part of the string easily
- * by changing it accordingly. Default, these tags are not parsed unless a
- * {@link ContextExpression} is used.
+ * An {@link Expression} that corresponds to a contextual value. Each trigger
+ * can carry multiple instances of data (called 'context values'). This expression
+ * holds a reference to such value.
+ * @param <C> the TriggerContext class
+ * @param <T> the Expression's type
+ * @author Mwexim
  */
 public class ContextExpression<C extends TriggerContext, T> implements Expression<T> {
-	private final ContextValueInfo<C, T> info;
+	private final ContextValue<C, T> info;
 	private final String value;
 	private final boolean standalone;
 
-	public ContextExpression(ContextValueInfo<C, T> info, String value, boolean standalone) {
+	public ContextExpression(ContextValue<C, T> info, String value, boolean standalone) {
 		this.info = info;
 		this.value = value;
 		this.standalone = standalone;
@@ -47,8 +50,6 @@ public class ContextExpression<C extends TriggerContext, T> implements Expressio
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return new String[] {"past ", "", "future "}[info.getState().ordinal()]
-				+ (standalone ? "" : "context-")
-				+ value;
+		return new String[] {"past ", "", "future "}[info.getState().ordinal()] + (standalone ? "" : "context-") + value;
 	}
 }

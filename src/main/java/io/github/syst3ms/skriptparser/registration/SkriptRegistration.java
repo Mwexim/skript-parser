@@ -6,6 +6,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.base.ContextExpression;
 import io.github.syst3ms.skriptparser.lang.base.ExecutableExpression;
 import io.github.syst3ms.skriptparser.lang.properties.ConditionalType;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyConditional;
@@ -23,10 +24,9 @@ import io.github.syst3ms.skriptparser.pattern.PatternElement;
 import io.github.syst3ms.skriptparser.pattern.PatternParser;
 import io.github.syst3ms.skriptparser.pattern.RegexGroup;
 import io.github.syst3ms.skriptparser.pattern.TextElement;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextExpression;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueInfo;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueInfo.State;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueInfo.Usage;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue.State;
+import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue.Usage;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
 import io.github.syst3ms.skriptparser.registration.tags.Tag;
 import io.github.syst3ms.skriptparser.registration.tags.TagInfo;
@@ -68,7 +68,7 @@ public class SkriptRegistration {
     private final List<SkriptEventInfo<?>> events = new ArrayList<>();
     private final List<Type<?>> types = new ArrayList<>();
     private final List<ConverterInfo<?, ?>> converters = new ArrayList<>();
-    private final List<ContextValueInfo<?, ?>> contextValues = new ArrayList<>();
+    private final List<ContextValue<?, ?>> contextValues = new ArrayList<>();
     private final List<TagInfo<? extends Tag>> tags = new ArrayList<>();
     private boolean newTypes = false;
 
@@ -120,7 +120,7 @@ public class SkriptRegistration {
     /**
      * @return all currently registered context values
      */
-    public List<ContextValueInfo<?, ?>> getContextValues() {
+    public List<ContextValue<?, ?>> getContextValues() {
         return contextValues;
     }
 
@@ -674,7 +674,7 @@ public class SkriptRegistration {
         }
 
         /**
-         * Registers a {@link ContextValueInfo}
+         * Registers a {@link ContextValue}
          * @param context the context this value appears in
          * @param returnType the returned type of this context value
          * @param isSingle whether or not the return value is single
@@ -690,7 +690,7 @@ public class SkriptRegistration {
         }
 
         /**
-         * Registers a {@link ContextValueInfo} that returns a single value.
+         * Registers a {@link ContextValue} that returns a single value.
          * The {@linkplain Type#getBaseName() base name} of the return type will be used as pattern.
          * There will be a leading '{@code [the] }' in the pattern if the context value can be used alone.
          * @param context the context this value appears in
@@ -705,7 +705,7 @@ public class SkriptRegistration {
         }
 
         /**
-         * Registers a {@link ContextValueInfo} that returns a single value.
+         * Registers a {@link ContextValue} that returns a single value.
          * The {@linkplain Type#getBaseName() base name} of the return type will be used as pattern.
          * There will be a leading '{@code [the] }' in the pattern if the context value can be used alone.
          * @param context the context this value appears in
@@ -723,7 +723,7 @@ public class SkriptRegistration {
         }
 
         /**
-         * Registers a {@link ContextValueInfo} that returns a single value.
+         * Registers a {@link ContextValue} that returns a single value.
          * The {@linkplain Type#getBaseName() base name} of the return type will be used as pattern.
          * There will be a leading '{@code [the] }' in the pattern if the context value can be used alone.
          * @param context the context this value appears in
@@ -739,17 +739,11 @@ public class SkriptRegistration {
         @SuppressWarnings("unchecked")
         public final <C extends TriggerContext, R> EventRegistrar<T> addContextType(Class<C> context, Class<R> returnType, Function<C, R> function, State state, Usage usage) {
             var typeName = TypeManager.getByClassExact(returnType).map(Type::getBaseName).orElse(TypeManager.NULL_REPRESENTATION);
-            new ContextValueRegistrar<>(
-                    context,
-                    returnType,
-                    true,
-                    usage.isCorrect(true) ? "[the] " + typeName : "" + typeName,
-                    value -> {
+            new ContextValueRegistrar<>(context, returnType, true, typeName, value -> {
                         R[] array = (R[]) Array.newInstance(returnType, 1);
                         array[0] = function.apply(value);
                         return array;
-                    }
-            ).setState(state).setUsage(usage).register();
+                    }).setState(state).setUsage(usage).register();
             return this;
         }
 
@@ -810,7 +804,7 @@ public class SkriptRegistration {
                 }
 
                 // Register the context value
-                contextValues.add(new ContextValueInfo<>(registerer, context, type.get(), isSingle, pattern.get(), function, state, usage));
+                contextValues.add(new ContextValue<>(registerer, context, type.get(), isSingle, pattern.get(), function, state, usage));
                 return EventRegistrar.this;
             }
         }

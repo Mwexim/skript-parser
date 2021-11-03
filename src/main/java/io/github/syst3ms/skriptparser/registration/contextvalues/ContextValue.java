@@ -11,7 +11,7 @@ import java.util.function.Function;
 /**
  * A class containing info about a context value.
  */
-public class ContextValueInfo<C extends TriggerContext, T> {
+public class ContextValue<C extends TriggerContext, T> {
     private final SkriptAddon registerer;
 
     private final Class<C> context;
@@ -22,12 +22,12 @@ public class ContextValueInfo<C extends TriggerContext, T> {
     private final State state;
     private final Usage usage;
 
-    public ContextValueInfo(SkriptAddon registerer,
-							Class<C> context,
-							Type<T> returnType, boolean isSingle,
-							PatternElement pattern,
-							Function<C, T[]> function,
-							State state, Usage usage) {
+    public ContextValue(SkriptAddon registerer,
+						Class<C> context,
+						Type<T> returnType, boolean isSingle,
+						PatternElement pattern,
+						Function<C, T[]> function,
+						State state, Usage usage) {
         this.registerer = registerer;
         this.context = context;
         this.returnType = new PatternType<>(returnType, isSingle);

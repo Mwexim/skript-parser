@@ -44,10 +44,10 @@ public @interface ContextValueMethod {
 	 * or as a standalone expression.
 	 * @return the usage
 	 */
-	ContextValueInfo.Usage usage() default ContextValueInfo.Usage.EXPRESSION_ONLY;
+	ContextValue.Usage usage() default ContextValue.Usage.EXPRESSION_ONLY;
 
 	/**
 	 * @return whether this happens in the present, past or future
 	 */
-	ContextValueInfo.State state() default ContextValueInfo.State.PRESENT;
+	ContextValue.State state() default ContextValue.State.PRESENT;
 }
