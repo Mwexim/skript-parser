@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.syntax;
 
+import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue.Usage;
@@ -12,6 +13,10 @@ import java.time.Duration;
  * in Java.
  */
 public class TestContext implements TriggerContext {
+    static {
+        Parser.getMainRegistration().addContextAnnotations(TestContext.class);
+    }
+
     @Override
     public String getName() {
         return "main";
