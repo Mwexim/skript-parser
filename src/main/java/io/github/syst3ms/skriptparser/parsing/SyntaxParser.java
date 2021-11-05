@@ -308,13 +308,13 @@ public class SyntaxParser {
                         logger.error(
                                 "The context value matching '" + toParse + "' cannot be used alone",
                                 ErrorType.SEMANTIC_ERROR,
-                                "Use 'context-something' instead of employing this context value alone"
+                                "Use 'context-something' instead of using this context value alone"
                         );
                     } else {
                         logger.error(
                                 "The context value matching '" + toParse + "' must be used alone",
                                 ErrorType.SEMANTIC_ERROR,
-                                "Instead of 'context-something', employ this context value as 'something'"
+                                "Instead of 'context-something', use this context value as 'something'"
                         );
                     }
                     return Optional.empty();
