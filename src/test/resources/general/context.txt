@@ -21,5 +21,8 @@ test:
 	# Registered as type
 	assert the context-duration = a day with "Context type 'duration' should be 'a day': %context-duration%"
 
+	# Excluded
+	throws the context-subclass
+
 	throws context-arguments # Not registered as context value for this event
 	throws future context-test

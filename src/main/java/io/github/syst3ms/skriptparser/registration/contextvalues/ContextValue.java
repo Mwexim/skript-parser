@@ -19,17 +19,30 @@ public class ContextValue<C extends TriggerContext, T> {
     private final State state;
     private final Usage usage;
 
-    public ContextValue(Class<C> context,
+    private final Class<? extends C>[] excluded;
+
+	@SuppressWarnings("unchecked")
+	public ContextValue(Class<C> context,
 						Type<T> returnType, boolean isSingle,
 						PatternElement pattern,
 						Function<C, T[]> function,
 						State state, Usage usage) {
+		this(context, returnType, isSingle, pattern, function, state, usage, new Class[0]);
+	}
+
+	public ContextValue(Class<C> context,
+						Type<T> returnType, boolean isSingle,
+						PatternElement pattern,
+						Function<C, T[]> function,
+						State state, Usage usage,
+						Class<? extends C>[] excluded) {
         this.context = context;
         this.returnType = new PatternType<>(returnType, isSingle);
         this.pattern = pattern;
         this.function = function;
         this.state = state;
         this.usage = usage;
+        this.excluded = excluded;
     }
 
     public Class<C> getContext() {
@@ -69,6 +82,16 @@ public class ContextValue<C extends TriggerContext, T> {
     public Usage getUsage() {
         return usage;
     }
+
+	/**
+	 * Some subclasses don't want to inherit the context values of their parents.
+	 * The returned array contains all the subclasses that should be excluded when parsing
+	 * this context value.
+	 * @return the excluded contexts
+	 */
+	public Class<? extends C>[] getExcluded() {
+		return excluded;
+	}
 
 	/**
 	 * An enum to indicate the relative position in time between two similar context values.

@@ -26,8 +26,11 @@ public class EvtTest extends SkriptEvent {
 				.newEvent(EvtTest.class, "*test [[only] when %=boolean%]")
 				.setHandledContexts(SubTestContext.class)
 				.newContextValue(SubTestContext.class, String.class, true, "test", __ -> new String[] {"Hello World!"})
-				.setUsage(Usage.EXPRESSION_OR_STANDALONE)
-				.register()
+						.setUsage(Usage.EXPRESSION_OR_STANDALONE)
+						.register()
+				.newContextValue(SubTestContext.class, String.class, false, "subclass", __ -> new String[] {"Hi", "Bye"})
+						.setExcluded(SubTestContext.class)
+						.register()
 				.addContextType(SubTestContext.class, Duration.class, SubTestContext::oneDay)
 				.register();
 	}

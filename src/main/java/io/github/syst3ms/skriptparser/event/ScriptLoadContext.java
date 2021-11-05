@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.event;
 
-import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueMethod;
 
@@ -9,10 +8,6 @@ import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueMet
  * in Java.
  */
 public class ScriptLoadContext implements TriggerContext {
-    static {
-        Parser.getMainRegistration().addContextAnnotations(ScriptLoadContext.class);
-    }
-
     private final String[] args;
 
     public ScriptLoadContext(String[] args) {
@@ -24,7 +19,7 @@ public class ScriptLoadContext implements TriggerContext {
         return "main";
     }
 
-    @ContextValueMethod(name = "arguments")
+    @ContextValueMethod(pattern = "arguments")
     public String[] getArguments() {
         return args;
     }

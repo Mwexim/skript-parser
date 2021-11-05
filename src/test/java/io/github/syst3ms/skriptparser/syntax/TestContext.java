@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.syntax;
 
-import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
 import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue.Usage;
@@ -13,26 +12,22 @@ import java.time.Duration;
  * in Java.
  */
 public class TestContext implements TriggerContext {
-    static {
-        Parser.getMainRegistration().addContextAnnotations(TestContext.class);
-    }
-
     @Override
     public String getName() {
         return "main";
     }
 
-    @ContextValueMethod(name = "standalone", usage = Usage.STANDALONE_ONLY)
+    @ContextValueMethod(pattern = "standalone", usage = Usage.STANDALONE_ONLY)
     public String standaloneValue() {
         return "It works";
     }
 
-    @ContextValueMethod(name = "[some] pattern value", state = ContextValue.State.PAST, usage = Usage.STANDALONE_ONLY)
+    @ContextValueMethod(pattern = "[some] pattern value", state = ContextValue.State.PAST, usage = Usage.STANDALONE_ONLY)
     public String patternValue() {
         return "It works too";
     }
 
-    @ContextValueMethod(name = "primitive")
+    @ContextValueMethod(pattern = "primitive")
     public int primitiveValue() {
         return 0;
     }

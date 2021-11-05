@@ -21,8 +21,6 @@ import java.lang.annotation.Target;
  *     <li>The method does not return a primitive (although their Java-class
  *     counterparts are allowed, e.g. {@code int} is not allowed, but {@link Integer} is)</li>
  *     <li>The method is public.</li>
- *     <li>The {@link #name() name} of this ContextValueMethod only contains letters
- *     and is lowercase.</li>
  * </ul>
  * If the returned value of this method is an array, the context value will not be single by convention.
  * In any other occasion that satisfied the rules above, the context value will be single.
@@ -37,7 +35,7 @@ public @interface ContextValueMethod {
 	 * If the name, for example, is 'test', the use case will be 'context-test'
 	 * @return the name of this context value
 	 */
-	String name();
+	String pattern();
 
 	/**
 	 * Context values can be used as part of an expression, like in {@code context-user},
