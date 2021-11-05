@@ -413,7 +413,6 @@ public class SkriptRegistration {
 
                 // Now all conditions have been satisfied
                 contextValues.add(new ContextValue<>(
-                        registerer,
                         context,
                         (Type<Object>) type.get(),
                         !returnType.isArray(),
@@ -852,7 +851,7 @@ public class SkriptRegistration {
                 }
 
                 // Register the context value
-                contextValues.add(new ContextValue<>(registerer, context, type.get(), isSingle, pattern.get(), function, state, usage));
+                contextValues.add(new ContextValue<>(context, type.get(), isSingle, pattern.get(), function, state, usage));
                 return EventRegistrar.this;
             }
         }

@@ -2,7 +2,6 @@ package io.github.syst3ms.skriptparser.registration.contextvalues;
 
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
-import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.Type;
 
@@ -12,8 +11,6 @@ import java.util.function.Function;
  * A class containing info about a context value.
  */
 public class ContextValue<C extends TriggerContext, T> {
-    private final SkriptAddon registerer;
-
     private final Class<C> context;
     private final PatternType<T> returnType;
     private final PatternElement pattern;
@@ -22,23 +19,17 @@ public class ContextValue<C extends TriggerContext, T> {
     private final State state;
     private final Usage usage;
 
-    public ContextValue(SkriptAddon registerer,
-						Class<C> context,
+    public ContextValue(Class<C> context,
 						Type<T> returnType, boolean isSingle,
 						PatternElement pattern,
 						Function<C, T[]> function,
 						State state, Usage usage) {
-        this.registerer = registerer;
         this.context = context;
         this.returnType = new PatternType<>(returnType, isSingle);
         this.pattern = pattern;
         this.function = function;
         this.state = state;
         this.usage = usage;
-    }
-
-    public SkriptAddon getRegisterer() {
-        return registerer;
     }
 
     public Class<C> getContext() {
