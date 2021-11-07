@@ -10,3 +10,5 @@ test:
 
 	throws true ###= false
 	assert true # ##= false
+
+	assert true

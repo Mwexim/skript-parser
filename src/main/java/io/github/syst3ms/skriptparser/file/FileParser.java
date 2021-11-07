@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -36,7 +37,7 @@ public class FileParser {
         for (var i = 0; i < lines.size(); i++) {
             var line = lines.get(i);
             String content = removeComments(line);
-
+            //System.out.println(content);
             if (content.isEmpty()) {
                 elements.add(new VoidElement(fileName, lastLine + i, expectedIndentation));
                 continue;
@@ -94,28 +95,48 @@ public class FileParser {
     @Nullable
     private static String removeComments(String string) {
         StringBuilder stringBuilder = new StringBuilder();
-        for (char c : string.toCharArray()) {
+        for (int i = 0; i < string.length(); i++) {
+            char c = string.charAt(i);
             if (c == '#') {
-                int index = string.indexOf(c);
-                if (index + 1 >= string.length()) return "";
-                if (string.charAt(index + 1) != '#') { //double # escape the first #
-                    //Checking if it isn't color hex and if no double # (for escaping first #)
-                    for (int i : new int[]{3, 6, 9}) {
-                        if (index + i <= string.length() - 1 && !Color.COLOR_PATTERN.matcher(string.substring(index + 1, index + i + 1)).matches())
-                            COMMENT_STATUS = 1;
-                    }
-                }
-                //set start or end of a block comment ("###" characters)
-                if (index + 2 <= string.length() && string.substring(index, index + 2).equals("##")) {
-                    COMMENT_STATUS = COMMENT_STATUS == 2 ? 0 : 2;
-                }
+                switch (COMMENT_STATUS) {
+                    case 0:
+                        //System.out.println("debug color match: " + Color.COLOR_PATTERN.matcher("ffff0000").matches());
+                        for (int j : new int[]{3, 6, 8}) {
+                            if (i + j <= string.length() - 1) {
+                                //System.out.println("debug string: " + string.substring(i + 1, i + j + 1));
+                                if (!Color.COLOR_PATTERN.matcher(string.substring(i + 1, i + j + 1)).matches()) {
+                                    //System.out.println("yolo debug 1");
+                                    COMMENT_STATUS = 1;
+                                }
+                            } else {
+                                COMMENT_STATUS = 1;
+                                break;
+                            }
+                        }
+                        break;
+                    case 1:
+                        if (string.length() <= i + 1 && string.charAt(i + 1) == '#')
+                            COMMENT_STATUS = 2;
 
+                        else if(string.charAt(i - 1) == '#')
+                            COMMENT_STATUS = 0;
+
+                }
             }
-            if (COMMENT_STATUS == 0) {
+            /*
+            System.out.println(
+                    "Caractere : " + c + '\n' + "Caractere numero : " + i
+                            + '\n' + "Status commentaire: " + COMMENT_STATUS + '\n'
+            );
+
+             */
+            if (COMMENT_STATUS == 0)
                 stringBuilder.append(c);
-            }
+
+
         }
-        if (COMMENT_STATUS == 1) COMMENT_STATUS = 0;
+        if (COMMENT_STATUS != 2) COMMENT_STATUS = 0;
+
         return stringBuilder.toString().strip();
 
     }
