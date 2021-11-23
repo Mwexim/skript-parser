@@ -9,11 +9,7 @@ test:
 	assert context-test = "Hello World!" with "Context value 'test' should be 'Hello World!': %context-test%"
 	assert test = "Hello World!" with "Standalone context value 'test' should be 'Hello World!': %test%"
 
-	# Registered through annotation
-	assert standalone = "It works" with "Standalone context value 'standalone' should be 'It works': %standalone%"
-	throws context-primitive # Primitive values cannot be used
-
-	# Annotation + past time state
+	# Pattern with optional part
 	throws some pattern value with "Standalone value 'some pattern value' without past state succeeded"
 	assert past pattern value = "It works too" with "Standalone value 'pattern value' with past state failed"
 	assert past some pattern value = "It works too" with "Standalone value 'some pattern value' with past state failed"

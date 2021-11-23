@@ -19,10 +19,10 @@ public class ContextExpression<C extends TriggerContext, T> implements Expressio
 	private final String value;
 	private final boolean standalone;
 
-	public ContextExpression(ContextValue<C, T> info, String value, boolean standalone) {
+	public ContextExpression(ContextValue<C, T> info, String value, boolean alone) {
 		this.info = info;
 		this.value = value;
-		this.standalone = standalone;
+		this.standalone = alone;
 	}
 
 	@Override

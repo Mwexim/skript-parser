@@ -116,15 +116,15 @@ public class ContextValue<C extends TriggerContext, T> {
 	}
 
     public enum Usage {
-        EXPRESSION_ONLY, STANDALONE_ONLY, EXPRESSION_OR_STANDALONE;
+        EXPRESSION_ONLY, ALONE_ONLY, EXPRESSION_OR_ALONE;
 
         /**
          * Checks if the usage of this context value corresponds to the actual used syntax.
-         * @param standalone whether the context value was used standalone
+         * @param alone whether the context value was used alone
          * @return whether or not the context value was used correctly
          */
-        public boolean isCorrect(boolean standalone) {
-            return standalone && this != EXPRESSION_ONLY || !standalone && this != STANDALONE_ONLY;
+        public boolean isCorrect(boolean alone) {
+            return alone && this != EXPRESSION_ONLY || !alone && this != ALONE_ONLY;
         }
     }
 }
