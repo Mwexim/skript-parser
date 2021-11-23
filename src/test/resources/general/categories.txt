@@ -1,0 +1,21 @@
+# Author(s):
+# 	- Mwexim
+# Date: 2021/11/23
+
+test:
+	birth:
+		category:
+			number: 7
+
+			unused: The value
+			die:
+				death
+
+
+			lol # This is possible for now
+			funny:
+				assert false
+				this doesn't get parsed anyway
+
+	# In the code, it sets this variable to the 'number' option.
+	assert {the_number} + 5 = 12
