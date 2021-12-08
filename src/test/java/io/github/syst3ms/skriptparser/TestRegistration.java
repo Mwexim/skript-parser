@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.time.ZoneOffset;
+import java.util.TimeZone;
 
 public class TestRegistration {
 
@@ -41,16 +42,15 @@ public class TestRegistration {
 		}
 		Parser.getMainRegistration().register();
 
-		// Now, we need to change some fields to keep all tests consistent.
-		fields();
-	}
+		/*
+		 * Now, we need to change some fields to keep all tests consistent.
+		 */
 
-	public static void fields() {
-		// ZONE_ID field: all tests need to be executed from the same zone (UTC)
+		// TIME_ZONE field
 		try {
-			Field zoneId = SkriptDate.class.getDeclaredField("ZONE_ID");
-			zoneId.setAccessible(true);
-			zoneId.set(null, ZoneOffset.UTC);
+			Field timeZone = SkriptDate.class.getDeclaredField("TIME_ZONE");
+			timeZone.setAccessible(true);
+			timeZone.set(null, TimeZone.getTimeZone(ZoneOffset.UTC));
 		} catch (NoSuchFieldException | IllegalAccessException e) {
 			e.printStackTrace();
 		}

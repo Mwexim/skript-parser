@@ -7,31 +7,20 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Locale;
 import java.util.TimeZone;
 
-/**
- * Represents a date.
- * @author Njol
- */
 public class SkriptDate implements Comparable<SkriptDate> {
     // TODO make a config for this
     public final static String DATE_FORMAT = "EEEE dd MMMM yyyy HH:mm:ss.SSS zzzXXX";
     public final static Locale DATE_LOCALE = Locale.US;
-    @SuppressWarnings("FieldMayBeFinal")
-    private static ZoneId ZONE_ID = ZoneId.systemDefault();
+    private static TimeZone TIME_ZONE = TimeZone.getDefault();
     public final static int MILLIS_PER_DAY = 86400000;
 
     private long timestamp;
 
-    private SkriptDate(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
     private SkriptDate(long timestamp, TimeZone zone) {
-        long offset = zone.getOffset(timestamp);
-        this.timestamp = timestamp - offset;
+        this.timestamp = timestamp - zone.getOffset(timestamp);
     }
 
     /**
@@ -39,11 +28,11 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * @return new {@link SkriptDate} with the current time
      */
     public static SkriptDate now() {
-        return SkriptDate.of(System.currentTimeMillis());
+        return of(System.currentTimeMillis());
     }
 
     public static SkriptDate of(long timestamp) {
-        return new SkriptDate(timestamp);
+        return of(timestamp, TIME_ZONE);
     }
 
     public static SkriptDate of(long timestamp, TimeZone zone) {
@@ -55,22 +44,20 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * @return the current day like it would just start
      */
 	public static SkriptDate today() {
-	    var localDate = LocalDate.now().atStartOfDay(ZONE_ID);
-	    return SkriptDate.of(localDate.toEpochSecond() * 1000);
+	    var local = LocalDate.now(TIME_ZONE.toZoneId()).atStartOfDay(TIME_ZONE.toZoneId());
+	    return of(local.toEpochSecond() * 1000);
 	}
 
-    public static ZoneId getZoneId() {
-        return ZONE_ID;
+    public static TimeZone getTimeZone() {
+        return TIME_ZONE;
     }
 
-    @Override
-    public int compareTo(@Nullable SkriptDate other) {
-        long d = other == null ? timestamp : timestamp - other.timestamp;
-        return d < 0 ? -1 : d > 0 ? 1 : 0;
-    }
-
-    public String toString() {
-        return toString(DATE_FORMAT);
+    /**
+     * Get the timestamp of this date.
+     * @return The timestamp in milliseconds
+     */
+    public long getTimestamp() {
+        return timestamp;
     }
 
     /**
@@ -80,14 +67,6 @@ public class SkriptDate implements Comparable<SkriptDate> {
      */
     public String toString(String format) {
         return new SimpleDateFormat(format, DATE_LOCALE).format(new java.util.Date(timestamp));
-    }
-
-    /**
-     * Get the timestamp of this date.
-     * @return The timestamp in milliseconds
-     */
-    public long getTimestamp() {
-        return timestamp;
     }
 
     /**
@@ -121,7 +100,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * @return new {@link SkriptDate} with the added Duration
      */
     public SkriptDate plus(Duration span) {
-        return new SkriptDate(timestamp + span.toMillis());
+        return of(timestamp + span.toMillis());
     }
 
     /**
@@ -130,7 +109,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * @return new {@link SkriptDate} with the subtracted Duration
      */
     public SkriptDate minus(Duration span) {
-        return new SkriptDate(timestamp - span.toMillis());
+        return of(timestamp - span.toMillis());
     }
 
     /**
@@ -138,8 +117,17 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * @return the {@link LocalDate} instance of this date
      */
     public LocalDateTime toLocalDateTime() {
-        Instant in = new java.util.Date(timestamp).toInstant();
-        return in.atOffset(SkriptDate.ZONE_ID.getRules().getOffset(in)).toLocalDateTime();
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), TIME_ZONE.toZoneId());
+    }
+
+    @Override
+    public int compareTo(@Nullable SkriptDate other) {
+        long d = other == null ? timestamp : timestamp - other.timestamp;
+        return d < 0 ? -1 : d > 0 ? 1 : 0;
+    }
+
+    public String toString() {
+        return toString(DATE_FORMAT);
     }
 
     @Override
@@ -152,14 +140,8 @@ public class SkriptDate implements Comparable<SkriptDate> {
 
     @Override
     public boolean equals(@Nullable Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
         if (!(obj instanceof SkriptDate))
             return false;
-        SkriptDate other = (SkriptDate) obj;
-        return timestamp == other.timestamp;
+        return compareTo((SkriptDate) obj) == 0;
     }
-
 }
