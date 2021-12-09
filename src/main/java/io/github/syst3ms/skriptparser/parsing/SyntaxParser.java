@@ -659,10 +659,10 @@ public class SyntaxParser {
     public static Optional<? extends UnloadedTrigger> parseTrigger(FileSection section, SkriptLogger logger) {
         if (section.getLineContent().isEmpty())
             return Optional.empty();
-        for (var recentEvent : recentEvents.mergeWith(SyntaxManager.getEvents())) {
-            var trigger = matchEventInfo(section, recentEvent, logger);
+        for (var info : recentEvents.mergeWith(SyntaxManager.getEvents())) {
+            var trigger = matchEventInfo(section, info, logger);
             if (trigger.isPresent()) {
-                recentEvents.acknowledge(recentEvent);
+                recentEvents.acknowledge(info);
                 logger.clearErrors();
                 return trigger;
             }

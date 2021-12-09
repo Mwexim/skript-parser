@@ -1,17 +1,21 @@
 package io.github.syst3ms.skriptparser.syntax.test;
 
 import io.github.syst3ms.skriptparser.Parser;
+import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.lang.entries.CategorySection;
+import io.github.syst3ms.skriptparser.lang.entries.SectionConfiguration;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.variables.Variables;
 
 import java.math.BigInteger;
 import java.util.Optional;
 
-public class SecCategory extends CategorySection {
+public class SecCategory extends CodeSection {
     static {
         Parser.getMainRegistration().addSection(
                 SecCategory.class,
@@ -19,25 +23,27 @@ public class SecCategory extends CategorySection {
         );
     }
 
+    private final SectionConfiguration config = new SectionConfiguration()
+            .addOption("number")
+            .addOption("unused")
+            .addOption("optional", true)
+            .addSection("die")
+            .build();
+
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         return true;
     }
 
     @Override
-    public Optional<? extends Statement> walk(TriggerContext ctx) {
-        Variables.setVariable("the_number", new BigInteger(options.get("number")), null, false);
-        return Optional.of(sections.get("die"));
+    public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+        return config.loadConfiguration(this, section, parserState, logger);
     }
 
     @Override
-    protected EntryOption[] getConfiguration() {
-        return new EntryOption[] {
-                new EntryOption("die", false),
-                new EntryOption("number", true),
-                new EntryOption("unused", true),
-                new EntryOption("optional", true, true)
-        };
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
+        Variables.setVariable("the_number", new BigInteger(config.getOption("number")), null, false);
+        return Optional.of(config.getSection("die"));
     }
 
     @Override

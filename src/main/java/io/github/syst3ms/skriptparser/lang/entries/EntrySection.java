@@ -1,10 +1,13 @@
 package io.github.syst3ms.skriptparser.lang.entries;
 
+import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.parsing.ParserState;
 import org.jetbrains.annotations.Contract;
 
 import java.util.Optional;
@@ -12,8 +15,9 @@ import java.util.Optional;
 public class EntrySection extends CodeSection {
 	private final String name;
 
-	public EntrySection(String name) {
+	public EntrySection(FileSection section, ParserState parserState, SkriptLogger logger, String name) {
 		this.name = name;
+		loadSection(section, parserState, logger);
 	}
 
 	@Override
