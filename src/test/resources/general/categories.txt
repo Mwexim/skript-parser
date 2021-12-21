@@ -16,6 +16,15 @@ test:
 			funny:
 				assert false
 				this doesn't get parsed anyway
+			multiple:
+				This is the first value
+				This is the second value
+
+			more multiple values: This one just has one value
+				# This is not accounted for
 
 	# In the code, it sets this variable to the 'number' option.
 	assert {the_number} + 5 = 12
+
+	# In the code, it sets this variable to the joined values
+	assert {multiple} is equal to "This is the first value;This is the second value" with "{multiple} has not been set correctly: %{multiple}%"

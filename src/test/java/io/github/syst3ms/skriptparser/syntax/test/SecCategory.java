@@ -25,10 +25,11 @@ public class SecCategory extends CodeSection {
 
     private final SectionConfiguration config = new SectionConfiguration()
             .addOption("number")
+            .addOption(true, "multiple")
+            .addOption(true, "more multiple values")
             .addOption("unused")
-            .addOption("optional", true)
-            .addSection("die")
-            .build();
+            .addOption(false, "optional", true)
+            .addSection("die");
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
@@ -42,7 +43,8 @@ public class SecCategory extends CodeSection {
 
     @Override
     public Optional<? extends Statement> walk(TriggerContext ctx) {
-        Variables.setVariable("the_number", new BigInteger(config.getOption("number")), null, false);
+        Variables.setVariable("the_number", new BigInteger(config.getString("number")), null, false);
+        Variables.setVariable("multiple", String.join(";", config.getStringList("multiple")), null, false);
         return Optional.of(config.getSection("die"));
     }
 
