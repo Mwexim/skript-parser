@@ -7,60 +7,132 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Locale;
 import java.util.TimeZone;
 
-/**
- * Represents a date.
- * @author Njol
- */
 public class SkriptDate implements Comparable<SkriptDate> {
     // TODO make a config for this
     public final static String DATE_FORMAT = "EEEE dd MMMM yyyy HH:mm:ss.SSS zzzXXX";
     public final static Locale DATE_LOCALE = Locale.US;
     @SuppressWarnings("FieldMayBeFinal")
-    private static ZoneId ZONE_ID = ZoneId.systemDefault();
-    public final static int MILLIS_PER_DAY = 86400000;
+    private static TimeZone TIME_ZONE = TimeZone.getDefault();
 
     private long timestamp;
 
-    private SkriptDate(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
     private SkriptDate(long timestamp, TimeZone zone) {
-        long offset = zone.getOffset(timestamp);
-        this.timestamp = timestamp - offset;
+        this.timestamp = timestamp - zone.getOffset(timestamp);
     }
 
     /**
-     * Get a new {@link SkriptDate} with the current time
-     * @return new {@link SkriptDate} with the current time
+     * Creates a new {@link SkriptDate} of the current time.
+     * @return the date
      */
     public static SkriptDate now() {
-        return SkriptDate.of(System.currentTimeMillis());
+        return of(System.currentTimeMillis());
     }
 
+    /**
+     * Creates a new {@link SkriptDate} with a specific timestamp.
+     * Note that timestamps are expressed in milliseconds.
+     * @param timestamp the timestamp
+     * @return the date
+     */
     public static SkriptDate of(long timestamp) {
-        return new SkriptDate(timestamp);
+        return of(timestamp, TIME_ZONE);
     }
 
+    /**
+     * Creates a new {@link SkriptDate} with a specific timestamp.
+     * The zone offset is taken into account when calculating the
+     * final timestamp.
+     * @param timestamp the timestamp
+     * @param zone the time zone
+     * @return the date
+     */
     public static SkriptDate of(long timestamp, TimeZone zone) {
         return new SkriptDate(timestamp, zone);
     }
 
     /**
-     * The current day when it started.
-     * @return the current day like it would just start
+     * Creates a new {@link SkriptDate} of the current date at midnight.
+     * @return the date
      */
 	public static SkriptDate today() {
-	    var localDate = LocalDate.now().atStartOfDay(ZONE_ID);
-	    return SkriptDate.of(localDate.toEpochSecond() * 1000);
+	    var local = LocalDate.now(TIME_ZONE.toZoneId()).atStartOfDay(TIME_ZONE.toZoneId());
+	    return of(local.toEpochSecond() * 1000);
 	}
 
-    public static ZoneId getZoneId() {
-        return ZONE_ID;
+    /**
+     * @return the default system time zone
+     */
+    public static TimeZone getTimeZone() {
+        return TIME_ZONE;
+    }
+
+    /**
+     * Returns the timestamp of this date, in milliseconds.
+     * @return the timestamp
+     */
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    /**
+     * Returns the {@linkplain Duration duration} between the
+     * given dates.
+     * @param other the other date
+     * @return the duration
+     */
+    public Duration difference(SkriptDate other) {
+        return Duration.ofMillis(timestamp - other.getTimestamp()).abs();
+    }
+
+    /**
+     * Adds a specific {@linkplain Duration duration} to this date.
+     * A negative duration will subtract instead.
+     * @param duration the duration
+     */
+    public void add(Duration duration) {
+        timestamp += duration.toMillis();
+    }
+
+    /**
+     * Subtracts a specific {@linkplain Duration duration} from this date.
+     * A negative duration will add instead.
+     * @param duration the duration
+     */
+    public void subtract(Duration duration) {
+        timestamp -= duration.toMillis();
+    }
+
+    /**
+     * Adds a specific {@linkplain Duration duration} to this date
+     * and returns the result of this addition.
+     * A negative duration will subtract instead.
+     * @param duration the duration
+     * @return the date
+     */
+    public SkriptDate plus(Duration duration) {
+        return of(timestamp + duration.toMillis());
+    }
+
+    /**
+     * Subtracts a specific {@linkplain Duration duration} from this date
+     * and returns the result of this subtraction.
+     * A negative duration will add instead.
+     * @param duration the duration
+     * @return the date
+     */
+    public SkriptDate minus(Duration duration) {
+        return of(timestamp - duration.toMillis());
+    }
+
+    /**
+     * Returns this date as a {@link LocalDate}.
+     * @return the {@link LocalDate} of this date
+     */
+    public LocalDateTime toLocalDateTime() {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), TIME_ZONE.toZoneId());
     }
 
     @Override
@@ -74,7 +146,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
     }
 
     /**
-     * The String representation of this date using a certain format
+     * Returns the string representation of this date using a certain format.
      * @param format the format
      * @return the string representation of this date
      */
@@ -82,84 +154,10 @@ public class SkriptDate implements Comparable<SkriptDate> {
         return new SimpleDateFormat(format, DATE_LOCALE).format(new java.util.Date(timestamp));
     }
 
-    /**
-     * Get the timestamp of this date.
-     * @return The timestamp in milliseconds
-     */
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    /**
-     * Get the difference between 2 dates.
-     * @param other the other date
-     * @return the duration between the dates
-     */
-    public Duration difference(SkriptDate other) {
-        return Duration.ofMillis(timestamp - other.getTimestamp()).abs();
-    }
-
-    /**
-     * Add a {@link Duration} to this date.
-     * @param span {@link Duration} to add
-     */
-    public void add(Duration span) {
-        timestamp += span.toMillis();
-    }
-
-    /**
-     * Subtract a {@link Duration} from this date.
-     * @param span {@link Duration} to subtract
-     */
-    public void subtract(Duration span) {
-        timestamp -= span.toMillis();
-    }
-
-    /**
-     * Get a new instance of this date with the added Duration.
-     * @param span {@link Duration} to add to this Date
-     * @return new {@link SkriptDate} with the added Duration
-     */
-    public SkriptDate plus(Duration span) {
-        return new SkriptDate(timestamp + span.toMillis());
-    }
-
-    /**
-     * Get a new instance of this date with the subtracted Duration.
-     * @param span {@link Duration} to subtract from this Date
-     * @return new {@link SkriptDate} with the subtracted Duration
-     */
-    public SkriptDate minus(Duration span) {
-        return new SkriptDate(timestamp - span.toMillis());
-    }
-
-    /**
-     * Get the {@link LocalDate} instance of this date.
-     * @return the {@link LocalDate} instance of this date
-     */
-    public LocalDateTime toLocalDateTime() {
-        Instant in = new java.util.Date(timestamp).toInstant();
-        return in.atOffset(SkriptDate.ZONE_ID.getRules().getOffset(in)).toLocalDateTime();
-    }
-
-    @Override
-    public int hashCode() {
-        int prime = 31;
-        int result = 1;
-        result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
-        return result;
-    }
-
     @Override
     public boolean equals(@Nullable Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
         if (!(obj instanceof SkriptDate))
             return false;
-        SkriptDate other = (SkriptDate) obj;
-        return timestamp == other.timestamp;
+        return compareTo((SkriptDate) obj) == 0;
     }
-
 }
