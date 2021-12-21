@@ -20,24 +20,27 @@ public class SectionConfiguration {
 	private final Map<String, Object> data = new HashMap<>();
 
 	public SectionConfiguration addOption(String key) {
-		return addOption(false, key);
+		entries.add(new OptionLoader(false, key, false));
+		return this;
 	}
 
-	public SectionConfiguration addOption(boolean multiple, String key) {
-		return addOption(multiple, key, false);
+	public SectionConfiguration addLiteral(String key, Class<?> typeClass) {
+		entries.add(new LiteralLoader<>(typeClass, false, key, false));
+		return this;
 	}
 
-	public SectionConfiguration addOption(boolean multiple, String key, boolean optional) {
-		entries.add(new OptionLoader(multiple, key, optional));
+	public SectionConfiguration addOptionList(String key) {
+		entries.add(new OptionLoader(true, key, false));
+		return this;
+	}
+
+	public SectionConfiguration addLiteralList(String key, Class<?> typeClass) {
+		entries.add(new LiteralLoader<>(typeClass, true, key, false));
 		return this;
 	}
 
 	public SectionConfiguration addSection(String key) {
-		return addSection(key, false);
-	}
-
-	public SectionConfiguration addSection(String key, boolean optional) {
-		entries.add(new SectionLoader(key, optional));
+		entries.add(new SectionLoader(key, false));
 		return this;
 	}
 
@@ -97,6 +100,10 @@ public class SectionConfiguration {
 
 	public Map<String, Object> getData() {
 		return data;
+	}
+
+	public Object getValue(String key) {
+		return data.get(key);
 	}
 
 	@SuppressWarnings("unchecked")

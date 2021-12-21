@@ -6,6 +6,7 @@ import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.entries.OptionLoader;
 import io.github.syst3ms.skriptparser.lang.entries.SectionConfiguration;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -24,11 +25,11 @@ public class SecCategory extends CodeSection {
     }
 
     private final SectionConfiguration config = new SectionConfiguration()
-            .addOption("number")
-            .addOption(true, "multiple")
-            .addOption(true, "more multiple values")
+            .addLiteral("number", BigInteger.class)
+            .addOptionList("multiple")
+            .addOptionList("more multiple values")
             .addOption("unused")
-            .addOption(false, "optional", true)
+            .addLoader(new OptionLoader(false, "optional", true))
             .addSection("die");
 
     @Override
@@ -43,7 +44,7 @@ public class SecCategory extends CodeSection {
 
     @Override
     public Optional<? extends Statement> walk(TriggerContext ctx) {
-        Variables.setVariable("the_number", new BigInteger(config.getString("number")), null, false);
+        Variables.setVariable("the_number", config.getValue("number", BigInteger.class), null, false);
         Variables.setVariable("multiple", String.join(";", config.getStringList("multiple")), null, false);
         return Optional.of(config.getSection("die"));
     }
