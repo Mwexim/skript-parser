@@ -6,12 +6,14 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 
+import java.time.Duration;
+
 /**
  * The current date, the one from yesterday or the one from tomorrow.
  *
  * @name Now
  * @type EXPRESSION
- * @pattern (now|yesterday|tomorrow)
+ * @pattern (yesterday|now|tomorrow)
  * @since ALPHA
  * @author Mwexim
  */
@@ -21,7 +23,7 @@ public class ExprDateNow implements Expression<SkriptDate> {
 				ExprDateNow.class,
 				SkriptDate.class,
 				true,
-				"(0:now|1:yesterday|2:tomorrow)"
+				"(0:yesterday|1:now|2:tomorrow)"
 		);
 	}
 
@@ -37,11 +39,11 @@ public class ExprDateNow implements Expression<SkriptDate> {
 	public SkriptDate[] getValues(TriggerContext ctx) {
 		switch (mark) {
 			case 0:
-				return new SkriptDate[] {SkriptDate.now()};
+				return new SkriptDate[] {SkriptDate.now().minus(Duration.ofDays(1))};
 			case 1:
-				return new SkriptDate[] {SkriptDate.of(SkriptDate.now().getTimestamp() - SkriptDate.MILLIS_PER_DAY)};
+				return new SkriptDate[] {SkriptDate.now()};
 			case 2:
-				return new SkriptDate[] {SkriptDate.of(SkriptDate.now().getTimestamp() + SkriptDate.MILLIS_PER_DAY)};
+				return new SkriptDate[] {SkriptDate.now().plus(Duration.ofDays(1))};
 			default:
 				throw new IllegalStateException();
 		}
@@ -49,6 +51,6 @@ public class ExprDateNow implements Expression<SkriptDate> {
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return new String[] {"now", "yesterday", "tomorrow"}[mark];
+		return new String[] {"yesterday", "now", "tomorrow"}[mark];
 	}
 }
