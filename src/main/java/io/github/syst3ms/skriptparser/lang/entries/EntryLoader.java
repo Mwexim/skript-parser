@@ -17,6 +17,11 @@ public abstract class EntryLoader {
 	 * This {@link EntryLoader} will attempt to load the entry
 	 * using its {@linkplain FileElement}. One can use this method
 	 * to create specific error messages or to load the value correctly.
+	 * <br>
+	 * If an error occurred while executing this method, meaning {@linkplain SkriptLogger#hasError()}
+	 * is {@code true}, the parser will not loop over the other {@linkplain FileElement elements}
+	 * present. If this method returned {@code false}, but there is no error given,
+	 * a default error message {@code "The entry has not been configured."} will be used.
 	 * @param config the configuration
 	 * @param element the element
 	 * @param parserState the parser state
