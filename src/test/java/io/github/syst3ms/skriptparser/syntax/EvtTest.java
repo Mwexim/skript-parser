@@ -26,18 +26,21 @@ public class EvtTest extends SkriptEvent {
 		Parser.getMainRegistration()
 				.newEvent(EvtTest.class, "*test [[only] when %=boolean%]")
 				.setHandledContexts(SubTestContext.class)
-				.newContextValue(SubTestContext.class, String.class, true, "test", __ -> new String[] {"Hello World!"})
-						.setUsage(Usage.EXPRESSION_OR_ALONE)
-						.register()
-				.newContextValue(SubTestContext.class, String.class, false, "subclass", __ -> new String[] {"Hi", "Bye"})
-						.setExcluded(SubTestContext.class)
-						.register()
-				.newContextValue(TestContext.class, String.class, true, "[some] pattern value", ctx -> new String[] {ctx.patternValue()})
-						.setUsage(Usage.ALONE_ONLY)
-						.setState(ContextValue.State.PAST)
-						.register()
-				.addContextType(SubTestContext.class, Duration.class, SubTestContext::oneDay)
 				.register();
+		Parser.getMainRegistration()
+				.newContextValue(SubTestContext.class, String.class, true, "test", __ -> new String[] {"Hello World!"})
+				.setUsage(Usage.EXPRESSION_OR_ALONE)
+				.register();
+		Parser.getMainRegistration()
+				.newContextValue(SubTestContext.class, String.class, false, "subclass", __ -> new String[] {"Hi", "Bye"})
+				.setExcluded(SubTestContext.class)
+				.register();
+		Parser.getMainRegistration()
+				.newContextValue(TestContext.class, String.class, true, "[some] pattern value", ctx -> new String[] {ctx.patternValue()})
+				.setUsage(Usage.ALONE_ONLY)
+				.setState(ContextValue.State.PAST)
+				.register();
+		Parser.getMainRegistration().addContextType(SubTestContext.class, Duration.class, SubTestContext::oneDay);
 	}
 
 	private Expression<Boolean> condition;

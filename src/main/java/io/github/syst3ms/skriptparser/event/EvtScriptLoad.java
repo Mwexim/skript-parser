@@ -22,7 +22,9 @@ public class EvtScriptLoad extends SkriptEvent {
         Parser.getMainRegistration()
                 .newEvent(EvtScriptLoad.class, "script load[ing]")
                 .setHandledContexts(ScriptLoadContext.class)
-                .newContextValue(ScriptLoadContext.class, String.class, false, "argument[s]", ScriptLoadContext::getArguments).setUsage(ContextValue.Usage.EXPRESSION_OR_ALONE).register()
+                .register();
+        Parser.getMainRegistration().newContextValue(ScriptLoadContext.class, String.class, false, "argument[s]", ScriptLoadContext::getArguments)
+                .setUsage(ContextValue.Usage.EXPRESSION_OR_ALONE)
                 .register();
     }
 
