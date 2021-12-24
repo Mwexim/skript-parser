@@ -1,4 +1,4 @@
-package io.github.syst3ms.skriptparser.registration.contextvalues;
+package io.github.syst3ms.skriptparser.registration.context;
 
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;

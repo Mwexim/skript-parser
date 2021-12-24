@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.lang.base;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
+import io.github.syst3ms.skriptparser.registration.context.ContextValue;
 import org.jetbrains.annotations.Contract;
 
 /**
