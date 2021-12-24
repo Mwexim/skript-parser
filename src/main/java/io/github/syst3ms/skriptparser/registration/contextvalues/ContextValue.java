@@ -54,22 +54,26 @@ public class ContextValue<C extends TriggerContext, T> {
     }
 
     /**
-     * Returns the pattern of the context value.
-     * If the pattern, for example, is 'test', the it can be used as 'context-test'.
-     * @return the pattern of this context value
+     * Returns the pattern of this context value.
+     * @return the pattern
      */
     public PatternElement getPattern() {
         return pattern;
     }
 
     /**
-     * @return the function that needs to be applied in order to get the context value
+	 * Returns the function that will be applied onto the {@linkplain TriggerContext context}
+	 * in order to retrieve the correct value.
+     * @return the function
      */
     public Function<C, T[]> getFunction() {
         return function;
     }
 
     /**
+	 * A contextual expression mostly refers to things that happen because of the event,
+	 * but, sometimes, an event can have a former and future aspect. The state of the context
+	 * value describes these aspects.
      * @return whether this happens in the past, present or future
      */
     public State getState() {
@@ -95,7 +99,8 @@ public class ContextValue<C extends TriggerContext, T> {
 
 	/**
 	 * An enum to indicate the relative position in time between two similar context values.
-	 * Note that this is just to <b>indicate</b> time difference.
+	 * Note that this is just to <b>indicate</b> time difference. There isn't a different treatment
+	 * for different states.
 	 */
 	public enum State {
 		/**
@@ -115,6 +120,14 @@ public class ContextValue<C extends TriggerContext, T> {
 		FUTURE
 	}
 
+	/**
+	 * One can use context values in two different ways:
+	 * <ul>
+	 *     <li>{@code context-something} - the value is used with the common prefix 'context'; or</li>
+	 *     <li>{@code something} - the value is used {@linkplain #ALONE_ONLY alone} as an expression.</li>
+	 * </ul>
+	 * The usage determines which of the two variants, or both, are applicable.
+	 */
     public enum Usage {
         EXPRESSION_ONLY, ALONE_ONLY, EXPRESSION_OR_ALONE;
 

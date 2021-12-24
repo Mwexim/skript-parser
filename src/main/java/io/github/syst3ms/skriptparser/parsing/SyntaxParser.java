@@ -293,7 +293,7 @@ public class SyntaxParser {
 
         var parseContext = matchContext.toParseResult();
         var state = State.values()[parseContext.getNumericMark()];
-        boolean standalone = !parseContext.hasMark("ctx");
+        boolean alone = !parseContext.hasMark("ctx");
         var value = parseContext.getMatches().get(0).group();
 
         for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
@@ -303,8 +303,8 @@ public class SyntaxParser {
                 // Checking all conditions, so no false results slip through.
                 if (info.getPattern().match(value, 0, matchContext) == -1 || !expectedType.getType().getTypeClass().isAssignableFrom(info.getReturnType().getType().getTypeClass())) {
                     continue;
-                } else if (!info.getUsage().isCorrect(standalone)) {
-                    if (standalone) {
+                } else if (!info.getUsage().isCorrect(alone)) {
+                    if (alone) {
                         logger.error(
                                 "The context value matching '" + toParse + "' cannot be used alone",
                                 ErrorType.SEMANTIC_ERROR,
@@ -335,7 +335,7 @@ public class SyntaxParser {
                 }
 
                 recentContextValues.acknowledge(info);
-                return Optional.of(new ContextExpression<>((ContextValue<?, T>) info, value, standalone));
+                return Optional.of(new ContextExpression<>((ContextValue<?, T>) info, value, alone));
             }
         }
         return Optional.empty();

@@ -17,12 +17,12 @@ import org.jetbrains.annotations.Contract;
 public class ContextExpression<C extends TriggerContext, T> implements Expression<T> {
 	private final ContextValue<C, T> info;
 	private final String value;
-	private final boolean standalone;
+	private final boolean alone;
 
 	public ContextExpression(ContextValue<C, T> info, String value, boolean alone) {
 		this.info = info;
 		this.value = value;
-		this.standalone = alone;
+		this.alone = alone;
 	}
 
 	@Override
@@ -31,10 +31,10 @@ public class ContextExpression<C extends TriggerContext, T> implements Expressio
 		throw new UnsupportedOperationException();
 	}
 
-	// TODO instanceof check
 	@SuppressWarnings("unchecked")
 	@Override
 	public T[] getValues(TriggerContext ctx) {
+		assert info.getReturnType().getType().getTypeClass().isInstance(ctx);
 		return info.getFunction().apply((C) ctx);
 	}
 
@@ -50,6 +50,6 @@ public class ContextExpression<C extends TriggerContext, T> implements Expressio
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return new String[] {"past ", "", "future "}[info.getState().ordinal()] + (standalone ? "" : "context-") + value;
+		return new String[] {"past ", "", "future "}[info.getState().ordinal()] + (alone ? "" : "context-") + value;
 	}
 }
