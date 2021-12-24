@@ -1,0 +1,24 @@
+# Author(s):
+# 	- Mwexim
+# Date:
+#	- 2020/12/29
+#	- 2021/04/30 (ContextParameter annotation)
+#	- 2021/11/02 (pattern support)
+
+test:
+	assert context-test = "Hello World!" with "Context value 'test' should be 'Hello World!': %context-test%"
+	assert test = "Hello World!" with "Standalone context value 'test' should be 'Hello World!': %test%"
+
+	# Pattern with optional part
+	throws some pattern value with "Standalone value 'some pattern value' without past state succeeded"
+	assert past pattern value = "It works too" with "Standalone value 'pattern value' with past state failed"
+	assert past some pattern value = "It works too" with "Standalone value 'some pattern value' with past state failed"
+
+	# Registered as type
+	assert the context-duration = a day with "Context type 'duration' should be 'a day': %context-duration%"
+
+	# Excluded
+	throws the context-subclass
+
+	throws context-arguments # Not registered as context value for this event
+	throws future context-test

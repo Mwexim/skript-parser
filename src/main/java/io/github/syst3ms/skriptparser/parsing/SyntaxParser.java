@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.expressions.ExprBooleanOperators;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
+import io.github.syst3ms.skriptparser.lang.base.ContextExpression;
 import io.github.syst3ms.skriptparser.log.ErrorContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
@@ -13,9 +14,9 @@ import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SkriptEventInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValue;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValueState;
-import io.github.syst3ms.skriptparser.registration.contextvalues.ContextValues;
+import io.github.syst3ms.skriptparser.registration.context.ContextValue;
+import io.github.syst3ms.skriptparser.registration.context.ContextValue.State;
+import io.github.syst3ms.skriptparser.registration.context.ContextValues;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
@@ -55,7 +56,9 @@ public class SyntaxParser {
      * @see #parseBooleanExpression(String, int, ParserState, SkriptLogger)
      */
     public static final int CONDITIONAL = 2;
+
     public static final Pattern LIST_SPLIT_PATTERN = Pattern.compile("\\s*(,)\\s*|\\s+(and|n?or)\\s+", Pattern.CASE_INSENSITIVE);
+
     /**
      * The pattern type representing {@link Boolean}
      */
@@ -71,12 +74,12 @@ public class SyntaxParser {
 
 
     // We control input, so new SkriptLogger instance is fine
-    public static final PatternElement CONTEXT_VALUE_PATTERN = PatternParser.parsePattern("[the] [(1:(past|previous)|2:(future|next))] <.+>", new SkriptLogger()).orElseThrow();
+    public static final PatternElement CONTEXT_VALUE_PATTERN = PatternParser.parsePattern("[the] (0:(past|previous)|1:|2:(future|next)) [ctx:context-]<.+>", new SkriptLogger()).orElseThrow();
 
-    public static final ExpressionInfo<ExprBooleanOperators, Boolean> EXPRESSION_BOOLEAN_OPERATORS
-            = (ExpressionInfo<ExprBooleanOperators, Boolean>) SyntaxManager.getAllExpressions().stream()
+    public static final ExpressionInfo<ExprBooleanOperators, Boolean> EXPRESSION_BOOLEAN_OPERATORS = SyntaxManager.getAllExpressions().stream()
             .filter(i -> i.getSyntaxClass() == ExprBooleanOperators.class)
             .findFirst()
+            .map(val -> (ExpressionInfo<ExprBooleanOperators, Boolean>) val)
             .orElseThrow();
 
     /**
@@ -102,7 +105,7 @@ public class SyntaxParser {
     /**
      * All {@link ContextValue context values} that are successfully parsed during parsing, in order of last successful parsing
      */
-    private static final RecentElementList<ContextValue<?>> recentContextValues = new RecentElementList<>();
+    private static final RecentElementList<ContextValue<?, ?>> recentContextValues = new RecentElementList<>();
 
     /**
      * Parses an {@link Expression} from the given {@linkplain String} and {@link PatternType expected return type}
@@ -284,31 +287,55 @@ public class SyntaxParser {
      * no match was found
      * or for another reason detailed in an error message.
      */
-    public static <T> Optional<? extends Expression<? extends T>> parseContextValue(String toParse, PatternType<T> expectedType, ParserState parserState, SkriptLogger logger) {
+    public static <T> Optional<? extends ContextExpression<?, ? extends T>> parseContextValue(String toParse, PatternType<T> expectedType, ParserState parserState, SkriptLogger logger) {
         var matchContext = new MatchContext(CONTEXT_VALUE_PATTERN, parserState, logger);
         CONTEXT_VALUE_PATTERN.match(toParse, 0, matchContext);
 
         var parseContext = matchContext.toParseResult();
-        var time = ContextValueState.values()[parseContext.getNumericMark()];
-        var name = parseContext.getMatches().get(0).group();
-        for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
-            String representation = (time == ContextValueState.PAST
-                    ? "past " : time == ContextValueState.FUTURE
-                    ? "future "
-                    : "") + name;
+        var state = State.values()[parseContext.getNumericMark()];
+        boolean alone = !parseContext.hasMark("ctx");
+        var value = parseContext.getMatches().get(0).group();
 
-            // First check frequently-used values
-            for (var val : recentContextValues.mergeWith(ContextValues.getContextValues())) {
-                if (val.matches(ctx, name, time, true)) {
-                    var contextValue = (ContextValue<T>) val;
-                    recentContextValues.acknowledge(contextValue);
-                    return Optional.of(new SimpleExpression<>(
-                            contextValue.getType().getTypeClass(),
-                            contextValue.isSingle(),
-                            contextValue.getContextFunction(),
-                            representation
-                    ));
+        for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
+            for (var info : recentContextValues.mergeWith(ContextValues.getContextValues(ctx))) {
+                matchContext = new MatchContext(info.getPattern(), parserState, logger);
+
+                // Checking all conditions, so no false results slip through.
+                if (info.getPattern().match(value, 0, matchContext) == -1 || !expectedType.getType().getTypeClass().isAssignableFrom(info.getReturnType().getType().getTypeClass())) {
+                    continue;
+                } else if (!info.getUsage().isCorrect(alone)) {
+                    if (alone) {
+                        logger.error(
+                                "The context value matching '" + toParse + "' cannot be used alone",
+                                ErrorType.SEMANTIC_ERROR,
+                                "Use 'context-something' instead of using this context value alone"
+                        );
+                    } else {
+                        logger.error(
+                                "The context value matching '" + toParse + "' must be used alone",
+                                ErrorType.SEMANTIC_ERROR,
+                                "Instead of 'context-something', use this context value as 'something'"
+                        );
+                    }
+                    return Optional.empty();
+                } else if (state != info.getState()) {
+                    logger.error("The time state of this context value (" + state.toString().toLowerCase() + ") is incorrect", ErrorType.SEMANTIC_ERROR);
+                    continue;
+                } else if (expectedType.isSingle() && !info.getReturnType().isSingle()) {
+                    logger.error(
+                            "A single value was expected, but " + toParse + " represents multiple values.",
+                            ErrorType.SEMANTIC_ERROR,
+                            "Use a loop/map to divert each element of this list into single elements"
+                    );
+                    return Optional.empty();
+                } else if (parserState.isRestrictingExpressions() && parserState.forbidsSyntax(ContextExpression.class)) {
+                    logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
+                    logger.error("The enclosing section does not allow the use of context expressions.", ErrorType.SEMANTIC_ERROR);
+                    return Optional.empty();
                 }
+
+                recentContextValues.acknowledge(info);
+                return Optional.of(new ContextExpression<>((ContextValue<?, T>) info, value, alone));
             }
         }
         return Optional.empty();
