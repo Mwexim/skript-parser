@@ -34,7 +34,7 @@ public class ContextExpression<C extends TriggerContext, T> implements Expressio
 	@SuppressWarnings("unchecked")
 	@Override
 	public T[] getValues(TriggerContext ctx) {
-		assert info.getReturnType().getType().getTypeClass().isInstance(ctx);
+		assert info.getContext().isInstance(ctx);
 		return info.getFunction().apply((C) ctx);
 	}
 
