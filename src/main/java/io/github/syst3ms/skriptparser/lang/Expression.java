@@ -7,7 +7,9 @@ import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 import io.github.syst3ms.skriptparser.sections.SecLoop;
+import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
+import io.github.syst3ms.skriptparser.types.changers.Changer;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 
 import java.util.ArrayList;
@@ -74,7 +76,7 @@ public interface Expression<T> extends SyntaxElement {
     }
 
     /**
-     * @return the return type of this expression. By default, this is defined on registration, but, like {@linkplain #isSingle()}, can be overriden.
+     * @return the return type of this expression. By default, this is defined on registration, but, like {@linkplain #isSingle()}, can be overridden.
      */
     default Class<? extends T> getReturnType() {
         return SyntaxManager.getExpressionExact(this)
@@ -93,7 +95,10 @@ public interface Expression<T> extends SyntaxElement {
      *         {@link ChangeMode#DELETE} or {@link ChangeMode#RESET}, then an empty array should be returned.
      */
     default Optional<Class<?>[]> acceptsChange(ChangeMode mode) {
-        return Optional.empty();
+        return TypeManager.getByClassExact(getReturnType())
+                .orElseThrow(() -> new SkriptParserException("Couldn't find a type corresponding to the class '" + getReturnType().getName() + "'"))
+                .getDefaultChanger()
+                .map(ch -> ch.acceptsChange(mode));
     }
 
     /**
@@ -128,12 +133,18 @@ public interface Expression<T> extends SyntaxElement {
     }
 
     /**
-     * Changes this expression with the given values according to the given mode
+     * Changes this expression with the given values according to the given mode.
      * @param ctx the event
-     * @param changeMode the mode of change
+     * @param mode the mode of change
      * @param changeWith the values to change this Expression with
      */
-    default void change(TriggerContext ctx, ChangeMode changeMode, Object[] changeWith) { /* Nothing */ }
+    @SuppressWarnings("unchecked")
+    default void change(TriggerContext ctx, ChangeMode mode, Object[] changeWith) {
+        TypeManager.getByClassExact(getReturnType())
+                .orElseThrow(() -> new SkriptParserException("Couldn't find a type corresponding to the class '" + getReturnType().getName() + "'"))
+                .getDefaultChanger()
+                .ifPresent(ch -> ((Changer<T>) ch).change(getArray(ctx), mode, changeWith));
+    }
 
     /**
      * @param ctx the event
@@ -152,7 +163,7 @@ public interface Expression<T> extends SyntaxElement {
     }
 
     /**
-     * Converts this expression from it's current type ({@link T}) to another type, using
+     * Converts this expression from its current type ({@link T}) to another type, using
      * {@linkplain Converters converters}.
      * @param to the class of the type to convert this Expression to
      * @param <C> the type to convert this Expression to

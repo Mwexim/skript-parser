@@ -122,7 +122,6 @@ public class SecConditional extends CodeSection {
      */
     public void setFallingClause(SecConditional conditional) {
         fallingClause = conditional;
-        //fallingClause.setParent(this);
     }
 
     /**

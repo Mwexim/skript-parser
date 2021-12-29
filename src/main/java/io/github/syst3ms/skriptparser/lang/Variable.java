@@ -193,7 +193,7 @@ public class Variable<T> implements Expression<T> {
                     if (changer.map(ch -> ch.acceptsChange(ChangeMode.RESET)).isPresent()) {
                         var one = (Object[]) Array.newInstance(o.getClass(), 1);
                         one[0] = o;
-                        changer.ifPresent(ch -> ((Changer<Object>) ch).change(one, new Object[0], ChangeMode.RESET));
+                        changer.ifPresent(ch -> ((Changer<Object>) ch).change(one, ChangeMode.RESET, new Object[0]));
                     }
                 }
                 break;
@@ -291,7 +291,7 @@ public class Variable<T> implements Expression<T> {
                             if (d2 != null)
                                 l.add(d2);
                         }
-                        ((Changer<Object>) changer.get()).change(one, l.toArray(), mode);
+                        ((Changer<Object>) changer.get()).change(one, mode, l.toArray());
                     }
                     break;
                 }

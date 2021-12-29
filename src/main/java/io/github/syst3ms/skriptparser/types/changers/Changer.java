@@ -19,8 +19,8 @@ public interface Changer<T> {
     /**
      * Changes the implementing object
      * @param toChange the current values
-     * @param changeWith the values to change with
      * @param mode the change mode
+     * @param changeWith the values to change with
      */
-    void change(T[] toChange, Object[] changeWith, ChangeMode mode);
+    void change(T[] toChange, ChangeMode mode, Object[] changeWith);
 }
