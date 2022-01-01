@@ -335,7 +335,7 @@ public class SyntaxParser {
                 }
 
                 recentContextValues.acknowledge(info);
-                return Optional.of(new ContextExpression<>((ContextValue<?, T>) info, value, alone));
+                return Optional.of(new ContextExpression<>((ContextValue<TriggerContext, T>) info, value, alone));
             }
         }
         return Optional.empty();

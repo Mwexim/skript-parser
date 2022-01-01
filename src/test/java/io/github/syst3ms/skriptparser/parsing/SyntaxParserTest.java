@@ -1,10 +1,16 @@
 package io.github.syst3ms.skriptparser.parsing;
 
 import io.github.syst3ms.skriptparser.TestRegistration;
+import io.github.syst3ms.skriptparser.lang.base.EventExpression;
 import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.log.LogType;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
+import io.github.syst3ms.skriptparser.pattern.PatternParser;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
+import io.github.syst3ms.skriptparser.syntax.TestContext;
+import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.variables.Variables;
+import org.junit.Test;
 import org.junit.jupiter.api.DynamicContainer;
 import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.DynamicTest;
@@ -36,8 +42,21 @@ public class SyntaxParserTest {
 
     private static final List<Throwable> errorsFound = new ArrayList<>();
 
+    @Test
+    public void testDefaultExpression() {
+        assert TypeManager.getByClassExact(String.class).orElseThrow().getDefaultExpression().isPresent();
+
+        var pattern = PatternParser.parsePattern("look for default expression [%strings?%]", new SkriptLogger()).orElseThrow(AssertionError::new);
+        var context = new MatchContext(pattern, new ParserState(), new SkriptLogger());
+        assert pattern.match("look for default expression", 0, context) != -1 : "pattern didn't match";
+
+        var expr = context.getParsedExpressions().size() >= 1 ? context.getParsedExpressions().get(0) : null;
+        assert expr instanceof EventExpression : "didn't find default expression of type EventExpression";
+        assert expr.getValues(new TestContext())[0].equals("This works as well");
+    }
+
     @TestFactory
-    public Iterator<DynamicNode> syntaxTest() {
+    public Iterator<DynamicNode> testSyntaxClasses() {
         String[] folders = {"effects", "expressions", "literals", "sections", "tags", "general"};
         ArrayList<DynamicNode> containerList = new ArrayList<>();
         for (String folder : folders) {

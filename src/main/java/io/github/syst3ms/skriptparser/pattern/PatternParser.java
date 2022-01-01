@@ -18,7 +18,7 @@ import java.util.regex.PatternSyntaxException;
  */
 public class PatternParser {
     private static final Pattern PARSE_MARK_PATTERN = Pattern.compile("(([A-Za-z0-9]+)?):(.*)");
-    private static final Pattern VARIABLE_PATTERN = Pattern.compile("(-)?([*^~])?(=)?(?<types>[\\w/]+)?");
+    private static final Pattern VARIABLE_PATTERN = Pattern.compile("([*^~])?(=)?(?<types>[\\w/]+)?(\\?)?");
 
     /**
      * Parses a pattern and returns a {@link PatternElement}. This method can be called by itself, for example when parsing group constructs.
@@ -194,14 +194,14 @@ public class PatternParser {
                 var s = pattern.substring(i + 1, nextIndex);
                 i = nextIndex;
                 var m = VARIABLE_PATTERN.matcher(s);
+
                 if (!m.matches()) {
                     logger.error("Invalid expression element (index " + initialPos + ") : '" + s + "'", ErrorType.MALFORMED_INPUT);
                     return Optional.empty();
                 } else {
-                    var nullable = m.group(1) != null;
                     var acceptance = ExpressionElement.Acceptance.ALL;
-                    if (m.group(2) != null) {
-                        var acc = m.group(2);
+                    if (m.group(1) != null) {
+                        var acc = m.group(1);
                         if (acc.equals("~")) {
                             acceptance = ExpressionElement.Acceptance.EXPRESSIONS_ONLY;
                         } else if (acc.equals("^")) {
@@ -221,9 +221,16 @@ public class PatternParser {
                         }
                         patternTypes.add(t.get());
                     }
-                    var acceptConditional = m.group(3) != null;
+                    var acceptConditional = m.group(2) != null;
+                    var nullable = m.group(4) != null;
                     if (acceptConditional && patternTypes.stream().noneMatch(t -> t.getType().getTypeClass() == Boolean.class)) {
                         logger.error("Can't use the '=' flag on non-boolean types (index " + initialPos + ")", ErrorType.SEMANTIC_ERROR);
+                        return Optional.empty();
+                    } else if (nullable && patternTypes.size() > 1) {
+                        logger.error("Can't use the '?' flag with multiple type possibilities (index " + initialPos + ")", ErrorType.SEMANTIC_ERROR);
+                        return Optional.empty();
+                    } else if (nullable && patternTypes.get(0).getType().getDefaultExpression().isEmpty()) {
+                        logger.error("Can't use the '?' flag if the type doesn't have a default expression (index " + initialPos + ")", ErrorType.SEMANTIC_ERROR);
                         return Optional.empty();
                     }
                     elements.add(new ExpressionElement(patternTypes, acceptance, nullable, acceptConditional));

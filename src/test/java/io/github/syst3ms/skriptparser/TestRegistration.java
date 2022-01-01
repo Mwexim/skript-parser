@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser;
 
+import io.github.syst3ms.skriptparser.lang.base.EventExpression;
 import io.github.syst3ms.skriptparser.registration.DefaultRegistration;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.util.FileUtils;
@@ -21,7 +22,9 @@ public class TestRegistration {
 		} catch (NoSuchFieldException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
+
 		DefaultRegistration.register();
+
 		try {
 			FileUtils.loadClasses(
 				Path.of("build/classes/java/main"),
@@ -40,6 +43,12 @@ public class TestRegistration {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		// This overrides the default String type
+		Parser.getMainRegistration().newType(String.class, "string", "string@s")
+				.defaultExpression(new EventExpression<>(String.class, true))
+				.register();
+
 		Parser.getMainRegistration().register();
 
 		/*

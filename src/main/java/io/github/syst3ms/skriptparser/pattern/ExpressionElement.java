@@ -46,6 +46,8 @@ public class ExpressionElement implements PatternElement {
     public int match(String s, int index, MatchContext context) {
         var typeArray = types.toArray(new PatternType<?>[0]);
         if (index >= s.length()) {
+            if (typeArray.length >= 1)
+                getDefaultExpression(typeArray[0]).ifPresent(context::addExpression);
             return -1;
         }
         var logger = context.getLogger();
@@ -217,12 +219,28 @@ public class ExpressionElement implements PatternElement {
                             return false;
                         }
                         break;
+                    default:
+                        throw new IllegalStateException();
                 }
                 return true;
             });
+            if (expression.isEmpty()) {
+                expression = getDefaultExpression(type);
+            }
             return expression;
         }
         return Optional.empty();
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> Optional<? extends Expression<? extends T>> getDefaultExpression(PatternType<?> type) {
+        if (nullable) {
+            return type.getType().getDefaultExpression()
+                    .filter(expr -> !type.isSingle() || type.isSingle() && expr.isSingle())
+                    .map(expr -> (Expression<? extends T>) expr);
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -233,7 +251,7 @@ public class ExpressionElement implements PatternElement {
             return false;
         } else {
             var e = (ExpressionElement) obj;
-            return types.equals(e.types) && acceptance == e.acceptance && acceptsConditional == e.acceptsConditional;
+            return types.equals(e.types) && acceptance == e.acceptance && nullable == e.nullable && acceptsConditional == e.acceptsConditional;
         }
     }
 

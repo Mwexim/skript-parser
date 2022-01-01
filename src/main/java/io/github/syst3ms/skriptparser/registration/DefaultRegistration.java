@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.Parser;
+import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
@@ -157,7 +158,6 @@ public class DefaultRegistration {
                         return null;
                     }
                 })
-                .toStringFunction(String::valueOf)
                 .register();
 
         registration.newType(Type.class, "type", "type@s")
@@ -167,10 +167,10 @@ public class DefaultRegistration {
 
         registration.newType(Color.class, "color", "color@s")
                 .literalParser(s -> Color.ofLiteral(s).orElse(null))
-                .toStringFunction(Color::toString)
                 .register();
 
         registration.newType(Duration.class, "duration", "duration@s")
+                .defaultExpression(new SimpleLiteral<>(Duration.ZERO))
                 .literalParser(s -> TimeUtils.parseDuration(s).orElse(null))
                 .toStringFunction(TimeUtils::toStringDuration)
                 .arithmetic(new Arithmetic<Duration, Duration>() {
@@ -197,7 +197,6 @@ public class DefaultRegistration {
                 .register();
 
         registration.newType(SkriptDate.class, "date", "date@s")
-                .toStringFunction(SkriptDate::toString)
                 .arithmetic(new Arithmetic<SkriptDate, Duration>() {
                     @Override
                     public Duration difference(SkriptDate first, SkriptDate second) {
@@ -223,7 +222,6 @@ public class DefaultRegistration {
 
         registration.newType(Time.class, "time", "time@s")
                 .literalParser(s -> Time.parse(s).orElse(null))
-                .toStringFunction(Time::toString)
                 .arithmetic(new Arithmetic<Time, Duration>() {
                     @Override
                     public Duration difference(Time first, Time second) {
