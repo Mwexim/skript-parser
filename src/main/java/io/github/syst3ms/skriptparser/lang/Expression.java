@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.expressions.ExprLoopValue;
 import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
@@ -241,6 +242,14 @@ public interface Expression<T> extends SyntaxElement {
         if (!hasElement)
             return negated;
         return negated != and;
+    }
+
+    static boolean initialize(Expression<?> expression, Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        try {
+            return expression.init(expressions, matchedPattern, parseContext);
+        } catch (Exception ignored) {
+            return true;
+        }
     }
 
     @SuppressWarnings("unchecked")

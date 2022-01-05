@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ContextValues {
-    private static final List<ContextValue<?, ?>> contextValues = new ArrayList<>();
+    private static final List<ContextValue<? extends TriggerContext, ?>> contextValues = new ArrayList<>();
 
     public static void register(SkriptRegistration reg) {
         contextValues.addAll(reg.getContextValues());
@@ -20,7 +20,7 @@ public class ContextValues {
      * Returns an unmodifiable list with all the registered context values.
      * @return a list with all context values
      */
-    public static List<ContextValue<?, ?>> getContextValues() {
+    public static List<ContextValue<? extends TriggerContext, ?>> getContextValues() {
         return Collections.unmodifiableList(contextValues);
     }
 
@@ -30,7 +30,7 @@ public class ContextValues {
      * @param ctx the context class
      * @return a list with the applicable context values
      */
-    public static List<ContextValue<?, ?>> getContextValues(Class<? extends TriggerContext> ctx) {
+    public static List<ContextValue<? extends TriggerContext, ?>> getContextValues(Class<? extends TriggerContext> ctx) {
         return contextValues.stream()
                 .filter(val -> val.getContext().isAssignableFrom(ctx))
                 .filter(val -> !CollectionUtils.contains(val.getExcluded(), val.getContext()))

@@ -46,12 +46,14 @@ public class SyntaxParserTest {
 
     @Test
     public void testDefaultExpressions() {
+        var parserState = new ParserState();
+        parserState.setCurrentContexts(Set.of(TestContext.class, TestContext.SubTestContext.class));
         /*
          * Duration type with SimpleLiteral as default expression
          * Also checks if non-single types accept single default expressions.
          */
         var pattern = PatternParser.parsePattern("look for default expression [%durations?%]", new SkriptLogger()).orElseThrow(AssertionError::new);
-        var context = new MatchContext(pattern, new ParserState(), new SkriptLogger());
+        var context = new MatchContext(pattern, parserState, new SkriptLogger());
         assert pattern.match("look for default expression", 0, context) != -1 : "pattern didn't match";
 
         var expressions = context.getParsedExpressions();
@@ -63,7 +65,7 @@ public class SyntaxParserTest {
          * String type with EventExpression as default expression
          */
         pattern = PatternParser.parsePattern("another default expression [%string?%]", new SkriptLogger()).orElseThrow(AssertionError::new);
-        context = new MatchContext(pattern, new ParserState(), new SkriptLogger());
+        context = new MatchContext(pattern, parserState, new SkriptLogger());
         assert pattern.match("another default expression", 0, context) != -1 : "pattern didn't match";
 
         expressions = context.getParsedExpressions();
