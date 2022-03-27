@@ -17,7 +17,7 @@ import java.util.Map;
  * @type EXPRESSION
  * @pattern [the] [last] (answer|response)
  * @since ALPHA
- * @author Mwexim
+ * @author ItsTheSky
  */
 public class ExprAnswer implements Expression<String> {
 
@@ -55,6 +55,6 @@ public class ExprAnswer implements Expression<String> {
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
-        return "the answer";
+        return "the last answer";
     }
 }

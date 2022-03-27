@@ -14,13 +14,12 @@ import java.util.Scanner;
  * Ask in the system console a specific message and wait for the answer of the user.
  * The code in the section will be executed once the user answer or enter any value.
  * The code after the section will run even if the user haven't answered yet.
- * If you use the wait pattern, the next code outside the section will only be executed once the user answered.
  *
  * @name Ask
  * @type EFFECT
  * @pattern ask for %string%
  * @since ALPHA
- * @author Mwexim
+ * @author ItsTheSky
  */
 public class EffAsk extends Effect {
 
