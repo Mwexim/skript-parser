@@ -29,11 +29,6 @@ public class ExprAnswer extends SectionValue<SecAsk, String> {
     }
 
     @Override
-    public String toString(TriggerContext ctx, boolean debug) {
-        return "the answer";
-    }
-
-    @Override
     public boolean preInitialize(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         return true;
     }
@@ -46,5 +41,10 @@ public class ExprAnswer extends SectionValue<SecAsk, String> {
     @Override
     public Class<? extends SecAsk> getSectionClass() {
         return SecAsk.class;
+    }
+
+    @Override
+    public String toString(TriggerContext ctx, boolean debug) {
+        return "the answer";
     }
 }
