@@ -16,7 +16,7 @@ import java.util.Scanner;
  *
  * @name Ask
  * @type EFFECT
- * @pattern ask for %string%
+ * @pattern (ask [for]|input) %string%
  * @since ALPHA
  * @author ItsTheSky
  */
