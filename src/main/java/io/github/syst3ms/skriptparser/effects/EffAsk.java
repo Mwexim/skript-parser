@@ -25,7 +25,7 @@ public class EffAsk extends Effect {
     static {
         Parser.getMainRegistration().addEffect(
                 EffAsk.class,
-                "ask for %string%"
+                "(ask [for]|input) %string%"
         );
     }
 
