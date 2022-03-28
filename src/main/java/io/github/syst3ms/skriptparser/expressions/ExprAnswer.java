@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Get back the last entered answer in a {@link EffAsk} effect.
- * This will return the last line of the console.
+ * Retrieve the last input of the user in a {@link EffAsk} effect.
+ * This will essentially return the last line of the console.
  *
  * @name Last Answer
  * @type EXPRESSION
