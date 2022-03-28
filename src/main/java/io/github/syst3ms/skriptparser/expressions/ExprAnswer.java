@@ -55,6 +55,6 @@ public class ExprAnswer implements Expression<String> {
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
-        return "the last answer";
+        return "last answer";
     }
 }
