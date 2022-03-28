@@ -11,9 +11,8 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import java.util.Scanner;
 
 /**
- * Ask in the system console a specific message and wait for the answer of the user.
- * The code in the section will be executed once the user answer or enter any value.
- * The code after the section will run even if the user haven't answered yet.
+ * Halts all code and waits for user input in order to continue. 
+ * The input can be retrieved using {@link ExprAnswer}.
  *
  * @name Ask
  * @type EFFECT
