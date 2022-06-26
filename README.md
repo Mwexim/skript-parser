@@ -32,8 +32,3 @@ This repository currently contains two main branches :
 ## Contributing 
 
 External contributions are extremely welcome, as I (Syst3ms, owner of the repository) and other contributors don't have enough time to contribute to the repository regularly. Adding features is obviously amazing, but smaller things such as cleaning up the code and adding documentation can go a long way for the project. If you want to start contributing, simply clone the Git repository and start working from here. I recommend using IntelliJ IDEA, it's my IDE of choice, and some annotations are only properly understood and handled by it.
-
-## I have other questions, where do I ask them?
-
-You can contact me on Discord, where I'm Syst3ms#9959. 
-I rarely check Github so contacting me here isn't the best! If you do, I may not answer very swiftly.
