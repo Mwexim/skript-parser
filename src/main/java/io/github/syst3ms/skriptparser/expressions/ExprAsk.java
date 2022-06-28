@@ -1,6 +1,8 @@
-package io.github.syst3ms.skriptparser.expressions;
+package io.github.syst3ms.skriptparser.effects;
 
 import io.github.syst3ms.skriptparser.Parser;
+import io.github.syst3ms.skriptparser.expressions.ExprAnswer;
+import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.TaggedExpression;
@@ -9,41 +11,39 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import java.util.Scanner;
 
 /**
- * Ask for a specific input in the system console and wait for the answer of the user.
- * This will therefore return what the user entered into a string.
+ * Halts all code and waits for user input in order to continue. 
+ * The input can be retrieved using {@link ExprAnswer}.
  *
  * @name Ask
- * @type EXPRESSION
- * @pattern ask [for] %string%
+ * @type EFFECT
+ * @pattern (ask [for]|input) %string%
  * @since ALPHA
  * @author ItsTheSky
  */
-public class ExprAsk implements Expression<String> {
+public class EffAsk extends Effect {
 
     static {
-        Parser.getMainRegistration().addExpression(
-                ExprAsk.class,
-                String.class,
-                true,
-                "ask [for] %string%"
+        Parser.getMainRegistration().addEffect(
+                EffAsk.class,
+                "(ask [for]|input) %string%"
         );
     }
 
     private Expression<String> message;
 
-    @SuppressWarnings("unchecked")
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext context) {
+    @SuppressWarnings("unchecked")
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         message = (Expression<String>) expressions[0];
         return true;
     }
 
     @Override
-    public String[] getValues(TriggerContext ctx) {
+    protected void execute(TriggerContext ctx) {
         Scanner scanner = new Scanner(System.in);
         for (String line : TaggedExpression.apply(message, ctx, "console"))
             System.out.println(line);
-        return new String[]{scanner.nextLine()};
+        ExprAnswer.addAnswer(ctx, scanner.nextLine());
     }
 
     @Override
