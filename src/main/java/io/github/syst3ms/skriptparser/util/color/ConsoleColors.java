@@ -71,9 +71,10 @@ public enum ConsoleColors {
     }
 
     public static Optional<ConsoleColors> search(String input) {
-        for (ConsoleColors color : values())
+        for (ConsoleColors color : values()) {
             if (color.match(input))
                 return Optional.of(color);
+        }
         return Optional.empty();
     }
 
@@ -85,9 +86,10 @@ public enum ConsoleColors {
         if (other.replace(" ", "_").equalsIgnoreCase(name()))
             return true;
         // Checking for aliases
-        for (String alias : aliases)
+        for (String alias : aliases) {
             if (other.replace(" ", "_").equalsIgnoreCase(alias))
                 return true;
+        }
 
         return false;
     }

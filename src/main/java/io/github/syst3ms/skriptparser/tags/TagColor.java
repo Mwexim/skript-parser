@@ -18,10 +18,11 @@ public class TagColor implements ContinuousTag {
     @Override
     public boolean init(String key, String[] parameters) {
         final Optional<ConsoleColors> optional;
-        if (key.equalsIgnoreCase("color") && parameters.length != 0)
+        if (key.equalsIgnoreCase("color") && parameters.length != 0) {
             optional = ConsoleColors.search(parameters[0].toUpperCase(Locale.ROOT));
-        else
+        } else {
             optional = ConsoleColors.search(key);
+        }
 
         if (optional.isEmpty())
             return false;
