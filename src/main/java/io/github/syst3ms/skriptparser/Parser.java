@@ -6,7 +6,7 @@ import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import io.github.syst3ms.skriptparser.registration.DefaultRegistration;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
-import io.github.syst3ms.skriptparser.util.ConsoleColors;
+import io.github.syst3ms.skriptparser.util.color.ConsoleColors;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 
 import java.io.IOException;
@@ -153,7 +153,7 @@ public class Parser {
         for (LogEntry log : logs) {
             ConsoleColors color = ConsoleColors.WHITE;
             if (log.getType() == LogType.WARNING) {
-                color = ConsoleColors.YELLOW;
+                color = ConsoleColors.ORANGE;
             } else if (log.getType() == LogType.ERROR) {
                 color = ConsoleColors.RED;
             } else if (log.getType() == LogType.INFO) {
