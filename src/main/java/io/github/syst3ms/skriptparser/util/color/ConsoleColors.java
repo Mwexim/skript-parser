@@ -42,7 +42,7 @@ public enum ConsoleColors {
     BOLD("1", true, "b"),
     ITALIC("3", true, "o", "it", "i"),
     UNDERLINE("4", true, "n", "u"),
-    STRICKTHROUGH("9", true, "m", "strike"),
+    STRIKETHROUGH("9", true, "m", "strike", "s"),
     ;
 
     private static final String ANSI_DELIMITER = "\033[";
