@@ -40,7 +40,7 @@ public enum ConsoleColors {
 
     // Styles
     BOLD("1", true, "b"),
-    ITALIC("3", true, "o"),
+    ITALIC("3", true, "o", "it", "i"),
     UNDERLINE("4", true, "n", "u"),
     STRICKTHROUGH("9", true, "m", "strike"),
     ;
