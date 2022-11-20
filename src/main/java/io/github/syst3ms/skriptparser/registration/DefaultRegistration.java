@@ -8,9 +8,9 @@ import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
+import io.github.syst3ms.skriptparser.util.DurationUtils;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import io.github.syst3ms.skriptparser.util.Time;
-import io.github.syst3ms.skriptparser.util.TimeUtils;
 import io.github.syst3ms.skriptparser.util.color.Color;
 import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 
@@ -171,8 +171,8 @@ public class DefaultRegistration {
                 .register();
 
         registration.newType(Duration.class, "duration", "duration@s")
-                .literalParser(s -> TimeUtils.parseDuration(s).orElse(null))
-                .toStringFunction(TimeUtils::toStringDuration)
+                .literalParser(s -> DurationUtils.parseDuration(s).orElse(null))
+                .toStringFunction(DurationUtils::toStringDuration)
                 .arithmetic(new Arithmetic<Duration, Duration>() {
                     @Override
                     public Duration difference(Duration first, Duration second) {

@@ -3,7 +3,7 @@ package io.github.syst3ms.skriptparser.util;
 import java.time.Duration;
 import java.util.Optional;
 
-public class TimeUtils {
+public class DurationUtils {
     /**
      * The amount of milliseconds it takes for a tick to pass.
      * A 'tick' is a predetermined time-unit of 50 milliseconds.
