@@ -29,6 +29,7 @@ public class ExprAmount extends PropertyExpression<Number, Object> {
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprAmount.class,
 				Number.class,
+				3, // Conflicts with ExprDateInformation
 				"~objects",
 				"[1:recursive] (amount|number|size)"
 		);

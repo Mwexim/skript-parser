@@ -3,13 +3,15 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
+import io.github.syst3ms.skriptparser.util.Time;
 
 import java.math.BigInteger;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.TextStyle;
 import java.util.function.Function;
 
 /**
@@ -22,8 +24,8 @@ import java.util.function.Function;
  * @since ALPHA
  * @author Mwexim
  */
-public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> {
-	public static final PatternInfos<Function<LocalDateTime, Integer>> PATTERNS = new PatternInfos<>(new Object[][] {
+public class ExprDateInformation implements Expression<Object> {
+	private static final PatternInfos<Function<LocalDateTime, Integer>> NUMBER_VALUES = new PatternInfos<>(new Object[][] {
 			{"year[s]", (Function<LocalDateTime, Number>) LocalDateTime::getYear},
 			{"month[s]", (Function<LocalDateTime, Number>) LocalDateTime::getMonthValue},
 			{"day[s] (of|in) year", (Function<LocalDateTime, Number>) LocalDateTime::getDayOfYear},
@@ -35,31 +37,71 @@ public class ExprDateInformation extends PropertyExpression<Number, SkriptDate> 
 			{"milli[second][s]", (Function<LocalDateTime, Number>) val -> val.getNano() / 1_000_000}
 	});
 
+	private static final PatternInfos<Function<LocalDateTime, String>> STRING_VALUES = new PatternInfos<>(new Object[][] {
+			{"era", (Function<LocalDateTime, String>) val -> val.toLocalDate().getEra().getDisplayName(TextStyle.SHORT, SkriptDate.DATE_LOCALE)},
+			{"month", (Function<LocalDateTime, String>) val -> val.getMonth().getDisplayName(TextStyle.FULL, SkriptDate.DATE_LOCALE)},
+			{"(weekday|day [(of|in) week])", (Function<LocalDateTime, String>) val -> val.getDayOfWeek().getDisplayName(TextStyle.FULL, SkriptDate.DATE_LOCALE)},
+	});
+
 	static {
-		Parser.getMainRegistration().addPropertyExpression(
+		Parser.getMainRegistration().addExpression(
 				ExprDateInformation.class,
-				Number.class,
-				4,
-				"*[date] %date%",
-				PATTERNS.toChoiceGroup()
+				Object.class,
+				true,
+				6,
+				"[the] [amount of] " + NUMBER_VALUES.toChoiceGroup() + " (of|in) %date/time%",
+				"[the] " + STRING_VALUES.toChoiceGroup() + " [name] (of|in) [date] %date%"
 		);
 	}
 
+	private Expression<?> value;
+	private boolean returnsNumber;
 	private int mark;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+		returnsNumber = matchedPattern == 0;
 		mark = parseContext.getNumericMark();
-		return super.init(expressions, matchedPattern, parseContext);
+
+		value = expressions[0];
+		return value.getReturnType() != Time.class || mark >= 5 && mark <=8;
 	}
 
 	@Override
-	public Number getProperty(SkriptDate owner) {
-		return BigInteger.valueOf(PATTERNS.getInfo(mark).apply(owner.toLocalDateTime()));
+	public Object[] getValues(TriggerContext ctx) {
+		return value.getSingle(ctx)
+				.map(val -> {
+					if (returnsNumber) {
+						if (val instanceof SkriptDate) {
+							return BigInteger.valueOf(NUMBER_VALUES.getInfo(mark).apply(((SkriptDate) val).toLocalDateTime()));
+						} else {
+							System.out.println("here");
+							assert val instanceof Time;
+							var todayAt = SkriptDate.today().plus(Duration.ofMillis(((Time) val).toMillis()));
+							return BigInteger.valueOf(NUMBER_VALUES.getInfo(mark).apply(todayAt.toLocalDateTime()));
+						}
+					} else {
+						assert val instanceof SkriptDate;
+						return STRING_VALUES.getInfo(mark).apply(((SkriptDate) val).toLocalDateTime());
+					}
+				})
+				.map(val -> new Object[] {val})
+				.orElse(new Object[0]);
+	}
+
+	@Override
+	public Class<?> getReturnType() {
+		return returnsNumber ? Number.class : String.class;
 	}
 
 	@Override
 	public String toString(TriggerContext ctx, boolean debug) {
-		return toString(ctx, debug, new String[] {"year", "month", "day of year", "day of month", "day of week", "hours", "minutes", "seconds", "milliseconds"}[mark]);
+		if (returnsNumber) {
+			return new String[] {"year", "month", "day of year", "day of month", "day of week", "hours", "minutes", "seconds", "milliseconds"}[mark]
+					+ " of "
+					+ value.toString(ctx, debug);
+		} else {
+			return new String[] {"era", "month", "weekday"}[mark] + " of " + value.toString(ctx, debug);
+		}
 	}
 }

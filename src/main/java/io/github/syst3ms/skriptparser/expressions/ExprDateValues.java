@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
@@ -29,15 +28,15 @@ public class ExprDateValues extends PropertyExpression<String, SkriptDate> {
 			{"(weekday|day [(of|in) week])", (Function<LocalDateTime, String>) val -> val.getDayOfWeek().getDisplayName(TextStyle.FULL, SkriptDate.DATE_LOCALE)},
 	});
 
-	static {
-		Parser.getMainRegistration().addPropertyExpression(
-				ExprDateValues.class,
-				String.class,
-				3,
-				"*[date] %date%",
-				PATTERNS.toChoiceGroup() + " [name]"
-		);
-	}
+//	static {
+//		Parser.getMainRegistration().addPropertyExpression(
+//				ExprDateValues.class,
+//				String.class,
+//				3,
+//				"*[date] %date%",
+//				PATTERNS.toChoiceGroup() + " [name]"
+//		);
+//	}
 
 	private int mark;
 

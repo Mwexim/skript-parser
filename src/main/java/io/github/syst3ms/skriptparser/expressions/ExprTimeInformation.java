@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.expressions;
 
-import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
@@ -29,15 +28,15 @@ public class ExprTimeInformation extends PropertyExpression<Number, Time> {
 			{"milli[second][s]", (Function<Time, Integer>) Time::getMillis}
 	});
 
-	static {
-		Parser.getMainRegistration().addPropertyExpression(
-				ExprTimeInformation.class,
-				Number.class,
-				5, // Leave this here
-				"*[time] %time%",
-				PATTERNS.toChoiceGroup()
-		);
-	}
+//	static {
+//		Parser.getMainRegistration().addPropertyExpression(
+//				ExprTimeInformation.class,
+//				Number.class,
+//				5, // Leave this here
+//				"*[time] %time%",
+//				PATTERNS.toChoiceGroup()
+//		);
+//	}
 	private int mark;
 
 	@Override
