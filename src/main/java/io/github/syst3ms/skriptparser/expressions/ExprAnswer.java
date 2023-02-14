@@ -28,13 +28,12 @@ public class ExprAnswer implements Expression<String> {
                 true,
                 "[the] [last] (answer|response)"
         );
-        ANSWERS = new HashMap<>();
     }
 
-    private static final Map<TriggerContext, String> ANSWERS;
+    private static final Map<TriggerContext, String> answers = new HashMap<>();
 
     public static void addAnswer(TriggerContext ctx, String answer) {
-        ANSWERS.put(ctx, answer);
+        answers.put(ctx, answer);
     }
 
     @Override
@@ -44,13 +43,9 @@ public class ExprAnswer implements Expression<String> {
 
     @Override
     public String[] getValues(TriggerContext ctx) {
-        if (ANSWERS.containsKey(ctx)) {
-            var answer = ANSWERS.get(ctx);
-            ANSWERS.remove(ctx);
-            return new String[] {answer};
-        } else {
-            return new String[0];
-        }
+        return answers.containsKey(ctx)
+                ? new String[] {answers.get(ctx)}
+                : new String[0];
     }
 
     @Override

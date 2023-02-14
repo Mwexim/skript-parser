@@ -16,7 +16,7 @@ import java.util.Scanner;
  *
  * @name Ask
  * @type EFFECT
- * @pattern (ask [for]|input) %string%
+ * @pattern (ask [for] [input]|input) %string%
  * @since ALPHA
  * @author ItsTheSky
  */
@@ -25,7 +25,7 @@ public class EffAsk extends Effect {
     static {
         Parser.getMainRegistration().addEffect(
                 EffAsk.class,
-                "(ask [for]|input) %string%"
+                "(ask [for] [input]|input) %string%"
         );
     }
 
