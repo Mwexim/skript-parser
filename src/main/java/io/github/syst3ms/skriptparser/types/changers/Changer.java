@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.types.changers;
 
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.types.Type;
 
 /**
  * An interface for anything that can be changed
@@ -9,7 +10,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
  * @see Expression#change(TriggerContext, ChangeMode, Object[])
  * @see Expression#acceptsChange(ChangeMode)
  */
-public interface Changer<T> {
+public interface Changer<T> extends Type.Attribute<T> {
     /**
      * @param mode the given mode
      * @return the classes of the objects that the implementing object can be changed to

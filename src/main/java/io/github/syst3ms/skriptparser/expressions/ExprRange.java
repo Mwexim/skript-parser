@@ -3,18 +3,18 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.types.Type;
+import io.github.syst3ms.skriptparser.types.TypeManager;
+import io.github.syst3ms.skriptparser.types.attributes.Range;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
-import io.github.syst3ms.skriptparser.types.ranges.RangeInfo;
-import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
-
-import java.util.function.BiFunction;
 
 /**
  * Returns a range of values between two endpoints. Types supported by default are integers and characters (length 1 strings).
@@ -35,13 +35,16 @@ public class ExprRange implements Expression<Object> {
     }
 
     private Expression<?> from, to;
-    private RangeInfo<?, ?> range;
+    private Range<?, ?> range;
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         from = expressions[0];
         to = expressions[1];
-        range = Ranges.getRange(ClassUtils.getCommonSuperclass(from.getReturnType(), to.getReturnType())).orElse(null);
+        if (from instanceof Variable<?> || to instanceof Variable<?>)
+            return true;
+
+        range = TypeManager.getByClass(ClassUtils.getCommonSuperclass(from.getReturnType(), to.getReturnType())).flatMap(Type::getRange).orElse(null);
         if (range == null) {
             SkriptLogger logger = parseContext.getLogger();
             logger.error(
@@ -60,13 +63,22 @@ public class ExprRange implements Expression<Object> {
     public Object[] getValues(TriggerContext ctx) {
         return DoubleOptional.ofOptional(from.getSingle(ctx), to.getSingle(ctx))
                 .mapToOptional((f, t) -> {
+                    if (range == null) {
+                        range = TypeManager.getByClass(ClassUtils.getCommonSuperclass(f.getClass(), t.getClass()))
+                                .flatMap(Type::getRange)
+                                .orElse(null);
+                        // If it's still null, then no range can be found sadly...
+                        if (range == null)
+                            return null;
+                    }
+
                     // This is safe... right?
                     if (Comparators.compare(f, t) == Relation.GREATER) {
                         return CollectionUtils.reverseArray(
-                                (Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.getFunction()).apply(t, f)
+                                ((Range<? super Object, ?>) this.range).apply(t, f)
                         );
                     } else {
-                        return (Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.getFunction()).apply(f, t);
+                        return ((Range<? super Object, ?>) this.range).apply(f, t);
                     }
                 })
                 .orElse(new Object[0]);
@@ -74,7 +86,9 @@ public class ExprRange implements Expression<Object> {
 
     @Override
     public Class<?> getReturnType() {
-        return range.getTo();
+        return range != null
+                ? range.getRelativeType()
+                : ClassUtils.getCommonSuperclass(from.getReturnType(), to.getReturnType());
     }
 
     @Override

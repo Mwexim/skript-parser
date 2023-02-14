@@ -3,11 +3,11 @@ package io.github.syst3ms.skriptparser.registration;
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
-import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
+import io.github.syst3ms.skriptparser.types.attributes.Arithmetic;
+import io.github.syst3ms.skriptparser.types.attributes.Range;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
-import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import io.github.syst3ms.skriptparser.util.SkriptDate;
 import io.github.syst3ms.skriptparser.util.Time;
 import io.github.syst3ms.skriptparser.util.TimeUtils;
@@ -36,11 +36,7 @@ public class DefaultRegistration {
         /*
          * Classes
          */
-        registration.addType(
-                Object.class,
-                "object",
-                "object@s"
-        );
+        registration.addType(Object.class, "object", "object@s");
 
         registration.newType(Number.class,"number", "number@s")
                 .literalParser(s -> {
@@ -139,13 +135,47 @@ public class DefaultRegistration {
                         return BigInteger.class;
                     }
                 })
+                .range(new Range<BigInteger, BigInteger>() {
+                    @Override
+                    public BigInteger[] apply(BigInteger from, BigInteger to) {
+                        if (from.compareTo(to) > 0) {
+                            return new BigInteger[0];
+                        } else {
+                            List<BigInteger> elements = new ArrayList<>();
+                            BigInteger current = from;
+                            do {
+                                elements.add(current);
+                                current = current.add(BigInteger.ONE);
+                            } while (current.compareTo(to) <= 0);
+                            return elements.toArray(new BigInteger[0]);
+                        }
+                    }
+
+                    @Override
+                    public Class<? extends BigInteger> getRelativeType() {
+                        return BigInteger.class;
+                    }
+                })
                 .register();
 
-        registration.addType(
-                String.class,
-                "string",
-                "string@s"
-        );
+        registration.newType(String.class, "string", "string@s")
+                .range(new Range<String, String>() {
+                    @Override
+                    public String[] apply(String from, String to) {
+                        if (from.length() != 1 || to.length() != 1)
+                            return new String[0];
+                        char leftChar = from.charAt(0), rightChar = to.charAt(0);
+                        return IntStream.range(leftChar, rightChar + 1)
+                                .mapToObj(i -> Character.toString((char) i))
+                                .toArray(String[]::new);
+                    }
+
+                    @Override
+                    public Class<? extends String> getRelativeType() {
+                        return String.class;
+                    }
+                })
+                .register();
 
         registration.newType(Boolean.class, "boolean", "boolean@s")
                 .literalParser(s -> {
@@ -276,41 +306,6 @@ public class DefaultRegistration {
                     public Relation apply(Duration duration, Duration duration2) {
                         return Relation.get(duration.compareTo(duration2));
                     }
-                }
-        );
-
-        /*
-         * Ranges
-         */
-        Ranges.registerRange(
-                BigInteger.class,
-                BigInteger.class,
-                (l, r) -> {
-                    if (l.compareTo(r) >= 0) {
-                        return new BigInteger[0];
-                    } else {
-                        List<BigInteger> elements = new ArrayList<>();
-                        BigInteger current = l;
-                        do {
-                            elements.add(current);
-                            current = current.add(BigInteger.ONE);
-                        } while (current.compareTo(r) <= 0);
-                        return elements.toArray(new BigInteger[0]);
-                    }
-                }
-        );
-
-        // Actually a character range
-        Ranges.registerRange(
-                String.class,
-                String.class,
-                (l, r) -> {
-                    if (l.length() != 1 || r.length() != 1)
-                        return new String[0];
-                    char leftChar = l.charAt(0), rightChar = r.charAt(0);
-                    return IntStream.range(leftChar, rightChar + 1)
-                            .mapToObj(i -> Character.toString((char) i))
-                            .toArray(String[]::new);
                 }
         );
 

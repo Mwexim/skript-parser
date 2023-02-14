@@ -33,7 +33,8 @@ import io.github.syst3ms.skriptparser.registration.tags.TagInfo;
 import io.github.syst3ms.skriptparser.registration.tags.TagManager;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
-import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
+import io.github.syst3ms.skriptparser.types.attributes.Arithmetic;
+import io.github.syst3ms.skriptparser.types.attributes.Range;
 import io.github.syst3ms.skriptparser.types.changers.Changer;
 import io.github.syst3ms.skriptparser.types.conversions.ConverterInfo;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
@@ -132,7 +133,7 @@ public class SkriptRegistration {
     }
 
     /**
-     * @return the addon handling this registration (may be Skript itself)
+     * @return the addon handling this registration (possibly Skript itself)
      */
     public SkriptAddon getRegisterer() {
         return registerer;
@@ -190,8 +191,8 @@ public class SkriptRegistration {
      * @return an {@link ExpressionRegistrar} to continue the registration process
      */
     public <C extends PropertyExpression<T, ?>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, String owner, String property) {
-        return (ExpressionRegistrar<C, T>) newExpression(c, returnType, false, PropertyExpression.composePatterns(owner, property))
-                .addData(PropertyExpression.PROPERTY_IDENTIFIER, property);
+        return newExpression(c, returnType, false, PropertyExpression.composePatterns(owner, property))
+                .setPropertyName(property);
     }
 
     /**
@@ -232,8 +233,8 @@ public class SkriptRegistration {
      */
     public <C extends PropertyConditional<?>> ExpressionRegistrar<C, Boolean> newPropertyConditional(Class<C> c, String performer, ConditionalType conditionalType, String property) {
         return (ExpressionRegistrar<C, Boolean>) newExpression(c, Boolean.class, true, PropertyConditional.composePatterns(performer, conditionalType, property))
-                .addData(PropertyConditional.CONDITIONAL_TYPE_IDENTIFIER, conditionalType)
-                .addData(PropertyConditional.PROPERTY_IDENTIFIER, property);
+                .setPropertyName(property)
+                .addData(PropertyConditional.CONDITIONAL_TYPE_IDENTIFIER, conditionalType);
     }
 
     /**
@@ -388,7 +389,7 @@ public class SkriptRegistration {
      * Starts a registration process for a {@link ContextExpression}
      * @param context the TriggerContext class
      * @param returnType the returned type of this context value
-     * @param isSingle whether or not the return value is single
+     * @param isSingle whether the return value is single
      * @param pattern the pattern
      * @param function the function that needs to be applied in order to get the context value
      * @param <C> the TriggerContext class
@@ -403,7 +404,7 @@ public class SkriptRegistration {
      * Registers a {@link ContextValue}
      * @param context the TriggerContext class
      * @param returnType the returned type of this context value
-     * @param isSingle whether or not the return value is single
+     * @param isSingle whether the return value is single
      * @param pattern the pattern
      * @param function the function that needs to be applied in order to get the context value
      * @param <C> the TriggerContext class
@@ -561,10 +562,7 @@ public class SkriptRegistration {
         private Function<? super C, String> toStringFunction = o -> Objects.toString(o, TypeManager.NULL_REPRESENTATION);
         @Nullable
         private Function<String, ? extends C> literalParser;
-        @Nullable
-        private Changer<? super C> defaultChanger;
-        @Nullable
-        private Arithmetic<C, ?> arithmetic;
+        private final List<Type.Attribute<C>> attributes = new ArrayList<>();
 
         public TypeRegistrar(Class<C> c, String baseName, String pattern) {
             this.c = c;
@@ -591,11 +589,13 @@ public class SkriptRegistration {
         }
 
         /**
-         * @param defaultChanger a default {@link Changer} for this type
+         * Registers an attribute for this type. All built-in attributes have helper functions
+         * available. Attributes are interfaces that provide additional behavior for this type.
+         * @param attribute the attribute
          * @return the registrar
          */
-        public TypeRegistrar<C> defaultChanger(Changer<? super C> defaultChanger) {
-            this.defaultChanger = defaultChanger;
+        public TypeRegistrar<C> attribute(Type.Attribute<C> attribute) {
+            attributes.add(attribute);
             return this;
         }
 
@@ -604,7 +604,25 @@ public class SkriptRegistration {
          * @return the registrar
          */
         public <R> TypeRegistrar<C> arithmetic(Arithmetic<C, R> arithmetic) {
-            this.arithmetic = arithmetic;
+            attributes.add(arithmetic);
+            return this;
+        }
+
+        /**
+         * @param defaultChanger a default {@link Changer} for this type
+         * @return the registrar
+         */
+        public TypeRegistrar<C> defaultChanger(Changer<C> defaultChanger) {
+            attributes.add(defaultChanger);
+            return this;
+        }
+
+        /**
+         * @param range a {@link Range} for this type
+         * @return the registrar
+         */
+        public <R> TypeRegistrar<C> range(Range<C, R> range) {
+            attributes.add(range);
             return this;
         }
 
@@ -614,7 +632,7 @@ public class SkriptRegistration {
         @Override
         public void register() {
             newTypes = true;
-            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic));
+            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, attributes));
         }
     }
 
@@ -680,6 +698,18 @@ public class SkriptRegistration {
             this.returnType = returnType;
             this.isSingle = isSingle;
             typeCheck();
+        }
+
+        /**
+         * Set the property name of this property expression. Only useful for property expressions.
+         * @param property the name
+         * @return the registrar
+         * @see PropertyExpression
+         * @see PropertyConditional
+         */
+        public ExpressionRegistrar<C, T> setPropertyName(String property) {
+            addData(PropertyExpression.PROPERTY_NAME_IDENTIFIER, property);
+            return this;
         }
 
         /**
