@@ -168,11 +168,21 @@ public class PatternParserTest {
                                 TypeManager.getPatternType("strings").orElseThrow(AssertionError::new)
                         ),
                         ExpressionElement.Acceptance.LITERALS_ONLY,
-                        true,
+                        false,
                         false
                 ),
                 parsePattern("%*number/strings%", logger)
         );
+        assertEqualsOptional(
+                new ExpressionElement(
+                        Collections.singletonList(TypeManager.getPatternType("durations").orElseThrow(AssertionError::new)),
+                        ExpressionElement.Acceptance.VARIABLES_ONLY,
+                        true,
+                        false
+                ),
+                parsePattern("%^durations?%", logger)
+        );
+        assertOptionalEmpty(parsePattern("%number/duration/date?%", logger)); // Multiple types cannot be nullable
 
         // Failing patterns
         assertOptionalEmpty(parsePattern("(unclosed", logger));

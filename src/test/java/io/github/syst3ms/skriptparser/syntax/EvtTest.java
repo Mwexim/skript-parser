@@ -5,7 +5,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.registration.context.ContextValue;
+import io.github.syst3ms.skriptparser.registration.context.ContextValue.State;
 import io.github.syst3ms.skriptparser.registration.context.ContextValue.Usage;
 import io.github.syst3ms.skriptparser.syntax.TestContext.SubTestContext;
 
@@ -25,7 +25,7 @@ public class EvtTest extends SkriptEvent {
 	static {
 		Parser.getMainRegistration()
 				.newEvent(EvtTest.class, "*test [[only] when %=boolean%]")
-				.setHandledContexts(SubTestContext.class)
+				.setHandledContexts(TestContext.class, SubTestContext.class)
 				.register();
 		Parser.getMainRegistration()
 				.newContextValue(SubTestContext.class, String.class, true, "test", __ -> new String[] {"Hello World!"})
@@ -38,9 +38,10 @@ public class EvtTest extends SkriptEvent {
 		Parser.getMainRegistration()
 				.newContextValue(TestContext.class, String.class, true, "[some] pattern value", ctx -> new String[] {ctx.patternValue()})
 				.setUsage(Usage.ALONE_ONLY)
-				.setState(ContextValue.State.PAST)
+				.setState(State.PAST)
 				.register();
 		Parser.getMainRegistration().addContextType(SubTestContext.class, Duration.class, SubTestContext::oneDay);
+		Parser.getMainRegistration().addContextType(TestContext.class, String.class, __ -> "This works as well");
 	}
 
 	private Expression<Boolean> condition;

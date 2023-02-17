@@ -1,9 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.types.TypeManager;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -15,18 +13,13 @@ public class SimpleExpression<T> implements Expression<T> {
     private final Class<? extends T> returnType;
     private final boolean isSingle;
     private final Function<TriggerContext, T[]> function;
-    @Nullable
-    private final String representation;
+    private final String toString;
 
-    public SimpleExpression(Class<? extends T> returnType, boolean isSingle, Function<TriggerContext, T[]> function) {
-        this(returnType, isSingle, function, null);
-    }
-
-    public SimpleExpression(Class<? extends T> returnType, boolean isSingle, Function<TriggerContext, T[]> function, @Nullable String representation) {
+    public SimpleExpression(Class<? extends T> returnType, boolean isSingle, Function<TriggerContext, T[]> function, String toString) {
         this.returnType = returnType;
         this.isSingle = isSingle;
         this.function = function;
-        this.representation = representation;
+        this.toString = toString;
     }
 
     @Override
@@ -51,11 +44,6 @@ public class SimpleExpression<T> implements Expression<T> {
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
-        // If the representation is not given, the default TypeManager#toString will be used to convert each value separately
-        if (representation == null) {
-            return TypeManager.toString((Object[]) function.apply(ctx));
-        } else {
-            return representation;
-        }
+        return toString;
     }
 }

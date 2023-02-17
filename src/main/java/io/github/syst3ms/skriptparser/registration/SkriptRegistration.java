@@ -558,6 +558,8 @@ public class SkriptRegistration {
         private final Class<C> c;
         private final String baseName;
         private final String pattern;
+        @Nullable
+        private Expression<C> defaultExpression;
         private Function<? super C, String> toStringFunction = o -> Objects.toString(o, TypeManager.NULL_REPRESENTATION);
         @Nullable
         private Function<String, ? extends C> literalParser;
@@ -570,6 +572,18 @@ public class SkriptRegistration {
             this.c = c;
             this.baseName = baseName;
             this.pattern = pattern;
+        }
+
+        /**
+         * The default expression will be used when an optional part in a pattern,
+         * with an {@linkplain ExpressionElement}, explicitly allows the expression
+         * to be set to a default one if the optional part was not used or matched.
+         * @param defaultExpression the default expression of this type
+         * @return the registrar
+         */
+        public TypeRegistrar<C> defaultExpression(Expression<C> defaultExpression) {
+            this.defaultExpression = defaultExpression;
+            return this;
         }
 
         /**
@@ -614,7 +628,7 @@ public class SkriptRegistration {
         @Override
         public void register() {
             newTypes = true;
-            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic));
+            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic, defaultExpression));
         }
     }
 

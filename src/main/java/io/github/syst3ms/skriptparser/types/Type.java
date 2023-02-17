@@ -1,5 +1,7 @@
 package io.github.syst3ms.skriptparser.types;
 
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.pattern.ExpressionElement;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.changers.Changer;
 import io.github.syst3ms.skriptparser.util.StringUtils;
@@ -18,6 +20,8 @@ public class Type<T> {
     private final Class<T> typeClass;
     private final String baseName;
     private final String[] pluralForms;
+    @Nullable
+    private final Expression<T> defaultExpression;
     private final Function<Object, String> toStringFunction;
     @Nullable
     private final Function<String, ? extends T> literalParser;
@@ -84,7 +88,7 @@ public class Type<T> {
                 String pattern,
                 @Nullable Function<String, ? extends T> literalParser,
                 Function<? super T, String> toStringFunction) {
-        this(typeClass, baseName, pattern, literalParser, toStringFunction, null);
+        this(typeClass, baseName, pattern, literalParser, toStringFunction, null, null);
     }
 
     public Type(Class<T> typeClass,
@@ -92,8 +96,9 @@ public class Type<T> {
                 String pattern,
                 @Nullable Function<String, ? extends T> literalParser,
                 Function<? super T, String> toStringFunction,
-                @Nullable Changer<? super T> defaultChanger) {
-        this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger, null);
+                @Nullable Changer<? super T> defaultChanger,
+                @Nullable Arithmetic<T, ?> arithmetic) {
+        this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic, null);
     }
 
     @SuppressWarnings("unchecked")
@@ -103,7 +108,8 @@ public class Type<T> {
                 @Nullable Function<String, ? extends T> literalParser,
                 Function<? super T, String> toStringFunction,
                 @Nullable Changer<? super T> defaultChanger,
-                @Nullable Arithmetic<T, ?> arithmetic) {
+                @Nullable Arithmetic<T, ?> arithmetic,
+                @Nullable Expression<T> defaultExpression) {
         this.typeClass = typeClass;
         this.baseName = baseName;
         this.literalParser = literalParser;
@@ -111,6 +117,7 @@ public class Type<T> {
         this.pluralForms = StringUtils.getForms(pattern.strip());
         this.defaultChanger = defaultChanger;
         this.arithmetic = arithmetic;
+        this.defaultExpression = defaultExpression;
     }
 
     public Class<T> getTypeClass() {
@@ -142,12 +149,22 @@ public class Type<T> {
     }
 
     /**
+     * The default expression will be used when an optional part in a pattern,
+     * with an {@linkplain ExpressionElement}, explicitly allows the expression
+     * to be set to a default one if the optional part was not used or matched.
+     * @return the default expression
+     */
+    public Optional<? extends Expression<T>> getDefaultExpression() {
+        return Optional.ofNullable(defaultExpression);
+    }
+
+    /**
      * Adds a proper English indefinite article to this type and applies the correct form.
-     * @param plural whether this Type is plural or not
+     * @param isSingle whether this Type is single or not
      * @return the applied form of this Type
      */
-    public String withIndefiniteArticle(boolean plural) {
-        return StringUtils.withIndefiniteArticle(pluralForms[plural ? 1 : 0], plural);
+    public String withIndefiniteArticle(boolean isSingle) {
+        return StringUtils.withIndefiniteArticle(pluralForms[isSingle ? 0 : 1], isSingle);
     }
 
     @Override

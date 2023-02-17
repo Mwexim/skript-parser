@@ -5,9 +5,7 @@ import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
-import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.MatchContext;
-import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.util.StringUtils;
@@ -46,6 +44,8 @@ public class ExpressionElement implements PatternElement {
     public int match(String s, int index, MatchContext context) {
         var typeArray = types.toArray(new PatternType<?>[0]);
         if (index >= s.length()) {
+            if (typeArray.length >= 1)
+                getDefaultExpression(typeArray[0], context).ifPresent(context::addExpression);
             return -1;
         }
         var logger = context.getLogger();
@@ -69,7 +69,7 @@ public class ExpressionElement implements PatternElement {
                         return -1;
                     }
                     var toParse = s.substring(index).strip();
-                    var expression = parse(toParse, typeArray, context.getParserState(), logger);
+                    var expression = parse(toParse, typeArray, context);
                     if (expression.isPresent()) {
                         context.addExpression(expression.get());
                         return index + toParse.length();
@@ -79,7 +79,7 @@ public class ExpressionElement implements PatternElement {
                 var i = StringUtils.indexOfIgnoreCase(s, text, index);
                 while (i != -1) {
                     var toParse = s.substring(index, i).strip();
-                    var expression = parse(toParse, typeArray, context.getParserState(), logger);
+                    var expression = parse(toParse, typeArray, context);
                     if (expression.isPresent()) {
                         context.addExpression(expression.get());
                         return index + toParse.length();
@@ -96,7 +96,7 @@ public class ExpressionElement implements PatternElement {
                     var toParse = s.substring(index, i);
                     if (toParse.length() == context.getOriginalPattern().length())
                         continue;
-                    var expression = parse(toParse, typeArray, context.getParserState(), logger);
+                    var expression = parse(toParse, typeArray, context);
                     if (expression.isPresent()) {
                         context.addExpression(expression.get());
                         return index + toParse.length();
@@ -117,7 +117,7 @@ public class ExpressionElement implements PatternElement {
                             var i = StringUtils.indexOfIgnoreCase(s, split, index);
                             if (i != -1) {
                                 var toParse = s.substring(index, i);
-                                var expression = parse(toParse, typeArray, context.getParserState(), logger);
+                                var expression = parse(toParse, typeArray, context);
                                 if (expression.isPresent()) {
                                     context.addExpression(expression.get());
                                     return index + toParse.length();
@@ -136,7 +136,7 @@ public class ExpressionElement implements PatternElement {
                             var i = StringUtils.indexOfIgnoreCase(s, split, index);
                             if (i != -1) {
                                 var toParse = s.substring(index, i);
-                                var expression = parse(toParse, typeArray, context.getParserState(), logger);
+                                var expression = parse(toParse, typeArray, context);
                                 if (expression.isPresent()) {
                                     context.addExpression(expression.get());
                                     return index + toParse.length();
@@ -177,7 +177,8 @@ public class ExpressionElement implements PatternElement {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Optional<? extends Expression<? extends T>> parse(String s, PatternType<?>[] types, ParserState parserState, SkriptLogger logger) {
+    private <T> Optional<? extends Expression<? extends T>> parse(String s, PatternType<?>[] types, MatchContext context) {
+        var logger = context.getLogger();
         for (var type : types) {
             Optional<? extends Expression<? extends T>> expression;
             logger.recurse();
@@ -186,11 +187,11 @@ public class ExpressionElement implements PatternElement {
                 expression = (Optional<? extends Expression<? extends T>>) SyntaxParser.parseBooleanExpression(
                         s,
                         acceptsConditional ? SyntaxParser.MAYBE_CONDITIONAL : SyntaxParser.NOT_CONDITIONAL,
-                        parserState,
+                        context.getParserState(),
                         logger
                 );
             } else {
-                expression = SyntaxParser.parseExpression(s, (PatternType<T>) type, parserState, logger);
+                expression = SyntaxParser.parseExpression(s, (PatternType<T>) type, context.getParserState(), logger);
             }
             logger.callback();
             if (expression.isEmpty())
@@ -217,12 +218,33 @@ public class ExpressionElement implements PatternElement {
                             return false;
                         }
                         break;
+                    default:
+                        throw new IllegalStateException();
                 }
                 return true;
             });
+            if (expression.isEmpty()) {
+                expression = getDefaultExpression(type, context);
+            }
             return expression;
         }
         return Optional.empty();
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> Optional<? extends Expression<? extends T>> getDefaultExpression(PatternType<?> type, MatchContext context) {
+        if (nullable) {
+            return type.getType().getDefaultExpression()
+                    .filter(expr -> !type.isSingle() || type.isSingle() && expr.isSingle())
+                    .filter(expr -> Expression.initialize(
+                            expr,
+                            context.getParsedExpressions().toArray(new Expression[0]),
+                            context.getPatternIndex(),
+                            context.toParseResult()))
+                    .map(expr -> (Expression<? extends T>) expr);
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -233,7 +255,7 @@ public class ExpressionElement implements PatternElement {
             return false;
         } else {
             var e = (ExpressionElement) obj;
-            return types.equals(e.types) && acceptance == e.acceptance && acceptsConditional == e.acceptsConditional;
+            return types.equals(e.types) && acceptance == e.acceptance && nullable == e.nullable && acceptsConditional == e.acceptsConditional;
         }
     }
 

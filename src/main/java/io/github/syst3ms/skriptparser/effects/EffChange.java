@@ -90,7 +90,7 @@ public class EffChange extends Effect {
             } else if (!changed.acceptsChange(mode, changeWith)) {
                 var type = TypeManager.getByClassExact(changeWith.getReturnType());
                 assert type.isPresent();
-                String changeTypeName = type.get().withIndefiniteArticle(!changeWith.isSingle());
+                String changeTypeName = type.get().withIndefiniteArticle(changeWith.isSingle());
                 switch (mode) {
                     case SET:
                         logger.error(changedString + " cannot be set to " + changeTypeName, ErrorType.SEMANTIC_ERROR);

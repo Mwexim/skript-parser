@@ -15,7 +15,7 @@ import java.util.List;
  * It is possible to specify the error message that should be shown if the restrictions aren't followed.
  *
  * This class shouldn't be used for expressions that should only work with specific {@link TriggerContext}s.
- * For this purpose, use {@link ParseContext#getParserState()} in conjuction with {@link ParserState#getCurrentContexts()}.
+ * For this purpose, use {@link ParseContext#getParserState()} in conjunction with {@link ParserState#getCurrentContexts()}.
  * @param <T> the return type
  * @see ParserState#getCurrentContexts()
  */
