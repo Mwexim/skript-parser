@@ -7,8 +7,8 @@ import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.util.DurationUtils;
 import io.github.syst3ms.skriptparser.util.ThreadUtils;
-import io.github.syst3ms.skriptparser.util.TimeUtils;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -84,7 +84,7 @@ public class EffWait extends Effect {
                 thread.scheduleAtFixedRate(
                         () -> code.accept(thread),
                         0,
-                        TimeUtils.TICK,
+                        DurationUtils.TICK,
                         TimeUnit.MILLISECONDS
                 );
             } else {
@@ -94,7 +94,7 @@ public class EffWait extends Effect {
                 thread.scheduleAtFixedRate(
                         () -> code.accept(thread),
                         0,
-                        TimeUtils.TICK,
+                        DurationUtils.TICK,
                         TimeUnit.MILLISECONDS
                 );
                 thread.schedule(

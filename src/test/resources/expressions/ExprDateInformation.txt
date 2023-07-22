@@ -1,10 +1,13 @@
 # Author(s):
 # 	- Mwexim
-# Date: 2020/12/19
+# Date:
+# - 2020/12/19
+# - 2022/11/24 (Merging of ExprDateValues and ExprTimeInformation
 
 test:
+	# Numeric information of a date
 	set {var} to date from timestamp 13_243_546_576_055
-	assert year of {var} = 2389 with "Year of timestamp should be 2389: %year of {var}%"
+	assert the years in {var} = 2389 with "Years of timestamp should be 2389: %the years in {var}%"
 	assert month of {var} = 9 with "Month of timestamp should be 9 (February): %month of {var}%"
 	assert day of year of {var} = 245 with "Day of year of timestamp should be 245: %day of year of {var}%"
 	assert day of month of {var} = 2 with "Day of month of timestamp should be 2: %day of month of {var}%"
@@ -13,3 +16,15 @@ test:
 	assert minutes of {var} = 56 with "Minutes of timestamp should be 56: %minutes of {var}%"
 	assert seconds of {var} = 16 with "Seconds of timestamp should be 16: %seconds of {var}%"
 	assert milliseconds of {var} = 55 with "Milliseconds of timestamp should be 55: %milliseconds of {var}%"
+
+	# String information of a date
+    assert era of {var} = "AD" with "Era of timestamp should be 'AD': %era of {var}%"
+    assert the month name of {var} = "September" with "Name of month of timestamp should be 'September': %month name of {var}%"
+    assert weekday name of {var} = "Saturday" with "Name of day in week of timestamp should be 'Saturday': %weekday name of {var}%"
+
+	# Numeric information of a time
+	set {time_info} to 13:47:39.371
+	assert hours of {time_info} = 13 with "Hours of time should be 13: %hours of {time_info}%"
+	assert minutes of {time_info} = 47 with "Minutes of time should be 47: %minutes of {time_info}%"
+	assert the seconds of {time_info} = 39 with "Seconds of time should be 39: %seconds of {time_info}%"
+	assert milliseconds of {time_info} = 371 with "Milliseconds of time should be 371: %milliseconds of {time_info}%"
