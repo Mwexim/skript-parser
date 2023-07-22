@@ -100,14 +100,15 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 				case 0:
 					return "abs " + expr;
 				case 1:
-					return "factorial of " + expr;
 				case 2:
-					return "square root of " + expr;
+					return "factorial of " + expr;
 				case 3:
-					return "floored " + expr;
+					return "square root of " + expr;
 				case 4:
-					return "ceiled " + expr;
+					return "floored " + expr;
 				case 5:
+					return "ceiled " + expr;
+				case 6:
 					return "rounded " + expr;
 				default:
 					throw new IllegalStateException();

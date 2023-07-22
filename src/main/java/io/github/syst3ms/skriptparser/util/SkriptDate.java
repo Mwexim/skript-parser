@@ -7,20 +7,21 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.TimeZone;
 
 public class SkriptDate implements Comparable<SkriptDate> {
     // TODO make a config for this
-    public final static String DATE_FORMAT = "EEEE dd MMMM yyyy HH:mm:ss.SSS zzzXXX";
+    public final static String DATE_FORMAT = "EEEE dd MMMM yyyy HH:mm:ss.SSS"; // Add 'zzzXXX' to display time zone as well
     public final static Locale DATE_LOCALE = Locale.US;
-    @SuppressWarnings("FieldMayBeFinal")
-    private static TimeZone TIME_ZONE = TimeZone.getDefault();
+
+    private static TimeZone defaultTimeZone = TimeZone.getDefault();
 
     private long timestamp;
 
-    private SkriptDate(long timestamp, TimeZone zone) {
-        this.timestamp = timestamp - zone.getOffset(timestamp);
+    private SkriptDate(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     /**
@@ -28,21 +29,26 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * @return the date
      */
     public static SkriptDate now() {
-        return of(System.currentTimeMillis());
+        // System.currentTimeMillis() returns the date in the UTC time zone!
+        return new SkriptDate(System.currentTimeMillis());
     }
 
     /**
      * Creates a new {@link SkriptDate} with a specific timestamp.
      * Note that timestamps are expressed in milliseconds.
+     * The timestamp is internally stored as a date in the UTC time zone.
+     * Use {@linkplain #of(long, TimeZone) this} method if you wish to
+     * take a non-default time zone into account.
      * @param timestamp the timestamp
      * @return the date
      */
     public static SkriptDate of(long timestamp) {
-        return of(timestamp, TIME_ZONE);
+        return new SkriptDate(timestamp);
     }
 
     /**
      * Creates a new {@link SkriptDate} with a specific timestamp.
+     * Note that timestamps are expressed in milliseconds.
      * The zone offset is taken into account when calculating the
      * final timestamp.
      * @param timestamp the timestamp
@@ -50,28 +56,41 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * @return the date
      */
     public static SkriptDate of(long timestamp, TimeZone zone) {
-        return new SkriptDate(timestamp, zone);
+        return new SkriptDate(timestamp - zone.getOffset(timestamp));
     }
 
     /**
      * Creates a new {@link SkriptDate} of the current date at midnight.
+     * Note that this takes the {@linkplain #defaultTimeZone default time zone}
+     * into account. Use {@linkplain #today(TimeZone) this} method if you want
+     * to use a non-default time zone.
      * @return the date
      */
 	public static SkriptDate today() {
-	    var local = LocalDate.now(TIME_ZONE.toZoneId()).atStartOfDay(TIME_ZONE.toZoneId());
-	    return of(local.toEpochSecond() * 1000);
+	    return today(defaultTimeZone);
 	}
+
+    /**
+     * Creates a new {@link SkriptDate} of the current date at midnight
+     * in a specific time zone.
+     * @param zone the zone
+     * @return the date
+     */
+    public static SkriptDate today(TimeZone zone) {
+        long timestamp = Instant.now().truncatedTo(ChronoUnit.DAYS).toEpochMilli();
+        return new SkriptDate(timestamp - zone.getOffset(timestamp));
+    }
 
     /**
      * @return the default system time zone
      */
-    public static TimeZone getTimeZone() {
-        return TIME_ZONE;
+    public static TimeZone getDefaultTimeZone() {
+        return defaultTimeZone;
     }
 
     /**
-     * Returns the timestamp of this date, in milliseconds.
-     * @return the timestamp
+     * @return the amount of milliseconds that have passed
+     * since midnight, January 1st, 1970 in the UTC time zone
      */
     public long getTimestamp() {
         return timestamp;
@@ -113,7 +132,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * @return the date
      */
     public SkriptDate plus(Duration duration) {
-        return of(timestamp + duration.toMillis());
+        return new SkriptDate(timestamp + duration.toMillis());
     }
 
     /**
@@ -124,7 +143,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * @return the date
      */
     public SkriptDate minus(Duration duration) {
-        return of(timestamp - duration.toMillis());
+        return new SkriptDate(timestamp - duration.toMillis());
     }
 
     /**
@@ -132,7 +151,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * @return the {@link LocalDate} of this date
      */
     public LocalDateTime toLocalDateTime() {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), TIME_ZONE.toZoneId());
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), defaultTimeZone.toZoneId());
     }
 
     @Override
@@ -151,7 +170,9 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * @return the string representation of this date
      */
     public String toString(String format) {
-        return new SimpleDateFormat(format, DATE_LOCALE).format(new java.util.Date(timestamp));
+        var sdf = new SimpleDateFormat(format, DATE_LOCALE);
+        sdf.setTimeZone(defaultTimeZone);
+        return sdf.format(new java.util.Date(timestamp));
     }
 
     @Override

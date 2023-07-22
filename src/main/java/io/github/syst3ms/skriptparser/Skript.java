@@ -12,9 +12,9 @@ import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
+import io.github.syst3ms.skriptparser.util.DurationUtils;
 import io.github.syst3ms.skriptparser.util.ThreadUtils;
 import io.github.syst3ms.skriptparser.util.Time;
-import io.github.syst3ms.skriptparser.util.TimeUtils;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class Skript extends SkriptAddon {
         }
         for (Trigger trigger : whenTriggers) {
             var ctx = new WhenContext();
-            ThreadUtils.runPeriodically(() -> Statement.runAll(trigger, ctx), Duration.ofMillis(TimeUtils.TICK));
+            ThreadUtils.runPeriodically(() -> Statement.runAll(trigger, ctx), Duration.ofMillis(DurationUtils.TICK));
         }
         for (Trigger trigger : atTimeTriggers) {
             var ctx = new AtTimeContext();
