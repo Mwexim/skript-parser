@@ -19,8 +19,8 @@ import java.util.function.Function;
  *
  * @name Date Information
  * @type EXPRESSION
- * @pattern [the] (year[s]|month[s]|day[s] (of|in) year|day[s] (of|in) month|day[s] (of|in) week|hour[s]|minute[s]|second[s]|milli[second][s]) of [date] %date%
- * @pattern [date] %date%'[s] (year[s]|month[s]|day[s] (of|in) year|day[s] (of|in) month|day[s] (of|in) week|hour[s]|minute[s]|second[s]|milli[second][s])
+ * @pattern [the] (year[s]|month[s]|day[s] (of|in) year|day[s] (of|in) month|day[s] (of|in) week|hour[s]|minute[s]|second[s]|milli[second][s]) (of|in) %date/time%
+ * @pattern [the] (era|month|weekday|day [(of|in) week]) [name] (of|in) [date] %date%
  * @since ALPHA
  * @author Mwexim
  */
@@ -48,8 +48,7 @@ public class ExprDateInformation implements Expression<Object> {
 				ExprDateInformation.class,
 				Object.class,
 				true,
-				6,
-				"[the] [amount of] " + NUMBER_VALUES.toChoiceGroup() + " (of|in) %date/time%",
+				"[the] " + NUMBER_VALUES.toChoiceGroup() + " (of|in) %date/time%",
 				"[the] " + STRING_VALUES.toChoiceGroup() + " [name] (of|in) [date] %date%"
 		);
 	}
@@ -64,7 +63,7 @@ public class ExprDateInformation implements Expression<Object> {
 		mark = parseContext.getNumericMark();
 
 		value = expressions[0];
-		return value.getReturnType() != Time.class || mark >= 5 && mark <=8;
+		return value.getReturnType() != Time.class || 5 <= mark && mark <= 8;
 	}
 
 	@Override
@@ -75,7 +74,6 @@ public class ExprDateInformation implements Expression<Object> {
 						if (val instanceof SkriptDate) {
 							return BigInteger.valueOf(NUMBER_VALUES.getInfo(mark).apply(((SkriptDate) val).toLocalDateTime()));
 						} else {
-							System.out.println("here");
 							assert val instanceof Time;
 							var todayAt = SkriptDate.today().plus(Duration.ofMillis(((Time) val).toMillis()));
 							return BigInteger.valueOf(NUMBER_VALUES.getInfo(mark).apply(todayAt.toLocalDateTime()));
