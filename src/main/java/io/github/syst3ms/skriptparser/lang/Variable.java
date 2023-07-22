@@ -37,8 +37,8 @@ public class Variable<T> implements Expression<T> {
     private final VariableString name;
     private final boolean local;
     private final boolean list;
-    private final Class<?> type;
-    private final Class<?> supertype;
+    private Class<?> type;
+    private Class<?> supertype;
 
     public Variable(VariableString name, boolean local, boolean list, Class<?> type) {
         this.name = name;
@@ -130,6 +130,11 @@ public class Variable<T> implements Expression<T> {
 
     public Class<? extends T> getReturnType() {
         return (Class<? extends T>) supertype;
+    }
+
+    public void setReturnType(Class<?> returnType) {
+        type = returnType;
+        supertype = ClassUtils.getCommonSuperclass(returnType);
     }
 
     @Override

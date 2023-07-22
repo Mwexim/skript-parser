@@ -46,9 +46,9 @@ public class TestRegistration {
 		 * Now, we need to change some fields to keep all tests consistent.
 		 */
 
-		// TIME_ZONE field
+		// defaultTimezone field
 		try {
-			Field timeZone = SkriptDate.class.getDeclaredField("TIME_ZONE");
+			Field timeZone = SkriptDate.class.getDeclaredField("defaultTimeZone");
 			timeZone.setAccessible(true);
 			timeZone.set(null, TimeZone.getTimeZone(ZoneOffset.UTC));
 		} catch (NoSuchFieldException | IllegalAccessException e) {

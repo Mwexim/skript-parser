@@ -78,7 +78,7 @@ public class ExprParseAs implements Expression<Object> {
 								SkriptDate.DATE_LOCALE
 						);
 						// We need to parse from the correct time zone.
-						parseFormat.setTimeZone(SkriptDate.getTimeZone());
+						parseFormat.setTimeZone(SkriptDate.getDefaultTimeZone());
 						try {
 							long timestamp = parseFormat.parse(s).getTime();
 							return SkriptDate.of(timestamp);
