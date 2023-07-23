@@ -14,7 +14,7 @@ test:
 	set {list::2} to 8.9
 	set {difference} to difference between {list::1} and {list::2}
 	assert {difference} is 5.5 with "Number difference between variables should be 5.5: %difference between {list::1} and {list::2}%"
-	assert difference between {list::1} and 5.0 is 1.6 with "Number difference wRith one variable should be 1.6: %difference between {list::1} and 5%"
+	assert difference between {list::1} and 5.0 is 1.6 with "Number difference with one variable should be 1.6: %difference between {list::1} and 5%"
 
 	# Non-comparable types
 	throws difference between now and 5 with "Date and number should not be comparable"
@@ -31,3 +31,7 @@ test:
 	assert difference between {var} and 6 = 4.5 with "Difference with number variable as first parameter should be 4.5: %difference between {var} and 6%"
 
 	assert difference between {list::1} and now is not set with "Difference between number variable and date should not return anything."
+
+	# Intersection types
+	compiles difference of now and 5 PM with "Difference between date and time should compile"
+	assert difference of 5 PM and now is less than 1 day with "Difference between time and day should be less than 1 day: %difference of 5 PM and now%"

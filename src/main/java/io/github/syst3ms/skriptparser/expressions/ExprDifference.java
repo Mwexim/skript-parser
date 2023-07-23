@@ -7,10 +7,8 @@ import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.attributes.Arithmetic;
-import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,7 +34,7 @@ public class ExprDifference implements Expression<Object> {
 
     private Expression<?> first, second;
     @Nullable
-    private Arithmetic arithmetic;
+    private TypeManager.IntersectionType intersectionType;
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
@@ -45,8 +43,8 @@ public class ExprDifference implements Expression<Object> {
         if (first instanceof Variable<?> || second instanceof Variable<?>)
             return true;
 
-        arithmetic = TypeManager.getByClass(ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())).flatMap(Type::getArithmetic).orElse(null);
-        if (arithmetic == null) {
+        var info = TypeManager.getByIntersection(Arithmetic.class, first.getReturnType(), second.getReturnType());
+        if (info.isEmpty()) {
             SkriptLogger logger = parseContext.getLogger();
             parseContext.getLogger().error(
                     "Cannot get the difference between "
@@ -57,6 +55,7 @@ public class ExprDifference implements Expression<Object> {
             );
             return false;
         }
+        intersectionType = info.get();
         return true;
     }
 
@@ -66,24 +65,30 @@ public class ExprDifference implements Expression<Object> {
         return DoubleOptional.ofOptional(first.getSingle(ctx), second.getSingle(ctx))
                 .mapToOptional((f, s) -> {
                     // If variables are used, the arithmetic field is not initialised.
-                    if (arithmetic == null) {
-                        arithmetic = TypeManager.getByClass(ClassUtils.getCommonSuperclass(f.getClass(), s.getClass()))
-                                .flatMap(Type::getArithmetic)
-                                .orElse(null);
+                    if (intersectionType == null) {
+                        var info = TypeManager.getByIntersection(Arithmetic.class, f.getClass(), s.getClass());
                         // If it's still null, then no difference can be found sadly...
-                        if (arithmetic == null)
+                        if (info.isEmpty())
                             return null;
+                        intersectionType = info.get();
                     }
-                    return new Object[] {arithmetic.difference(f, s)};
+
+                    // Convert the expressions to the intersection type
+                    var firstConverted = intersectionType.convert(f);
+                    var secondConverted = intersectionType.convert(s);
+                    if (firstConverted.isEmpty() || secondConverted.isEmpty())
+                        return null;
+                    Arithmetic arithmetic = intersectionType.getType().getArithmetic().orElseThrow();
+                    return new Object[] {arithmetic.difference(firstConverted.get(), secondConverted.get())};
                 })
                 .orElse(new Object[0]);
     }
 
     @Override
     public Class<?> getReturnType() {
-        return arithmetic != null
-                ? arithmetic.getRelativeType()
-                : ClassUtils.getCommonSuperclass(false, first.getReturnType(), second.getReturnType());
+        return intersectionType != null
+                ? intersectionType.getType().getArithmetic().orElseThrow().getRelativeType()
+                : Object.class;
     }
 
     @Override

@@ -17,3 +17,7 @@ test:
     set {var} to 14
     set {list::*} to range from {var} to 9
     assert {list::*} = 14, 13, 12, 11, 10 and 9
+
+    # Intersection types
+    set {list::*} to range from 7.4 down to 3.12345
+    assert {list::*} = 7, 6, 5, 4 and 3
