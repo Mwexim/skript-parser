@@ -103,7 +103,7 @@ public class SyntaxParserTest {
             var path = url.getPath();
             File[] files = new File(path).listFiles();
             if (files != null)
-            	return new File[0];
+            	return files;
         }
         return new File[0];
     }
