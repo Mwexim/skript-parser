@@ -543,6 +543,7 @@ public class SkriptRegistration {
         TagManager.register(this);
         Converters.registerConverters(this);
         Converters.createMissingConverters();
+        logger.finalizeLogs();
         return logger.close();
     }
 
