@@ -535,16 +535,31 @@ public class SkriptRegistration {
 
     /**
      * Adds all currently registered syntaxes to Skript's usable database.
+     * @return all possible errors, warnings and other logs that occurred while parsing the patterns
      */
     public List<LogEntry> register() {
+        return register(false);
+    }
+
+    /**
+     * Adds all currently registered syntaxes to Skript's usable database.
+     * @param ignoreLogs whether to return the logs and close the logger,
+     *                   or just ignore and clear them while keeping the logger open
+     * @return all possible errors, warnings and other logs that occurred while parsing the patterns
+     */
+    public List<LogEntry> register(boolean ignoreLogs) {
         SyntaxManager.register(this);
         ContextValues.register(this);
         TypeManager.register(this);
         TagManager.register(this);
         Converters.registerConverters(this);
         Converters.createMissingConverters();
-        logger.finalizeLogs();
-        return logger.close();
+        if (ignoreLogs) {
+            logger.clearLogs();
+            return new ArrayList<>();
+        } else {
+            return logger.close();
+        }
     }
 
     public interface Registrar {
@@ -662,7 +677,11 @@ public class SkriptRegistration {
             boolean computePriority = priority == -1;
             priority = computePriority ? 5 : priority;
             return patterns.stream()
-                    .map(s -> PatternParser.parsePattern(s, logger).orElse(null))
+                    .map(s -> {
+                        var result = PatternParser.parsePattern(s, logger).orElse(null);
+                        logger.finalizeLogs();
+                        return result;
+                    })
                     .filter(Objects::nonNull)
                     .peek(e -> {
                         if (computePriority)

@@ -93,7 +93,25 @@ public class PatternParser {
                 if (matcher.matches() && vertParts.get().length == 1) {
                     var mark = matcher.group(1);
                     optionalGroup = parsePattern(matcher.group(3), logger)
-                            .map(el -> new ChoiceElement(el, mark))
+                            .map(el -> {
+                                if (el instanceof ChoiceGroup && mark.isEmpty())
+                                    // Patterns like '[:(first|second)]' act differently than in the original Skript.
+                                    // Developers probably want to write ':[first|second]' instead, but the two actually
+                                    // have different behavior.
+                                    logger.warn(
+                                            "The parse mark in the '"
+                                                    + s.get()
+                                                    + "' part of the pattern will not be applied to all elements of the '"
+                                                    + matcher.group(3)
+                                                    + "' choice group, because it belongs to the whole optional group: ["
+                                                    + s.get()
+                                                    + "]",
+                                            "If this is unwanted behavior, use the syntax sugar ':["
+                                                    + matcher.group(3).substring(1, matcher.group(3).length() - 1)
+                                                    + "]' to denote optional choice groups"
+                                    );
+                                return new ChoiceElement(el, mark);
+                            })
                             .map(el -> new ChoiceGroup(Collections.singletonList(el)))
                             .map(OptionalGroup::new);
                 } else {
