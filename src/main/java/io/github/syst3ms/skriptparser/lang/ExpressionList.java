@@ -21,12 +21,14 @@ import java.util.function.Function;
  */
 @SuppressWarnings("unchecked")
 public class ExpressionList<T> implements Expression<T> {
-    protected final boolean single;
-    protected boolean and;
+
     protected Expression<? extends T>[] expressions;
-    private final Class<T> returnType;
+
     @Nullable
     private final ExpressionList<?> source;
+    private final Class<T> returnType;
+    protected final boolean single;
+    protected boolean and;
 
     public ExpressionList(Expression<? extends T>[] expressions, Class<T> returnType, boolean and) {
         this(expressions, returnType, and, null);
@@ -62,6 +64,14 @@ public class ExpressionList<T> implements Expression<T> {
     @Override
     public T[] getValues(TriggerContext ctx) {
         return getValues(expr -> expr.getValues(ctx));
+    }
+
+    /**
+     * Retrieves all {@link Expression}s within this ExpressionList.
+     * @return all {@link Expression}s relating to this ExpressionList.
+     */
+    public Expression<? extends T>[] getExpressions() {
+    	return expressions;
     }
 
     /**
@@ -196,4 +206,5 @@ public class ExpressionList<T> implements Expression<T> {
     public Expression<?> getSource() {
         return source != null ? source : this;
     }
+
 }
