@@ -19,11 +19,12 @@ import java.util.Optional;
  */
 @SuppressWarnings("unchecked")
 public class SimpleLiteral<T> implements Literal<T> {
-    private final T[] values;
+
     private boolean isAndList = true;
     private Class<T> returnType;
+    private final T[] values;
 
-    public SimpleLiteral(T[] values) {
+    public SimpleLiteral(T... values) {
         this.values = values;
     }
 
