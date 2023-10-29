@@ -25,10 +25,10 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build project
-        run: gradle build
+        run: gradlew build
 
       - name: Run tests
-        run: gradle test
+        run: gradlew test
 
       - name: Upload Nightly Build
         uses: actions/upload-artifact@v2
