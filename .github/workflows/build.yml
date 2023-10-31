@@ -2,16 +2,17 @@ name: Build, Test & Upload
 
 on:
   push:
-  pull_request:
-    branches-ignore:
+    branches:
       - master
+  pull_request:
 
 jobs:
   building:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
+      - name: validate gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
@@ -25,10 +26,10 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build project
-        run: gradle build
+        run: ./gradlew build
 
       - name: Run tests
-        run: gradle test
+        run: ./gradlew test
 
       - name: Upload Nightly Build
         uses: actions/upload-artifact@v2

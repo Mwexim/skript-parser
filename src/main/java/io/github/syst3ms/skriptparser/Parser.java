@@ -130,9 +130,7 @@ public class Parser {
         if (!logs.isEmpty()) {
             System.out.print(ConsoleColors.PURPLE);
             System.out.println("Registration log:");
-        }
-        printLogs(logs, time, false);
-        if (!logs.isEmpty()) {
+            printLogs(logs, time, true);
             System.out.println();
         }
     }

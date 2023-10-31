@@ -24,7 +24,6 @@ import java.util.Set;
  * </ul>
  */
 public abstract class SkriptEvent implements SyntaxElement {
-
     /**
      * Whether this event should trigger, given the {@link TriggerContext}
      * @param ctx the TriggerContext to check
@@ -32,7 +31,7 @@ public abstract class SkriptEvent implements SyntaxElement {
      */
     public abstract boolean check(TriggerContext ctx);
 
-    List<Statement> loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+    public List<Statement> loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
         return ScriptLoader.loadItems(section, parserState, logger);
     }
 
@@ -52,7 +51,7 @@ public abstract class SkriptEvent implements SyntaxElement {
 
     /**
      * A list of the classes of every syntax that is allowed to be used inside of this SkriptEvent. The default behavior
-     * is to return an empty list, which equates to no restrictions. If overriden, this allows the creation of specialized,
+     * is to return an empty list, which equates to no restrictions. If overridden, this allows the creation of specialized,
      * DSL-like sections in which only select {@linkplain Statement statements} and other {@linkplain CodeSection sections}
      * (and potentially, but not necessarily, expressions).
      * @return a list of the classes of each syntax allowed inside this SkriptEvent

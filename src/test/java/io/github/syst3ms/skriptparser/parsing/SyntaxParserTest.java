@@ -101,7 +101,9 @@ public class SyntaxParserTest {
         URL url = ClassLoader.getSystemResource(folder);
         if (url != null) {
             var path = url.getPath();
-            return new File(path).listFiles();
+            var files = new File(path).listFiles();
+            if (files != null)
+            	return files;
         }
         return new File[0];
     }
