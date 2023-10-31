@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.lang.entries.OptionLoader;
 import io.github.syst3ms.skriptparser.lang.entries.SectionConfiguration;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -24,13 +23,14 @@ public class SecCategory extends CodeSection {
         );
     }
 
-    private final SectionConfiguration config = new SectionConfiguration()
+    private final SectionConfiguration config = new SectionConfiguration.Builder()
             .addLiteral("number", BigInteger.class)
-            .addOptionList("multiple")
-            .addOptionList("more multiple values")
-            .addOption("unused")
-            .addLoader(new OptionLoader(false, "optional", true))
-            .addSection("die");
+            .addList("multiple")
+            .addList("more multiple values")
+            .addKey("unused")
+            .addOptionalKey("optional")
+            .addSection("die")
+            .build();
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {

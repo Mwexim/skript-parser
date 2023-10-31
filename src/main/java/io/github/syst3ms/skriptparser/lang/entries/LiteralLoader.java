@@ -12,13 +12,14 @@ import java.util.List;
 public class LiteralLoader<T> extends OptionLoader {
 	private final Class<T> typeClass;
 
-	public LiteralLoader(Class<T> typeClass, boolean multiple, String key, boolean optional) {
-		super(multiple, key, optional);
+	public LiteralLoader(String key, Class<T> typeClass, boolean multiple, boolean optional) {
+		super(key, multiple, optional);
 		this.typeClass = typeClass;
 	}
 
 	@Override
 	public boolean loadEntry(SectionConfiguration config, FileElement element, ParserState parserState, SkriptLogger logger) {
+		// We will use the loaded values later
 		if (!super.loadEntry(config, element, parserState, logger))
 			return false;
 
@@ -52,6 +53,8 @@ public class LiteralLoader<T> extends OptionLoader {
 			return successful;
 		} else {
 			var result = parser.apply(config.getString(key));
+			// We don't want this data to linger if an error occurs
+			config.getData().remove(key);
 			if (result == null) {
 				logger.error("Couldn't parse '" + config.getString(key) + "' as " + type.get().withIndefiniteArticle(false), ErrorType.SEMANTIC_ERROR);
 				return false;

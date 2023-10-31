@@ -12,7 +12,7 @@ public class OptionLoader extends EntryLoader {
 
 	private final boolean multiple;
 
-	public OptionLoader(boolean multiple, String key, boolean optional) {
+	public OptionLoader(String key, boolean multiple, boolean optional) {
 		super(key, optional);
 		this.multiple = multiple;
 	}
