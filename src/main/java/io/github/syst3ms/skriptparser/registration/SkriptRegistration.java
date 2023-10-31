@@ -50,6 +50,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -60,20 +61,38 @@ import java.util.stream.Collectors;
  * @see #getRegisterer()
  */
 public class SkriptRegistration {
-    private final SkriptAddon registerer;
-    private final SkriptLogger logger = new SkriptLogger();
+
     private final MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
-    private final List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
     private final List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
+    private final List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
+    private final List<Consumer<SkriptAddon>> finishConsumers = new ArrayList<>();
+    private final List<ContextValue<?, ?>> contextValues = new ArrayList<>();
+    private final List<ConverterInfo<?, ?>> converters = new ArrayList<>();
+    private final List<TagInfo<? extends Tag>> tags = new ArrayList<>();
     private final List<SkriptEventInfo<?>> events = new ArrayList<>();
     private final List<Type<?>> types = new ArrayList<>();
-    private final List<ConverterInfo<?, ?>> converters = new ArrayList<>();
-    private final List<ContextValue<?, ?>> contextValues = new ArrayList<>();
-    private final List<TagInfo<? extends Tag>> tags = new ArrayList<>();
-    private boolean newTypes = false;
+    private final SkriptAddon registerer;
+    private final SkriptLogger logger;
+    private boolean newTypes;
 
+    /**
+     * Construct a SkriptRegistration around a SkriptAddon.
+     * 
+     * @param registerer The SkriptAddon that this SkriptRegistration will be referencing.
+     */
     public SkriptRegistration(SkriptAddon registerer) {
+        this(registerer, new SkriptLogger());
+    }
+
+    /**
+     * Construct a SkriptRegistration around a SkriptAddon and the defined SkriptLogger to use.
+     * 
+     * @param registerer The SkriptAddon that this SkriptRegistration will be referencing.
+     * @parm logger The SkriptLogger used in the registration process.
+     */
+    public SkriptRegistration(SkriptAddon registerer, SkriptLogger logger) {
         this.registerer = registerer;
+        this.logger = logger;
     }
 
     /**
@@ -96,6 +115,7 @@ public class SkriptRegistration {
     public List<SyntaxInfo<? extends CodeSection>> getSections() {
         return sections;
     }
+
     /**
      * @return all currently registered events
      */
@@ -554,6 +574,7 @@ public class SkriptRegistration {
         TagManager.register(this);
         Converters.registerConverters(this);
         Converters.createMissingConverters();
+        finishConsumers.forEach(consumer -> consumer.accept(registerer));
         if (ignoreLogs) {
             logger.clearLogs();
             return new ArrayList<>();
@@ -834,6 +855,15 @@ public class SkriptRegistration {
             // Register the context value
             contextValues.add(new ContextValue<>(context, type.get(), isSingle, pattern.get(), function, state, usage, excluded));
         }
+    }
+
+    /**
+     * Add a consumer to be called when this SkriptRegistration finishes registration.
+     * 
+     * @param consumer The consumer with the SkriptAddon reference.
+     */
+    public void onFinishRegistration(Consumer<SkriptAddon> consumer) {
+        finishConsumers.add(consumer);
     }
 
     private void typeCheck() {
