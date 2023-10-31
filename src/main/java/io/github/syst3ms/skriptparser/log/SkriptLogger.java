@@ -188,7 +188,16 @@ public class SkriptLogger {
      * @param message the warning message
      */
     public void warn(String message) {
-        log(message, LogType.WARNING, null, null);
+        warn(message, null);
+    }
+
+    /**
+     * Logs a warning message
+     * @param message the warning message
+     * @param tip the tip for solving the warning
+     */
+    public void warn(String message, @Nullable String tip) {
+        log(message, LogType.WARNING, null, tip);
     }
 
     /**
@@ -282,12 +291,5 @@ public class SkriptLogger {
 
     public String getFileName() {
         return fileName;
-    }
-
-    /**
-     * @return whether or not this Logger has an error stored
-     */
-    public boolean hasError() {
-        return hasError;
     }
 }

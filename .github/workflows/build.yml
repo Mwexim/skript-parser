@@ -2,9 +2,9 @@ name: Build, Test & Upload
 
 on:
   push:
-  pull_request:
-    branches-ignore:
+    branches:
       - master
+  pull_request:
 
 jobs:
   building:
@@ -26,10 +26,10 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build project
-        run: gradle build
+        run: ./gradlew build
 
       - name: Run tests
-        run: gradle test
+        run: ./gradlew test
 
       - name: Upload Nightly Build
         uses: actions/upload-artifact@v2

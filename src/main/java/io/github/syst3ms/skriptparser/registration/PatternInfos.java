@@ -51,8 +51,12 @@ public class PatternInfos<T> {
      */
     public String toChoiceGroup() {
         var builder = new StringBuilder("(");
-        for (int i = 0; i < patterns.length; i++)
-            builder.append(i).append(':').append(patterns[i]).append('|');
+        for (int i = 0; i < patterns.length; i++) {
+            builder.append(i).append(':').append(patterns[i]);
+            if (i + 1 < patterns.length) {
+                builder.append("|");
+            }
+        }
         return builder.append(')').toString();
     }
 }
