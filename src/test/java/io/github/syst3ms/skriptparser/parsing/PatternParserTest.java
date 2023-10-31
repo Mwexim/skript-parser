@@ -134,15 +134,20 @@ public class PatternParserTest {
         // Optional with nested group with parse marks
         assertEqualsOptional(
                 new OptionalGroup(
-                        new CompoundElement(
-                                new TextElement("optional "),
-                                new ChoiceGroup(
-                                        new ChoiceElement(new TextElement("first choice"), null),
-                                        new ChoiceElement(new TextElement("second choice"), "second")
+                        new ChoiceGroup(
+                                new ChoiceElement(
+                                        new CompoundElement(
+                                                new TextElement("optional "),
+                                                new ChoiceGroup(
+                                                        new ChoiceElement(new TextElement("first choice"), null),
+                                                        new ChoiceElement(new TextElement("second choice"), "second")
+                                                )
+                                        ),
+                                        "optional"
                                 )
                         )
                 ),
-                parsePattern("[optional (first choice|second:second choice)]", logger)
+                parsePattern("[:optional (first choice|second:second choice)]", logger)
         );
 
         // Regex group

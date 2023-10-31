@@ -5,8 +5,6 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
-import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
-import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 import io.github.syst3ms.skriptparser.registration.tags.Tag;
 import io.github.syst3ms.skriptparser.registration.tags.TagManager;
 import io.github.syst3ms.skriptparser.types.TypeManager;
@@ -22,7 +20,6 @@ import java.util.Optional;
 /**
  * A string that possibly contains expressions inside it, meaning that its value may be unknown at parse time
  */
-@SuppressWarnings("ConfusingArgumentToVarargsMethod")
 public class VariableString extends TaggedExpression {
     /**
      * An array containing raw data for this {@link VariableString}.
@@ -268,9 +265,7 @@ public class VariableString extends TaggedExpression {
                 sb.append(((Tag) o).toString(false));
             } else {
                 assert o instanceof Expression;
-                Optional<? extends ExpressionInfo<? extends Expression<?>, ?>> exprInfo = SyntaxManager.getExpressionExact((Expression<?>) o);
-                assert exprInfo.isPresent();
-                sb.append("<").append(exprInfo.get().getReturnType().toString()).append(">");
+                sb.append("<").append(((Expression<?>) o).getReturnType().toString()).append(">");
             }
         }
         return sb.toString();
