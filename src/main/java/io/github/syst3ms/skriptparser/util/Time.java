@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Represents a time, written as HH:mm:ss.SSS.
+ * Represents a time, as one could see on a clock.
  * @author Mwexim
  */
 public class Time implements Comparable<Time> {
@@ -18,22 +18,22 @@ public class Time implements Comparable<Time> {
     public final static String TIME_FORMAT = "HH:mm:ss.SSS";
     public final static Locale TIME_LOCALE = Locale.US;
 
-    private final static Pattern DEFAULT_TIME_PATTERN = Pattern.compile("(\\d?\\d)h(\\d\\d)?");
-    private final static Pattern BRITISH_TIME_PATTERN = Pattern.compile("(\\d?\\d)(?::(\\d\\d))? ?(?:am|pm)", Pattern.CASE_INSENSITIVE);
-    private final static Pattern DETAILED_TIME_PATTERN = Pattern.compile("(\\d?\\d):(\\d\\d)(?::(?:(\\d\\d)(?:\\.(\\d\\d\\d))?))?");
-
     /**
      * Returns the latest possible time, being 23:59:59.999.
      */
     public final static Time LATEST = Time.of(23, 59, 59, 999);
     /**
-     * Represents midnight, being 00:00:00.000.
+     * Represents midnight, at 12 PM.
      */
     public final static Time MIDNIGHT = Time.of(0, 0, 0, 0);
     /**
-     * Represents noon, being 12:00:00.000.
+     * Represents noon, at 12 AM.
      */
     public final static Time NOON = Time.of(12, 0, 0, 0);
+
+    private final static Pattern DEFAULT_TIME_PATTERN = Pattern.compile("(\\d?\\d)h(\\d\\d)?");
+    private final static Pattern BRITISH_TIME_PATTERN = Pattern.compile("(\\d?\\d)(?::(\\d\\d))? ?(?:am|pm)", Pattern.CASE_INSENSITIVE);
+    private final static Pattern DETAILED_TIME_PATTERN = Pattern.compile("(\\d?\\d):(\\d\\d)(?::(?:(\\d\\d)(?:\\.(\\d\\d\\d))?))?");
 
     private LocalTime time;
 
@@ -50,7 +50,7 @@ public class Time implements Comparable<Time> {
     }
 
     /**
-     * The time instance from given values.
+     * A time instance from given values.
      * @param hours the hours, between 0 and 23
      * @param minutes the minutes, between 0 and 59
      * @param seconds the seconds, between 0 and 59
@@ -62,14 +62,19 @@ public class Time implements Comparable<Time> {
     }
 
     /**
-     * The time instance from a given LocalTime instance.
-     * @param time the LocalTime instance
+     * A time instance from a given LocalTime instance.
+     * @param time the time
      * @return a new time instance
      */
     public static Time of(LocalTime time) {
         return new Time(time);
     }
 
+    /**
+     * A time instance from a given date.
+     * @param date the date
+     * @return a new time instance
+     */
     public static Time of(SkriptDate date) {
         var lcd = date.toLocalDateTime();
         return new Time(LocalTime.of(lcd.getHour(), lcd.getMinute(), lcd.getSecond(), lcd.getNano()));
@@ -77,28 +82,29 @@ public class Time implements Comparable<Time> {
 
     /**
      * Parses a given string as a time, using one of the three patterns.
-     * @param value the string to parse
-     * @return an Optional describing the parsed Time instance
+     * @param toParse the string to parse
+     * @return an Optional describing the parsed Time instance,
+     * empty if no match was found.
      * @see #DEFAULT_TIME_PATTERN
      * @see #BRITISH_TIME_PATTERN
      * @see #DETAILED_TIME_PATTERN
      */
-    public static Optional<Time> parse(String value) {
-        if (value.isEmpty())
+    public static Optional<Time> parse(String toParse) {
+        if (toParse.isEmpty())
             return Optional.empty();
 
         Matcher matcher;
-        if (!(matcher = DEFAULT_TIME_PATTERN.matcher(value)).matches()
-                && !(matcher = BRITISH_TIME_PATTERN.matcher(value)).matches()
-                && !(matcher = DETAILED_TIME_PATTERN.matcher(value)).matches())
+        if (!(matcher = DEFAULT_TIME_PATTERN.matcher(toParse)).matches()
+                && !(matcher = BRITISH_TIME_PATTERN.matcher(toParse)).matches()
+                && !(matcher = DETAILED_TIME_PATTERN.matcher(toParse)).matches())
             return Optional.empty();
 
         int hours = Integer.parseInt(matcher.group(1));
         if (hours == 24)
             hours = 0; // Allows to write 24:00 -> 24:59 instead of 00:00 -> 00:59
-        if (value.toLowerCase().contains("am") && hours == 12)
+        if (toParse.toLowerCase().contains("am") && hours == 12)
             hours = 0; // Apparently 12AM is equal to 0:00.
-        if (value.toLowerCase().contains("pm") && hours != 12)
+        if (toParse.toLowerCase().contains("pm") && hours != 12)
             hours += 12;
 
         int count = matcher.groupCount();

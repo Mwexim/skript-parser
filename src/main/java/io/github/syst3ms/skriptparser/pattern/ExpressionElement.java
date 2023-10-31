@@ -10,9 +10,11 @@ import io.github.syst3ms.skriptparser.parsing.MatchContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.types.PatternType;
+import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -219,6 +221,18 @@ public class ExpressionElement implements PatternElement {
                         break;
                 }
                 return true;
+            });
+            /*
+             * If multiple types are possible, and a variable is matched, it will have the type
+             * of the first option, but all options should be supported.
+             * We manually change the return type of the variable awaiting a major overhaul.
+             * TODO create a better type system for this that supports union types
+             */
+            expression.ifPresent(e -> {
+                if (e instanceof Variable && types.length > 1) {
+                    var typeClasses = Arrays.stream(types).map(val -> val.getType().getTypeClass()).toArray(Class[]::new);
+                    ((Variable<?>) e).setReturnType(ClassUtils.getCommonSuperclass(typeClasses));
+                }
             });
             return expression;
         }

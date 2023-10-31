@@ -10,6 +10,11 @@ import java.util.function.Predicate;
 public class CollectionUtils {
     private static final Random rnd = new Random();
 
+    @SafeVarargs
+    public static <T> T[] arrayOf(T... values) {
+        return values;
+    }
+
     public static <T> T getRandom(T[] array) {
         return array[rnd.nextInt(array.length)];
     }

@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.registration.context.ContextValue;
 
 /**
  * The script loading event.
@@ -20,8 +21,10 @@ public class EvtScriptLoad extends SkriptEvent {
     static {
         Parser.getMainRegistration()
                 .newEvent(EvtScriptLoad.class, "script load[ing]")
-                .addContextValue(ScriptLoadContext.class, String.class, false, "arguments", ScriptLoadContext::getArguments)
                 .setHandledContexts(ScriptLoadContext.class)
+                .register();
+        Parser.getMainRegistration().newContextValue(ScriptLoadContext.class, String.class, false, "argument[s]", ScriptLoadContext::getArguments)
+                .setUsage(ContextValue.Usage.EXPRESSION_OR_ALONE)
                 .register();
     }
 
