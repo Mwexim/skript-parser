@@ -292,4 +292,12 @@ public class SkriptLogger {
     public String getFileName() {
         return fileName;
     }
+
+    /**
+     * @return whether or not this Logger has an error stored
+     */
+    public boolean hasError() {
+        return hasError;
+    }
+
 }
