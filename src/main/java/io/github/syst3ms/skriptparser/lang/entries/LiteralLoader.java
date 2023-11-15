@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LiteralLoader<T> extends OptionLoader {
+
 	private final Class<T> typeClass;
 
 	public LiteralLoader(String key, Class<T> typeClass, boolean multiple, boolean optional) {
@@ -38,7 +39,13 @@ public class LiteralLoader<T> extends OptionLoader {
 		if (isMultiple()) {
 			List<T> data = new ArrayList<>();
 			boolean successful = true;
-			for (var value : config.getStringList(key)) {
+
+			var list = config.getStringList(key);
+			if (!list.isPresent()) {
+				logger.error("List at key '" + key + "' does not exist.", ErrorType.SEMANTIC_ERROR);
+				return false;
+			}
+			for (var value : list.get()) {
 				var result = parser.apply(value);
 				if (result == null) {
 					// With the logic that errors get skipped, we will allow the other values to be parsed.
@@ -52,7 +59,12 @@ public class LiteralLoader<T> extends OptionLoader {
 			config.getData().put(key, data.toArray());
 			return successful;
 		} else {
-			var result = parser.apply(config.getString(key));
+			var value = config.getString(key);
+			if (!value.isPresent()) {
+				logger.error("Key '" + key + "' does not exist.", ErrorType.SEMANTIC_ERROR);
+				return false;
+			}
+			var result = parser.apply(value.get());
 			// We don't want this data to linger if an error occurs
 			config.getData().remove(key);
 			if (result == null) {
@@ -62,5 +74,7 @@ public class LiteralLoader<T> extends OptionLoader {
 			config.getData().put(key, result);
 			return true;
 		}
+
 	}
+
 }
