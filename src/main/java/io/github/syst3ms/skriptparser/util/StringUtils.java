@@ -212,8 +212,8 @@ public class StringUtils {
                 if (i + 1 < s.length()) {
                     sb.append(chars[++i]);
                 }
-            } else if (c == '(' || c == '[') {
-                var closing = c == '(' ? ')' : ']';
+            } else if (c == '(' || c == '[' || c == '<') {
+                var closing = c == '(' ? ')' : c == '[' ? ']' : '>';
                 var text = getEnclosedText(s, c, closing, i);
                 text.ifPresent(st -> sb.append(c).append(st).append(closing));
                 if (text.isPresent()) {
