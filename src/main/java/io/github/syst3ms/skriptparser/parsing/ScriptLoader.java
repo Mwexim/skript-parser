@@ -23,15 +23,28 @@ import java.util.List;
  * Contains the logic for loading, parsing and interpreting entire script files
  */
 public class ScriptLoader {
+
     private static final MultiMap<String, Trigger> triggerMap = new MultiMap<>();
 
     /**
-     * Parses and loads the provided script in memory
-     * @param scriptPath the script file to load
-     * @param debug whether debug is enabled
+     * Parses and loads the provided script in memory.
+     * 
+     * @param scriptPath the script file to load.
+     * @param debug whether debug is enabled.
      */
     public static List<LogEntry> loadScript(Path scriptPath, boolean debug) {
-        var logger = new SkriptLogger(debug);
+        return loadScript(scriptPath, new SkriptLogger(debug), debug);
+    }
+
+    /**
+     * Parses and loads the provided script in memory.
+     * The provided SkriptLogger can be used within syntaxes to input erroring into the logs during parse time.
+     * 
+     * @param scriptPath the script file to load.
+     * @param logger The {@link SkriptLogger} to use for the logged entries. Useful for custom logging.
+     * @param debug whether debug is enabled.
+     */
+    public static List<LogEntry> loadScript(Path scriptPath, SkriptLogger logger, boolean debug) {
         List<FileElement> elements;
         String scriptName;
         try {
