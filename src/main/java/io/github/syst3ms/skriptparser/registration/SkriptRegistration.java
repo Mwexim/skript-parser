@@ -88,7 +88,7 @@ public class SkriptRegistration {
      * Construct a SkriptRegistration around a SkriptAddon and the defined SkriptLogger to use.
      * 
      * @param registerer The SkriptAddon that this SkriptRegistration will be referencing.
-     * @parm logger The SkriptLogger used in the registration process.
+     * @param logger the SkriptLogger used in the registration process.
      */
     public SkriptRegistration(SkriptAddon registerer, SkriptLogger logger) {
         this.registerer = registerer;
@@ -874,7 +874,7 @@ public class SkriptRegistration {
     /**
      * Add a consumer to be called when this SkriptRegistration finishes registration.
      * 
-     * @param consumer The consumer with the SkriptAddon reference.
+     * @param consumer the consumer with the SkriptAddon reference.
      */
     public void onFinishRegistration(Consumer<SkriptAddon> consumer) {
         finishConsumers.add(consumer);
