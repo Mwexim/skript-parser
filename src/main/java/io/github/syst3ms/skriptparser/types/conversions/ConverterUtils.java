@@ -26,7 +26,8 @@ public class ConverterUtils {
     }
 
     public static <F, T> Function<?, Optional<? extends T>> createDoubleInstanceofConverter(ConverterInfo<F, ?> conv, Class<T> to) {
-        return createDoubleInstanceofConverter(conv.getFrom(), (Function<F, Optional<?>>) conv.getConverter(), to);
+        Function<? super F, ?> function = conv.getConverter();
+        return createDoubleInstanceofConverter(conv.getFrom(), (Function<F, Optional<?>>) function, to);
     }
 
     public static <F, T> Function<?, Optional<? extends T>> createDoubleInstanceofConverter(Class<F> from, Function<? super F, Optional<?>> conv, Class<T> to) {
