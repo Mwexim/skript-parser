@@ -153,6 +153,20 @@ public class SkriptRegistration {
     }
 
     /**
+     * Registers an {@link Expression} with the isSingle set to true by default.
+     * Mainly so you can override with {@link Expression#isSingle()}
+     * 
+     * @param c the Expression's class
+     * @param returnType the Expression's return type
+     * @param patterns the Expression's patterns
+     * @param <C> the Expression
+     * @param <T> the Expression's return type
+     */
+    public <C extends Expression<T>, T> void addExpression(Class<C> c, Class<T> returnType, String... patterns) {
+        newExpression(c, returnType, true, patterns).register();
+    }
+
+    /**
      * Registers an {@link Expression}
      * @param c the Expression's class
      * @param returnType the Expression's return type
