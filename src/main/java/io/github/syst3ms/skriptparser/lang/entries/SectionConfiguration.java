@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The SectionConfiguration class can be used to create simple and efficient data sections
@@ -124,28 +125,44 @@ public class SectionConfiguration {
 	 * This can only be used when you register your option as a {@link Builder#addLiteral(String, Class) literal},
 	 * otherwise, the option will likely be parsed as a String and throw an exception.
 	 * Options that allow literal lists are saved as an array.
+	 * Returns an empty Optional if the key is not present. This is only possible for optional keys.
+	 *
 	 * @param key the key
 	 * @param cls the class to cast to
-	 * @return the value cast to the given class
+	 * @return the value cast to the given class, or an empty Optional if the key was not specified
 	 * @param <T> the type of the value
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T getValue(String key, Class<T> cls) {
+	public <T> Optional<T> getValue(String key, Class<T> cls) {
 		var result = data.get(key);
+		if (result == null)
+			return Optional.empty();
 		if (result.getClass() == String.class && result.getClass() != cls)
 			throw new UnsupportedOperationException("The key '" + key + "' was not registered as a literal, was parsed as a String and can, therefore, not be cast to " + cls.getName());
-		return (T) result;
+		return Optional.of((T) result);
 	}
 
-	public String getString(String key) {
+	/**
+	 * @param key the key
+	 * @return the option value, or an empty Optional if the key was not specified
+	 */
+	public Optional<String> getString(String key) {
 		return getValue(key, String.class);
 	}
 
-	public String[] getStringList(String key) {
+	/**
+	 * @param key the key
+	 * @return the list values, or an empty Optional if the key was not specified
+	 */
+	public Optional<String[]> getStringList(String key) {
 		return getValue(key, String[].class);
 	}
 
-	public CodeSection getSection(String key) {
+	/**
+	 * @param key the key
+	 * @return the enclosed code section, or an empty Optional if the key was not specified
+	 */
+	public Optional<CodeSection> getSection(String key) {
 		return getValue(key, CodeSection.class);
 	}
 	
