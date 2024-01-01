@@ -27,7 +27,6 @@ import io.github.syst3ms.skriptparser.util.StringUtils;
 import io.github.syst3ms.skriptparser.variables.Variables;
 import org.intellij.lang.annotations.MagicConstant;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -238,7 +237,7 @@ public class SyntaxParser {
             var expr = (Optional<? extends Expression<Boolean>>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE, parserState, logger);
             if (expr.isPresent()) {
                 switch (conditional) {
-                    case 0: // Can't be conditional
+                    case NOT_CONDITIONAL: // Can't be conditional
                         if (ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
                             logger.error(
                                     "The boolean expression must not be conditional",
@@ -248,11 +247,11 @@ public class SyntaxParser {
                             return Optional.empty();
                         }
                         break;
-                    case 1: // Can be conditional
+                    case MAYBE_CONDITIONAL: // Can be conditional
                         if (ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
                             recentConditions.acknowledge((ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>) info);
                         }
-                    case 2: // Has to be conditional
+                    case CONDITIONAL: // Has to be conditional
                         if (!ConditionalExpression.class.isAssignableFrom(expr.get().getClass())) {
                             logger.error(
                                     "The boolean expression must be conditional",
@@ -533,9 +532,7 @@ public class SyntaxParser {
                 if (literalParser.isPresent()) {
                     var literal = literalParser.map(l -> (T) l.apply(s));
                     if (literal.isPresent() && expectedClass.isAssignableFrom(c)) {
-                        var one = (T[]) Array.newInstance(literal.get().getClass(), 1);
-                        one[0] = literal.get();
-                        return Optional.of(new SimpleLiteral<>(one));
+                        return Optional.of(new SimpleLiteral<>((Class<T>) literal.get().getClass(), literal.get()));
                     } else if (literal.isPresent()) {
                         return new SimpleLiteral<>((Class<T>) c, literal.get()).convertExpression(expectedType.getType().getTypeClass());
                     }

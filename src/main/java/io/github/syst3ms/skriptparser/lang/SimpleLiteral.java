@@ -19,17 +19,20 @@ import java.util.Optional;
  */
 @SuppressWarnings("unchecked")
 public class SimpleLiteral<T> implements Literal<T> {
-    private final T[] values;
+
     private boolean isAndList = true;
-    private Class<T> returnType;
+    private final Class<T> returnType;
+    private final T[] values;
 
     public SimpleLiteral(T[] values) {
         this.values = values;
+        this.returnType = (Class<T>) values.getClass().getComponentType();
     }
 
     @SafeVarargs
     public SimpleLiteral(Class<T> c, T... values) {
         this.values = Arrays.copyOf(values, values.length);
+        this.returnType = c;
     }
 
     @Override
@@ -60,11 +63,7 @@ public class SimpleLiteral<T> implements Literal<T> {
     }
 
     public Class<? extends T> getReturnType() {
-        if (returnType != null) {
-            return returnType;
-        } else {
-            return returnType = (Class<T>) values.getClass().getComponentType();
-        }
+        return returnType;
     }
 
     @Override
