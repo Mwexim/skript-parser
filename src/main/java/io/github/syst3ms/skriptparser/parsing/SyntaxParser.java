@@ -66,10 +66,10 @@ public class SyntaxParser {
      * The pattern type representing {@link Object}
      */
     // Gradle requires the cast, but IntelliJ considers it redundant
-    public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>(TypeManager.getByClass(Object.class).orElseThrow(AssertionError::new), true);
+    public static final PatternType<Object> OBJECT_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class).orElseThrow(AssertionError::new), true);
 
     // Gradle requires the cast, but IntelliJ considers it redundant
-    public static final PatternType<Object> OBJECTS_PATTERN_TYPE = new PatternType<>(TypeManager.getByClass(Object.class).orElseThrow(AssertionError::new), false);
+    public static final PatternType<Object> OBJECTS_PATTERN_TYPE = new PatternType<>((Type<Object>) TypeManager.getByClass(Object.class).orElseThrow(AssertionError::new), false);
 
 
     // We control input, so new SkriptLogger instance is fine
@@ -532,7 +532,7 @@ public class SyntaxParser {
                 if (literalParser.isPresent()) {
                     var literal = literalParser.map(l -> (T) l.apply(s));
                     if (literal.isPresent() && expectedClass.isAssignableFrom(c)) {
-                        return Optional.of(new SimpleLiteral<>(literal.get()));
+                        return Optional.of(new SimpleLiteral<>((Class<T>) literal.get().getClass(), literal.get()));
                     } else if (literal.isPresent()) {
                         return new SimpleLiteral<>((Class<T>) c, literal.get()).convertExpression(expectedType.getType().getTypeClass());
                     }
