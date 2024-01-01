@@ -1,6 +1,8 @@
 # Author(s):
 # 	- Mwexim
-# Date: 2021/11/23
+# Date:
+#	- 2021/11/23
+#   - 2024/01/01 (NullPointerException fix)
 
 test:
 	birth:
@@ -28,3 +30,6 @@ test:
 
 	# In the code, it sets this variable to the joined values
 	assert {multiple} is equal to "This is the first value;This is the second value" with "{multiple} has not been set correctly: %{multiple}%"
+
+	# The 'optional' option was not specified, so in the code, this variable should not be set
+	assert {optional} is not set with "{optional} has been set when it shouldn't have been: %{optional}%"

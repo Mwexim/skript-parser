@@ -38,7 +38,7 @@ public class LiteralLoader<T> extends OptionLoader {
 		if (isMultiple()) {
 			List<T> data = new ArrayList<>();
 			boolean successful = true;
-			for (var value : config.getStringList(key)) {
+			for (var value : config.getStringList(key).orElse(new String[0])) {
 				var result = parser.apply(value);
 				if (result == null) {
 					// With the logic that errors get skipped, we will allow the other values to be parsed.
@@ -52,7 +52,7 @@ public class LiteralLoader<T> extends OptionLoader {
 			config.getData().put(key, data.toArray());
 			return successful;
 		} else {
-			var result = parser.apply(config.getString(key));
+			var result = parser.apply(config.getString(key).orElseThrow());
 			// We don't want this data to linger if an error occurs
 			config.getData().remove(key);
 			if (result == null) {
