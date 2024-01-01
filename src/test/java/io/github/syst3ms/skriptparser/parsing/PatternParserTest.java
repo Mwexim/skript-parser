@@ -155,6 +155,10 @@ public class PatternParserTest {
                 new RegexGroup(Pattern.compile(".+")),
                 parsePattern("<.+>", logger)
         );
+        assertEqualsOptional(
+                new RegexGroup(Pattern.compile("(\\d*1)st|(\\d*2)nd|(\\d*3)rd|(\\d*[4-90])th")),
+                parsePattern("<(\\d*1)st|(\\d*2)nd|(\\d*3)rd|(\\d*[4-90])th>", logger)
+        );
 
         // Expression elements
         assertEqualsOptional(
