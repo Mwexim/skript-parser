@@ -24,6 +24,7 @@ public class SimpleLiteral<T> implements Literal<T> {
     private Class<T> returnType;
     private final T[] values;
 
+    @SafeVarargs
     public SimpleLiteral(T... values) {
         this.values = values;
     }
