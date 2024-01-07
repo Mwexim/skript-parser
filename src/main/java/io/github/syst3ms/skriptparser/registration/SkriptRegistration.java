@@ -223,8 +223,8 @@ public class SkriptRegistration {
      * @param <T> the Expression's return type
      * @return an {@link ExpressionRegistrar} to continue the registration process
      */
-    public <C extends PropertyExpression<T, ?>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, String owner, String property) {
-        return (ExpressionRegistrar<C, T>) newExpression(c, returnType, false, PropertyExpression.composePatterns(owner, property))
+    public <C extends PropertyExpression<?, T>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, String property, String owner) {
+        return (ExpressionRegistrar<C, T>) newExpression(c, returnType, false, PropertyExpression.composePatterns(property, owner))
                 .addData(PropertyExpression.PROPERTY_IDENTIFIER, property);
     }
 
@@ -237,8 +237,8 @@ public class SkriptRegistration {
      * @param <C> the Expression
      * @param <T> the Expression's return type
      */
-    public <C extends PropertyExpression<T, ?>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, String owner, String property) {
-        newPropertyExpression(c, returnType, owner, property).register();
+    public <C extends PropertyExpression<?, T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, String property, String owner) {
+        newPropertyExpression(c, returnType, property, owner).register();
     }
 
     /**
@@ -251,8 +251,8 @@ public class SkriptRegistration {
      * @param <C> the Expression
      * @param <T> the Expression's return type
      */
-    public <C extends PropertyExpression<T, ?>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, int priority, String owner, String property) {
-        newPropertyExpression(c, returnType, owner, property).setPriority(priority).register();
+    public <C extends PropertyExpression<?, T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, int priority, String property, String owner) {
+        newPropertyExpression(c, returnType, property, owner).setPriority(priority).register();
     }
 
     /**

@@ -19,13 +19,13 @@ import java.math.BigInteger;
  * @since ALPHA
  * @author Mwexim
  */
-public class ExprColorValues extends PropertyExpression<Object, Color> {
+public class ExprColorValues extends PropertyExpression<Color, Object> {
 	static {
 		Parser.getMainRegistration().addPropertyExpression(
 				ExprColorValues.class,
 				Object.class,
-				"colors",
-				"(0:hex[adecimal]|1:red|2:green|3:blue|4:alpha) value"
+				"(0:hex[adecimal]|1:red|2:green|3:blue|4:alpha) value",
+				"colors"
 		);
 	}
 
