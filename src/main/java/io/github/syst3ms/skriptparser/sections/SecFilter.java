@@ -38,6 +38,10 @@ public class SecFilter extends ReturnSection<Boolean> implements SelfReferencing
                 SecFilter.class,
                 "filter %~objects%"
         );
+        /**
+         * filter {_test::*}:
+         *     return type of input is pig
+         */
     }
 
     private Expression<?> filtered;
