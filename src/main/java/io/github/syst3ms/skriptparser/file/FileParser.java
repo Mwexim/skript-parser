@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -15,6 +16,9 @@ import java.util.regex.Pattern;
  */
 public class FileParser {
     public static final Pattern LINE_PATTERN = Pattern.compile("^((?:[^#]|##)*)(\\s*#(?!#).*)$"); // Might as well take that from Skript
+
+    // 0 = not in a comment, 1 = in a one-line comment, 2 = in a block comment
+    private static int COMMENT_STATUS = 0;
 
     /**
      * Parses a {@linkplain List} of strings into a list of {@link FileElement}s. This creates {@link FileElement} and
@@ -33,10 +37,8 @@ public class FileParser {
         for (var i = 0; i < lines.size(); i++) {
             var line = lines.get(i);
             String content = removeComments(line);
-
-            if (content == null) {
-                content = line.replace("##", "#").strip();
-            } else if (content.isEmpty()) {
+            //System.out.println(content);
+            if (content.isEmpty()) {
                 elements.add(new VoidElement(fileName, lastLine + i, expectedIndentation));
                 continue;
             }
@@ -92,39 +94,51 @@ public class FileParser {
      */
     @Nullable
     private static String removeComments(String string) {
-        if (string.matches("^[\\s\\t]*#[^#]+") || string.startsWith("#") || string.isBlank()) {
-            return ""; // Whole string is a comment
-        }
-
-        var builder = new StringBuilder();
-        outer:
+        StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < string.length(); i++) {
             char c = string.charAt(i);
-
             if (c == '#') {
-                if (string.charAt(i + 1) == '#') {
-                    builder.append(c).append(string.charAt(++i));
-                } else {
-                    var checked = string.substring(i + 1);
-                    for (int j : new int[] {3, 6, 8}) {
-                        if (checked.length() >= j
-                                && Color.COLOR_PATTERN.matcher(checked.substring(0, j)).matches()) {
-                            builder.append(c).append(checked, 0, j);
-                            i+=j;
-                            continue outer;
+                switch (COMMENT_STATUS) {
+                    case 0:
+                        //System.out.println("debug color match: " + Color.COLOR_PATTERN.matcher("ffff0000").matches());
+                        for (int j : new int[]{3, 6, 8}) {
+                            if (i + j <= string.length() - 1) {
+                                //System.out.println("debug string: " + string.substring(i + 1, i + j + 1));
+                                if (!Color.COLOR_PATTERN.matcher(string.substring(i + 1, i + j + 1)).matches()) {
+                                    //System.out.println("yolo debug 1");
+                                    COMMENT_STATUS = 1;
+                                }
+                            } else {
+                                COMMENT_STATUS = 1;
+                                break;
+                            }
                         }
-                    }
+                        break;
+                    case 1:
+                        if (string.length() <= i + 1 && string.charAt(i + 1) == '#')
+                            COMMENT_STATUS = 2;
 
-                    // Comment was found. Erase it from the string
-                    assert !builder.toString().isEmpty();
-                    return builder.toString().strip();
+                        else if(string.charAt(i - 1) == '#')
+                            COMMENT_STATUS = 0;
+
                 }
-            } else {
-                builder.append(c);
             }
+            /*
+            System.out.println(
+                    "Caractere : " + c + '\n' + "Caractere numero : " + i
+                            + '\n' + "Status commentaire: " + COMMENT_STATUS + '\n'
+            );
+
+             */
+            if (COMMENT_STATUS == 0)
+                stringBuilder.append(c);
+
+
         }
-        if (builder.toString().equals(string))
-            return null;
-        return builder.toString().strip();
+        if (COMMENT_STATUS != 2) COMMENT_STATUS = 0;
+
+        return stringBuilder.toString().strip();
+
     }
+
 }
