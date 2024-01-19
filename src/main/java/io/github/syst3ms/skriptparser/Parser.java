@@ -77,7 +77,7 @@ public class Parser {
         mainPackages[mainPackages.length - 1] = "io.github.syst3ms.skriptparser";
         List<String> sub = new ArrayList<>();
         sub.addAll(Arrays.asList(subPackages));
-        sub.addAll(Arrays.asList("expressions", "effects", "event", "lang", "sections", "tags"));
+        sub.addAll(Arrays.asList("expressions", "effects", "event", "lang", "sections", "structures", "tags"));
         subPackages = sub.toArray(new String[0]);
         try {
             for (String mainPackage : mainPackages) {
@@ -138,7 +138,10 @@ public class Parser {
     public static void run(String scriptName, boolean debug, boolean tipsEnabled) {
         Calendar time = Calendar.getInstance();
         Path scriptPath = Paths.get(scriptName);
+        long start = System.currentTimeMillis();
         logs = ScriptLoader.loadScript(scriptPath, debug);
+        long elapsed = System.currentTimeMillis()-start;
+        System.out.println("Script \"" + scriptName + "\" has been parsed in " + elapsed + "ms");
         if (!logs.isEmpty()) {
             System.out.print(ConsoleColors.PURPLE);
             System.out.println("Parsing log:");

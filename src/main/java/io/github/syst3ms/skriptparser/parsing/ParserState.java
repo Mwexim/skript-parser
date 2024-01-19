@@ -19,6 +19,7 @@ public class ParserState {
     private final LinkedList<CodeSection> currentSections = new LinkedList<>();
     private final LinkedList<LinkedList<Statement>> currentStatements = new LinkedList<>();
     private final LinkedList<Pair<Set<Class<? extends SyntaxElement>>, Boolean>> restrictions = new LinkedList<>();
+    private boolean isntAllowingSyntax = false;
 
     {
         currentStatements.add(new LinkedList<>());
@@ -103,6 +104,7 @@ public class ParserState {
      * @param restrictingExpressions whether expressions are also restricted
      */
     public void setSyntaxRestrictions(Set<Class<? extends SyntaxElement>> allowedSyntaxes, boolean restrictingExpressions) {
+        if (allowedSyntaxes == null) isntAllowingSyntax = true;
         restrictions.addLast(new Pair<>(allowedSyntaxes, restrictingExpressions));
     }
 
@@ -110,6 +112,7 @@ public class ParserState {
      * Clears the previously enforced syntax restrictions
      */
     public void clearSyntaxRestrictions() {
+        isntAllowingSyntax = false;
         restrictions.removeLast();
     }
 
@@ -118,6 +121,7 @@ public class ParserState {
      * @return whether the current syntax restrictions forbid a given syntax or not
      */
     public boolean forbidsSyntax(Class<? extends SyntaxElement> c) {
+        if (isntAllowingSyntax) return true;
         var allowedSyntaxes = restrictions.getLast().getFirst();
         return !allowedSyntaxes.isEmpty() && !allowedSyntaxes.contains(c);
     }
