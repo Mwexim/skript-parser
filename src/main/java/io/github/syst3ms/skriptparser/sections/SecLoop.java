@@ -16,6 +16,7 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
+import io.github.syst3ms.skriptparser.variables.Variables;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
@@ -55,8 +56,9 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
 
 	@Override
 	public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+		if (!super.loadSection(section, parserState, logger)) return false;
 		super.setNext(this);
-		return super.loadSection(section, parserState, logger);
+		return true;
 	}
 
 	@SuppressWarnings("unchecked")
