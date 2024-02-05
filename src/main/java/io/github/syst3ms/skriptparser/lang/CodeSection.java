@@ -101,6 +101,12 @@ public abstract class CodeSection extends Statement {
         return Optional.ofNullable(last).or(this::getNext);
     }
 
+    @Override
+    public Statement setNext(@Nullable Statement next) {
+        if (last != null) last.setNext(next);
+        return super.setNext(next);
+    }
+
     /**
      * A list of the classes of every syntax that is allowed to be used inside of this CodeSection. The default behavior
      * is to return an empty list, which equates to no restrictions. If overridden, this allows the creation of specialized,
