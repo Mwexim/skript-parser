@@ -179,7 +179,7 @@ public abstract class Converters {
 	 * @return a T[] array without null elements
 	 */
     @SuppressWarnings("unchecked")
-    public static <T> Optional<T[]> convertArray(@Nullable Object[] o, Class<T> to) {
+    public static <T> Optional<T[]> convertArray(Object @Nullable [] o, Class<T> to) {
         if (o == null)
             return Optional.empty();
         if (to.isAssignableFrom(o.getClass().getComponentType()))
