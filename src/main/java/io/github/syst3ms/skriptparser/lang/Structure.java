@@ -12,7 +12,9 @@ import java.util.List;
 public abstract class Structure extends SkriptEvent {
 
 
-	protected abstract SectionConfiguration getConfiguration();
+	protected SectionConfiguration getConfiguration() {
+		return null;
+	}
 
 	@Override
 	public List<Statement> loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
@@ -22,7 +24,7 @@ public abstract class Structure extends SkriptEvent {
 			List<FileElement> elements = section.getElements();
 			elements.subList(0, configuration.getEntries().size()).clear();
 		}
-		return ScriptLoader.loadItems(section, parserState, logger); // no items to run should be found so we return null
+		return ScriptLoader.loadItems(section, parserState, logger);
 	}
 
 	/**

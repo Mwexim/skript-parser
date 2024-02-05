@@ -77,7 +77,7 @@ public class Parser {
         mainPackages[mainPackages.length - 1] = "io.github.syst3ms.skriptparser";
         List<String> sub = new ArrayList<>();
         sub.addAll(Arrays.asList(subPackages));
-        sub.addAll(Arrays.asList("expressions", "effects", "event", "lang", "sections", "structures", "tags"));
+        sub.addAll(Arrays.asList("expressions", "effects", "event", "lang", "sections", "structures", "javafunctions", "tags"));
         subPackages = sub.toArray(new String[0]);
         try {
             for (String mainPackage : mainPackages) {
