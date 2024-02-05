@@ -141,10 +141,7 @@ public class DefaultRegistration {
                 })
                 .register();
 
-        registration.newType(String.class, "string", "string@s")
-                .literalParser(s -> s)
-                .toStringFunction(s -> s)
-                .register();
+        registration.addType(String.class, "string", "string@s");
 
         registration.newType(Boolean.class, "boolean", "boolean@s")
                 .literalParser(s -> {
