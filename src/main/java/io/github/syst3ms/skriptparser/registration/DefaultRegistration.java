@@ -69,48 +69,7 @@ public class DefaultRegistration {
                         return o.toString();
                     }
                 })
-                .arithmetic(new Arithmetic<Number, Number>() {
-                    @Override
-                    public Number difference(Number first, Number second) {
-                        if (first instanceof BigDecimal || second instanceof BigDecimal) {
-                            var f = BigDecimalMath.getBigDecimal(first);
-                            var s = BigDecimalMath.getBigDecimal(second);
-                            return f.subtract(s).abs();
-                        } else {
-                            assert first instanceof BigInteger && second instanceof BigInteger;
-                            return ((BigInteger) first).subtract(((BigInteger) second)).abs();
-                        }
-                    }
-
-                    @Override
-                    public Number add(Number value, Number difference) {
-                        if (value instanceof BigDecimal || difference instanceof BigDecimal) {
-                            var v = BigDecimalMath.getBigDecimal(value);
-                            var d = BigDecimalMath.getBigDecimal(difference);
-                            return v.add(d);
-                        } else {
-                            assert value instanceof BigInteger && difference instanceof BigInteger;
-                            return ((BigInteger) value).add(((BigInteger) difference));
-                        }
-                    }
-
-                    @Override
-                    public Number subtract(Number value, Number difference) {
-                        if (value instanceof BigDecimal || difference instanceof BigDecimal) {
-                            var v = BigDecimalMath.getBigDecimal(value);
-                            var d = BigDecimalMath.getBigDecimal(difference);
-                            return v.subtract(d);
-                        } else {
-                            assert value instanceof BigInteger && difference instanceof BigInteger;
-                            return ((BigInteger) value).subtract(((BigInteger) difference));
-                        }
-                    }
-
-                    @Override
-                    public Class<? extends Number> getRelativeType() {
-                        return Number.class;
-                    }
-                }).register();
+                .register();
 
         registration.newType(BigInteger.class, "integer", "integer@s")
                 .literalParser(s -> {
@@ -118,27 +77,6 @@ public class DefaultRegistration {
                         return null;
                     s = s.replaceAll("_", "");
                     return s.matches(INTEGER_PATTERN) ? new BigInteger(s) : null;
-                })
-                .arithmetic(new Arithmetic<BigInteger, BigInteger>() {
-                    @Override
-                    public BigInteger difference(BigInteger first, BigInteger second) {
-                        return first.subtract(second).abs();
-                    }
-
-                    @Override
-                    public BigInteger add(BigInteger value, BigInteger difference) {
-                        return value.add(difference);
-                    }
-
-                    @Override
-                    public BigInteger subtract(BigInteger value, BigInteger difference) {
-                        return value.subtract(difference);
-                    }
-
-                    @Override
-                    public Class<? extends BigInteger> getRelativeType() {
-                        return BigInteger.class;
-                    }
                 })
                 .register();
 
@@ -174,78 +112,15 @@ public class DefaultRegistration {
         registration.newType(Duration.class, "duration", "duration@s")
                 .literalParser(s -> DurationUtils.parseDuration(s).orElse(null))
                 .toStringFunction(DurationUtils::toStringDuration)
-                .arithmetic(new Arithmetic<Duration, Duration>() {
-                    @Override
-                    public Duration difference(Duration first, Duration second) {
-                        return first.minus(second).abs();
-                    }
-
-                    @Override
-                    public Duration add(Duration value, Duration difference) {
-                        return value.plus(difference);
-                    }
-
-                    @Override
-                    public Duration subtract(Duration value, Duration difference) {
-                        return value.minus(difference);
-                    }
-
-                    @Override
-                    public Class<? extends Duration> getRelativeType() {
-                        return Duration.class;
-                    }
-                })
                 .register();
 
         registration.newType(SkriptDate.class, "date", "date@s")
                 .toStringFunction(SkriptDate::toString)
-                .arithmetic(new Arithmetic<SkriptDate, Duration>() {
-                    @Override
-                    public Duration difference(SkriptDate first, SkriptDate second) {
-                        return first.difference(second);
-                    }
-
-                    @Override
-                    public SkriptDate add(SkriptDate value, Duration difference) {
-                        return value.plus(difference);
-                    }
-
-                    @Override
-                    public SkriptDate subtract(SkriptDate value, Duration difference) {
-                        return value.minus(difference);
-                    }
-
-                    @Override
-                    public Class<? extends Duration> getRelativeType() {
-                        return Duration.class;
-                    }
-                })
                 .register();
 
         registration.newType(Time.class, "time", "time@s")
                 .literalParser(s -> Time.parse(s).orElse(null))
                 .toStringFunction(Time::toString)
-                .arithmetic(new Arithmetic<Time, Duration>() {
-                    @Override
-                    public Duration difference(Time first, Time second) {
-                        return first.difference(second);
-                    }
-
-                    @Override
-                    public Time add(Time value, Duration difference) {
-                        return value.plus(difference);
-                    }
-
-                    @Override
-                    public Time subtract(Time value, Duration difference) {
-                        return value.minus(difference);
-                    }
-
-                    @Override
-                    public Class<? extends Duration> getRelativeType() {
-                        return Duration.class;
-                    }
-                })
                 .register();
 
         /*

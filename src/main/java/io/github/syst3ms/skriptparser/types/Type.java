@@ -23,8 +23,6 @@ public class Type<T> {
     private final Function<String, ? extends T> literalParser;
     @Nullable
     private final Changer<? super T> defaultChanger;
-    @Nullable
-    private final Arithmetic<T, ?> arithmetic;
 
     /**
      * Constructs a new Type.
@@ -87,30 +85,19 @@ public class Type<T> {
         this(typeClass, baseName, pattern, literalParser, toStringFunction, null);
     }
 
-    public Type(Class<T> typeClass,
-                String baseName,
-                String pattern,
-                @Nullable Function<String, ? extends T> literalParser,
-                Function<? super T, String> toStringFunction,
-                @Nullable Changer<? super T> defaultChanger) {
-        this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger, null);
-    }
-
     @SuppressWarnings("unchecked")
     public Type(Class<T> typeClass,
                 String baseName,
                 String pattern,
                 @Nullable Function<String, ? extends T> literalParser,
                 Function<? super T, String> toStringFunction,
-                @Nullable Changer<? super T> defaultChanger,
-                @Nullable Arithmetic<T, ?> arithmetic) {
+                @Nullable Changer<? super T> defaultChanger) {
         this.typeClass = typeClass;
         this.baseName = baseName;
         this.literalParser = literalParser;
         this.toStringFunction = (Function<Object, String>) toStringFunction;
         this.pluralForms = StringUtils.getForms(pattern.strip());
         this.defaultChanger = defaultChanger;
-        this.arithmetic = arithmetic;
     }
 
     public boolean isPlural(String input) {
@@ -146,10 +133,6 @@ public class Type<T> {
 
     public Optional<? extends Changer<? super T>> getDefaultChanger() {
         return Optional.ofNullable(defaultChanger);
-    }
-
-    public Optional<? extends Arithmetic<T, ?>> getArithmetic() {
-        return Optional.ofNullable(arithmetic);
     }
 
     /**

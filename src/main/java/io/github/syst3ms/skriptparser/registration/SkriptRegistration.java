@@ -614,8 +614,6 @@ public class SkriptRegistration {
         private Function<String, ? extends C> literalParser;
         @Nullable
         private Changer<? super C> defaultChanger;
-        @Nullable
-        private Arithmetic<C, ?> arithmetic;
 
         public TypeRegistrar(Class<C> c, String baseName, String pattern) {
             this.c = c;
@@ -651,21 +649,12 @@ public class SkriptRegistration {
         }
 
         /**
-         * @param arithmetic a default {@link Arithmetic} for this type
-         * @return the registrar
-         */
-        public <R> TypeRegistrar<C> arithmetic(Arithmetic<C, R> arithmetic) {
-            this.arithmetic = arithmetic;
-            return this;
-        }
-
-        /**
          * Adds this type to the list of currently registered syntaxes
          */
         @Override
         public void register() {
             newTypes = true;
-            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic));
+            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger));
         }
     }
 

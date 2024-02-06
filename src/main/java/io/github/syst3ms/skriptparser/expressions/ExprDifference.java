@@ -1,6 +1,9 @@
 package io.github.syst3ms.skriptparser.expressions;
 
 import io.github.syst3ms.skriptparser.Parser;
+import io.github.syst3ms.skriptparser.expressions.arithmetic.Arithmetics;
+import io.github.syst3ms.skriptparser.expressions.arithmetic.DifferenceInfo;
+import io.github.syst3ms.skriptparser.expressions.arithmetic.ExprArithmetic;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
@@ -14,6 +17,7 @@ import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Array;
 import java.util.Optional;
 
 /**
@@ -37,107 +41,127 @@ public class ExprDifference implements Expression<Object> {
     }
 
     private Expression<?> first, second;
-    private boolean variablePresent;
     @SuppressWarnings("rawtypes")
-    @Nullable
-    private Arithmetic arithmetic;
+    private DifferenceInfo differenceInfo;
 
     @Override
-    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        first = expressions[0];
-        second = expressions[1];
-        Optional<? extends Type<?>> type;
+    public boolean init(Expression<?>[] exprs, int matchedPattern, ParseContext parseContext) {
+        Expression<?> first = exprs[0];
+        Expression<?> second = exprs[1];
 
-        if (first instanceof Literal<?> && second instanceof Literal<?>) {
-            type = TypeManager.getByClass(
-                    ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())
-            );
-        } else if (first instanceof Variable<?> && second instanceof Variable<?>) {
-            variablePresent = true;
-            type = TypeManager.getByClassExact(Object.class);
-        } else {
-            // If the values are Literals, we want to use that to convert them as much as possible.
-            if (first instanceof Literal<?>) {
-                var firstConverted = first.convertExpression(second.getReturnType());
-                if (firstConverted.isEmpty())
-                    return false;
-                first = firstConverted.get();
-            } else if (second instanceof Literal<?>) {
-                var secondConverted = second.convertExpression(first.getReturnType());
-                if (secondConverted.isEmpty())
-                    return false;
-                second = secondConverted.get();
+        Class<?> firstReturnType = first.getReturnType();
+        Class<?> secondReturnType = second.getReturnType();
+        Class<?> superType = ExprArithmetic.getSuperClass(firstReturnType, secondReturnType);
+
+        boolean fail = false;
+
+        if (superType == Object.class && (firstReturnType != Object.class || secondReturnType != Object.class)) {
+            // We may not have a way to obtain the difference between these two values. Further checks needed.
+
+            // These two types are unrelated, meaning conversion is needed
+            if (firstReturnType != Object.class && secondReturnType != Object.class) {
+
+                // We will work our way out of failure
+                fail = true;
+
+                // Attempt to use first type's math
+                differenceInfo = Arithmetics.getDifferenceInfo(firstReturnType);
+                if (differenceInfo != null) { // Try to convert second to first
+                    Expression<?> secondConverted = second.convertExpression(firstReturnType).orElse(null);
+                    if (secondConverted != null) {
+                        second = secondConverted;
+                        fail = false;
+                    }
+                }
+
+                if (fail) { // First type won't work, try second type
+                    differenceInfo = Arithmetics.getDifferenceInfo(secondReturnType);
+                    if (differenceInfo != null) { // Try to convert first to second
+                        Expression<?> firstConverted = first.convertExpression(secondReturnType).orElse(null);
+                        if (firstConverted != null) {
+                            first = firstConverted;
+                            fail = false;
+                        }
+                    }
+                }
+
+            } else { // It may just be the case that the type of one of our values cannot be known at parse time
+                Expression<?> converted;
+                if (firstReturnType == Object.class) {
+                    converted = first.convertExpression(secondReturnType).orElse(null);
+                    if (converted != null) { // This may fail if both types are Object
+                        first = converted;
+                    }
+                } else { // This is an else statement to avoid X->Object conversions
+                    converted = second.convertExpression(firstReturnType).orElse(null);
+                    if (converted != null) {
+                        second = converted;
+                    }
+                }
+
+                if (converted == null) { // It's unlikely that these two can be compared
+                    fail = true;
+                } else { // Attempt to resolve a better class info
+                    superType = ExprArithmetic.getSuperClass(first.getReturnType(), second.getReturnType());
+                }
             }
 
-            // If one value is a Variable, we do not know its type at parse-time.
-            if (first instanceof Variable<?>) {
-                variablePresent = true;
-                first = first.convertExpression(second.getReturnType()).orElseThrow();
-                type = TypeManager.getByClass(second.getReturnType());
-            } else if (second instanceof Variable<?>) {
-                variablePresent = true;
-                second = second.convertExpression(first.getReturnType()).orElseThrow();
-                type = TypeManager.getByClass(first.getReturnType());
-            } else {
-                type = TypeManager.getByClass(
-                        ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())
-                );
-            }
         }
 
-        assert type.isPresent();
-        if (!variablePresent && type.get().getArithmetic().isEmpty()) {
-            var firstType = TypeManager.getByClass(first.getReturnType());
-            var secondType = TypeManager.getByClass(second.getReturnType());
-            assert firstType.isPresent() && secondType.isPresent();
-            parseContext.getLogger().error(
-                    "Cannot compare these two values"
-                            + " (types '"
-                            + firstType.get().getBaseName()
-                            + "' and '"
-                            + secondType.get().getBaseName()
-                            + "' are inconvertible)",
-                    ErrorType.SEMANTIC_ERROR
-            );
+        if (superType != Object.class && (differenceInfo = Arithmetics.getDifferenceInfo(superType)) == null) {
+            fail = true;
+        }
+
+        if (fail) {
+            parseContext.getLogger().error("Can't get the difference of " + properName(first) + " and " + properName(second), ErrorType.SEMANTIC_ERROR);
             return false;
         }
-        if (!variablePresent) {
-            assert type.get().getArithmetic().isPresent();
-            arithmetic = type.get().getArithmetic().get();
-        }
+
+        this.first = first;
+        this.second = second;
+
         return true;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public Object[] getValues(TriggerContext ctx) {
-        return DoubleOptional.ofOptional(first.getSingle(ctx), second.getSingle(ctx))
-                .mapToOptional((f, s) -> {
-                    // The arithmetic field isn't initialized here.
-                    if (variablePresent) {
-                        assert f.getClass() == s.getClass();
-                        var type = TypeManager.getByClass(f.getClass()).orElseThrow();
-                        var variableMath = type.getArithmetic();
-                        if (variableMath.isEmpty())
-                            return null;
-                        arithmetic = variableMath.get();
-                    }
+        Object first = this.first.getSingle(ctx).orElse(null);
+        Object second = this.second.getSingle(ctx).orElse(null);
+        if (first == null || second == null) {
+            return new Object[0];
+        }
 
-                    assert arithmetic != null;
-                    return new Object[] {arithmetic.difference(f, s)};
-                })
-                .orElse(new Object[0]);
+        DifferenceInfo differenceInfo = this.differenceInfo;
+        if (differenceInfo == null) { // Try to determine now that actual types are known
+            Class<?> superType = ExprArithmetic.getSuperClass(first.getClass(), second.getClass());
+            differenceInfo = Arithmetics.getDifferenceInfo(superType);
+            if (differenceInfo == null) { // User did something stupid, just return <none> for them
+                return new Object[0];
+            }
+        }
+
+        Object[] one = (Object[]) Array.newInstance(differenceInfo.getReturnType(), 1);
+
+        one[0] = differenceInfo.getOperation().calculate(first, second);
+
+        return one;
     }
 
     @Override
     public Class<?> getReturnType() {
-        return arithmetic != null
-                ? arithmetic.getRelativeType()
-                : ClassUtils.getCommonSuperclass(false, first.getReturnType(), second.getReturnType());
+        return differenceInfo == null ? Object.class : differenceInfo.getReturnType();
     }
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
         return "difference between " + first.toString(ctx, debug) + " and " + second.toString(ctx, debug);
     }
+
+    public static String properName(final Expression<?> e) {
+        if (e.getReturnType() == Object.class)
+            return e.toString(null, false);
+        return TypeManager.getByClass(e.getReturnType()).get().withIndefiniteArticle(false);
+    }
+
 }

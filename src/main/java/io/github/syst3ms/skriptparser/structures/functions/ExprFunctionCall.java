@@ -44,7 +44,6 @@ public class ExprFunctionCall implements Expression<Object> {
 			}
 		}
 		Object[] o = function.execute(params, ctx);
-		System.out.println(toString(ctx, true));
 		return o;
 	}
 

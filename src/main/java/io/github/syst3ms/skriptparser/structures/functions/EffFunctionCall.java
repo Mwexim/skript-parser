@@ -43,7 +43,6 @@ public class EffFunctionCall extends Effect {
 			}
 		}
 		function.execute(params, ctx);
-		System.out.println(toString(ctx, true));
 	}
 
 	@SuppressWarnings("OptionalGetWithoutIsPresent")

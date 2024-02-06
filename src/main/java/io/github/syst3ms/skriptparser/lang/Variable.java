@@ -1,10 +1,12 @@
 package io.github.syst3ms.skriptparser.lang;
 
+import io.github.syst3ms.skriptparser.expressions.arithmetic.Arithmetics;
+import io.github.syst3ms.skriptparser.expressions.arithmetic.OperationInfo;
+import io.github.syst3ms.skriptparser.expressions.arithmetic.Operator;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
-import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.types.changers.Changer;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
@@ -12,20 +14,12 @@ import io.github.syst3ms.skriptparser.types.comparisons.Relation;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import io.github.syst3ms.skriptparser.util.Pair;
-import io.github.syst3ms.skriptparser.util.math.NumberMath;
 import io.github.syst3ms.skriptparser.variables.Variables;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * A reference to a variable, whose value is only known at runtime. It can be local to the event, meaning it isn't
@@ -250,57 +244,52 @@ public class Variable<T> implements Expression<T> {
                         }
                     }
                 } else {
-                    Optional<Object> o = get(ctx);
-                    var type = o.flatMap(ob -> (Optional<? extends Type<?>>) TypeManager.getByClass(ob.getClass()));
-                    Optional<? extends Arithmetic> a = Optional.empty();
-                    Optional<? extends Changer<?>> changer;
-                    Class<?>[] cs;
-                    if (o.isEmpty() || type.isEmpty() || (a = type.get().getArithmetic()).isPresent()) {
-                        var changed = false;
-                        for (var d : changeWith) {
-                            if (o.isEmpty() || type.isEmpty()) {
-                                type = TypeManager.getByClass(d.getClass());
-                                if (type.filter(t -> t.getArithmetic().isPresent()).isPresent())
-                                    o = Optional.of(d);
-                                if (d instanceof Number) {
-                                    o = mode == ChangeMode.REMOVE
-                                            ? Optional.of(NumberMath.negate((Number) d))
-                                            : Optional.of(d);
-                                }
-                                changed = true;
+                    Object originalValue = get(ctx).orElse(null);
+                    Class<?> clazz = originalValue == null ? null : originalValue.getClass();
+                    Operator operator = mode == ChangeMode.ADD ? Operator.ADDITION : Operator.SUBTRACTION;
+                    Changer<?> changer;
+                    Class<?>[] classes;
+                    if (clazz == null || !Arithmetics.getOperations(operator, clazz).isEmpty()) {
+                        boolean changed = false;
+                        for (Object newValue : changeWith) {
+                            OperationInfo info = Arithmetics.getOperationInfo(operator, clazz != null ? (Class) clazz : newValue.getClass(), newValue.getClass());
+                            if (info == null)
                                 continue;
-                            }
-                            assert a.isPresent();
-                            Class<?> r = a.get().getRelativeType();
-                            var diff = Converters.convert(d, r);
-                            if (diff.isPresent()) {
-                                if (mode == ChangeMode.ADD) {
-                                    o = Optional.ofNullable(a.get().add(o.orElse(null), diff.get()));
-                                } else {
-                                    o = Optional.ofNullable(a.get().subtract(o.orElse(null), diff.get()));
-                                }
-                                changed = true;
-                            }
+
+                            Object value = originalValue == null ? Arithmetics.getDefaultValue(info.getLeft()) : originalValue;
+                            if (value == null)
+                                continue;
+
+                            originalValue = info.getOperation().calculate(value, newValue);
+                            changed = true;
                         }
                         if (changed)
-                            set(ctx, o.orElse(null));
-                    } else if ((changer = type.get().getDefaultChanger()).isPresent() && (cs = changer.get().acceptsChange(mode)) != null) {
-                        var one = (Object[]) Array.newInstance(o.get().getClass(), 1);
-                        one[0] = o.get();
-                        var cs2 = new Class<?>[cs.length];
-                        for (var i = 0; i < cs.length; i++)
-                            cs2[i] = cs[i].isArray() ? cs[i].getComponentType() : cs[i];
-                        var l = new ArrayList<>();
-                        for (var d : changeWith) {
-                            Object d2 = Converters.convert(d, cs2);
-                            if (d2 != null)
-                                l.add(d2);
+                            set(ctx, originalValue);
+                    } else if ((changer = TypeManager.getByClass(clazz).flatMap(Type::getDefaultChanger).orElse(null)) != null && (classes = changer.acceptsChange(mode)) != null) {
+                        Object[] originalValueArray = (Object[]) Array.newInstance(originalValue.getClass(), 1);
+                        originalValueArray[0] = originalValue;
+
+                        Class<?>[] classes2 = new Class<?>[classes.length];
+                        for (int i = 0; i < classes.length; i++)
+                            classes2[i] = classes[i].isArray() ? classes[i].getComponentType() : classes[i];
+
+                        ArrayList<Object> convertedDelta = new ArrayList<>();
+                        for (Object value : changeWith) {
+                            Object convertedValue = Converters.convert(value, classes2);
+                            if (convertedValue != null)
+                                convertedDelta.add(convertedValue);
                         }
-                        ((Changer<Object>) changer.get()).change(one, l.toArray(), mode);
+
+                        change(changer, originalValueArray, convertedDelta.toArray(), mode);
+
                     }
                     break;
                 }
         }
+    }
+
+    private static <T> void change(final Changer<T> changer, final Object[] what, final @Nullable Object[] delta, final ChangeMode mode) {
+        changer.change((T[]) what, delta, mode);
     }
 
     public Iterator<T> iterator(TriggerContext ctx) {
