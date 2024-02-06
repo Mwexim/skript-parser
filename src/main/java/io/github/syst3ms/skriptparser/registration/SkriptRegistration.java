@@ -516,6 +516,23 @@ public class SkriptRegistration {
     }
 
     /**
+     * Starts a registration process for a {@link Type}, automatically
+     * @param c the class the Type represents
+     * @param pattern the Type's pattern
+     * @param <T> the represented class
+     * @return an {@link TypeRegistrar}
+     */
+    /*public <T extends Enum<T>> TypeRegistrar<T> newEnumType(Class<T> c, String name, String pattern) {
+        TypeRegistrar<T> typeRegistrar = new TypeRegistrar<>(c, name, pattern);
+        typeRegistrar.literalParser(s -> {
+            for (T enumConstant : c.getEnumConstants()) {
+                
+            }
+        });
+        return typeRegistrar;
+    }*/
+
+    /**
      * Registers a {@link Type}
      * @param c the class the Type represents
      * @param pattern the Type's pattern

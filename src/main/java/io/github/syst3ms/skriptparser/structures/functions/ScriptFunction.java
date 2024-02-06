@@ -24,10 +24,8 @@ public final class ScriptFunction<T> extends Function<T> {
 	public T[] execute(Object[][] params, TriggerContext ctx) {
 		FunctionContext functionContext = new FunctionContext(this);
 		for (int i = 0; i < params.length; i++) {
-			//Variables.setVariable(parameters[i].getName(), params[i], functionContext, true);
 			FunctionParameter<?> p = parameters[i];
 			Object[] val = params[i];
-			//System.out.println(val.getClass());
 			if (p.isSingle() && val.length > 0) {
 				Variables.setVariable(p.getName(), val[0], functionContext, true);
 			} else {

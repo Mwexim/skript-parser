@@ -14,11 +14,10 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Contains the logic for loading, parsing and interpreting entire script files
@@ -26,6 +25,92 @@ import java.util.List;
 public class ScriptLoader {
 
     private static final MultiMap<String, Trigger> triggerMap = new MultiMap<>();
+
+    public static List<LogEntry> loadScriptsFolder(File scriptsFolder, boolean debug) {
+        return loadScriptsFolder(scriptsFolder, new SkriptLogger(debug), debug);
+    }
+
+    public static List<LogEntry> loadScriptsFolder(File scriptsFolder, SkriptLogger logger, boolean debug) {
+        if (!scriptsFolder.isDirectory()) {
+            logger.error("Scripts folder not found/isn't a folder!", ErrorType.NO_MATCH);
+        }
+        Map<String, List<UnloadedTrigger>> unloadedTriggersMap = new HashMap<>();
+        Map<String, List<FileElement>> elementsMap = new HashMap<>();
+        for (File file : getScriptFiles(scriptsFolder, new HashSet<>())) {
+            logger.setLine(-1);
+            /* //String scriptName = file.getName();
+            logEntries.addAll(loadScript(file.toPath(), logger, debug));*/
+            List<FileElement> elements;
+            String scriptName;
+            Path scriptPath = file.toPath();
+            try {
+                var lines = FileUtils.readAllLines(scriptPath);
+                scriptName = scriptPath.getFileName().toString()/*.replaceAll("(.+)\\..+", "$1")*/;
+                elements = FileParser.parseFileLines(scriptName,
+                        lines,
+                        0,
+                        1,
+                        logger
+                );
+                logger.finalizeLogs();
+            } catch (IOException e) {
+                e.printStackTrace();
+                continue;
+            }
+            unloadedTriggersMap.put(scriptName, new ArrayList<>());
+            elementsMap.put(scriptName, elements);
+            logger.setFileInfo(scriptPath.getFileName().toString(), elements);
+            for (var element : elements) {
+                logger.finalizeLogs();
+                logger.nextLine();
+                if (element instanceof VoidElement)
+                    continue;
+                if (element instanceof FileSection) {
+                    var trig = SyntaxParser.parseTrigger((FileSection) element, logger);
+                    trig.ifPresent(t -> {
+                        logger.setLine(logger.getLine() + ((FileSection) element).length());
+                        unloadedTriggersMap.get(scriptName).add(t);
+                    });
+                } else {
+                    logger.error(
+                            "Can't have code outside of a trigger",
+                            ErrorType.STRUCTURE_ERROR,
+                            "Code always starts with a trigger (or event). Refer to the documentation to see which event you need, or indent this line so it is part of a trigger"
+                    );
+                }
+            }
+        }
+        // load everything inside triggers after all triggers have been parsed
+        for (Map.Entry<String, List<UnloadedTrigger>> entry : unloadedTriggersMap.entrySet()) {
+            String scriptName = entry.getKey();
+            List<UnloadedTrigger> unloadedTriggers = entry.getValue();
+            unloadedTriggers.sort((a, b) -> b.getTrigger().getEvent().getLoadingPriority() - a.getTrigger().getEvent().getLoadingPriority());
+            for (var unloaded : unloadedTriggers) {
+                logger.finalizeLogs();
+                logger.setFileInfo(scriptName, elementsMap.get(scriptName));
+                logger.setLine(unloaded.getLine());
+                var loaded = unloaded.getTrigger();
+                loaded.loadSection(unloaded.getSection(), unloaded.getParserState(), logger);
+                unloaded.getEventInfo().getRegisterer().handleTrigger(loaded);
+                triggerMap.putOne(scriptName, loaded);
+            }
+        }
+        logger.finalizeLogs();
+        return logger.close();
+    }
+
+    private static Set<File> getScriptFiles(File directory, Set<File> fileList) {
+        if (!directory.isDirectory()) return fileList; // isn't a directory
+        File[] files = directory.listFiles();
+        if (files == null) return fileList; // no files in the directory
+        for (File f : files) {
+            if (!f.isDirectory()) {
+                if (f.getName().endsWith(".sk")) fileList.add(f);
+            }
+            else getScriptFiles(f, fileList);
+        }
+        return fileList;
+    }
 
     /**
      * Parses and loads the provided script in memory.
@@ -74,13 +159,6 @@ public class ScriptLoader {
                 trig.ifPresent(t -> {
                     logger.setLine(logger.getLine() + ((FileSection) element).length());
                     unloadedTriggers.add(t);
-                    //SkriptEvent skriptEvent = t.getTrigger().getEvent();
-                    /* TODO
-                    validate that this is a function
-                    parse & save it
-                    have a separate parser to parse a whole folder that does this step before anything
-                     */
-                    //System.out.println(skriptEvent);
                 });
             } else {
                 logger.error(

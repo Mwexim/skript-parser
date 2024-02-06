@@ -9,6 +9,7 @@ import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.util.ConsoleColors;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,32 +32,33 @@ public class Parser {
 
     private static List<LogEntry> logs;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws URISyntaxException, IOException {
         boolean debug = false;
         boolean tipsEnabled = true;
-        String scriptName = "";
-        String[] programArgs = new String[0];
-        if (args.length == 0) {
-            System.err.println("You need to provide a script name!");
-            System.exit(1);
-        } else {
-            int j = 0;
-            for (int i = 0; i < args.length; i++) {
-                String s = args[i];
-                if (s.equalsIgnoreCase("--debug")) {
-                    debug = true;
-                } else if (s.equalsIgnoreCase("--no-tips") || s.equalsIgnoreCase("--nt")) {
-                    tipsEnabled = false;
-                } else {
-                    j = i;
-                    break;
-                }
+
+        Path parserPath = Paths.get(Parser.class
+                                            .getProtectionDomain()
+                                            .getCodeSource()
+                                            .getLocation()
+                                            .toURI());
+
+        for (int i = 0; i < args.length; i++) {
+            String s = args[i];
+            if (s.equalsIgnoreCase("--debug")) {
+                debug = true;
+            } else if (s.equalsIgnoreCase("--no-tips") || s.equalsIgnoreCase("--nt")) {
+                tipsEnabled = false;
             }
-            scriptName = args[j];
-            programArgs = Arrays.copyOfRange(args, j + 1, args.length);
         }
-        init(new String[0], new String[0], programArgs, true);
-        run(scriptName, debug, tipsEnabled);
+        String[] programArgs = Arrays.copyOfRange(args, 0, args.length);
+        init(new String[0], new String[0], programArgs, parserPath, true);
+        Path newParserPath = Paths.get("scripts");
+        File scriptsFolder = new File(newParserPath.toUri());
+        if (!scriptsFolder.exists()) {
+            boolean created = scriptsFolder.mkdirs();
+            if (created) System.out.println("Scripts folder has been generated as no folder was found.");
+        }
+        run(scriptsFolder, debug, tipsEnabled);
     }
 
     /**
@@ -68,7 +70,7 @@ public class Parser {
      * @param programArgs any other program arguments (typically from the command line)
      * @param standalone whether the parser tries to load addons (standalone) or not (library)
      */
-    public static void init(String[] mainPackages, String[] subPackages, String[] programArgs, boolean standalone) {
+    public static void init(String[] mainPackages, String[] subPackages, String[] programArgs, Path parserPath, boolean standalone) {
         Skript skript = new Skript(programArgs);
         registration = new SkriptRegistration(skript);
         DefaultRegistration.register();
@@ -84,12 +86,7 @@ public class Parser {
                 FileUtils.loadClasses(FileUtils.getJarFile(Parser.class), mainPackage, subPackages);
             }
             if (standalone) {
-                Path parserPath = Paths.get(Parser.class
-                    .getProtectionDomain()
-                    .getCodeSource()
-                    .getLocation()
-                    .toURI()
-                );
+
                 Path addonFolderPath = Paths.get(parserPath.getParent().toString(), "addons");
                 if (Files.isDirectory(addonFolderPath)) {
                     Files.walk(addonFolderPath)
@@ -135,13 +132,14 @@ public class Parser {
         }
     }
 
-    public static void run(String scriptName, boolean debug, boolean tipsEnabled) {
+    public static void run(File scriptsFolder, boolean debug, boolean tipsEnabled) {
         Calendar time = Calendar.getInstance();
-        Path scriptPath = Paths.get(scriptName);
+
         long start = System.currentTimeMillis();
-        logs = ScriptLoader.loadScript(scriptPath, debug);
+        //logs = ScriptLoader.loadScript(scriptPath, debug);
+        logs = ScriptLoader.loadScriptsFolder(scriptsFolder, debug);
         long elapsed = System.currentTimeMillis()-start;
-        System.out.println("Script \"" + scriptName + "\" has been parsed in " + elapsed + "ms");
+        System.out.println("Scripts have been parsed in " + elapsed + "ms");
         if (!logs.isEmpty()) {
             System.out.print(ConsoleColors.PURPLE);
             System.out.println("Parsing log:");

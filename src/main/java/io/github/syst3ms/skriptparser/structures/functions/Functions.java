@@ -68,10 +68,9 @@ public class Functions {
 			if (!registeredFunction.getName().equals(name)) continue; // we don't care then!!!! goodbye continue to the next one
 			if (registeredFunction instanceof ScriptFunction<?> registeredScriptFunction
 						&& registeredScriptFunction.isLocal()
-						&& !scriptName.equals(registeredScriptFunction.getScriptName())) {
+						&& !scriptName.equals(registeredScriptFunction.getScriptName()))
 				continue;
 				//return Optional.of(registeredFunction); handled below
-			}
 			return Optional.of(registeredFunction); // java function or global scriptfunction at this point
 		}
 		return Optional.empty();
