@@ -14,7 +14,7 @@ public class ClassUtils {
 
     /**
      * @param cs the array of classes
-     * @param interfaces whether or not to account for interfaces
+     * @param interfaces whether to account for interfaces
      * @return the nearest common superclass of the provided classes
      */
     public static Class<?> getCommonSuperclass(boolean interfaces, Class<?>... cs) {

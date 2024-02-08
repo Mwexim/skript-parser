@@ -24,7 +24,7 @@ public class CondExprIsSet extends PropertyConditional<Object> {
     }
 
     @Override
-    public boolean check(Object performer) {
+    public boolean check(Object owner) {
         return true;
     }
 }

@@ -16,28 +16,27 @@ import io.github.syst3ms.skriptparser.registration.SyntaxManager;
  *     <li>{@code something has something}</li>
  * </ul>
  * The plural and negated forms are also supported.
- *
- * The gains of using this class:
+ * The advantages of using this class:
  * <ul>
- *     <li>There is a useful {@link #toString(TriggerContext, boolean, String) toString()}
- *     method and it works well with the plural and negated forms.
+ *     <li>There is a useful {@link #toString(TriggerContext, boolean, String)} method
+ *     and it works well with the plural and negated forms. In a
+ *     lot of cases, you won't even need to override it.
  *     It is implemented by default.</li>
  *     <li>Registration is very straightforward.</li>
- *     <li>The performer expression is automatically checked for nullity.</li>
+ *     <li>The owner expression is automatically checked for nullity.</li>
  * </ul>
- * @param <P> the type of the performer in this condition
+ * @param <O> the type of the owner in this condition
  * @author Mwexim
  */
-public abstract class PropertyConditional<P> extends ConditionalExpression {
-    public static final String PROPERTY_IDENTIFIER = "property";
+public abstract class PropertyConditional<O> extends ConditionalExpression {
     public static final String CONDITIONAL_TYPE_IDENTIFIER = "conditionalType";
 
-    private Expression<P> performer;
+    private Expression<O> owner;
 
     /**
      * This default {@code init()} implementation automatically properly sets the performer in this condition,
-     * which can be accessed using {@link #getPerformer()}. If this implementation is overridden for one reason
-     * or another, it must call {@link #setPerformer(Expression)} properly.
+     * which can be accessed using {@link #getOwner()}. If this implementation is overridden for one reason
+     * or another, it must call {@link #setOwner(Expression)} properly.
      * @param expressions an array of expressions representing all the expressions that are being passed
      *                    to this syntax element.
      * @param matchedPattern the index of the pattern that was successfully matched. It corresponds to the order of
@@ -49,36 +48,44 @@ public abstract class PropertyConditional<P> extends ConditionalExpression {
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-        setPerformer((Expression<P>) expressions[0]);
+        setOwner((Expression<O>) expressions[0]);
         setNegated(matchedPattern == 1);
         return true;
     }
 
     @Override
     public boolean check(TriggerContext ctx) {
-        return getPerformer().check(ctx, this::check, isNegated());
+        return getOwner().check(ctx, this::check, isNegated());
     }
 
     /**
-     * Tests this condition for each individual performer. Negated conditions are taken care of
+     * Tests this condition for each individual owner. Negated conditions are taken care of
      * automatically, so one must not account for it in here.
-     * @param performer the performer
-     * @return whether the conditions is true for this performer
+     * @param owner the owner
+     * @return whether the conditions are true for this owner
      */
-    public boolean check(P performer) {
+    public boolean check(O owner) {
         throw new UnsupportedOperationException("Override #check(P) if you are planning to use the default functionality.");
+    }
+
+    /**
+     * This is the string representation of this property conditional. If this method is
+     * not overridden, it will default to the property name that was registered in the pattern.
+     * @return the property name
+     */
+    protected String getPropertyName() {
+        return SyntaxManager.getExpressionExact(this)
+                .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
+                .getData(PropertyExpression.PROPERTY_NAME_IDENTIFIER, String.class);
     }
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
-        var property = SyntaxManager.getExpressionExact(this)
-                .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
-                .getData(PROPERTY_IDENTIFIER, String.class);
-        return toString(ctx, debug, property);
+        return toString(ctx, debug, getPropertyName());
     }
 
     protected String toString(TriggerContext ctx, boolean debug, String property) {
-        var performer = getPerformer();
+        var performer = getOwner();
         var conditionalType = SyntaxManager.getExpressionExact(this)
                 .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
                 .getData(CONDITIONAL_TYPE_IDENTIFIER, ConditionalType.class);
@@ -98,16 +105,16 @@ public abstract class PropertyConditional<P> extends ConditionalExpression {
         }
     }
 
-    public Expression<P> getPerformer() {
-        return performer;
+    public Expression<O> getOwner() {
+        return owner;
     }
 
-    public void setPerformer(Expression<P> performer) {
-        this.performer = performer;
+    public void setOwner(Expression<O> owner) {
+        this.owner = owner;
     }
 
-    public static String[] composePatterns(String performer, ConditionalType conditionalType, String property) {
-        var type = performer.startsWith("*") ? performer.substring(1) : "%" + performer + "%";
+    public static String[] composePatterns(String owner, ConditionalType conditionalType, String property) {
+        var type = owner.startsWith("*") ? owner.substring(1) : "%" + owner + "%";
         switch (conditionalType) {
             case BE:
                 return new String[] {

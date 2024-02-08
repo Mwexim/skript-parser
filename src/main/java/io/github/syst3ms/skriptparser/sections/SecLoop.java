@@ -4,7 +4,7 @@ import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
-import io.github.syst3ms.skriptparser.lang.SimpleLiteral;
+import io.github.syst3ms.skriptparser.lang.SimpleExpression;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.Variable;
@@ -15,7 +15,9 @@ import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
-import io.github.syst3ms.skriptparser.types.ranges.Ranges;
+import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
+import io.github.syst3ms.skriptparser.types.Type;
+import io.github.syst3ms.skriptparser.types.TypeManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
@@ -43,9 +45,8 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
 		);
 	}
 
-	@Nullable
 	private Expression<?> expression;
-	private Expression<BigInteger> times;
+	private Expression<BigInteger> times; // For the toString(TriggerContext, boolean) method.
 	private boolean isNumericLoop;
 
 	@Nullable
@@ -80,6 +81,14 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
 					return false;
 				}
 			}
+			expression = new SimpleExpression<>(
+					BigInteger.class,
+					false,
+					ctx -> TypeManager.getByClassExact(BigInteger.class)
+							.flatMap(Type::getRange)
+							.orElseThrow(() -> new SkriptParserException("Unregistered type range: BigInteger"))
+							.apply(BigInteger.ONE, times.getSingle(ctx).map(BigInteger.class::cast).orElse(BigInteger.ZERO))
+			);
 		} else {
 			expression = expressions[0];
 			if (expression.isSingle()) {
@@ -96,16 +105,8 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
 
 	@Override
 	public Optional<? extends Statement> walk(TriggerContext ctx) {
-		if (isNumericLoop && expression == null) {
-			// We just set the looped expression to a range from 1 to the amount of times.
-			// This allows the usage of 'loop-number' to get the current iteration
-			expression = rangeOf(ctx, times);
-		}
-
-		if (iterator == null) {
-			assert expression != null;
+		if (iterator == null)
 			iterator = expression instanceof Variable ? ((Variable<?>) expression).variablesIterator(ctx) : expression.iterator(ctx);
-		}
 
 		if (iterator.hasNext()) {
 			setArguments(iterator.next());
@@ -148,26 +149,6 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
 	 * @return the expression whose values this loop is iterating over
 	 */
 	public Expression<?> getLoopedExpression() {
-		if (isNumericLoop && expression == null) {
-			expression = rangeOf(TriggerContext.DUMMY, times);
-		}
 		return expression;
-	}
-
-	/**
-	 * Returns a SimpleLiteral containing the numbers 1 up until a certain amount, specified
-	 * by the given expression.
-	 * @param ctx the context
-	 * @param size the expression
-	 * @return the SimpleLiteral
-	 */
-	private static Expression<BigInteger> rangeOf(TriggerContext ctx, Expression<BigInteger> size) {
-		BigInteger[] range = (BigInteger[]) size.getSingle(ctx)
-				.filter(t -> t.compareTo(BigInteger.ZERO) > 0)
-				.map(t -> Ranges.getRange(BigInteger.class).orElseThrow()
-						.getFunction()
-						.apply(BigInteger.ONE, t)) // Upper bound is inclusive
-				.orElse(new BigInteger[0]);
-		return new SimpleLiteral<>(BigInteger.class, range);
 	}
 }

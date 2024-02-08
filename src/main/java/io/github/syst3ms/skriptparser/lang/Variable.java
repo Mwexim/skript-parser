@@ -4,7 +4,7 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.SkriptRuntimeException;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
-import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
+import io.github.syst3ms.skriptparser.types.attributes.Arithmetic;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.types.changers.Changer;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;

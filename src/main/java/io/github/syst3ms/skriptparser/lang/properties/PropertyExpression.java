@@ -11,13 +11,13 @@ import java.util.Objects;
 
 /**
  * A base class for expressions that contain general properties.
- * In English, one can express properties in many different ways:
+ * In English, one can express properties in multiple ways:
  * <ul>
  *     <li>Mwexim's book</li>
  *     <li>the book of Mwexim</li>
  * </ul>
- * This utility class acknowledges how useful and common such 'property expressions' are, and provides a simple way
- * to implement them.
+ * This utility class acknowledges how useful and common such 'property expressions' are, and provides
+ * a simple way to implement them.
  * The class also provides default implementations of {@link #init(Expression[], int, ParseContext)}
  * and {@link #getValues(TriggerContext)}. Their default functionality is specified below.
  * @param <T> The returned type of this expression.
@@ -25,7 +25,7 @@ import java.util.Objects;
  * @author Mwexim
  */
 public abstract class PropertyExpression<T, O> implements Expression<T> {
-    public static final String PROPERTY_IDENTIFIER = "property";
+    public static final String PROPERTY_NAME_IDENTIFIER = "propertyName";
 
     private Expression<O> owner;
     private boolean genitive;
@@ -62,13 +62,24 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
     }
 
     /**
-     * For each owner, this method will be ran individually to convert it to this particular property.
+     * For each owner, this method will be executed individually to convert it to this particular property.
      * @param owner the owner
      * @return the property value
      */
     @Nullable
     public T getProperty(O owner) {
         throw new UnsupportedOperationException("Override #getProperty(O) if you are planning to use the default functionality.");
+    }
+
+    /**
+     * This is the string representation of this property expression. If this method is
+     * not overridden, it will default to the property name that was registered in the pattern.yy
+     * @return the property name
+     */
+    protected String getPropertyName() {
+        return SyntaxManager.getExpressionExact(this)
+                .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
+                .getData(PROPERTY_NAME_IDENTIFIER, String.class);
     }
 
     @Override
@@ -78,13 +89,10 @@ public abstract class PropertyExpression<T, O> implements Expression<T> {
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
-        var property = SyntaxManager.getExpressionExact(this)
-                .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
-                .getData(PROPERTY_IDENTIFIER, String.class);
-        return toString(ctx, debug, property);
+        return toString(ctx, debug, getPropertyName());
     }
 
-    protected String toString(TriggerContext ctx, boolean debug, String property) {
+    public String toString(TriggerContext ctx, boolean debug, String property) {
         return genitive
                 ? owner.toString(ctx, debug) + "'s " + property
                 : property + " of " + owner.toString(ctx, debug);

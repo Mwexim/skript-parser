@@ -21,13 +21,13 @@ import io.github.syst3ms.skriptparser.util.math.NumberMath;
 public class CondExprIsPrime extends PropertyConditional<Number> {
 	static {
 		Parser.getMainRegistration().newPropertyConditional(CondExprIsPrime.class, "numbers", ConditionalType.BE, "[a] prime [number[s]]")
-				.addData(PROPERTY_IDENTIFIER, "prime")
+				.setPropertyName("prime")
 				.register();
 	}
 
 	@Override
-	public boolean check(Number performer) {
-		var bd = BigDecimalMath.getBigDecimal(performer);
+	public boolean check(Number owner) {
+		var bd = BigDecimalMath.getBigDecimal(owner);
 		return bd.signum() != -1
 				&& BigDecimalMath.isIntValue(bd)
 				&& NumberMath.isPrime(BigDecimalMath.getBigInteger(bd));

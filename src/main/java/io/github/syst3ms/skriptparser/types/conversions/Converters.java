@@ -246,7 +246,9 @@ public abstract class Converters {
 	 */
     @SuppressWarnings("unchecked")
     public static <F, T> Optional<? extends Function<? super F, Optional<? extends T>>> getConverter(Class<F> from, Class<T> to) {
-        var p = new Pair<Class<?>, Class<?>>(from, to);
+		if (to.isAssignableFrom(from))
+			return Optional.of((Function<? super F, Optional<? extends T>>) val -> (Optional<? extends T>) Optional.of(val));
+		var p = new Pair<Class<?>, Class<?>>(from, to);
         if (convertersCache.containsKey(p)) // can contain null to denote nonexistence of a converter
             return Optional.ofNullable((Function<? super F, Optional<? extends T>>) convertersCache.get(p));
         var c = getConverterInternal(from, to);
