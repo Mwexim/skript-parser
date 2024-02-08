@@ -48,18 +48,24 @@ public class ParserState {
     }
 
     /**
-     * Adds a new enclosing {@link CodeSection} to the hierarchy
+     * Adds a new enclosing {@link CodeSection} to the hierarchy.
+     * Uses recursion to allow the addition of the statements of this new section,
+     * preserving the current statements to be used when the section is
+     * {@linkplain #removeCurrentSection() removed} again.
      * @param section the enclosing {@link CodeSection}
      */
     public void addCurrentSection(CodeSection section) {
         currentSections.addFirst(section);
+        currentStatements.addLast(new LinkedList<>());
     }
 
     /**
      * Removes the current section from the hierarchy, after all parsing inside it has been completed.
+     * Also clears all stored statements of this enclosing section.
      */
     public void removeCurrentSection() {
         currentSections.removeFirst();
+        currentStatements.removeLast();
     }
 
     /**
@@ -78,23 +84,6 @@ public class ParserState {
      */
     public void addCurrentStatement(Statement statement) {
         currentStatements.getLast().add(statement);
-    }
-
-    /**
-     * Uses recursion to allow items of a new enclosing section to be added, preserving
-     * the current items to be used when the {@linkplain #callbackCurrentStatements() callback}
-     * has been invoked.
-     */
-    public void recurseCurrentStatements() {
-        currentStatements.addLast(new LinkedList<>());
-    }
-
-    /**
-     * Clears all stored items of this enclosing section,
-     * after all parsing inside it has been completed.
-     */
-    public void callbackCurrentStatements() {
-        currentStatements.removeLast();
     }
 
     /**
