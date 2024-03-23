@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.tags;
 
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.registration.tags.Tag;
+import io.github.syst3ms.skriptparser.util.color.ConsoleColors;
 
 /**
  * A tag that resets all currently ongoing tags.
@@ -24,7 +25,7 @@ public class TagReset implements Tag {
 	}
 
 	public String getValue(String affected) {
-		return affected;
+		return ConsoleColors.RESET + affected;
 	}
 
 	public String toString(boolean debug) {
