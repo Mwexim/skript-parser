@@ -39,8 +39,9 @@ public class SecWhile extends CodeSection implements Continuable, SelfReferencin
 
     @Override
     public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+        if (!super.loadSection(section, parserState, logger)) return false;
         super.setNext(this);
-        return super.loadSection(section, parserState, logger);
+        return true;
     }
 
     @SuppressWarnings("unchecked")

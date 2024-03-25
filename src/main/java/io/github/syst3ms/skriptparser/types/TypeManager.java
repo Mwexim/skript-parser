@@ -2,10 +2,7 @@ package io.github.syst3ms.skriptparser.types;
 
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Manages the registration and usage of {@link Type}
@@ -113,6 +110,12 @@ public class TypeManager {
             }
         }
         return Optional.empty();
+    }
+
+    public static Type<?> parseType(String input) {
+        Optional<? extends Type<?>> type = TypeManager.getByExactName(input.toLowerCase(Locale.ENGLISH));
+        if (type.isPresent()) return type.get();
+        return TypeManager.getByName(input).orElse(null); // allows for plural inputs
     }
 
     public static void register(SkriptRegistration reg) {

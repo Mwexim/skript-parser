@@ -1,17 +1,11 @@
 package io.github.syst3ms.skriptparser;
 
-import io.github.syst3ms.skriptparser.event.AtTimeContext;
-import io.github.syst3ms.skriptparser.event.EvtAtTime;
-import io.github.syst3ms.skriptparser.event.EvtPeriodical;
-import io.github.syst3ms.skriptparser.event.EvtScriptLoad;
-import io.github.syst3ms.skriptparser.event.EvtWhen;
-import io.github.syst3ms.skriptparser.event.PeriodicalContext;
-import io.github.syst3ms.skriptparser.event.ScriptLoadContext;
-import io.github.syst3ms.skriptparser.event.WhenContext;
+import io.github.syst3ms.skriptparser.event.*;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
+import io.github.syst3ms.skriptparser.structures.functions.StructFunction;
 import io.github.syst3ms.skriptparser.util.DurationUtils;
 import io.github.syst3ms.skriptparser.util.ThreadUtils;
 import io.github.syst3ms.skriptparser.util.Time;
@@ -51,6 +45,8 @@ public class Skript extends SkriptAddon {
             whenTriggers.add(trigger);
         } else if (event instanceof EvtAtTime) {
             atTimeTriggers.add(trigger);
+        } else if (event instanceof StructFunction function) {
+            function.register(trigger);
         }
     }
 
@@ -77,4 +73,5 @@ public class Skript extends SkriptAddon {
             ThreadUtils.runPeriodically(() -> Statement.runAll(trigger, ctx), initialDelay, Duration.ofDays(1));
         }
     }
+
 }
