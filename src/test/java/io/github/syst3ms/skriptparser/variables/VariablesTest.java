@@ -7,6 +7,7 @@ import io.github.syst3ms.skriptparser.log.SkriptLogger;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +24,11 @@ public class VariablesTest {
 
     static {
         Variables.registerStorage(RamStorage.class, "ram");
+    }
+
+    @BeforeAll
+    public void clearVariables() {
+        Variables.clearVariables();
     }
 
     @Before

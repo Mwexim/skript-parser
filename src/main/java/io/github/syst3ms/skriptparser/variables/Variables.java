@@ -237,6 +237,10 @@ public class Variables {
         }
     }
 
+    static final void clearVariables() {
+        variableMap.clearVariables();
+    }
+
     /**
      * Represents a variable that is to be changed.
      * Key-value pair. Key being the variable name.
