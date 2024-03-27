@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class VariablesTest {
+public class DatabaseTest {
 
     private static final List<String> LINES = Arrays.asList(
             "databases:",
@@ -28,6 +28,10 @@ public class VariablesTest {
 
     @BeforeEach
     public void clearVariables() {
+        Variables.clearVariables();
+    }
+
+    public static void clearAllVariables() {
         Variables.clearVariables();
     }
 
