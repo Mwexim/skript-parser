@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.types;
 
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.changers.Changer;
+import io.github.syst3ms.skriptparser.types.changers.TypeSerializer;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,16 +16,23 @@ import java.util.function.Function;
  * @see PatternType
  */
 public class Type<T> {
-    private final Class<T> typeClass;
-    private final String baseName;
-    private final String[] pluralForms;
-    private final Function<Object, String> toStringFunction;
+
     @Nullable
     private final Function<String, ? extends T> literalParser;
+
     @Nullable
     private final Changer<? super T> defaultChanger;
+
+    @Nullable
+    private final TypeSerializer<T> serializer;
+
     @Nullable
     private final Arithmetic<T, ?> arithmetic;
+
+    private final Function<Object, String> toStringFunction;
+    private final String[] pluralForms;
+    private final Class<T> typeClass;
+    private final String baseName;
 
     /**
      * Constructs a new Type.
@@ -96,6 +104,16 @@ public class Type<T> {
         this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger, null);
     }
 
+    public Type(Class<T> typeClass,
+            String baseName,
+            String pattern,
+            @Nullable Function<String, ? extends T> literalParser,
+            Function<? super T, String> toStringFunction,
+            @Nullable Changer<? super T> defaultChanger,
+            @Nullable Arithmetic<T, ?> arithmetic) {
+        this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic, null);
+    }
+
     @SuppressWarnings("unchecked")
     public Type(Class<T> typeClass,
                 String baseName,
@@ -103,7 +121,7 @@ public class Type<T> {
                 @Nullable Function<String, ? extends T> literalParser,
                 Function<? super T, String> toStringFunction,
                 @Nullable Changer<? super T> defaultChanger,
-                @Nullable Arithmetic<T, ?> arithmetic) {
+                @Nullable Arithmetic<T, ?> arithmetic, @Nullable TypeSerializer<T> serializer) {
         this.typeClass = typeClass;
         this.baseName = baseName;
         this.literalParser = literalParser;
@@ -111,6 +129,7 @@ public class Type<T> {
         this.pluralForms = StringUtils.getForms(pattern.strip());
         this.defaultChanger = defaultChanger;
         this.arithmetic = arithmetic;
+        this.serializer = serializer;
     }
 
     public Class<T> getTypeClass() {
@@ -127,6 +146,10 @@ public class Type<T> {
 
     public Function<Object, String> getToStringFunction() {
         return toStringFunction;
+    }
+
+    public Optional<TypeSerializer<T>> getSerializer() {
+        return Optional.ofNullable(serializer);
     }
 
     public Optional<Function<String, ? extends T>> getLiteralParser() {

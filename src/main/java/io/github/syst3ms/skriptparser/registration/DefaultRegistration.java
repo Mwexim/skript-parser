@@ -1,9 +1,14 @@
 package io.github.syst3ms.skriptparser.registration;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
+import io.github.syst3ms.skriptparser.types.changers.TypeSerializer;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
@@ -53,6 +58,19 @@ public class DefaultRegistration {
                         return new BigInteger(s);
                     } else {
                         return null;
+                    }
+                })
+                .serializer(new TypeSerializer<Number>() {
+                    @Override
+                    public JsonElement serialize(Gson gson, Number value) {
+                        JsonObject json = new JsonObject();
+                        json.addProperty("number", value);
+                        return json;
+                    }
+
+                    @Override
+                    public Number deserialize(Gson gson, JsonElement element) {
+                        return element.getAsJsonObject().get("number").getAsNumber();
                     }
                 })
                 .toStringFunction(o -> {
@@ -118,6 +136,19 @@ public class DefaultRegistration {
                     s = s.replaceAll("_", "");
                     return s.matches(INTEGER_PATTERN) ? new BigInteger(s) : null;
                 })
+                .serializer(new TypeSerializer<BigInteger>() {
+                    @Override
+                    public JsonElement serialize(Gson gson, BigInteger value) {
+                        JsonObject json = new JsonObject();
+                        json.addProperty("number", value);
+                        return json;
+                    }
+
+                    @Override
+                    public BigInteger deserialize(Gson gson, JsonElement element) {
+                        return BigInteger.valueOf(element.getAsJsonObject().get("number").getAsNumber().longValue());
+                    }
+                })
                 .arithmetic(new Arithmetic<BigInteger, BigInteger>() {
                     @Override
                     public BigInteger difference(BigInteger first, BigInteger second) {
@@ -144,7 +175,20 @@ public class DefaultRegistration {
         registration.addType(
                 String.class,
                 "string",
-                "string@s"
+                "string@s",
+                new TypeSerializer<String>() {
+                    @Override
+                    public JsonElement serialize(Gson gson, String value) {
+                        JsonObject json = new JsonObject();
+                        json.addProperty("string", value);
+                        return json;
+                    }
+
+                    @Override
+                    public String deserialize(Gson gson, JsonElement element) {
+                        return element.getAsJsonObject().get("string").getAsString();
+                    }
+                }
         );
 
         registration.newType(Boolean.class, "boolean", "boolean@s")
@@ -155,6 +199,19 @@ public class DefaultRegistration {
                         return false;
                     } else {
                         return null;
+                    }
+                })
+                .serializer(new TypeSerializer<Boolean>() {
+                    @Override
+                    public JsonElement serialize(Gson gson, Boolean value) {
+                        JsonObject json = new JsonObject();
+                        json.addProperty("boolean", value);
+                        return json;
+                    }
+
+                    @Override
+                    public Boolean deserialize(Gson gson, JsonElement element) {
+                        return element.getAsJsonObject().get("boolean").getAsBoolean();
                     }
                 })
                 .toStringFunction(String::valueOf)

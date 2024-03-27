@@ -12,10 +12,12 @@ import java.util.Optional;
  */
 @SuppressWarnings("unchecked")
 public class TypeManager {
+
     /**
      * The string equivalent of null
      */
     public static final String NULL_REPRESENTATION = "<none>";
+
     /**
      * The string equivalent of an empty array
      */
@@ -50,7 +52,6 @@ public class TypeManager {
         }
         return Optional.empty();
     }
-
 
     /**
      * Gets a {@link Type} from its associated {@link Class}.
@@ -121,4 +122,5 @@ public class TypeManager {
             classToType.put(type.getTypeClass(), type);
         }
     }
+
 }
