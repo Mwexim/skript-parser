@@ -44,14 +44,20 @@ public class VariablesTest {
     @Test
     public void testVariables() throws InterruptedException {
         Thread.sleep(1);
-        assert RamStorage.VARIABLES.containsKey("test") : Arrays.toString(RamStorage.VARIABLES.keySet().toArray(String[]::new));
+        assert RamStorage.VARIABLES.containsKey("test");
         Optional<Object> object = Variables.getVariable("test", null, false);
         assert object.isPresent();
         assert object.get().equals("Hello World!");
         Variables.setVariable("test", "Hello New World!", null, false);
+        Thread.sleep(1);
         Optional<Object> newObject = Variables.getVariable("test", null, false);
         assert newObject.isPresent();
         assert newObject.get().equals("Hello New World!");
+        assert RamStorage.VARIABLES.containsKey("test");
+        SerializedVariable variable = RamStorage.VARIABLES.get("test");
+        Optional<?> value = RamStorage.SELF.deserialize(variable.value.type, variable.value.data);
+        assert value.isPresent();
+        assert value.get().equals("Hello New World!") : value.get();
     }
 
 }
