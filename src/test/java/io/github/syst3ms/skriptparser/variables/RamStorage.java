@@ -24,6 +24,7 @@ public class RamStorage extends VariableStorage {
     @Override
     protected boolean load(FileSection section) {
         assert section.getElements().get(0).getLineContent().equals("test node: true");
+        assert getConfigurationValue(section, "test node", Boolean.class) == true;
         return true;
     }
 

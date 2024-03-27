@@ -527,6 +527,17 @@ public class SkriptRegistration {
     }
 
     /**
+     * Registers a {@link Type}
+     * @param c the class the Type represents
+     * @param pattern the Type's pattern
+     * @param serializer the Type's serializer
+     * @param <T> the represented class
+     */
+    public <T> void addType(Class<T> c, String name, String pattern, TypeSerializer<T> serializer) {
+        newType(c, name, pattern).serializer(serializer).register();
+    }
+
+    /**
      * Registers a converter
      * @param from the class it converts from
      * @param to the class it converts to
@@ -682,7 +693,7 @@ public class SkriptRegistration {
         @Override
         public void register() {
             newTypes = true;
-            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic));
+            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic, serializer));
         }
     }
 

@@ -9,6 +9,7 @@ import com.google.gson.stream.JsonReader;
 
 import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.lang.entries.OptionLoader;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.types.Type;
@@ -138,8 +139,14 @@ public abstract class VariableStorage implements Closeable {
             logger.error("The configuration is missing the entry for '" + key + "' for the database '" + names[0] + "'", ErrorType.SEMANTIC_ERROR);
             return null;
         }
+        String[] split = value.get().getLineContent().split(OptionLoader.OPTION_SPLIT_PATTERN);
+        if (split.length < 2) {
+            logger.error("The configuration entry '" + key + "' is not a option entry (key: value) for the database '" + names[0] + "'", ErrorType.SEMANTIC_ERROR);
+            return null;
+        }
+        String content = split[1];
         if (classType.equals(String.class))
-            return (T) value.get().getLineContent();
+            return (T) content;
 
         Optional<? extends Type<T>> type = TypeManager.getByClassExact(classType);
         if (!type.isPresent()) {
@@ -153,7 +160,7 @@ public abstract class VariableStorage implements Closeable {
              return null;
         }
 
-        T parsedValue = parser.get().apply(value.get().getLineContent());
+        T parsedValue = parser.get().apply(content);
         if (parsedValue == null) {
             logger.error("The entry for '" + key + "' in the database '" + names[0] + "' must be " +
                     type.get().withIndefiniteArticle(true), ErrorType.SEMANTIC_ERROR);
@@ -300,7 +307,7 @@ public abstract class VariableStorage implements Closeable {
         TypeSerializer<T> serializer = type.getSerializer().orElse(null);
         if (serializer == null)
             throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be serialized. No type serializer.");
-        JsonElement element = serializer.serialize(value);
+        JsonElement element = serializer.serialize(gson, value);
         return new SerializedVariable(name, new Value(type.getBaseName(), gson.toJson(element).getBytes()));
     }
 
@@ -323,7 +330,7 @@ public abstract class VariableStorage implements Closeable {
             throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be deserialized. No type serializer.");
         String json = new String(value);
         JsonReader reader = gson.newJsonReader(new StringReader(json));
-        return Optional.ofNullable(serializer.deserialize(JsonParser.parseReader(reader)));
+        return Optional.ofNullable(serializer.deserialize(gson, JsonParser.parseReader(reader)));
     }
 
     private long lastError = Long.MIN_VALUE;

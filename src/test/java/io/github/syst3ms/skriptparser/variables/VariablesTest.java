@@ -42,8 +42,9 @@ public class VariablesTest {
     }
 
     @Test
-    public void testVariables() {
-        assert RamStorage.VARIABLES.containsKey("test");
+    public void testVariables() throws InterruptedException {
+        Thread.sleep(1);
+        assert RamStorage.VARIABLES.containsKey("test") : Arrays.toString(RamStorage.VARIABLES.keySet().toArray(String[]::new));
         Optional<Object> object = Variables.getVariable("test", null, false);
         assert object.isPresent();
         assert object.get().equals("Hello World!");

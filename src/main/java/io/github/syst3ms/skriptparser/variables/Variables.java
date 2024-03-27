@@ -42,10 +42,6 @@ public class Variables {
     public static final String LOCAL_VARIABLE_TOKEN = "_";
     public static final String LIST_SEPARATOR = "::";
 
-    static {
-        LOCK.unlock();
-    }
-
     public static boolean hasStorages() {
         return !STORAGES.isEmpty();
     }
@@ -78,7 +74,7 @@ public class Variables {
      * @param section the FileSection to load for the configurations.
      * @throws IllegalArgumentException throws when the section is not valid.
      */
-    public static void load(SkriptLogger logger, FileSection section) throws IllegalArgumentException{
+    public static void load(SkriptLogger logger, FileSection section) throws IllegalArgumentException {
         for (FileElement databaseElement : section.getElements()) {
             if (!(databaseElement instanceof FileSection)) {
                 logger.error("The file node 'databases." + databaseElement.getLineContent() + "' was not a section.", ErrorType.STRUCTURE_ERROR);
@@ -217,10 +213,6 @@ public class Variables {
         if (!hasStorages())
             return;
         VARIABLE_CHANGE_QUEUE.add(new VariableChange(name, value));
-    }
-
-    final void clearVariables() {
-        variableMap.clearVariables();
     }
 
     /**
