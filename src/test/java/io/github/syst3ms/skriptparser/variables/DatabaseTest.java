@@ -68,6 +68,10 @@ public class DatabaseTest {
         Optional<?> value = RamStorage.SELF.deserialize(variable.value.type, variable.value.data);
         assert value.isPresent();
         assert value.get().equals("Hello New World!") : value.get();
+        Variables.setVariable("test", null, null, false);
+        Thread.sleep(1);
+        assert !Variables.getVariable("test", null, false).isPresent();
+        assert !RamStorage.VARIABLES.containsKey("test");
     }
 
 }

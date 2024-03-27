@@ -232,7 +232,7 @@ public class Variables {
                     .filter(storage -> storage.accept(change.name))
                     .forEach(storage -> {
                         SerializedVariable serialized = storage.serialize(change.name, change.value);
-                        storage.save(serialized);  
+                        storage.save(serialized);
                     });
         }
     }

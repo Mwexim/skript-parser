@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * A VariableStorage that only saves into ram memory.
+ */
 public class RamStorage extends VariableStorage {
 
     public static final Map<String, SerializedVariable> VARIABLES = new HashMap<>();

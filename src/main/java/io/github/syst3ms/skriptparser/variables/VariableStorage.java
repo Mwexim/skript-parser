@@ -195,7 +195,6 @@ public abstract class VariableStorage implements Closeable {
                 return false;
 
             this.file = getFile(fileName).getAbsoluteFile();
-
             if (file.exists() && !file.isFile()) {
                 logger.error("The database file '" + file.getName() + "' does not exist or is a directory.", ErrorType.SEMANTIC_ERROR);
                 return false;
@@ -225,15 +224,20 @@ public abstract class VariableStorage implements Closeable {
     }
 
     /**
-     * Loads configurations and variables.
+     * Loads configurations and should start loading variables too.
      *
      * @return Whether the database could be loaded successfully,
      * i.e. whether the configuration is correct and all variables could be loaded.
      */
     protected abstract boolean load(FileSection section);
 
-    protected void load(String name, SerializedVariable variable) {
-        load(name, variable.value.type, variable.value.data);
+    protected void loadVariable(String name, SerializedVariable variable) {
+        Value value = variable.value;
+        if (value == null) {
+            Variables.queueVariableChange(name, null);
+            return;
+        }
+        loadVariable(name, value.type, value.data);
     }
 
     /**
@@ -243,7 +247,7 @@ public abstract class VariableStorage implements Closeable {
      * @param type the type of the variable.
      * @param value the serialized value of the variable.
      */
-    protected void load(String name, @NotNull String type, @NotNull byte[] value) {
+    protected void loadVariable(String name, @NotNull String type, @NotNull byte[] value) {
         if (value == null || type == null)
             throw new IllegalArgumentException("value and/or typeName cannot be null");
         Variables.queueVariableChange(name, deserialize(type, value));
@@ -298,9 +302,9 @@ public abstract class VariableStorage implements Closeable {
      * @return the serialized variable.
      */
     @SuppressWarnings("unchecked")
-    public <T> SerializedVariable serialize(String name, @NotNull T value) {
+    public <T> SerializedVariable serialize(String name, @Nullable T value) {
         if (value == null)
-            throw new IllegalArgumentException("value cannot be null");
+            return new SerializedVariable(name, null);
         Type<T> type = (Type<T>) TypeManager.getByClassExact(value.getClass()).orElse(null);
         if (type == null)
             throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be serialized. No type registered.");
