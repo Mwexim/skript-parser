@@ -21,7 +21,7 @@ public abstract class SkriptAddon {
     }
 
     /**
-     * Returns all SkriptAddons that are registered globally.
+     * Returns unmodifiable list of all SkriptAddons that are registered globally.
      * 
      * @return SkriptAddons that are registered.
      */
