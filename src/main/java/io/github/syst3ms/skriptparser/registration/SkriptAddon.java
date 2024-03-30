@@ -5,22 +5,28 @@ import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * The base for all addons, modules that hook into the API to register syntax and handle triggers.
  */
 public abstract class SkriptAddon {
-    private static final List<SkriptAddon> addons = new ArrayList<>();
-    private String name;
+
     private final List<Class<? extends SkriptEvent>> handledEvents = new ArrayList<>();
+    private static final List<SkriptAddon> ADDONS = new ArrayList<>();
 
     {
-        addons.add(this);
+        ADDONS.add(this);
     }
 
+    /**
+     * Returns unmodifiable list of all SkriptAddons that are registered globally.
+     * 
+     * @return SkriptAddons that are registered.
+     */
     public static List<SkriptAddon> getAddons() {
-        return addons;
+        return Collections.unmodifiableList(ADDONS);
     }
 
     /**
@@ -51,4 +57,5 @@ public abstract class SkriptAddon {
     void addHandledEvent(Class<? extends SkriptEvent> event) {
         handledEvents.add(event);
     }
+
 }
