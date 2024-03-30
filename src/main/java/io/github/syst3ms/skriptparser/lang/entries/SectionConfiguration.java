@@ -116,6 +116,10 @@ public class SectionConfiguration {
 		return data;
 	}
 
+	public List<EntryLoader> getEntries() {
+		return entries;
+	}
+
 	public Object getValue(String key) {
 		return data.get(key);
 	}

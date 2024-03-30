@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileParser;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.file.VoidElement;
+import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.lang.UnloadedTrigger;
@@ -73,6 +74,13 @@ public class ScriptLoader {
                 trig.ifPresent(t -> {
                     logger.setLine(logger.getLine() + ((FileSection) element).length());
                     unloadedTriggers.add(t);
+                    //SkriptEvent skriptEvent = t.getTrigger().getEvent();
+                    /* TODO
+                    validate that this is a function
+                    parse & save it
+                    have a separate parser to parse a whole folder that does this step before anything
+                     */
+                    //System.out.println(skriptEvent);
                 });
             } else {
                 logger.error(
