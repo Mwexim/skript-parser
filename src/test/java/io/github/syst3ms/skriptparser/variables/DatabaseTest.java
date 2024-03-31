@@ -53,7 +53,7 @@ public class DatabaseTest {
 
     @Test
     public void testVariables() throws InterruptedException {
-        Thread.sleep(1);
+        Thread.sleep(100);
         assert RamStorage.VARIABLES.containsKey("test");
         Optional<Object> object = Variables.getVariable("test", null, false);
         assert object.isPresent();
@@ -69,7 +69,7 @@ public class DatabaseTest {
         assert value.isPresent();
         assert value.get().equals("Hello New World!") : value.get();
         Variables.setVariable("test", null, null, false);
-        Thread.sleep(1);
+        Thread.sleep(100);
         assert !Variables.getVariable("test", null, false).isPresent();
         assert !RamStorage.VARIABLES.containsKey("test");
     }
