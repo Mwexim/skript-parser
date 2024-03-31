@@ -35,6 +35,7 @@ import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.changers.Changer;
+import io.github.syst3ms.skriptparser.types.changers.TypeSerializer;
 import io.github.syst3ms.skriptparser.types.conversions.ConverterInfo;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
@@ -526,6 +527,17 @@ public class SkriptRegistration {
     }
 
     /**
+     * Registers a {@link Type}
+     * @param c the class the Type represents
+     * @param pattern the Type's pattern
+     * @param serializer the Type's serializer
+     * @param <T> the represented class
+     */
+    public <T> void addType(Class<T> c, String name, String pattern, TypeSerializer<T> serializer) {
+        newType(c, name, pattern).serializer(serializer).register();
+    }
+
+    /**
      * Registers a converter
      * @param from the class it converts from
      * @param to the class it converts to
@@ -606,14 +618,21 @@ public class SkriptRegistration {
      * @param <C> the represented class
      */
     public class TypeRegistrar<C> implements Registrar {
-        private final Class<C> c;
+
+        private Function<? super C, String> toStringFunction = o -> Objects.toString(o, TypeManager.NULL_REPRESENTATION);
         private final String baseName;
         private final String pattern;
-        private Function<? super C, String> toStringFunction = o -> Objects.toString(o, TypeManager.NULL_REPRESENTATION);
+        private final Class<C> c;
+
         @Nullable
         private Function<String, ? extends C> literalParser;
+
         @Nullable
         private Changer<? super C> defaultChanger;
+        
+        @Nullable
+        private TypeSerializer<C> serializer;
+
         @Nullable
         private Arithmetic<C, ?> arithmetic;
 
@@ -621,6 +640,15 @@ public class SkriptRegistration {
             this.c = c;
             this.baseName = baseName;
             this.pattern = pattern;
+        }
+
+        /**
+         * @param serializer add a type serializer that allows the type to be saved to databases.
+         * @return the registrar
+         */
+        public TypeRegistrar<C> serializer(TypeSerializer<C> serializer) {
+            this.serializer = serializer;
+            return this;
         }
 
         /**
@@ -665,7 +693,7 @@ public class SkriptRegistration {
         @Override
         public void register() {
             newTypes = true;
-            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic));
+            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic, serializer));
         }
     }
 

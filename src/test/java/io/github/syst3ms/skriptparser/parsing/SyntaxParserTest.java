@@ -4,7 +4,8 @@ import io.github.syst3ms.skriptparser.TestRegistration;
 import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.log.LogType;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
-import io.github.syst3ms.skriptparser.variables.Variables;
+import io.github.syst3ms.skriptparser.variables.DatabaseTest;
+
 import org.junit.jupiter.api.DynamicContainer;
 import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.DynamicTest;
@@ -72,8 +73,7 @@ public class SyntaxParserTest {
                             Set<String> duplicateErrors = new HashSet<>();
                             allErrors.removeIf(val -> !duplicateErrors.add(val.getMessage()));
 
-                            // Reset variables
-                            Variables.clearVariables();
+                            DatabaseTest.clearAllVariables();
                             errorsFound.clear();
 
                             MultipleFailureException.assertEmpty(allErrors);
