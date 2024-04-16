@@ -103,7 +103,6 @@ public class ScriptLoader {
      */
     public static List<Statement> loadItems(FileSection section, ParserState parserState, SkriptLogger logger) {
         logger.recurse();
-        parserState.recurseCurrentStatements();
         List<Statement> items = new ArrayList<>();
         var elements = section.getElements();
         for (var element : elements) {
@@ -133,7 +132,6 @@ public class ScriptLoader {
             items.get(i - 1).setNext(items.get(i));
         }
         logger.callback();
-        parserState.callbackCurrentStatements();
         return items;
     }
 
