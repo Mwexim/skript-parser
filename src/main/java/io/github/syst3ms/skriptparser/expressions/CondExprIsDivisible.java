@@ -42,7 +42,7 @@ public class CondExprIsDivisible extends PropertyConditional<Number> {
 
     @Override
     public boolean check(TriggerContext ctx) {
-        return getPerformer().check(
+        return getOwner().check(
                 ctx,
                 performer -> divider.getSingle(ctx)
                         .filter(__ -> BigDecimalMath.isIntValue(BigDecimalMath.getBigDecimal(performer)))

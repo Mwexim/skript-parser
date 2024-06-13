@@ -1,6 +1,8 @@
 # Author(s):
 # 	- Mwexim
-# Date: 2020/12/20
+# Date:
+#	- 2020/12/20
+#	- 2023/01/26 (rewrite)
 
 test:
 	assert difference between -3 and 5 = 8 with "Numerical difference should be 8: %difference between -3 and 5 = 8%"
@@ -10,10 +12,26 @@ test:
 	# Variable difference
 	set {list::1} to 3.4
 	set {list::2} to 8.9
-	assert difference between {list::1} and {list::2} is 5.5 with "Number difference between variables should be 5.5: %difference between {list::1} and {list::2}%"
+	set {difference} to difference between {list::1} and {list::2}
+	assert {difference} is 5.5 with "Number difference between variables should be 5.5: %difference between {list::1} and {list::2}%"
 	assert difference between {list::1} and 5.0 is 1.6 with "Number difference with one variable should be 1.6: %difference between {list::1} and 5%"
 
 	# Non-comparable types
 	throws difference between now and 5 with "Date and number should not be comparable"
 	# The following line does not throw at parse-time, because the type of the variable is unknown
 	assert difference between {list::1} and now is not set with "Date and number with one variable should not be comparable: %difference between {list::1} and now%"
+
+	# Before the rewrite, values would inconsistently be cast to each other,
+	# resulting in weird results when comparing numbers and integers.
+	set {var} to 5
+	assert difference between 1.5 and {var} = 3.5 with "Difference with integer variable as second parameter should be 3.5: %difference between 1.5 and {var}%"
+	assert difference between {var} and 1.5 = 3.5 with "Difference with integer variable as first parameter should be 3.5: %difference between {var} and 1.5%"
+	set {var} to 1.5
+	assert difference between 6 and {var} = 4.5 with "Difference with number variable as second parameter should be 4.5: %difference between 6 and {var}%"
+	assert difference between {var} and 6 = 4.5 with "Difference with number variable as first parameter should be 4.5: %difference between {var} and 6%"
+
+	assert difference between {list::1} and now is not set with "Difference between number variable and date should not return anything."
+
+	# Intersection types
+	compiles difference of now and 5 PM with "Difference between date and time should compile"
+	assert difference of 5 PM and now is less than 1 day with "Difference between time and day should be less than 1 day: %difference of 5 PM and now%"

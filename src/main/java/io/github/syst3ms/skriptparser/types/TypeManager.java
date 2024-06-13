@@ -1,11 +1,20 @@
 package io.github.syst3ms.skriptparser.types;
 
+import io.github.syst3ms.skriptparser.expressions.ExprDifference;
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
+import io.github.syst3ms.skriptparser.types.conversions.Converters;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Manages the registration and usage of {@link Type}
@@ -20,15 +29,20 @@ public class TypeManager {
      * The string equivalent of an empty array
      */
     public static final String EMPTY_REPRESENTATION = "<empty>";
+    private static final List<Type<?>> types = new ArrayList<>();
     private static final Map<String, Type<?>> nameToType = new HashMap<>();
     private static final Map<Class<?>, Type<?>> classToType = new LinkedHashMap<>(); // Ordering is important for stuff like number types
+
+    public static List<Type<?>> getTypeList() {
+        return types;
+    }
 
     public static Map<Class<?>, Type<?>> getClassToTypeMap() {
         return classToType;
     }
 
     /**
-     * Gets a {@link Type} by its exact name (the baseName parameter used in {@link Type#Type(Class, String, String)})
+     * Gets a {@link Type} by its exact name (the baseName parameter used in {@link Type(Class, String, String)})
      * @param name the name to get the Type from
      * @return the corresponding Type, or {@literal null} if nothing matched
      */
@@ -50,7 +64,6 @@ public class TypeManager {
         }
         return Optional.empty();
     }
-
 
     /**
      * Gets a {@link Type} from its associated {@link Class}.
@@ -117,8 +130,88 @@ public class TypeManager {
 
     public static void register(SkriptRegistration reg) {
         for (var type : reg.getTypes()) {
+            types.add(type);
             nameToType.put(type.getBaseName(), type);
             classToType.put(type.getTypeClass(), type);
+        }
+    }
+
+    /**
+     * If a certain set of types can all be converted to a single type, then that type is an intersection
+     * type for that set of types. Given an array of classes, this method determines that intersection type,
+     * or returns an empty optional if no such type was found.
+     * @param classes the return types
+     * @return an {@link IntersectionType}
+     */
+    public static Optional<IntersectionType> getByIntersection(Class<?>... classes) {
+        for (var type : types) {
+            var converters = Arrays.stream(classes)
+                    .map(cls -> (Optional<?>) Converters.getConverter(cls, type.getTypeClass()))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+            // Check if we didn't lose some converters by the filter
+            if (converters.size() == classes.length)
+                return Optional.of(new IntersectionType(type, (List<Function<?, Optional<?>>>) converters));
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * If a certain set of types can all be converted to a single type, then that type is an intersection
+     * type for that set of types. Given an array of classes, this method determines that intersection type,
+     * or returns an empty optional if no such type was found.
+     * In addition to this, this method will only consider types that have a certain attribute defined.
+     * @param attributeClass the attribute class
+     * @param classes the return types
+     * @return an {@link IntersectionType}
+     * @see ExprDifference#init(Expression[], int, ParseContext)
+     */
+    public static Optional<IntersectionType> getByIntersection(Class<? extends Type.Attribute> attributeClass,
+                                                               Class<?>... classes) {
+        for (var type : types) {
+            var provided = type.getAttribute(attributeClass);
+            if (provided.isPresent()) {
+                var converters = Arrays.stream(classes)
+                        .map(cls -> (Optional<?>) Converters.getConverter(cls, type.getTypeClass()))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .collect(Collectors.toList());
+                // Check if we didn't lose some converters by the filter
+                if (converters.size() == classes.length)
+                    return Optional.of(new IntersectionType(type, (List<Function<?, Optional<?>>>) converters));
+            }
+        }
+        return Optional.empty();
+    }
+
+    // TODO better generics?
+    public static class IntersectionType {
+        private final Type<?> type;
+        private final List<Function<?, Optional<?>>> converters;
+        private int currentIndex = 0;
+
+        public IntersectionType(Type<?> type, List<Function<?, Optional<?>>> converters) {
+            this.type = type;
+            this.converters = converters;
+        }
+
+        public Type<?> getType() {
+            return type;
+        }
+
+        public Function<Object, Optional<?>> getConverter(int index) {
+            return (Function<Object, Optional<?>>) converters.get(index);
+        }
+
+        /**
+         * Converts the next item, in the order specified in the
+         * {@link #getByIntersection(Class[]) intersection} method.
+         * @param toConvert the object to convert
+         * @return the converted object
+         */
+        public Optional<?> convert(Object toConvert) {
+            return ((Function<Object, Optional<?>>) converters.get(currentIndex++)).apply(toConvert);
         }
     }
 }
